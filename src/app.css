@@ -73,3 +73,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+body {
+  background-color: #123;
+  min-height: 600px;
+  min-width: 500px;
+}
