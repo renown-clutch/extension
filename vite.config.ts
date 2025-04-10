@@ -20,23 +20,17 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: 'index.html',
-        background: 'src/background.ts',
-        content: 'src/content.ts'
+        background: 'src/background.ts'
+        // content.ts is built separately with Rollup
       },
       output: {
-        entryFileNames: (chunkInfo) => {
-          // Special case for content script
-          if (chunkInfo.name === 'content') {
-            return 'content.js';
-          }
-          return '[name].js';
-        },
+        entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name].[ext]'
       }
     },
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: false // Don't empty the output directory to preserve content.js
   },
   optimizeDeps: {
     // Improves dev server start
