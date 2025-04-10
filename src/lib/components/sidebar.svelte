@@ -9,35 +9,47 @@
     Ban,
   } from "@lucide/svelte";
 
+  import themeItem from "./themeItem.svelte";
+  import AutoAccept from "./autoAccept.svelte";
+
+  // ...import other components as needed...
+
   // Set the activeItem to the name of the first item in the sidebarItems array
   let activeItem = "Theme";
 
   const sidebarItems = [
-    { name: "Theme", icon: Palette, content: "Custom Theme" },
+    { name: "Theme", icon: Palette, component: themeItem },
     {
       name: "Auto-accept",
       icon: CircleCheckBig,
-      content: "Auto-accept",
+      component: AutoAccept,
     },
-    { name: "Map voting", icon: Vote, content: "Map Voting" },
-    { name: "Sounds", icon: Volume2, content: "Sounds" },
-    { name: "Bans", icon: Ban, content: "Bans" },
-    { name: "Settings", icon: Settings, content: "Settings" },
+    { name: "Map voting", icon: Vote, component: themeItem },
+    { name: "Sounds", icon: Volume2, component: themeItem },
+    { name: "Bans", icon: Ban, component: themeItem },
+    { name: "Settings", icon: Settings, component: themeItem },
   ];
 
   function setActiveItem(item) {
     activeItem = item;
+  }
+
+  // Resolve the active component based on the active item
+  let activeComponent;
+  $: {
+    const active = sidebarItems.find((item) => item.name === activeItem);
+    activeComponent = active ? active.component : null;
   }
 </script>
 
 <div class="flex">
   <!-- Sidebar -->
   <div
-    class="container relative flex h-full w-52 flex-col border-r-2 border-slate-900 text-white shadow-xl shadow-blue-gray-900/5"
+    class="container relative flex h-full w-52 flex-col border-r-2 border-slate-900 text-white"
   >
     <div class="mb-8"></div>
     <nav
-      class="flex min-w-[240px] flex-col font-sans text-base font-normal text-blue-gray-700"
+      class="flex flex-col font-sans text-base font-normal text-blue-gray-700"
     >
       {#each sidebarItems as { name, icon }}
         <div
@@ -56,10 +68,8 @@
 
   <!-- Main Content -->
   <div class="flex-1 p-4">
-    {#each sidebarItems as { name, content }}
-      {#if activeItem === name}
-        <div>{content}</div>
-      {/if}
-    {/each}
+    {#if activeComponent}
+      <svelte:component this={activeComponent} />
+    {/if}
   </div>
 </div>
