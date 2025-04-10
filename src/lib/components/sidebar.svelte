@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     Settings,
     Palette,
@@ -15,7 +15,7 @@
   // ...import other components as needed...
 
   // Set the activeItem to the name of the first item in the sidebarItems array
-  let activeItem = "Theme";
+  let activeItem = $state("Theme");
 
   const sidebarItems = [
     { name: "Theme", icon: Palette, component: themeItem },
@@ -30,7 +30,7 @@
     { name: "Settings", icon: Settings, component: themeItem },
   ];
 
-  function setActiveItem(item) {
+  function setActiveItem(item: string) {
     activeItem = item;
   }
 
@@ -51,14 +51,16 @@
     <nav
       class="flex flex-col font-sans text-base font-normal text-blue-gray-700"
     >
-      {#each sidebarItems as { name, icon }}
+      {#each sidebarItems as { name, icon: Icon }}
         <div
           role="button"
+          tabindex="0"
           class="flex items-center w-full gap-2 mb-6 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
-          on:click={() => setActiveItem(name)}
+          onclick={() => setActiveItem(name)}
+          onkeydown={(e) => e.key === "Enter" && setActiveItem(name)}
         >
           <div class="grid place-items-center">
-            <svelte:component this={icon} class="w-5 h-5" />
+            <Icon class="w-5 h-5" />
           </div>
           {name}
         </div>

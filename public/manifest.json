@@ -22,8 +22,9 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"],
+      "js": ["content.js"],
+      "type": "module"
     }
   ]
 } 
