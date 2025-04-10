@@ -1,11 +1,7 @@
 <script lang="ts">
   import "./app.css";
-  import { Switch } from "$lib/components/ui/switch";
-  import { Label } from "$lib/components/ui/label/index.js";
   import Header from "$lib/components/header.svelte";
   import Sidebar from "$lib/components/sidebar.svelte";
-
-  import { Button } from "$lib/components/ui/button";
   import { onMount } from "svelte";
 
   let enabled = $state(false);
@@ -26,7 +22,6 @@
     });
   }
 
-  // Load saved state from Chrome storage
   onMount(() => {
     chrome.storage.sync.get(["styleEnabled"], (result) => {
       enabled = result.styleEnabled || false;

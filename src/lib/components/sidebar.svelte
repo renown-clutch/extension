@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     Settings,
     Palette,
@@ -25,7 +25,7 @@
     { name: "Settings", icon: Settings, content: "Settings" },
   ];
 
-  function setActiveItem(item) {
+  function setActiveItem(item: string) {
     activeItem = item;
   }
 </script>
@@ -42,8 +42,10 @@
       {#each sidebarItems as { name, icon }}
         <div
           role="button"
+          tabindex="0"
           class="flex items-center w-full gap-2 mb-6 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
           on:click={() => setActiveItem(name)}
+          on:keydown={(e) => e.key === "Enter" && setActiveItem(name)}
         >
           <div class="grid place-items-center">
             <svelte:component this={icon} class="w-5 h-5" />
