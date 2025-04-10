@@ -1,7 +1,7 @@
 <script lang="ts">
   import "./app.css";
-  import Header from "$lib/components/header.svelte";
-  import Sidebar from "$lib/components/sidebar.svelte";
+  import Header from "$lib/components/Header.svelte";
+  import Sidebar from "$lib/components/Sidebar.svelte";
   import { onMount } from "svelte";
 
   let enabled = $state(false);
@@ -22,11 +22,11 @@
     });
   }
 
-  onMount(() => {
-    chrome.storage.sync.get(["styleEnabled"], (result) => {
-      enabled = result.styleEnabled || false;
-    });
-  });
+  // onMount(() => {
+  //   chrome.storage.sync.get(["styleEnabled"], (result) => {
+  //     enabled = result.styleEnabled || false;
+  //   });
+  // });
 </script>
 
 <main class="w-[600px] bg-slate-950">

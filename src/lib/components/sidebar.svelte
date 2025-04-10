@@ -4,42 +4,44 @@
     Palette,
     CircleCheckBig,
     Vote,
-    Music,
     Volume2,
     Ban,
   } from "@lucide/svelte";
 
-  import themeItem from "./themeItem.svelte";
-  import AutoAccept from "./autoAccept.svelte";
+  import ThemeItem from "./ThemeItem.svelte";
+  import AutoAcceptItem from "./AutoAcceptItem.svelte";
 
-  // ...import other components as needed...
+  type SidebarItem = {
+    name: string;
+    icon: any;
+    component: any;
+  };
 
-  // Set the activeItem to the name of the first item in the sidebarItems array
-  let activeItem = $state("Theme");
-
-  const sidebarItems = [
-    { name: "Theme", icon: Palette, component: themeItem },
+  const sidebarItems: SidebarItem[] = [
+    { name: "Theme", icon: Palette, component: ThemeItem },
     {
       name: "Auto-accept",
       icon: CircleCheckBig,
-      component: AutoAccept,
+      component: AutoAcceptItem,
     },
-    { name: "Map voting", icon: Vote, component: themeItem },
-    { name: "Sounds", icon: Volume2, component: themeItem },
-    { name: "Bans", icon: Ban, component: themeItem },
-    { name: "Settings", icon: Settings, component: themeItem },
+    { name: "Map voting", icon: Vote, component: ThemeItem },
+    { name: "Sounds", icon: Volume2, component: ThemeItem },
+    { name: "Bans", icon: Ban, component: ThemeItem },
+    { name: "Settings", icon: Settings, component: ThemeItem },
   ];
+
+  let activeItem = $state("Theme");
+  let activeComponent = $derived(
+    sidebarItems.find((item) => item.name === activeItem)?.component
+  );
 
   function setActiveItem(item: string) {
     activeItem = item;
   }
 
-  // Resolve the active component based on the active item
-  let activeComponent;
-  $: {
-    const active = sidebarItems.find((item) => item.name === activeItem);
-    activeComponent = active ? active.component : null;
-  }
+  $effect(() => {
+    console.log(activeComponent);
+  });
 </script>
 
 <div class="flex">
@@ -70,8 +72,18 @@
 
   <!-- Main Content -->
   <div class="flex-1 p-4">
-    {#if activeComponent}
-      <svelte:component this={activeComponent} />
+    {#if activeItem === "Theme"}
+      <ThemeItem></ThemeItem>
+    {:else if activeItem === "Auto-accept"}
+      <AutoAcceptItem></AutoAcceptItem>
+    {:else if activeItem === "Map voting"}
+      <ThemeItem></ThemeItem>
+    {:else if activeItem === "Sounds"}
+      <ThemeItem></ThemeItem>
+    {:else if activeItem === "Bans"}
+      <ThemeItem></ThemeItem>
+    {:else if activeItem === "Settings"}
+      <ThemeItem></ThemeItem>
     {/if}
   </div>
 </div>

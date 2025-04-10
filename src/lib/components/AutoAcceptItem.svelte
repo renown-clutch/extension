@@ -3,7 +3,7 @@
   import { Switch } from "$lib/components/ui/switch/index.js";
 </script>
 
-<main class=" py-2">
+<main class="py-2">
   <h2 class="text-xl font-medium mb-4">Auto-accept</h2>
   <p class="leading-none">Automatically accept invites and matches.</p>
 
@@ -12,3 +12,5 @@
     <Switch id="airplane-mode" />
   </div>
 </main>
+
+<style></style>
