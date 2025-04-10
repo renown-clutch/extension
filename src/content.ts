@@ -3,15 +3,61 @@ console.log('Clutch extension content script loaded');
 
 import { defaultColorMappings, createCSSVariableMapping } from './color-mapping';
 
-// Create a style element for our color variables
+// Create style elements
+const styleBlocker = document.createElement('style');
+styleBlocker.id = 'clutch-style-blocker';
+styleBlocker.textContent = `
+  /* Block all color-related properties to prevent flash */
+  * {
+    transition: none !important;
+  }
+  /* Generate color-specific blockers */
+  ${defaultColorMappings.map(mapping => 
+    `[style*="${mapping.original}"], [style*="${mapping.original.toLowerCase()}"], [style*="${mapping.original.toUpperCase()}"] {
+      color: transparent !important;
+      background-color: transparent !important;
+      border-color: transparent !important;
+    }`
+  ).join('\n')}
+`;
+
 const colorVariablesStyleElement = document.createElement('style');
 colorVariablesStyleElement.id = 'clutch-custom-colors';
-document.head.appendChild(colorVariablesStyleElement);
 
-// Create a style element for our custom styles
 const styleElement = document.createElement('style');
 styleElement.id = 'clutch-custom-styles';
-document.head.appendChild(styleElement);
+
+// Safe append function that waits for document to be ready
+function safeAppendStyles() {
+  // Try to insert styles as soon as possible
+  const insertStyles = () => {
+    const target = document.head || document.documentElement;
+    if (target) {
+      // Append our styles in order
+      target.appendChild(styleBlocker);
+      target.appendChild(colorVariablesStyleElement);
+      target.appendChild(styleElement);
+      return true;
+    }
+    return false;
+  };
+
+  // First attempt
+  if (insertStyles()) return;
+
+  // If first attempt fails, use a MutationObserver as fallback
+  const observer = new MutationObserver(() => {
+    if (insertStyles()) {
+      observer.disconnect();
+    }
+  });
+
+  // Start observing document for when head becomes available
+  observer.observe(document, { childList: true, subtree: true });
+}
+
+// Call this immediately
+safeAppendStyles();
 
 // Cache for processed stylesheets
 const processedStylesheets = new Set<string>();
@@ -67,6 +113,13 @@ async function processAllStylesheets() {
 async function initialize() {
   applyColorVariables();
   await processAllStylesheets();
+  
+  // Remove the style blocker after our styles are applied
+  setTimeout(() => {
+    if (styleBlocker.parentNode) {
+      styleBlocker.parentNode.removeChild(styleBlocker);
+    }
+  }, 100); // Small delay to ensure our styles apply first
 }
 
 // Optimized mutation observer for new stylesheets
@@ -99,4 +152,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Initialize on page load
-initialize();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initialize);
+} else {
+  initialize();
+}
