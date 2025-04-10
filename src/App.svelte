@@ -1,9 +1,7 @@
 <script lang="ts">
   import "./app.css";
-  import { Switch } from "$lib/components/ui/switch";
-  import { Label } from "$lib/components/ui/label/index.js";
   import Header from "$lib/components/header.svelte";
-  import { Button } from "$lib/components/ui/button";
+  import Sidebar from "$lib/components/sidebar.svelte";
   import { onMount } from "svelte";
 
   let enabled = $state(false);
@@ -24,7 +22,6 @@
     });
   }
 
-  // Load saved state from Chrome storage
   onMount(() => {
     chrome.storage.sync.get(["styleEnabled"], (result) => {
       enabled = result.styleEnabled || false;
@@ -34,11 +31,7 @@
 
 <main class="w-[600px] bg-slate-950">
   <Header />
-  Hello world
-  <Button>Click me</Button>
-
-  <Switch id="test" checked={enabled} onCheckedChange={handleToggle} />
-  <Label for="test">Test switch</Label>
+  <Sidebar />
 </main>
 
 <style>
