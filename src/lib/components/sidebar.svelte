@@ -61,18 +61,8 @@
 
   <!-- Main Content -->
   <div class="flex-1 p-4">
-    {#if activeItem === "Theme"}
-      <ThemeItem></ThemeItem>
-    {:else if activeItem === "Auto-accept"}
-      <AutoAcceptItem></AutoAcceptItem>
-    {:else if activeItem === "Map voting"}
-      <ThemeItem></ThemeItem>
-    {:else if activeItem === "Sounds"}
-      <ThemeItem></ThemeItem>
-    {:else if activeItem === "Bans"}
-      <ThemeItem></ThemeItem>
-    {:else if activeItem === "Settings"}
-      <ThemeItem></ThemeItem>
-    {/if}
+    {#each sidebarItems.filter((item) => item.name === activeItem) as { component: Component }}
+      <Component />
+    {/each}
   </div>
 </div>
