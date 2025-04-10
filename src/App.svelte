@@ -1,7 +1,7 @@
 <script lang="ts">
   import "./app.css";
-  import Header from "$lib/components/Header.svelte";
-  import Sidebar from "$lib/components/Sidebar.svelte";
+  import Header from "$lib/components/layout/Header.svelte";
+  import Sidebar from "$lib/components/layout/Sidebar.svelte";
   import { onMount } from "svelte";
 
   let enabled = $state(false);

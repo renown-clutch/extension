@@ -8,8 +8,8 @@
     Ban,
   } from "@lucide/svelte";
 
-  import ThemeItem from "./ThemeItem.svelte";
-  import AutoAcceptItem from "./AutoAcceptItem.svelte";
+  import ThemeItem from "../items/Theme.svelte";
+  import AutoAcceptItem from "../items/AutoAccept.svelte";
 
   type SidebarItem = {
     name: string;

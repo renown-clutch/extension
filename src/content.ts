@@ -62,6 +62,9 @@ safeAppendStyles();
 // Cache for processed stylesheets
 const processedStylesheets = new Set<string>();
 
+// Cache for color replacements
+const colorReplacementCache = new Map<string, string>();
+
 // Function to apply color variables
 function applyColorVariables() {
   const cssVariables = createCSSVariableMapping(defaultColorMappings);
@@ -73,10 +76,7 @@ async function processStylesheet(element: HTMLStyleElement | HTMLLinkElement): P
   if (element instanceof HTMLStyleElement) {
     if (!processedStylesheets.has(element.id || element.textContent || '')) {
       const css = element.textContent || '';
-      const modifiedCSS = css.replace(/#[0-9a-fA-F]{6}/g, (match) => {
-        const mapping = defaultColorMappings.find(m => m.original.toLowerCase() === match.toLowerCase());
-        return mapping ? `var(--color-${mapping.original.slice(1)})` : match;
-      });
+      const modifiedCSS = replaceColors(css);
       element.textContent = modifiedCSS;
       processedStylesheets.add(element.id || element.textContent || '');
     }
@@ -84,10 +84,7 @@ async function processStylesheet(element: HTMLStyleElement | HTMLLinkElement): P
     try {
       const response = await fetch(element.href);
       const css = await response.text();
-      const modifiedCSS = css.replace(/#[0-9a-fA-F]{6}/g, (match) => {
-        const mapping = defaultColorMappings.find(m => m.original.toLowerCase() === match.toLowerCase());
-        return mapping ? `var(--color-${mapping.original.slice(1)})` : match;
-      });
+      const modifiedCSS = replaceColors(css);
       const newStyle = document.createElement('style');
       newStyle.textContent = modifiedCSS;
       document.head.appendChild(newStyle);
@@ -96,6 +93,23 @@ async function processStylesheet(element: HTMLStyleElement | HTMLLinkElement): P
       console.error('Error processing external stylesheet:', error);
     }
   }
+}
+
+// Optimized color replacement with caching
+function replaceColors(css: string): string {
+  return css.replace(/#[0-9a-fA-F]{6}/g, (match) => {
+    // Check cache first
+    if (colorReplacementCache.has(match)) {
+      return colorReplacementCache.get(match)!;
+    }
+    
+    const mapping = defaultColorMappings.find(m => m.original.toLowerCase() === match.toLowerCase());
+    const replacement = mapping ? `var(--color-${mapping.original.slice(1)})` : match;
+    
+    // Cache the result
+    colorReplacementCache.set(match, replacement);
+    return replacement;
+  });
 }
 
 // Function to process all stylesheets
