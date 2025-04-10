@@ -31,17 +31,6 @@
   ];
 
   let activeItem = $state("Theme");
-  let activeComponent = $derived(
-    sidebarItems.find((item) => item.name === activeItem)?.component
-  );
-
-  function setActiveItem(item: string) {
-    activeItem = item;
-  }
-
-  $effect(() => {
-    console.log(activeComponent);
-  });
 </script>
 
 <div class="flex">
@@ -58,8 +47,8 @@
           role="button"
           tabindex="0"
           class="flex items-center w-full gap-2 mb-6 leading-tight transition-all rounded-lg outline-none text-start hover:bg-blue-gray-50 hover:bg-opacity-80 hover:text-blue-gray-900 focus:bg-blue-gray-50 focus:bg-opacity-80 focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80 active:text-blue-gray-900"
-          onclick={() => setActiveItem(name)}
-          onkeydown={(e) => e.key === "Enter" && setActiveItem(name)}
+          onclick={() => (activeItem = name)}
+          onkeydown={(e) => e.key === "Enter" && (activeItem = name)}
         >
           <div class="grid place-items-center">
             <Icon class="w-5 h-5" />

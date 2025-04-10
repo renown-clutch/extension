@@ -1,5 +1,4 @@
-<script lang="ts">
-</script>
+<script lang="ts"></script>
 
 <main class=" py-2">
   <h2 class="text-xl font-medium mb-4">Custom Theme</h2>
@@ -8,5 +7,4 @@
   </p>
 </main>
 
-<style>
-</style>
+<style></style>
