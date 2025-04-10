@@ -8,7 +8,9 @@
     Volume2,
     Ban,
   } from "@lucide/svelte";
-  let activeItem = "Dashboard";
+
+  // Set the activeItem to the name of the first item in the sidebarItems array
+  let activeItem = "Theme";
 
   const sidebarItems = [
     { name: "Theme", icon: Palette, content: "Custom Theme" },
