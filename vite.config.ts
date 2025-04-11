@@ -1,11 +1,24 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import path from "path";
+import fs from 'fs';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    svelte()
+    svelte(),
+    {
+      name: 'move-html',
+      closeBundle() {
+        const srcPath = path.resolve(__dirname, 'dist/src/app/popup.html');
+        const destPath = path.resolve(__dirname, 'dist/popup.html');
+        if (fs.existsSync(srcPath)) {
+          fs.renameSync(srcPath, destPath);
+          // Clean up the empty directory
+          fs.rmSync(path.resolve(__dirname, 'dist/src/'), { recursive: true, force: true });
+        }
+      }
+    }
   ],
   resolve: {
     alias: {
@@ -19,7 +32,7 @@ export default defineConfig({
     reportCompressedSize: false,
     rollupOptions: {
       input: {
-        popup: 'index.html',
+        popup: 'src/app/popup.html',
         background: 'src/background.ts',
         content: 'src/content.ts'
       },
@@ -32,11 +45,17 @@ export default defineConfig({
           return '[name].js';
         },
         chunkFileNames: '[name].js',
-        assetFileNames: '[name].[ext]'
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name === 'popup.html') {
+            return 'popup.html';
+          }
+          return '[name].[ext]';
+        }
       }
     },
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    copyPublicDir: true
   },
   optimizeDeps: {
     // Improves dev server start

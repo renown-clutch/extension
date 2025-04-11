@@ -1,7 +1,8 @@
 // Content script for Renown.gg style modifier
 console.log('Clutch extension content script loaded');
 
-import { defaultColorMappings, createCSSVariableMapping, hexToRgb } from './color-mapping';
+import { defaultColorMappings, createCSSVariableMapping } from './themes/Dark';
+import { hexToRgb } from './themes/themeUtils';
 
 // Create style elements
 const styleBlocker = document.createElement('style');
