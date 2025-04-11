@@ -9,10 +9,14 @@
   ];
 
   let selectedTheme = $state("");
+  let initialTheme = $state("");
+  let isInitialLoad = $state(true);
 
   $effect(() => {
     chrome.storage.local.get("theme", (result) => {
       selectedTheme = result.theme || "";
+      initialTheme = selectedTheme;
+      isInitialLoad = false;
     });
   });
 
@@ -21,7 +25,27 @@
   );
 
   $effect(() => {
-    chrome.storage.local.set({ theme: selectedTheme });
+    // Skip saving and reloading during initial load
+    if (isInitialLoad) return;
+
+    // Only save and reload if the theme has actually changed
+    if (selectedTheme !== initialTheme) {
+      chrome.storage.local.set({ theme: selectedTheme }, () => {
+        initialTheme = selectedTheme; // Update initialTheme to prevent multiple reloads
+
+        // Reload the current page after theme is saved
+        if (chrome.tabs && chrome.tabs.reload) {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0] && tabs[0].id) {
+              chrome.tabs.reload(tabs[0].id);
+            }
+          });
+        } else {
+          // Fallback to window reload if chrome.tabs API is not available
+          window.location.reload();
+        }
+      });
+    }
   });
 </script>
 
