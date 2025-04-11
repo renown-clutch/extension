@@ -1,5 +1,5 @@
 <script lang="ts">
-  import "./app.css";
+  import "./Popup.css";
   import Header from "$lib/components/layout/Header.svelte";
   import Sidebar from "$lib/components/layout/Sidebar.svelte";
   import { onMount } from "svelte";

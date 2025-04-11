@@ -10,7 +10,7 @@ export default defineConfig({
     {
       name: 'move-html',
       closeBundle() {
-        const srcPath = path.resolve(__dirname, 'dist/src/app/popup.html');
+        const srcPath = path.resolve(__dirname, 'dist/src/popup/popup.html');
         const destPath = path.resolve(__dirname, 'dist/popup.html');
         if (fs.existsSync(srcPath)) {
           fs.renameSync(srcPath, destPath);
@@ -32,7 +32,7 @@ export default defineConfig({
     reportCompressedSize: false,
     rollupOptions: {
       input: {
-        popup: 'src/app/popup.html',
+        popup: 'src/popup/popup.html',
         background: 'src/background.ts',
         content: 'src/content.ts'
       },
