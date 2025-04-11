@@ -1,4 +1,9 @@
-import { colorMappings, rgbMappings, rgbaMappings, cssVariables } from "./Dark";
+import {
+  colorMappings,
+  rgbMappings,
+  rgbaMappings,
+  cssVariables,
+} from "./Light";
 
 // Create main style element for the theme
 const styleElement = document.createElement("style");

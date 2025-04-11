@@ -7,11 +7,3 @@ if (document.readyState === "loading") {
 } else {
   initialize();
 }
-
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//   if (message.type === "updateColors") {
-//     applyColorVariables(colorVariablesStyleElement);
-//     sendResponse({ status: "colors updated" });
-//   }
-//   return true;
-// });
