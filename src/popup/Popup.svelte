@@ -2,8 +2,8 @@
   import "./Popup.css";
   import Header from "$lib/components/layout/Header.svelte";
   import Sidebar from "$lib/components/layout/Sidebar.svelte";
-  import ThemeItem from "$lib/components/items/Theme.svelte";
-  import AutoAcceptItem from "$lib/components/items/AutoAccept.svelte";
+  import ThemeTab from "$lib/components/tabs/Theme.svelte";
+  import AutoAcceptTab from "$lib/components/tabs/AutoAccept.svelte";
   import { onMount, untrack } from "svelte";
 
   type TabName =
@@ -48,9 +48,9 @@
     <!-- Main Content -->
     <div class="flex-1 p-4">
       {#if userSettings.activeTab === "Theme"}
-        <ThemeItem bind:selectedTheme={userSettings.selectedTheme} />
+        <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}
-        <AutoAcceptItem />
+        <AutoAcceptTab />
       {:else if userSettings.activeTab === "Map voting"}
         <div class="py-2">
           <h2 class="text-xl font-medium mb-4">Map Voting</h2>
