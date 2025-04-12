@@ -2,31 +2,24 @@
   import { Label } from "$lib/components/ui/label/index.js";
   import { Switch } from "$lib/components/ui/switch/index.js";
   import DiscriptionButton from "$lib/components/constants/discriptionButton.svelte";
+  import SwitchComponent from "$lib/components/constants/switch.svelte";
 </script>
 
-<main class=" ">
+<main class=" flex flex-col gap-4">
   <!-- <Headline
     text="Auto-accepts match found pop-ups and lobby invites on renown to save time and keep you in the action."
   /> -->
 
-  <div
-    class=" flex items-center justify-between text-slate-200 border-2 rounded-lg p-4 border-slate-900 pb-4"
-  >
-    <div class="">
-      <Label for="airplane-mode">Match found</Label>
-      <DiscriptionButton text="Auto-accept new matches" />
-    </div>
-    <Switch id="airplane-mode" />
-  </div>
-  <div
-    class="mt-4 flex items-center justify-between text-slate-200 border-2 rounded-lg p-4 border-slate-900 pb-4"
-  >
-    <div class="">
-      <Label for="airplane-mode">Lobby invite</Label>
-      <DiscriptionButton text="Auto-accept lobby invitations" />
-    </div>
-    <Switch id="airplane-mode" />
-  </div>
+  <SwitchComponent
+    labelText="Match found"
+    descriptionText="Auto-accept new matches"
+    switchId="airplane-mode"
+  />
+  <SwitchComponent
+    labelText="Lobby invite"
+    descriptionText="Auto-accept new lobby invitations"
+    switchId="airplane-mode"
+  />
 </main>
 
 <style></style>
