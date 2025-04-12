@@ -28,9 +28,9 @@
   let { activeTab = $bindable("") } = $props();
 </script>
 
-<div class="flex py-8">
+<div class="flex">
   <div
-    class="container relative flex h-full w-56 flex-col border-r-2 border-slate-900 text-slate-200"
+    class="container py-8 relative flex h-full w-56 flex-col border-r-2 border-slate-900 text-slate-200"
   >
     <img src={ClutchLogo} alt="Clutch Logo" class="w-28 pb-8" />
     <ul class="flex flex-col font-sans text-base font-normal">
