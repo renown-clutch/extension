@@ -2,6 +2,7 @@
   import "./Popup.css";
   import Header from "$lib/components/layout/Header.svelte";
   import Sidebar from "$lib/components/layout/Sidebar.svelte";
+  import Volume from "$lib/components/tabs/Volume.svelte";
   import ThemeTab from "$lib/components/tabs/Theme.svelte";
   import AutoAcceptTab from "$lib/components/tabs/AutoAccept.svelte";
   import { onMount, untrack } from "svelte";
@@ -56,10 +57,7 @@
           <p>Map voting settings will be available soon.</p>
         </div>
       {:else if userSettings.activeTab === "Sounds"}
-        <div class="py-2">
-          <h2 class="text-xl font-medium mb-4">Sounds</h2>
-          <p>Sound settings will be available soon.</p>
-        </div>
+        <Volume />
       {:else if userSettings.activeTab === "Bans"}
         <div class="py-2">
           <h2 class="text-xl font-medium mb-4">Bans</h2>

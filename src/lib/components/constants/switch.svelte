@@ -11,7 +11,7 @@
   class="flex items-center justify-between text-slate-200 border-2 border-slate-900 rounded-lg p-4"
 >
   <div>
-    <Label for={switchId}>{labelText}</Label>
+    <p>{labelText}</p>
     <DiscriptionToggle text={descriptionText} />
   </div>
   <Switch id={switchId} />
