@@ -30,7 +30,7 @@
 
 <div class="flex py-8">
   <div
-    class="container relative flex h-full w-52 flex-col border-r-2 border-slate-900 text-slate-400"
+    class="container relative flex h-full w-56 flex-col border-r-2 border-slate-900 text-slate-200"
   >
     <img src={ClutchLogo} alt="Clutch Logo" class="w-28 pb-8" />
     <ul class="flex flex-col font-sans text-base font-normal">
@@ -39,12 +39,12 @@
           <div
             role="button"
             tabindex="0"
-            class="flex items-center gap-2 mb-2 p-2 hover:bg-slate-50 leading-tight transition-all rounded-md
-             outline-none text-start hover:text-slate-950
+            class="flex items-center gap-2 mb-2 p-3 hover:bg-slate-900 leading-tight transition-all rounded-md
+             outline-none text-start
 
                
 
-                {activeTab === name ? 'bg-slate-50 text-slate-950' : ''}"
+                {activeTab === name ? 'bg-slate-900 ' : ''}"
             onclick={() => (activeTab = name)}
             onkeydown={(e) => e.key === "Enter" && (activeTab = name)}
           >
