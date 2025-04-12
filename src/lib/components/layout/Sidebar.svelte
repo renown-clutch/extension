@@ -30,7 +30,11 @@
     { name: "Settings", icon: Settings, component: ThemeItem },
   ];
 
-  let activeItem = $state("Theme");
+  let { activeTab = $bindable("") } = $props();
+
+  $effect(() => {
+    console.log("activeTab from sidebar", activeTab);
+  });
 </script>
 
 <div class="flex">
@@ -52,9 +56,9 @@
               hover:text-white focus:bg-blue-gray-50 focus:bg-opacity-80
                focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80
                 active:text-blue-gray-900
-                {activeItem === name ? 'text-white' : ''}"
-            onclick={() => (activeItem = name)}
-            onkeydown={(e) => e.key === "Enter" && (activeItem = name)}
+                {activeTab === name ? 'text-white' : ''}"
+            onclick={() => (activeTab = name)}
+            onkeydown={(e) => e.key === "Enter" && (activeTab = name)}
           >
             <div class="">
               <Icon class="w-5 h-5" />
@@ -68,7 +72,7 @@
 
   <!-- Main Content -->
   <div class="flex-1 p-4">
-    {#each sidebarItems.filter((item) => item.name === activeItem) as { component: Component }}
+    {#each sidebarItems.filter((item) => item.name === activeTab) as { component: Component }}
       <Component />
     {/each}
   </div>
