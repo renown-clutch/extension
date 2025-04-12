@@ -41,7 +41,6 @@
 </script>
 
 <main class="w-[600px] bg-slate-950">
-  <Header />
   <div class="flex">
     <Sidebar bind:activeTab={userSettings.activeTab} />
 

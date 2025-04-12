@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ClutchLogo from "/static/logo.png";
   import {
     Settings,
     Palette,
@@ -31,7 +32,7 @@
   <div
     class="container relative flex h-full w-52 flex-col border-r-2 border-slate-900 text-slate-500"
   >
-    <div class="mb-8"></div>
+    <img src={ClutchLogo} alt="Clutch Logo" class="w-28 py-8" />
     <ul
       class="flex flex-col font-sans text-base font-normal text-blue-gray-700"
     >
@@ -40,12 +41,12 @@
           <div
             role="button"
             tabindex="0"
-            class="flex items-center gap-2 mb-6 leading-tight transition-all rounded-lg
-             outline-none text-start hover:bg-blue-gray-50 hover:bg-opacity-80
-              hover:text-white focus:bg-blue-gray-50 focus:bg-opacity-80
-               focus:text-blue-gray-900 active:bg-blue-gray-50 active:bg-opacity-80
+            class="flex items-center gap-2 mb-2 p-2 hover:bg-slate-50 leading-tight transition-all rounded-md
+             outline-none text-start hover:text-slate-950
+
+               
                 active:text-blue-gray-900
-                {activeTab === name ? 'text-white' : ''}"
+                {activeTab === name ? 'bg-slate-50 text-slate-950' : ''}"
             onclick={() => (activeTab = name)}
             onkeydown={(e) => e.key === "Enter" && (activeTab = name)}
           >
