@@ -2,36 +2,78 @@
   import "./Popup.css";
   import Header from "$lib/components/layout/Header.svelte";
   import Sidebar from "$lib/components/layout/Sidebar.svelte";
-  import { onMount } from "svelte";
+  import ThemeItem from "$lib/components/items/Theme.svelte";
+  import AutoAcceptItem from "$lib/components/items/AutoAccept.svelte";
+  import { onMount, untrack } from "svelte";
 
-  let enabled = $state(false);
+  type TabName =
+    | "Theme"
+    | "Auto-accept"
+    | "Map voting"
+    | "Sounds"
+    | "Bans"
+    | "Settings";
 
-  // Send message to content script when switch is toggled
-  function handleToggle() {
-    enabled = !enabled;
-    // Save state to Chrome storage
-    chrome.storage.sync.set({ styleEnabled: enabled });
-    // Send message to content script
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: "toggleStyle",
-          enabled: enabled,
-        });
-      }
+  type UserSettings = {
+    activeTab: TabName;
+    selectedTheme: "" | "light" | "dark" | "default";
+  };
+
+  const defaultUserSettings: UserSettings = {
+    activeTab: "Theme",
+    selectedTheme: "",
+  };
+
+  let userSettings = $state<UserSettings>(defaultUserSettings);
+
+  onMount(() => {
+    chrome.storage.local.get("userSettings", (result) => {
+      // Use untrack to prevent this state update from triggering the effect
+      untrack(() => {
+        userSettings = result.userSettings || defaultUserSettings;
+      });
     });
-  }
+  });
 
-  // onMount(() => {
-  //   chrome.storage.sync.get(["styleEnabled"], (result) => {
-  //     enabled = result.styleEnabled || false;
-  //   });
-  // });
+  $effect(() => {
+    chrome.storage.local.set({ userSettings });
+  });
 </script>
 
 <main class="w-[600px] bg-slate-950">
   <Header />
-  <Sidebar />
+  <div class="flex">
+    <Sidebar bind:activeTab={userSettings.activeTab} />
+
+    <!-- Main Content -->
+    <div class="flex-1 p-4">
+      {#if userSettings.activeTab === "Theme"}
+        <ThemeItem bind:selectedTheme={userSettings.selectedTheme} />
+      {:else if userSettings.activeTab === "Auto-accept"}
+        <AutoAcceptItem />
+      {:else if userSettings.activeTab === "Map voting"}
+        <div class="py-2">
+          <h2 class="text-xl font-medium mb-4">Map Voting</h2>
+          <p>Map voting settings will be available soon.</p>
+        </div>
+      {:else if userSettings.activeTab === "Sounds"}
+        <div class="py-2">
+          <h2 class="text-xl font-medium mb-4">Sounds</h2>
+          <p>Sound settings will be available soon.</p>
+        </div>
+      {:else if userSettings.activeTab === "Bans"}
+        <div class="py-2">
+          <h2 class="text-xl font-medium mb-4">Bans</h2>
+          <p>Ban settings will be available soon.</p>
+        </div>
+      {:else if userSettings.activeTab === "Settings"}
+        <div class="py-2">
+          <h2 class="text-xl font-medium mb-4">Settings</h2>
+          <p>General settings will be available soon.</p>
+        </div>
+      {/if}
+    </div>
+  </div>
 </main>
 
 <style>
