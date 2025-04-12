@@ -3,7 +3,7 @@
   import { Switch } from "$lib/components/ui/switch/index.js";
 </script>
 
-<main class=" py-2">
+<main class=" ">
   <h2 class="text-xl font-medium mb-4">Auto-accept</h2>
 
   <div class="flex items-center gap-8">

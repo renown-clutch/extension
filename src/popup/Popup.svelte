@@ -45,7 +45,7 @@
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
     <!-- Main Content -->
-    <div class="flex-1 p-4">
+    <div class="flex-1 p-8">
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}

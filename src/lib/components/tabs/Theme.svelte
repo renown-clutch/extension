@@ -27,7 +27,7 @@
   });
 </script>
 
-<main class=" py-2">
+<main class=" ">
   <h2 class="text-xl font-medium mb-4">Custom Theme</h2>
   <p class="leading-none mb-4">
     Enable the clutch custom theme for a fresh renown.gg experience.
