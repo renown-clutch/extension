@@ -30,12 +30,10 @@
 
 <div class="flex py-8">
   <div
-    class="container relative flex h-full w-52 flex-col border-r-2 border-slate-900 text-slate-500"
+    class="container relative flex h-full w-52 flex-col border-r-2 border-slate-900 text-slate-400"
   >
     <img src={ClutchLogo} alt="Clutch Logo" class="w-28 pb-8" />
-    <ul
-      class="flex flex-col font-sans text-base font-normal text-blue-gray-700"
-    >
+    <ul class="flex flex-col font-sans text-base font-normal">
       {#each sidebarItems as { name, icon: Icon }}
         <li class="list-none">
           <div
@@ -45,7 +43,7 @@
              outline-none text-start hover:text-slate-950
 
                
-                active:text-blue-gray-900
+
                 {activeTab === name ? 'bg-slate-50 text-slate-950' : ''}"
             onclick={() => (activeTab = name)}
             onkeydown={(e) => e.key === "Enter" && (activeTab = name)}
