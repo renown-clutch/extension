@@ -3,24 +3,27 @@
   import * as Select from "$lib/components/ui/select/index.js";
 
   const themes = [
-    { label: "Default", value: "" },
+    { label: "Default", value: "default" },
     { label: "Light", value: "light" },
     { label: "Dark", value: "dark" },
   ];
 
   let { selectedTheme = $bindable("") } = $props();
+  let previousTheme = $state(selectedTheme);
 
   const triggerContent = $derived(
     themes.find((t) => t.value === selectedTheme)?.label ?? "Select a theme"
   );
 
   $effect(() => {
-    console.log("selectedTheme", selectedTheme);
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0] && tabs[0].id) {
-        chrome.tabs.reload(tabs[0].id);
-      }
-    });
+    if (previousTheme && previousTheme !== selectedTheme) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0] && tabs[0].id) {
+          chrome.tabs.reload(tabs[0].id);
+        }
+      });
+    }
+    previousTheme = selectedTheme;
   });
 </script>
 

@@ -16,7 +16,7 @@
 
   type UserSettings = {
     activeTab: TabName;
-    selectedTheme: "" | "light" | "dark";
+    selectedTheme: "" | "light" | "dark" | "default";
   };
 
   const defaultUserSettings: UserSettings = {
@@ -48,7 +48,7 @@
     <!-- Main Content -->
     <div class="flex-1 p-4">
       {#if userSettings.activeTab === "Theme"}
-        <ThemeItem selectedTheme={userSettings.selectedTheme} />
+        <ThemeItem bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}
         <AutoAcceptItem />
       {:else if userSettings.activeTab === "Map voting"}
