@@ -9,7 +9,10 @@
     text="Auto-accepts match found pop-ups and lobby invites on renown to save time and keep you in the action."
   /> -->
 
-  <Volume />
+  <Volume
+    labelText="Match found"
+    descriptionText="Adjust the volume of the match found sound"
+  />
 </main>
 
 <style></style>
