@@ -10,7 +10,13 @@
   <p>{labelText}</p>
   <DiscriptionToggle text={descriptionText} />
   <div class="flex flex-col items-center pt-6">
-    <Slider value={[50]} max={100} step={5} class="max-w-[95%]" />
+    <Slider
+      type="multiple"
+      value={[50]}
+      max={100}
+      step={5}
+      class="max-w-[95%]"
+    />
     <section
       class="flex-1 flex w-full justify-between text-xs text-slate-400 pt-2"
     >
