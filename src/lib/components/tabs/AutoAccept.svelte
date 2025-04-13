@@ -10,12 +10,12 @@
   <SwitchComponent
     labelText="Match found"
     descriptionText="Auto-accept new matches"
-    switchId="airplane-mode"
+    switchId="match-found"
   />
   <SwitchComponent
     labelText="Lobby invite"
     descriptionText="Auto-accept new lobby invitations"
-    switchId="airplane-mode"
+    switchId="lobby-invite"
   />
 </main>
 
