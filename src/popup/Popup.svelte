@@ -5,24 +5,8 @@
   import ThemeTab from "$lib/components/tabs/Theme.svelte";
   import AutoAcceptTab from "$lib/components/tabs/AutoAccept.svelte";
   import { onMount, untrack } from "svelte";
-
-  type TabName =
-    | "Theme"
-    | "Auto-accept"
-    | "Map voting"
-    | "Sounds"
-    | "Bans"
-    | "Settings";
-
-  type UserSettings = {
-    activeTab: TabName;
-    selectedTheme: "" | "light" | "dark" | "default";
-  };
-
-  const defaultUserSettings: UserSettings = {
-    activeTab: "Theme",
-    selectedTheme: "",
-  };
+  import type { UserSettings } from "$lib/types";
+  import { defaultUserSettings } from "$lib/types";
 
   let userSettings = $state<UserSettings>(defaultUserSettings);
 
