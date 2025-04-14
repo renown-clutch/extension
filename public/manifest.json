@@ -33,5 +33,11 @@
       "type": "module",
       "run_at": "document_start"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["static/*.svg", "static/*.png"],
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"]
+    }
   ]
 } 

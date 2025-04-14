@@ -14,7 +14,7 @@
       type="multiple"
       value={[50]}
       max={100}
-      step={5}
+      step={1}
       class="max-w-[95%]"
     />
     <section
