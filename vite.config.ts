@@ -1,24 +1,27 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 import path from "path";
-import fs from 'fs';
+import fs from "fs";
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     svelte(),
     {
-      name: 'move-html',
+      name: "move-html",
       closeBundle() {
-        const srcPath = path.resolve(__dirname, 'dist/src/popup/popup.html');
-        const destPath = path.resolve(__dirname, 'dist/popup.html');
+        const srcPath = path.resolve(__dirname, "dist/src/popup/popup.html");
+        const destPath = path.resolve(__dirname, "dist/popup.html");
         if (fs.existsSync(srcPath)) {
           fs.renameSync(srcPath, destPath);
           // Clean up the empty directory
-          fs.rmSync(path.resolve(__dirname, 'dist/src/'), { recursive: true, force: true });
+          fs.rmSync(path.resolve(__dirname, "dist/src/"), {
+            recursive: true,
+            force: true,
+          });
         }
-      }
-    }
+      },
+    },
   ],
   resolve: {
     alias: {
@@ -27,39 +30,42 @@ export default defineConfig({
   },
   build: {
     // Enable build caching for faster rebuilds
-    target: 'esnext',
-    minify: 'esbuild',
+    target: "esnext",
+    minify: "esbuild",
     reportCompressedSize: false,
     rollupOptions: {
       input: {
-        popup: 'src/popup/popup.html',
-        background: 'src/background.ts',
-        content: 'src/content.ts'
+        popup: "src/popup/popup.html",
+        background: "src/background.ts",
+        content: "src/content.ts",
       },
       output: {
+        // Ensure each entry point maintains its own scope without creating shared chunks
+        inlineDynamicImports: true,
+        manualChunks: () => null, // Prevents code-splitting
         entryFileNames: (chunkInfo) => {
           // Special case for content script
-          if (chunkInfo.name === 'content') {
-            return 'content.js';
+          if (chunkInfo.name === "content") {
+            return "content.js";
           }
-          return '[name].js';
+          return "[name].js";
         },
-        chunkFileNames: '[name].js',
+        chunkFileNames: "[name].js",
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'popup.html') {
-            return 'popup.html';
+          if (assetInfo.name === "popup.html") {
+            return "popup.html";
           }
-          return '[name].[ext]';
-        }
-      }
+          return "[name].[ext]";
+        },
+      },
     },
-    outDir: 'dist',
+    outDir: "dist",
     emptyOutDir: true,
-    copyPublicDir: true
+    copyPublicDir: true,
   },
   optimizeDeps: {
     // Improves dev server start
-    include: ['@lucide/svelte', 'bits-ui'],
-    exclude: []
-  }
-})
+    include: ["@lucide/svelte", "bits-ui"],
+    exclude: [],
+  },
+});

@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:fast": "vite build --mode production",
+    "build": "node build.js",
+    "watch": "node build.js --watch",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
     "clean": "rm -rf dist node_modules"
