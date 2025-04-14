@@ -31,7 +31,13 @@ function createButton(
   button.style.width = "40px";
   button.style.borderRadius = "4px";
   button.style.color = "#000";
-  button.style.backgroundColor = bgColor;
+  button.style.backgroundColor = "#292c34";
+  button.addEventListener("mouseover", () => {
+    button.style.backgroundColor = "#333640"; // 10% lighter color
+  });
+  button.addEventListener("mouseout", () => {
+    button.style.backgroundColor = "#292c34"; // Original color
+  });
 
   const img = document.createElement("img");
   img.src = getExtensionUrl("static/csstats.svg");
