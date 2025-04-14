@@ -34,7 +34,7 @@ function createButton(
   button.style.backgroundColor = bgColor;
 
   const img = document.createElement("img");
-  img.src = getExtensionUrl("static/test.svg");
+  img.src = getExtensionUrl("static/csstats.svg");
   img.style.width = "24px";
   img.style.height = "24px";
   button.appendChild(img);
@@ -46,7 +46,7 @@ function addButtons(linksDiv: Element): void {
   const button1 = createButton(
     "clutch-button1",
     `https://csstats.gg/player/${currentPlayerId}`,
-    "#fff"
+    "gray"
   );
   button1.setAttribute("data-clutch-extension", "true");
 
