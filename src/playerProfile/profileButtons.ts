@@ -62,6 +62,19 @@ function addButtons(linksDiv: Element): void {
   console.log("Clutch extension: Added buttons to profile page");
 }
 
+function updateButtonHref(linksDiv: Element): void {
+  const button = linksDiv.querySelector(".clutch-button1") as HTMLAnchorElement;
+  if (button) {
+    button.href = `https://csstats.gg/player/${currentPlayerId}`;
+    console.log(
+      "Clutch extension: Updated button href for player ID:",
+      currentPlayerId
+    );
+  } else {
+    addButtons(linksDiv);
+  }
+}
+
 function setupMutationObserver(): void {
   if (observer) {
     observer.disconnect();
@@ -103,7 +116,12 @@ function setupMutationObserver(): void {
 
       if (isProfilePage()) {
         currentPlayerId = window.location.pathname.split("/")[2];
-        checkForLinksDiv();
+        const linksDiv = document.querySelector(".profile-banner div.links");
+        if (linksDiv) {
+          updateButtonHref(linksDiv);
+        } else {
+          checkForLinksDiv();
+        }
       }
     }
   };
@@ -117,8 +135,15 @@ function setupMutationObserver(): void {
   const buttonCheckInterval = setInterval(() => {
     if (isProfilePage()) {
       const linksDiv = document.querySelector(".profile-banner div.links");
-      if (linksDiv && !linksDiv.querySelector(".clutch-button1")) {
-        addButtons(linksDiv);
+      if (linksDiv) {
+        const button = linksDiv.querySelector(".clutch-button1");
+        if (!button) {
+          addButtons(linksDiv);
+        } else {
+          // Always update href in case profile ID changed
+          currentPlayerId = window.location.pathname.split("/")[2];
+          updateButtonHref(linksDiv);
+        }
       }
     }
   }, 1000); // Check every second
@@ -138,7 +163,12 @@ function checkForLinksDiv(): void {
 
   const linksDiv = document.querySelector(".profile-banner div.links");
   if (linksDiv) {
-    addButtons(linksDiv);
+    const button = linksDiv.querySelector(".clutch-button1");
+    if (button) {
+      updateButtonHref(linksDiv);
+    } else {
+      addButtons(linksDiv);
+    }
   }
 }
 
