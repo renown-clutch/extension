@@ -78,7 +78,7 @@ function ensureButtons(): void {
     faceitButton = createButton({
       className: "clutch-button2",
       href: "#",
-      bgColor: "#ff9800",
+      bgColor: "#141616",
       iconPath: "static/faceit.svg",
       visible: false,
     });
