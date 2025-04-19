@@ -7,12 +7,91 @@ const getExtensionUrl = (path: string): string => {
   return `chrome-extension://${extensionId}/${path}`;
 };
 
+interface FaceitApiResponse {
+  success: boolean;
+  data?:
+    | string
+    | {
+        faceit_url?: string;
+        [key: string]: any;
+      };
+  error?: string;
+}
+
 const isProfilePageRegex = /\/profile\/\d+/;
 let currentPlayerId = "";
 let observer: MutationObserver | null = null;
+let faceitUrl: string = ""; // Store Faceit URL
 
 function isProfilePage(): boolean {
   return isProfilePageRegex.test(window.location.pathname);
+}
+
+async function fetchFaceitUrl(steamId: string): Promise<unknown> {
+  try {
+    // Send a message to the background script to make the fetch request
+    const response = await new Promise<FaceitApiResponse>((resolve, reject) => {
+      chrome.runtime.sendMessage(
+        { type: "fetchFaceitUrl", steamId },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve(response as FaceitApiResponse);
+          }
+        }
+      );
+    });
+
+    console.log("Faceit URL response from background:", response);
+    console.log("Response data type:", typeof response.data);
+
+    // Update faceitUrl if available
+    if (response.success && response.data) {
+      // Check if data is a string (direct URL) or an object with faceit_url property
+      if (typeof response.data === "string") {
+        faceitUrl = response.data;
+        console.log("Setting faceitUrl from string:", faceitUrl);
+      } else if (
+        typeof response.data === "object" &&
+        response.data.faceit_url
+      ) {
+        faceitUrl = response.data.faceit_url;
+        console.log("Setting faceitUrl from object:", faceitUrl);
+      }
+
+      // Force update all buttons immediately
+      updateAllButtons();
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching Faceit URL:", error);
+  }
+}
+
+function removeFaceitButtons(): void {
+  document.querySelectorAll(".clutch-button2").forEach((btn) => btn.remove());
+}
+
+function updateAllButtons(): void {
+  // Remove all Faceit buttons first
+  removeFaceitButtons();
+  if (!faceitUrl) return;
+
+  console.log("Updating all Faceit buttons with URL:", faceitUrl);
+
+  // Find all linksDivs and add the Faceit button
+  const linksDivs = document.querySelectorAll(".profile-banner div.links");
+  linksDivs.forEach((linksDiv) => {
+    // Only add if not already present
+    if (!linksDiv.querySelector(".clutch-button2")) {
+      const button2 = createButton("clutch-button2", faceitUrl, "#ff9800");
+      button2.setAttribute("data-clutch-extension", "true");
+      linksDiv.appendChild(button2);
+      console.log("Added Faceit button to:", linksDiv);
+    }
+  });
 }
 
 function createButton(
@@ -31,12 +110,16 @@ function createButton(
   button.style.width = "40px";
   button.style.borderRadius = "4px";
   button.style.color = "#000";
-  button.style.backgroundColor = "#292c34";
+  button.style.backgroundColor = bgColor;
   button.addEventListener("mouseover", () => {
-    button.style.backgroundColor = "#333640"; // 10% lighter color
+    // Lighten the background color on hover
+    const lighterColor = bgColor === "#292c34" ? "#333640" : "#ff9800";
+    button.style.backgroundColor =
+      bgColor === "#292c34" ? "#333640" : "#ffb74d";
   });
   button.addEventListener("mouseout", () => {
-    button.style.backgroundColor = "#292c34"; // Original color
+    // Restore original color
+    button.style.backgroundColor = bgColor;
   });
 
   const img = document.createElement("img");
@@ -52,16 +135,20 @@ function addButtons(linksDiv: Element): void {
   const button1 = createButton(
     "clutch-button1",
     `https://csstats.gg/player/${currentPlayerId}`,
-    "gray"
+    "#292c34"
   );
   button1.setAttribute("data-clutch-extension", "true");
 
-  // const button2 = createButton("clutch-button2", "#", "#ff9800");
-  // button2.setAttribute("data-clutch-extension", "true");
-
   const fragment = document.createDocumentFragment();
   fragment.appendChild(button1);
-  // fragment.appendChild(button2);
+
+  // Only add Faceit button if faceitUrl is set
+  if (faceitUrl) {
+    const button2 = createButton("clutch-button2", faceitUrl, "#ff9800");
+    button2.setAttribute("data-clutch-extension", "true");
+    fragment.appendChild(button2);
+    console.log("Set Faceit button href during creation:", faceitUrl);
+  }
 
   linksDiv.appendChild(fragment);
 
@@ -69,15 +156,31 @@ function addButtons(linksDiv: Element): void {
 }
 
 function updateButtonHref(linksDiv: Element): void {
-  const button = linksDiv.querySelector(".clutch-button1") as HTMLAnchorElement;
-  if (button) {
-    button.href = `https://csstats.gg/player/${currentPlayerId}`;
-    console.log(
-      "Clutch extension: Updated button href for player ID:",
-      currentPlayerId
-    );
+  const button1 = linksDiv.querySelector(
+    ".clutch-button1"
+  ) as HTMLAnchorElement;
+  if (button1) {
+    const newHref = `https://csstats.gg/player/${currentPlayerId}`;
+    if (button1.href !== newHref) {
+      button1.href = newHref;
+      console.log(
+        "Clutch extension: Updated button href for player ID:",
+        currentPlayerId
+      );
+    }
   } else {
     addButtons(linksDiv);
+  }
+
+  // Update Faceit button if it exists and we have a URL
+  const button2 = linksDiv.querySelector(
+    ".clutch-button2"
+  ) as HTMLAnchorElement;
+  if (button2 && faceitUrl) {
+    if (button2.href !== faceitUrl) {
+      button2.href = faceitUrl;
+      console.log("Clutch extension: Updated Faceit button href:", faceitUrl);
+    }
   }
 }
 
@@ -122,12 +225,23 @@ function setupMutationObserver(): void {
 
       if (isProfilePage()) {
         currentPlayerId = window.location.pathname.split("/")[2];
+        // Reset faceitUrl when profile changes
+        faceitUrl = "";
+        // Remove Faceit button until we get a new response
+        removeFaceitButtons();
+        // Fetch new faceitUrl for the current profile
+        fetchFaceitUrl(currentPlayerId);
+
         const linksDiv = document.querySelector(".profile-banner div.links");
         if (linksDiv) {
           updateButtonHref(linksDiv);
         } else {
           checkForLinksDiv();
         }
+      } else {
+        // Not on profile page, remove Faceit button
+        removeFaceitButtons();
+        faceitUrl = "";
       }
     }
   };
@@ -141,18 +255,29 @@ function setupMutationObserver(): void {
   const buttonCheckInterval = setInterval(() => {
     if (isProfilePage()) {
       const linksDiv = document.querySelector(".profile-banner div.links");
-      if (linksDiv) {
-        const button = linksDiv.querySelector(".clutch-button1");
-        if (!button) {
-          addButtons(linksDiv);
-        } else {
-          // Always update href in case profile ID changed
-          currentPlayerId = window.location.pathname.split("/")[2];
-          updateButtonHref(linksDiv);
-        }
+      // Always update currentPlayerId to match the current profile page
+      const newPlayerId = window.location.pathname.split("/")[2];
+      if (newPlayerId !== currentPlayerId) {
+        currentPlayerId = newPlayerId;
       }
+      if (linksDiv) {
+        const button1 = linksDiv.querySelector(".clutch-button1");
+        // Only add Faceit button if faceitUrl is set and not already present
+        if (!button1) {
+          addButtons(linksDiv);
+        } else if (faceitUrl && !linksDiv.querySelector(".clutch-button2")) {
+          const button2 = createButton("clutch-button2", faceitUrl, "#ff9800");
+          button2.setAttribute("data-clutch-extension", "true");
+          linksDiv.appendChild(button2);
+        }
+        updateButtonHref(linksDiv);
+      }
+    } else {
+      // Not on profile page, remove Faceit button
+      removeFaceitButtons();
+      faceitUrl = "";
     }
-  }, 1000); // Check every second
+  }, 1000);
 
   // Clean up interval on page unload
   window.addEventListener("beforeunload", () => {
@@ -182,15 +307,23 @@ export function initialize(): void {
   if (isProfilePage()) {
     currentPlayerId = window.location.pathname.split("/")[2];
     checkForLinksDiv();
+
+    fetchFaceitUrl(currentPlayerId);
   }
 
   setupMutationObserver();
 
-  // Check again after load to ensure we don't miss anything
   if (document.readyState !== "complete") {
-    window.addEventListener("load", checkForLinksDiv);
+    window.addEventListener("load", () => {
+      checkForLinksDiv();
+      if (isProfilePage() && currentPlayerId) {
+        fetchFaceitUrl(currentPlayerId);
+      }
+    });
   } else {
-    // If page is already loaded, check now
     checkForLinksDiv();
+    if (isProfilePage() && currentPlayerId) {
+      fetchFaceitUrl(currentPlayerId);
+    }
   }
 }
