@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "fetchFaceitUrl") {
     const steamId = message.steamId;
 
-    fetch(`http://127.0.0.1:8000/get_user_faceit_url?steam_id=${steamId}`)
+    fetch(`https://api.clutch.lorem.sh/get_user_faceit_url?steam_id=${steamId}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Faceit URL response in background:", data);
