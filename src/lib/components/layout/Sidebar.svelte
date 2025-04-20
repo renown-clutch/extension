@@ -22,7 +22,7 @@
     { name: "Auto-accept", icon: CircleCheckBig },
     { name: "Map voting", icon: Vote },
     { name: "Sounds", icon: Volume2 },
-    { name: "Profile", icon: User },
+    { name: "Profiles", icon: User },
     { name: "Settings", icon: Settings },
   ];
 
