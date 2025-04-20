@@ -4,6 +4,7 @@
   import SoundTab from "$lib/components/tabs/Sound.svelte";
   import ThemeTab from "$lib/components/tabs/Theme.svelte";
   import AutoAcceptTab from "$lib/components/tabs/AutoAccept.svelte";
+  import SettingsTab from "$lib/components/tabs/Settings.svelte";
   import { onMount, untrack } from "svelte";
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings } from "$lib/types";
@@ -47,10 +48,7 @@
           <p>Ban settings will be available soon.</p>
         </div>
       {:else if userSettings.activeTab === "Settings"}
-        <div class="py-2">
-          <h2 class="text-xl font-medium mb-4">Settings</h2>
-          <p>General settings will be available soon.</p>
-        </div>
+        <SettingsTab />
       {/if}
     </div>
   </div>
