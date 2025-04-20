@@ -5,6 +5,7 @@
     $props();
 
   let switchId = "test-confirm-modal-switch";
+  let previousProfileButtons = { ...profileButtons };
 
   async function sendMessageToContent(newState: boolean) {
     const tabs = await chrome.tabs.query({
@@ -18,8 +19,23 @@
     });
   }
 
+  function sendReloadMessage() {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0] && tabs[0].id) {
+        chrome.tabs.reload(tabs[0].id);
+      }
+    });
+  }
+
   $effect(() => {
     sendMessageToContent(showConfirmModal);
+    if (
+      previousProfileButtons.csstats !== profileButtons.csstats ||
+      previousProfileButtons.faceit !== profileButtons.faceit
+    ) {
+      sendReloadMessage();
+    }
+    previousProfileButtons = { ...profileButtons };
   });
 </script>
 
