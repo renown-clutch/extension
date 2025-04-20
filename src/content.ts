@@ -22,10 +22,8 @@ let confirmModalActive = false;
 const confirmModalHtml = `<div class="confirm-match-modal"><div class="modal-content"><div class="waiting-for-confirm"><h3 class="title">Your match is ready</h3><div class="confirm-within">Confirm your participation within</div><div class="countdown"><span class="countdown-render">00:08</span></div><button class="primary-button md gradient">Accept</button></div><div class="disclaimer">When you start a game of Renown, you're agreeing to stay for the entire match, usually lasting 30-45 minutes. Leaving the match once you've joined will result in a penalty.</div></div></div>`;
 
 function toggleConfirmModal(show: boolean): void {
-  console.log("[Content] Toggling confirm modal, show:", show);
   const main = document.querySelector("main");
   if (!main) {
-    console.log("[Content] No main element found on page.");
     return;
   }
 
@@ -35,16 +33,10 @@ function toggleConfirmModal(show: boolean): void {
       const wrapper = document.createElement("div");
       wrapper.innerHTML = confirmModalHtml;
       main.prepend(wrapper.firstElementChild!);
-      console.log("[Content] Confirm modal added to page.");
-    } else {
-      console.log("[Content] Confirm modal already exists.");
     }
   } else {
     if (existing) {
       existing.remove();
-      console.log("[Content] Confirm modal removed from page.");
-    } else {
-      console.log("[Content] No confirm modal to remove.");
     }
   }
   confirmModalActive = show;
@@ -52,8 +44,6 @@ function toggleConfirmModal(show: boolean): void {
 
 // Listen for messages from the popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("[Content] Received message:", message);
-
   if (message.type === "toggleConfirmModal") {
     toggleConfirmModal(message.show);
     sendResponse({ success: true, active: confirmModalActive });

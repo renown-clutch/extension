@@ -1,10 +1,10 @@
 <script>
   import DiscriptionToggle from "$lib/components/constants/discriptionToggle.svelte";
-  import { Label } from "$lib/components/ui/label/index.js";
   import { Switch } from "$lib/components/ui/switch/index.js";
   export let labelText = "Default Label";
   export let descriptionText = "Default Description";
   export let switchId = "default-switch";
+  export let checked = false;
 </script>
 
 <div
@@ -14,5 +14,5 @@
     <p>{labelText}</p>
     <DiscriptionToggle text={descriptionText} />
   </div>
-  <Switch id={switchId} />
+  <Switch id={switchId} bind:checked />
 </div>
