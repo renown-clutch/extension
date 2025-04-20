@@ -20,32 +20,32 @@ let userSettings: UserSettings = defaultUserSettings;
 
 const LS_KEY = "userSettings";
 
-function applySettings(settings: UserSettings) {
-  if (settings.selectedTheme !== "default") {
-    initializeTheme(settings.selectedTheme);
+// Apply only the specific settings that changed
+function applyChangedSettings(changedParts: Partial<UserSettings>) {
+  // Theme changes
+  if (changedParts.selectedTheme && changedParts.selectedTheme !== "default") {
+    initializeTheme(changedParts.selectedTheme);
   }
-  if (settings.profileButtons.csstats || settings.profileButtons.faceit) {
-    initializeProfileButtons(settings.profileButtons);
+
+  // Profile button changes
+  if (changedParts.profileButtons) {
+    if (
+      changedParts.profileButtons.csstats ||
+      changedParts.profileButtons.faceit
+    ) {
+      initializeProfileButtons(changedParts.profileButtons);
+    }
   }
-  updateMatchFoundAutoAcceptSettings(settings);
-  updateAutoAcceptPartyInviteSettings(settings);
-  updateKeepAliveSettings(settings);
-}
 
-function saveToLocalStorage(settings: UserSettings) {
-  localStorage.setItem(LS_KEY, JSON.stringify(settings));
-}
+  // Auto-accept changes
+  if (changedParts.autoAccept) {
+    updateMatchFoundAutoAcceptSettings(userSettings);
+    updateAutoAcceptPartyInviteSettings(userSettings);
+  }
 
-function loadFromLocalStorage(): UserSettings {
-  const data = localStorage.getItem(LS_KEY);
-  if (!data) return defaultUserSettings;
-  try {
-    return JSON.parse(data);
-  } catch {
-    console.warn(
-      "Failed to parse userSettings from localStorage, using default."
-    );
-    return defaultUserSettings;
+  // Keep alive changes
+  if (changedParts.keepAlive !== undefined) {
+    updateKeepAliveSettings(userSettings);
   }
 }
 
@@ -55,48 +55,49 @@ async function loadFromChromeStorage(): Promise<UserSettings> {
 }
 
 async function initialize() {
-  // Load from localStorage first
-  userSettings = loadFromLocalStorage();
-  applySettings(userSettings);
-
-  // Always update from chrome.storage.local in the background
+  // Load initial settings from chrome.storage.local
   const freshSettings = await loadFromChromeStorage();
-  if (JSON.stringify(freshSettings) !== JSON.stringify(userSettings)) {
-    userSettings = freshSettings;
-    saveToLocalStorage(userSettings);
-    applySettings(userSettings);
-  }
-  console.log(
-    "Loaded user settings in content script (from chrome.storage):",
-    freshSettings
-  );
+  userSettings = freshSettings;
+
+  // Initialize all features with the full settings
   initializeMatchFoundAutoAccept(userSettings);
   initializeAutoAcceptPartyInvite(userSettings);
   initializeKeepAlive(userSettings);
+
+  if (userSettings.selectedTheme !== "default") {
+    initializeTheme(userSettings.selectedTheme);
+  }
+
+  if (
+    userSettings.profileButtons.csstats ||
+    userSettings.profileButtons.faceit
+  ) {
+    initializeProfileButtons(userSettings.profileButtons);
+  }
 }
 
 initialize();
 
-function saveToChromeAndLocal(settings: UserSettings): Promise<void> {
-  return chrome.storage.local.set({ [LS_KEY]: settings }).then(() => {
-    saveToLocalStorage(settings);
-  });
-}
-
 // Listen for messages from the popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log("Received message from popup:", message);
-  sendResponse({ status: "unknown" });
-  return true;
-});
 
-// Listen for changes to userSettings in chrome.storage and update localStorage
-chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && changes[LS_KEY]) {
-    const newSettings = changes[LS_KEY].newValue;
-    saveToLocalStorage(newSettings);
-    userSettings = newSettings;
-    applySettings(userSettings);
-    updateKeepAliveSettings(userSettings);
+  if (message.type === "settingsUpdate") {
+    console.log("old settings", userSettings);
+
+    // Update the full settings
+    userSettings = message.settings;
+    console.log("new settings", userSettings);
+
+    // Only apply the specific changed parts
+    if (message.changedParts) {
+      applyChangedSettings(message.changedParts);
+    }
+
+    sendResponse({ status: "success" });
+  } else {
+    sendResponse({ status: "unknown" });
   }
+
+  return true;
 });
