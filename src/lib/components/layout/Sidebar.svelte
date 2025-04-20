@@ -6,6 +6,7 @@
     CircleCheckBig,
     Vote,
     Volume2,
+    User,
     Ban,
   } from "@lucide/svelte";
 
@@ -21,7 +22,7 @@
     { name: "Auto-accept", icon: CircleCheckBig },
     { name: "Map voting", icon: Vote },
     { name: "Sounds", icon: Volume2 },
-    { name: "Bans", icon: Ban },
+    { name: "Profile", icon: User },
     { name: "Settings", icon: Settings },
   ];
 
