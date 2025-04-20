@@ -3,7 +3,6 @@ let currentPlayerId = "";
 let faceitUrl: string | null = null;
 let faceitUrlPromise: Promise<string | null> | null = null;
 
-// Keep references to our buttons
 let csstatsButton: HTMLAnchorElement | null = null;
 let faceitButton: HTMLAnchorElement | null = null;
 
@@ -174,7 +173,6 @@ async function handleProfilePage(profileButtons: {
   removeButtons();
   await waitForLinksDiv();
   appendButtonsToDom();
-  // Start fetching Faceit URL
   faceitUrlPromise = fetchFaceitUrl(currentPlayerId);
   faceitUrl = await faceitUrlPromise;
   updateButtonHrefs(currentPlayerId, faceitUrl);
@@ -204,10 +202,8 @@ function observeUrlChanges(profileButtons: {
   csstats: boolean;
   faceit: boolean;
 }) {
-  // Listen to popstate/hashchange
   window.addEventListener("popstate", () => onUrlChange(profileButtons));
   window.addEventListener("hashchange", () => onUrlChange(profileButtons));
-  // Poll as fallback (no infinite loop, just a timer)
   setInterval(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
@@ -225,7 +221,7 @@ export function initialize(profileButtons: {
     handleProfilePage(profileButtons);
   }
   observeUrlChanges(profileButtons);
-  // On full page load, re-try in case DOM was not ready
+
   window.addEventListener("load", () => {
     if (isProfilePage()) {
       handleProfilePage(profileButtons);
