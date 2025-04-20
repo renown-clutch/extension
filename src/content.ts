@@ -11,8 +11,16 @@ async function initialize() {
   userSettings = result.userSettings || defaultUserSettings;
   console.log("Loaded user settings in content script:", result);
 
-  initializeTheme();
-  initializeProfileButtons();
+  if (userSettings.selectedTheme !== "default") {
+    initializeTheme(userSettings.selectedTheme);
+  }
+
+  if (
+    userSettings.profileButtons.csstats ||
+    userSettings.profileButtons.faceit
+  ) {
+    initializeProfileButtons(userSettings.profileButtons);
+  }
 }
 
 initialize();
@@ -36,8 +44,10 @@ function toggleConfirmModal(show: boolean): void {
 
       const acceptBtn = modal.querySelector("button.primary-button");
       if (acceptBtn) {
-        acceptBtn.addEventListener("click", () => {
+        acceptBtn.addEventListener("click", async () => {
           toggleConfirmModal(false);
+          userSettings.showConfirmModal = false;
+          await chrome.storage.local.set({ userSettings });
         });
       }
     }

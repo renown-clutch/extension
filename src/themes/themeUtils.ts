@@ -1,4 +1,21 @@
-import { colorMappings, rgbMappings, rgbaMappings, cssVariables } from "./Dark";
+import {
+  colorMappings as darkColorMappings,
+  rgbMappings as darkRgbMappings,
+  rgbaMappings as darkRgbaMappings,
+  cssVariables as darkCssVariables,
+} from "./Dark";
+
+import {
+  colorMappings as lightColorMappings,
+  rgbMappings as lightRgbMappings,
+  rgbaMappings as lightRgbaMappings,
+  cssVariables as lightCssVariables,
+} from "./Light";
+
+let colorMappings: typeof darkColorMappings | typeof lightColorMappings;
+let rgbMappings: typeof darkRgbMappings | typeof lightRgbMappings;
+let rgbaMappings: typeof darkRgbaMappings | typeof lightRgbaMappings;
+let cssVariables: typeof darkCssVariables | typeof lightCssVariables;
 
 // Create main style element for the theme
 const styleElement = document.createElement("style");
@@ -8,9 +25,20 @@ styleElement.id = "clutch-theme";
 const processedElements = new Set<string>();
 
 // Initialize the theme
-export function initialize(): void {
+export function initialize(theme: string): void {
   console.log("Clutch theme initializing");
 
+  if (theme === "dark") {
+    colorMappings = darkColorMappings;
+    rgbMappings = darkRgbMappings;
+    rgbaMappings = darkRgbaMappings;
+    cssVariables = darkCssVariables;
+  } else if (theme === "light") {
+    colorMappings = lightColorMappings;
+    rgbMappings = lightRgbMappings;
+    rgbaMappings = lightRgbaMappings;
+    cssVariables = lightCssVariables;
+  }
   // First apply CSS variables
   injectCSSVariables();
 

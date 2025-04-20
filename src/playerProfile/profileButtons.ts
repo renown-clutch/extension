@@ -65,8 +65,11 @@ function createButton({
   return button;
 }
 
-function ensureButtons(): void {
-  if (!csstatsButton) {
+function ensureButtons(profileButtons: {
+  csstats: boolean;
+  faceit: boolean;
+}): void {
+  if (profileButtons.csstats && !csstatsButton) {
     csstatsButton = createButton({
       className: "clutch-button1",
       href: "#",
@@ -74,7 +77,7 @@ function ensureButtons(): void {
       iconPath: "static/csstats.svg",
     });
   }
-  if (!faceitButton) {
+  if (profileButtons.faceit && !faceitButton) {
     faceitButton = createButton({
       className: "clutch-button2",
       href: "#",
@@ -159,11 +162,14 @@ function waitForLinksDiv(): Promise<Element> {
   });
 }
 
-async function handleProfilePage() {
+async function handleProfilePage(profileButtons: {
+  csstats: boolean;
+  faceit: boolean;
+}) {
   const playerId = getPlayerIdFromUrl();
   if (!playerId) return;
   currentPlayerId = playerId;
-  ensureButtons();
+  ensureButtons(profileButtons);
   updateButtonHrefs(currentPlayerId, null);
   removeButtons();
   await waitForLinksDiv();
@@ -184,39 +190,45 @@ function handleNonProfilePage() {
 
 let lastUrl = location.href;
 
-function onUrlChange() {
+function onUrlChange(profileButtons: { csstats: boolean; faceit: boolean }) {
   const isProfile = isProfilePage();
   removeButtons();
   if (isProfile) {
-    handleProfilePage();
+    handleProfilePage(profileButtons);
   } else {
     handleNonProfilePage();
   }
 }
 
-function observeUrlChanges() {
+function observeUrlChanges(profileButtons: {
+  csstats: boolean;
+  faceit: boolean;
+}) {
   // Listen to popstate/hashchange
-  window.addEventListener("popstate", onUrlChange);
-  window.addEventListener("hashchange", onUrlChange);
+  window.addEventListener("popstate", () => onUrlChange(profileButtons));
+  window.addEventListener("hashchange", () => onUrlChange(profileButtons));
   // Poll as fallback (no infinite loop, just a timer)
   setInterval(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
-      onUrlChange();
+      onUrlChange(profileButtons);
     }
   }, 500);
 }
 
-export function initialize(): void {
-  ensureButtons();
+export function initialize(profileButtons: {
+  csstats: boolean;
+  faceit: boolean;
+}): void {
+  ensureButtons(profileButtons);
   if (isProfilePage()) {
-    handleProfilePage();
+    handleProfilePage(profileButtons);
   }
-  observeUrlChanges();
+  observeUrlChanges(profileButtons);
   // On full page load, re-try in case DOM was not ready
   window.addEventListener("load", () => {
     if (isProfilePage()) {
-      handleProfilePage();
+      handleProfilePage(profileButtons);
     }
   });
 }

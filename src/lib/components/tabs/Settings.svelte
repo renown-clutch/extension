@@ -1,7 +1,8 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
 
-  let { showConfirmModal = $bindable(false) } = $props();
+  let { showConfirmModal = $bindable(false), profileButtons = $bindable({}) } =
+    $props();
 
   let switchId = "test-confirm-modal-switch";
 
@@ -28,5 +29,17 @@
     descriptionText="Show match confirmation popup on page for testing"
     {switchId}
     bind:checked={showConfirmModal}
+  />
+  <SwitchComponent
+    labelText="CSStats Profile Button"
+    descriptionText="Show CSStats profile button on page"
+    {switchId}
+    bind:checked={profileButtons.csstats}
+  />
+  <SwitchComponent
+    labelText="Faceit Profile Button"
+    descriptionText="Show Faceit profile button on page"
+    {switchId}
+    bind:checked={profileButtons.faceit}
   />
 </main>

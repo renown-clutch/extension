@@ -53,7 +53,10 @@
           <p>Ban settings will be available soon.</p>
         </div>
       {:else if userSettings.activeTab === "Settings"}
-        <SettingsTab bind:showConfirmModal={userSettings.showConfirmModal} />
+        <SettingsTab
+          bind:showConfirmModal={userSettings.showConfirmModal}
+          bind:profileButtons={userSettings.profileButtons}
+        />
       {/if}
     </div>
   </div>
