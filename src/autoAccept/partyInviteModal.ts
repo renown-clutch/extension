@@ -35,10 +35,8 @@ export function initializeAutoAcceptPartyInvite(userSettings: UserSettings) {
     subtree: true,
   });
 
-  // Check immediately and again after a short delay to ensure existing invites are caught
   checkForExistingInvite();
 
-  // Second check with delay to catch invites that might not be fully rendered yet
   setTimeout(checkForExistingInvite, 500);
 }
 
@@ -70,7 +68,6 @@ export function updateAutoAcceptPartyInviteSettings(
 ) {
   latestUserSettings = userSettings;
 
-  // Check for existing invites when settings are updated and auto-accept is enabled
   if (userSettings.autoAccept.party) {
     checkForExistingInvite();
   }
