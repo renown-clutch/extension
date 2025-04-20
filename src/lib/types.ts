@@ -3,7 +3,7 @@ export type TabName =
   | "Auto-accept"
   | "Map voting"
   | "Sounds"
-  | "Bans"
+  | "Profiles"
   | "Settings";
 
 export type UserSettings = {

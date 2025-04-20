@@ -1,10 +1,11 @@
 <script lang="ts">
   import "./Popup.css";
   import Sidebar from "$lib/components/layout/Sidebar.svelte";
-  import SoundTab from "$lib/components/tabs/Sound.svelte";
-  import ThemeTab from "$lib/components/tabs/Theme.svelte";
-  import AutoAcceptTab from "$lib/components/tabs/AutoAccept.svelte";
-  import SettingsTab from "$lib/components/tabs/Settings.svelte";
+  import SoundTab from "./tabs/Sound.svelte";
+  import ThemeTab from "./tabs/Theme.svelte";
+  import ProfilesTab from "./tabs/Profiles.svelte";
+  import AutoAcceptTab from "./tabs/AutoAccept.svelte";
+  import SettingsTab from "./tabs/Settings.svelte";
   import { onMount, untrack } from "svelte";
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings } from "$lib/types";
@@ -47,16 +48,10 @@
         </div>
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab />
-      {:else if userSettings.activeTab === "Bans"}
-        <div class="py-2">
-          <h2 class="text-xl font-medium mb-4">Bans</h2>
-          <p>Ban settings will be available soon.</p>
-        </div>
+      {:else if userSettings.activeTab === "Profiles"}
+        <ProfilesTab bind:profileButtons={userSettings.profileButtons} />
       {:else if userSettings.activeTab === "Settings"}
-        <SettingsTab
-          bind:showConfirmModal={userSettings.showConfirmModal}
-          bind:profileButtons={userSettings.profileButtons}
-        />
+        <SettingsTab bind:showConfirmModal={userSettings.showConfirmModal} />
       {/if}
     </div>
   </div>

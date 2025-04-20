@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Volume from "../constants/volumeSlider.svelte";
+  import Volume from "../../lib/components/constants/volumeSlider.svelte";
 </script>
 
 <main class=" flex flex-col gap-4">
