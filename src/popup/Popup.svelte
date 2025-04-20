@@ -35,7 +35,6 @@
   <div class="flex">
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
-    <!-- Main Content -->
     <div class="flex-1 p-8">
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
@@ -51,11 +50,7 @@
       {:else if userSettings.activeTab === "Profiles"}
         <ProfilesTab bind:profileButtons={userSettings.profileButtons} />
       {:else if userSettings.activeTab === "Settings"}
-        <SettingsTab
-          bind:showConfirmModal={userSettings.showConfirmModal}
-          bind:keepAlive={userSettings.keepAlive}
-          bind:showInviteModal={userSettings.showInviteModal}
-        />
+        <SettingsTab bind:keepAlive={userSettings.keepAlive} />
       {/if}
     </div>
   </div>

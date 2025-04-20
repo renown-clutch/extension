@@ -3,8 +3,6 @@ console.log("Clutch extension content script loaded");
 import { initialize as initializeTheme } from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
-import { toggleConfirmModal } from "./testModals/matchFoundModal";
-import { toggleInviteModal } from "./testModals/partyInviteModal";
 import {
   initializeMatchFoundAutoAccept,
   updateMatchFoundAutoAcceptSettings,
@@ -87,16 +85,7 @@ function saveToChromeAndLocal(settings: UserSettings): Promise<void> {
 
 // Listen for messages from the popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type === "toggleConfirmModal") {
-    toggleConfirmModal(message.show, userSettings, saveToChromeAndLocal);
-    sendResponse({ status: "received" });
-    return true;
-  }
-  if (message.type === "toggleInviteModal") {
-    toggleInviteModal(message.show, userSettings, saveToChromeAndLocal);
-    sendResponse({ status: "received" });
-    return true;
-  }
+  console.log("Received message from popup:", message);
   sendResponse({ status: "unknown" });
   return true;
 });
