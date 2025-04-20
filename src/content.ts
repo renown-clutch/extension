@@ -20,14 +20,11 @@ let userSettings: UserSettings = defaultUserSettings;
 
 const LS_KEY = "userSettings";
 
-// Apply only the specific settings that changed
 function applyChangedSettings(changedParts: Partial<UserSettings>) {
-  // Theme changes
   if (changedParts.selectedTheme && changedParts.selectedTheme !== "default") {
     initializeTheme(changedParts.selectedTheme);
   }
 
-  // Profile button changes
   if (changedParts.profileButtons) {
     if (
       changedParts.profileButtons.csstats ||
@@ -37,13 +34,11 @@ function applyChangedSettings(changedParts: Partial<UserSettings>) {
     }
   }
 
-  // Auto-accept changes
   if (changedParts.autoAccept) {
     updateMatchFoundAutoAcceptSettings(userSettings);
     updateAutoAcceptPartyInviteSettings(userSettings);
   }
 
-  // Keep alive changes
   if (changedParts.keepAlive !== undefined) {
     updateKeepAliveSettings(userSettings);
   }
@@ -55,11 +50,9 @@ async function loadFromChromeStorage(): Promise<UserSettings> {
 }
 
 async function initialize() {
-  // Load initial settings from chrome.storage.local
   const freshSettings = await loadFromChromeStorage();
   userSettings = freshSettings;
 
-  // Initialize all features with the full settings
   initializeMatchFoundAutoAccept(userSettings);
   initializeAutoAcceptPartyInvite(userSettings);
   initializeKeepAlive(userSettings);
@@ -78,18 +71,12 @@ async function initialize() {
 
 initialize();
 
-// Listen for messages from the popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log("Received message from popup:", message);
 
   if (message.type === "settingsUpdate") {
-    console.log("old settings", userSettings);
-
-    // Update the full settings
     userSettings = message.settings;
-    console.log("new settings", userSettings);
 
-    // Only apply the specific changed parts
     if (message.changedParts) {
       applyChangedSettings(message.changedParts);
     }

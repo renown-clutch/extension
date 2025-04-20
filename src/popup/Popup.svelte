@@ -29,12 +29,10 @@
   function detectChanges(): Partial<UserSettings> {
     const changes: Partial<UserSettings> = {};
 
-    // Check for theme changes
     if (previousSettings.selectedTheme !== userSettings.selectedTheme) {
       changes.selectedTheme = userSettings.selectedTheme;
     }
 
-    // Check for profile button changes
     if (
       JSON.stringify(previousSettings.profileButtons) !==
         JSON.stringify(userSettings.profileButtons) ||
@@ -46,7 +44,6 @@
       changes.showSkinDrops = userSettings.showSkinDrops;
     }
 
-    // Check for auto-accept changes
     if (
       JSON.stringify(previousSettings.autoAccept) !==
       JSON.stringify(userSettings.autoAccept)
@@ -54,7 +51,6 @@
       changes.autoAccept = { ...userSettings.autoAccept };
     }
 
-    // Check for keep alive changes
     if (previousSettings.keepAlive !== userSettings.keepAlive) {
       changes.keepAlive = userSettings.keepAlive;
     }
@@ -78,16 +74,12 @@
   });
 
   $effect(() => {
-    // Save to chrome.storage.local for persistence
     chrome.storage.local.set({ userSettings });
 
-    // Detect what changes were made
     const changes = detectChanges();
 
-    // Only send changes if there are any
     if (Object.keys(changes).length > 0) {
       sendSettingsToContentScript(changes);
-      // Update previous settings to current
       previousSettings = { ...userSettings };
     }
   });
