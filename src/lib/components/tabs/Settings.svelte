@@ -1,7 +1,8 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
 
-  let showModal = $state(false);
+  let { showConfirmModal = $bindable(false) } = $props();
+
   let switchId = "test-confirm-modal-switch";
 
   async function sendMessageToContent(newState: boolean) {
@@ -12,12 +13,12 @@
 
     await chrome.tabs.sendMessage(tabs[0].id!, {
       type: "toggleConfirmModal",
-      show: showModal,
+      show: showConfirmModal,
     });
   }
 
   $effect(() => {
-    sendMessageToContent(showModal);
+    sendMessageToContent(showConfirmModal);
   });
 </script>
 
@@ -26,6 +27,6 @@
     labelText="Test Confirm Modal"
     descriptionText="Show match confirmation popup on page for testing"
     {switchId}
-    bind:checked={showModal}
+    bind:checked={showConfirmModal}
   />
 </main>

@@ -9,13 +9,18 @@
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings } from "$lib/types";
 
-  let userSettings = $state<UserSettings>(defaultUserSettings);
+  let userSettings: UserSettings = $state<UserSettings>(defaultUserSettings);
 
   onMount(() => {
     chrome.storage.local.get("userSettings", (result) => {
       // Use untrack to prevent this state update from triggering the effect
       untrack(() => {
         userSettings = result.userSettings || defaultUserSettings;
+        Object.keys(defaultUserSettings).forEach((key) => {
+          if (!(key in result.userSettings)) {
+            (userSettings as any)[key] = (defaultUserSettings as any)[key];
+          }
+        });
       });
     });
   });
@@ -48,7 +53,7 @@
           <p>Ban settings will be available soon.</p>
         </div>
       {:else if userSettings.activeTab === "Settings"}
-        <SettingsTab />
+        <SettingsTab bind:showConfirmModal={userSettings.showConfirmModal} />
       {/if}
     </div>
   </div>

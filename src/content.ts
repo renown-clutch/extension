@@ -17,8 +17,7 @@ async function initialize() {
 
 initialize();
 
-// Handle the confirm modal toggling
-let confirmModalActive = false;
+let confirmModalActive = userSettings.showConfirmModal;
 const confirmModalHtml = `<div class="confirm-match-modal"><div class="modal-content"><div class="waiting-for-confirm"><h3 class="title">Your match is ready</h3><div class="confirm-within">Confirm your participation within</div><div class="countdown"><span class="countdown-render">00:08</span></div><button class="primary-button md gradient">Accept</button></div><div class="disclaimer">When you start a game of Renown, you're agreeing to stay for the entire match, usually lasting 30-45 minutes. Leaving the match once you've joined will result in a penalty.</div></div></div>`;
 
 function toggleConfirmModal(show: boolean): void {
@@ -32,7 +31,15 @@ function toggleConfirmModal(show: boolean): void {
     if (!existing) {
       const wrapper = document.createElement("div");
       wrapper.innerHTML = confirmModalHtml;
-      main.prepend(wrapper.firstElementChild!);
+      const modal = wrapper.firstElementChild!;
+      main.prepend(modal);
+
+      const acceptBtn = modal.querySelector("button.primary-button");
+      if (acceptBtn) {
+        acceptBtn.addEventListener("click", () => {
+          toggleConfirmModal(false);
+        });
+      }
     }
   } else {
     if (existing) {

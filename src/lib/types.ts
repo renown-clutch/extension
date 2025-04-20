@@ -9,9 +9,11 @@ export type TabName =
 export type UserSettings = {
   activeTab: TabName;
   selectedTheme: "" | "light" | "dark" | "default";
+  showConfirmModal: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
   activeTab: "Theme",
   selectedTheme: "",
+  showConfirmModal: false,
 };
