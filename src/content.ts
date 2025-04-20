@@ -7,20 +7,53 @@ import { defaultUserSettings, type UserSettings } from "./lib/types";
 let userSettings: UserSettings = defaultUserSettings;
 
 async function initialize() {
-  const result = await chrome.storage.local.get("userSettings");
-  userSettings = result.userSettings || defaultUserSettings;
-  console.log("Loaded user settings in content script:", result);
+  // Try to load from localStorage first
+  const localStorageSettings = localStorage.getItem("userSettings");
+  if (localStorageSettings) {
+    try {
+      userSettings = JSON.parse(localStorageSettings);
+      console.log("Loaded user settings from localStorage:", userSettings);
+    } catch (e) {
+      userSettings = defaultUserSettings;
+      console.warn(
+        "Failed to parse userSettings from localStorage, using default."
+      );
+    }
+  }
 
+  // Use settings immediately for theme/buttons
   if (userSettings.selectedTheme !== "default") {
     initializeTheme(userSettings.selectedTheme);
   }
-
   if (
     userSettings.profileButtons.csstats ||
     userSettings.profileButtons.faceit
   ) {
     initializeProfileButtons(userSettings.profileButtons);
   }
+
+  // Always update from chrome.storage.local in the background
+  const result = await chrome.storage.local.get("userSettings");
+  const freshSettings = result.userSettings || defaultUserSettings;
+  // If settings differ, update and re-inject
+  if (JSON.stringify(freshSettings) !== JSON.stringify(userSettings)) {
+    userSettings = freshSettings;
+    localStorage.setItem("userSettings", JSON.stringify(userSettings));
+    // Optionally, re-initialize theme/buttons if needed
+    if (userSettings.selectedTheme !== "default") {
+      initializeTheme(userSettings.selectedTheme);
+    }
+    if (
+      userSettings.profileButtons.csstats ||
+      userSettings.profileButtons.faceit
+    ) {
+      initializeProfileButtons(userSettings.profileButtons);
+    }
+  }
+  console.log(
+    "Loaded user settings in content script (from chrome.storage):",
+    result
+  );
 }
 
 initialize();
@@ -48,6 +81,7 @@ function toggleConfirmModal(show: boolean): void {
           toggleConfirmModal(false);
           userSettings.showConfirmModal = false;
           await chrome.storage.local.set({ userSettings });
+          localStorage.setItem("userSettings", JSON.stringify(userSettings));
         });
       }
     }
@@ -69,4 +103,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   sendResponse({ status: "received" });
   return true;
+});
+
+// Listen for changes to userSettings in chrome.storage and update localStorage
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.userSettings) {
+    localStorage.setItem(
+      "userSettings",
+      JSON.stringify(changes.userSettings.newValue)
+    );
+  }
 });
