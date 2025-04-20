@@ -86,6 +86,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 // Listen for changes to userSettings in chrome.storage and update localStorage
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes[LS_KEY]) {
-    saveToLocalStorage(changes[LS_KEY].newValue);
+    const newSettings = changes[LS_KEY].newValue;
+    saveToLocalStorage(newSettings);
+    userSettings = newSettings;
+    applySettings(userSettings);
   }
 });
