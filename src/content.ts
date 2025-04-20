@@ -8,6 +8,10 @@ import {
   initializeAutoAccept,
   updateAutoAcceptSettings,
 } from "./autoAccept/autoAccept";
+import {
+  initializeKeepAlive,
+  updateKeepAliveSettings,
+} from "./keepAlive/keepAlive";
 
 let userSettings: UserSettings = defaultUserSettings;
 
@@ -21,6 +25,7 @@ function applySettings(settings: UserSettings) {
     initializeProfileButtons(settings.profileButtons);
   }
   updateAutoAcceptSettings(settings);
+  updateKeepAliveSettings(settings);
 }
 
 function saveToLocalStorage(settings: UserSettings) {
@@ -62,6 +67,7 @@ async function initialize() {
     freshSettings
   );
   initializeAutoAccept(userSettings);
+  initializeKeepAlive(userSettings);
 }
 
 initialize();
@@ -90,5 +96,6 @@ chrome.storage.onChanged.addListener((changes, area) => {
     saveToLocalStorage(newSettings);
     userSettings = newSettings;
     applySettings(userSettings);
+    updateKeepAliveSettings(userSettings);
   }
 });

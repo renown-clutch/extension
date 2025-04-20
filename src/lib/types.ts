@@ -18,6 +18,7 @@ export type UserSettings = {
     match: boolean;
     party: boolean;
   };
+  keepAlive?: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -32,4 +33,5 @@ export const defaultUserSettings: UserSettings = {
     match: false,
     party: false,
   },
+  keepAlive: false,
 };

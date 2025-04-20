@@ -51,7 +51,10 @@
       {:else if userSettings.activeTab === "Profiles"}
         <ProfilesTab bind:profileButtons={userSettings.profileButtons} />
       {:else if userSettings.activeTab === "Settings"}
-        <SettingsTab bind:showConfirmModal={userSettings.showConfirmModal} />
+        <SettingsTab
+          bind:showConfirmModal={userSettings.showConfirmModal}
+          bind:keepAlive={userSettings.keepAlive}
+        />
       {/if}
     </div>
   </div>
