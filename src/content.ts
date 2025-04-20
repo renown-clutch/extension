@@ -3,11 +3,16 @@ console.log("Clutch extension content script loaded");
 import { initialize as initializeTheme } from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
-import { toggleConfirmModal } from "./confirmModal/confirmModal";
+import { toggleConfirmModal } from "./testModals/matchFoundModal";
+import { toggleInviteModal } from "./testModals/partyInviteModal";
 import {
-  initializeAutoAccept,
-  updateAutoAcceptSettings,
-} from "./autoAccept/autoAccept";
+  initializeMatchFoundAutoAccept,
+  updateMatchFoundAutoAcceptSettings,
+} from "./autoAccept/matchFoundModal";
+import {
+  initializeAutoAcceptPartyInvite,
+  updateAutoAcceptPartyInviteSettings,
+} from "./autoAccept/partyInviteModal";
 import {
   initializeKeepAlive,
   updateKeepAliveSettings,
@@ -24,7 +29,8 @@ function applySettings(settings: UserSettings) {
   if (settings.profileButtons.csstats || settings.profileButtons.faceit) {
     initializeProfileButtons(settings.profileButtons);
   }
-  updateAutoAcceptSettings(settings);
+  updateMatchFoundAutoAcceptSettings(settings);
+  updateAutoAcceptPartyInviteSettings(settings);
   updateKeepAliveSettings(settings);
 }
 
@@ -66,7 +72,8 @@ async function initialize() {
     "Loaded user settings in content script (from chrome.storage):",
     freshSettings
   );
-  initializeAutoAccept(userSettings);
+  initializeMatchFoundAutoAccept(userSettings);
+  initializeAutoAcceptPartyInvite(userSettings);
   initializeKeepAlive(userSettings);
 }
 
@@ -82,6 +89,11 @@ function saveToChromeAndLocal(settings: UserSettings): Promise<void> {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === "toggleConfirmModal") {
     toggleConfirmModal(message.show, userSettings, saveToChromeAndLocal);
+    sendResponse({ status: "received" });
+    return true;
+  }
+  if (message.type === "toggleInviteModal") {
+    toggleInviteModal(message.show, userSettings, saveToChromeAndLocal);
     sendResponse({ status: "received" });
     return true;
   }

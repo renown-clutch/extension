@@ -3,7 +3,7 @@ import type { UserSettings } from "../lib/types";
 let latestUserSettings: UserSettings | null = null;
 let observer: MutationObserver | null = null;
 
-export function initializeAutoAccept(userSettings: UserSettings) {
+export function initializeMatchFoundAutoAccept(userSettings: UserSettings) {
   latestUserSettings = userSettings;
   const main = document.querySelector("main");
   if (!main) return;
@@ -32,6 +32,6 @@ export function initializeAutoAccept(userSettings: UserSettings) {
   observer.observe(main, { childList: true, subtree: true });
 }
 
-export function updateAutoAcceptSettings(userSettings: UserSettings) {
+export function updateMatchFoundAutoAcceptSettings(userSettings: UserSettings) {
   latestUserSettings = userSettings;
 }

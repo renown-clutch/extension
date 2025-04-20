@@ -10,6 +10,7 @@ export type UserSettings = {
   activeTab: TabName;
   selectedTheme: "" | "light" | "dark" | "default";
   showConfirmModal: boolean;
+  showInviteModal: boolean;
   profileButtons: {
     csstats: boolean;
     faceit: boolean;
@@ -18,13 +19,14 @@ export type UserSettings = {
     match: boolean;
     party: boolean;
   };
-  keepAlive?: boolean;
+  keepAlive: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
   activeTab: "Theme",
   selectedTheme: "",
   showConfirmModal: false,
+  showInviteModal: false,
   profileButtons: {
     csstats: true,
     faceit: true,

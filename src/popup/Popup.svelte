@@ -54,6 +54,7 @@
         <SettingsTab
           bind:showConfirmModal={userSettings.showConfirmModal}
           bind:keepAlive={userSettings.keepAlive}
+          bind:showInviteModal={userSettings.showInviteModal}
         />
       {/if}
     </div>
