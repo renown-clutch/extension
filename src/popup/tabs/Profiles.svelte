@@ -1,7 +1,11 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
 
-  let { profileButtons = $bindable({}) } = $props();
+  let {
+    profileButtons = $bindable({}),
+    showBans = $bindable(false),
+    showSkinDrops = $bindable(false),
+  } = $props();
 
   let previousProfileButtons = { ...profileButtons };
 
@@ -34,5 +38,15 @@
     labelText="Faceit Profile Button"
     descriptionText="Show Faceit profile button on page"
     bind:checked={profileButtons.faceit}
+  />
+  <SwitchComponent
+    labelText="Show previous Bans"
+    descriptionText="Show previous all previous bans"
+    bind:checked={showBans}
+  />
+  <SwitchComponent
+    labelText="Show all Skin Drops"
+    descriptionText="Show all skin drops"
+    bind:checked={showSkinDrops}
   />
 </main>

@@ -48,7 +48,11 @@
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab />
       {:else if userSettings.activeTab === "Profiles"}
-        <ProfilesTab bind:profileButtons={userSettings.profileButtons} />
+        <ProfilesTab
+          bind:profileButtons={userSettings.profileButtons}
+          bind:showBans={userSettings.showBans}
+          bind:showSkinDrops={userSettings.showSkinDrops}
+        />
       {:else if userSettings.activeTab === "Settings"}
         <SettingsTab bind:keepAlive={userSettings.keepAlive} />
       {/if}

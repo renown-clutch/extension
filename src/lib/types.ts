@@ -20,6 +20,8 @@ export type UserSettings = {
     party: boolean;
   };
   keepAlive: boolean;
+  showBans: boolean;
+  showSkinDrops: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -36,4 +38,6 @@ export const defaultUserSettings: UserSettings = {
     party: false,
   },
   keepAlive: false,
+  showBans: true,
+  showSkinDrops: true,
 };
