@@ -39,7 +39,7 @@
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}
-        <AutoAcceptTab />
+        <AutoAcceptTab bind:autoAccept={userSettings.autoAccept} />
       {:else if userSettings.activeTab === "Map voting"}
         <div class="py-2">
           <h2 class="text-xl font-medium mb-4">Map Voting</h2>

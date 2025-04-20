@@ -4,6 +4,10 @@ import { initialize as initializeTheme } from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
 import { toggleConfirmModal } from "./confirmModal/confirmModal";
+import {
+  initializeAutoAccept,
+  updateAutoAcceptSettings,
+} from "./autoAccept/autoAccept";
 
 let userSettings: UserSettings = defaultUserSettings;
 
@@ -16,6 +20,7 @@ function applySettings(settings: UserSettings) {
   if (settings.profileButtons.csstats || settings.profileButtons.faceit) {
     initializeProfileButtons(settings.profileButtons);
   }
+  updateAutoAcceptSettings(settings);
 }
 
 function saveToLocalStorage(settings: UserSettings) {
@@ -56,6 +61,7 @@ async function initialize() {
     "Loaded user settings in content script (from chrome.storage):",
     freshSettings
   );
+  initializeAutoAccept(userSettings);
 }
 
 initialize();

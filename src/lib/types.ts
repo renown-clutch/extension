@@ -14,6 +14,10 @@ export type UserSettings = {
     csstats: boolean;
     faceit: boolean;
   };
+  autoAccept: {
+    match: boolean;
+    party: boolean;
+  };
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -23,5 +27,9 @@ export const defaultUserSettings: UserSettings = {
   profileButtons: {
     csstats: true,
     faceit: true,
+  },
+  autoAccept: {
+    match: false,
+    party: false,
   },
 };
