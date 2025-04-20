@@ -70,8 +70,10 @@ function saveToChromeAndLocal(settings: UserSettings): Promise<void> {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === "toggleConfirmModal") {
     toggleConfirmModal(message.show, userSettings, saveToChromeAndLocal);
+    sendResponse({ status: "received" });
     return true;
   }
+  sendResponse({ status: "unknown" });
   return true;
 });
 
