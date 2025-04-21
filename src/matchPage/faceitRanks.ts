@@ -209,15 +209,14 @@ async function getFaceitInfo(
  */
 function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
   try {
-    // Find the avatar-wrapper container instead of elo-wrapper
-    const avatarWrapper = playerRow.querySelector(".avatar-wrapper");
-    if (!avatarWrapper) {
-      console.warn("Could not find avatar-wrapper in player row:", playerRow);
+    if (!faceitInfo || !faceitInfo.elo) {
+      console.warn("Invalid faceit info received:", faceitInfo);
       return;
     }
 
-    if (!faceitInfo || !faceitInfo.elo) {
-      console.warn("Invalid faceit info received:", faceitInfo);
+    // Check if row has at least one child element
+    if (!playerRow.firstElementChild) {
+      console.warn("Player row has no child elements:", playerRow);
       return;
     }
 
@@ -259,9 +258,12 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
       `Faceit Level ${faceitLevel} (ELO: ${faceitInfo.elo})`
     );
 
-    // Insert right after avatar-wrapper instead of before elo-wrapper
-    if (avatarWrapper.nextSibling) {
-      playerRow.insertBefore(faceitIconElement, avatarWrapper.nextSibling);
+    // Always insert as the second element in the player row
+    if (playerRow.firstElementChild.nextElementSibling) {
+      playerRow.insertBefore(
+        faceitIconElement,
+        playerRow.firstElementChild.nextElementSibling
+      );
     } else {
       playerRow.appendChild(faceitIconElement);
     }
