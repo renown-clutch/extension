@@ -4,6 +4,10 @@ import { initialize as initializeTheme } from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
 import { initialize as initializeProfileBans } from "./playerProfile/previousBans";
 import { initialize as initializeSkinDrops } from "./playerProfile/skinDrops";
+import {
+  initialize as initializeFriendsList,
+  updateSettings as updateFriendsListSettings,
+} from "./playerProfile/friendsList";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
 import {
   initializeMatchFoundAutoAccept,
@@ -17,7 +21,7 @@ import {
   initializeKeepAlive,
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
-import { observeProfileChanges, isProfilePage } from "./utils/profileUtils";
+import { observeProfileChanges } from "./utils/profileUtils";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -92,6 +96,11 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     initializeSkinDrops(changedParts.showSkinDrops);
   }
 
+  if (changedParts.showFriendListRanks !== undefined) {
+    // Update friends list module when this setting changes
+    updateFriendsListSettings(userSettings);
+  }
+
   if (changedParts.autoAccept) {
     updateMatchFoundAutoAcceptSettings(userSettings);
     updateAutoAcceptPartyInviteSettings(userSettings);
@@ -127,6 +136,7 @@ async function initialize() {
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
     initializeKeepAlive(userSettings);
+    initializeFriendsList(userSettings);
     console.log("Non-DOM dependent features initialized");
 
     // Wait for page to be ready before initializing DOM-dependent features

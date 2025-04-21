@@ -110,6 +110,7 @@
           bind:profileButtons={userSettings.profileButtons}
           bind:showBans={userSettings.showBans}
           bind:showSkinDrops={userSettings.showSkinDrops}
+          bind:showFriendListRanks={userSettings.showFriendListRanks}
         />
       {:else if userSettings.activeTab === "Settings"}
         <SettingsTab bind:keepAlive={userSettings.keepAlive} />

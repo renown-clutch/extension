@@ -25,15 +25,12 @@ export type UserSettings = {
   sounds: {
     matchFound: {
       volume: number;
-      enabled: boolean;
-      customSound: string | null;
     };
     partyInvite: {
       volume: number;
-      enabled: boolean;
-      customSound: string | null;
     };
   };
+  showFriendListRanks: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -55,13 +52,10 @@ export const defaultUserSettings: UserSettings = {
   sounds: {
     matchFound: {
       volume: 70,
-      enabled: true,
-      customSound: null,
     },
     partyInvite: {
       volume: 70,
-      enabled: true,
-      customSound: null,
     },
   },
+  showFriendListRanks: true,
 };

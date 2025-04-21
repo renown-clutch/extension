@@ -5,6 +5,7 @@
     profileButtons = $bindable({}),
     showBans = $bindable(false),
     showSkinDrops = $bindable(false),
+    showFriendListRanks = $bindable(false),
   } = $props();
 
   let previousProfileButtons = { ...profileButtons };
@@ -48,5 +49,10 @@
     labelText="Show all Skin Drops"
     descriptionText="Show all skin drops"
     bind:checked={showSkinDrops}
+  />
+  <SwitchComponent
+    labelText="Friend List Ranks"
+    descriptionText="Show Friend's Ranks in Friend List"
+    bind:checked={showFriendListRanks}
   />
 </main>
