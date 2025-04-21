@@ -41,19 +41,19 @@ async function fetchUserDrops(steamId: string): Promise<Drop[]> {
 function getRarityColor(rarity: string): string {
   switch (rarity) {
     case "Covert":
-      return "rgb(235, 75, 75)"; // Red
+      return "rgb(235, 75, 75)";
     case "Classified":
-      return "rgb(211, 44, 230)"; // Pink
+      return "rgb(211, 44, 230)";
     case "Restricted":
-      return "rgb(136, 71, 255)"; // Purple
+      return "rgb(136, 71, 255)";
     case "Mil-Spec Grade":
-      return "rgb(75, 105, 255)"; // Blue
+      return "rgb(75, 105, 255)";
     case "Industrial Grade":
-      return "rgb(94, 152, 217)"; // Light blue
-    case "Consumer":
-      return "rgb(176, 195, 217)"; // Light gray
+      return "rgb(94, 152, 217)";
+    case "Consumer Grade":
+      return "rgb(176, 195, 217)";
     default:
-      return "rgb(235, 75, 75)"; // Default to red
+      return "rgb(235, 75, 75)";
   }
 }
 
@@ -81,6 +81,19 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
                 d="M7.5 7.5h.01m13.58 6.41-7.17 7.17a2 2 0 0 1-2.83 0L2.5 12.5v-10h10l8.59 8.59a2 2 0 0 1 0 2.82"></path>
         </svg>€${drop.buff_price ? Math.round(drop.buff_price / 100) : "?"}
       </div>
+    </div>
+    <div class="skin-image-wrapper">
+      <img alt="Skin" loading="lazy" width="99" height="74" decoding="async" data-nimg="1" 
+        srcset="/_next/image?url=https%3A%2F%2Fcommunity.akamai.steamstatic.com%2Feconomy%2Fimage%2F${
+          drop.icon_hash
+        }&amp;w=128&amp;q=75 1x, 
+                /_next/image?url=https%3A%2F%2Fcommunity.akamai.steamstatic.com%2Feconomy%2Fimage%2F${
+                  drop.icon_hash
+                }&amp;w=256&amp;q=75 2x" 
+        src="/_next/image?url=https%3A%2F%2Fcommunity.akamai.steamstatic.com%2Feconomy%2Fimage%2F${
+          drop.icon_hash
+        }&amp;w=256&amp;q=75" 
+        style="color: transparent;">
     </div>
     <div class="skin-details">
       <div class="weapon" style="color: ${getRarityColor(
