@@ -51,9 +51,44 @@ export function observeProfileChanges(
   }
 
   // Always add these event listeners regardless of Navigation API support
-  //   window.addEventListener("popstate", handleUrlChange);
-  //   window.addEventListener("hashchange", handleUrlChange);
-  //   document.addEventListener("visibilitychange", handleUrlChange);
+  window.addEventListener("popstate", handleUrlChange);
+  window.addEventListener("hashchange", handleUrlChange);
+  document.addEventListener("visibilitychange", handleUrlChange);
+
+  // Add MutationObserver to detect DOM changes that might indicate page navigation
+  // Only observe if document.body exists
+  if (document.body) {
+    try {
+      const observer = new MutationObserver(() => {
+        handleUrlChange();
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    } catch (error) {
+      console.error("Error setting up MutationObserver:", error);
+    }
+  } else {
+    // If document.body doesn't exist yet, wait for it and then observe
+    window.addEventListener("DOMContentLoaded", () => {
+      if (document.body) {
+        try {
+          const observer = new MutationObserver(() => {
+            handleUrlChange();
+          });
+
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+          });
+        } catch (error) {
+          console.error("Error setting up MutationObserver:", error);
+        }
+      }
+    });
+  }
 }
 
 // Helper for UI elements to wait for an element to appear in the DOM
