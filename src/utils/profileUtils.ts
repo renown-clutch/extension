@@ -51,9 +51,9 @@ export function observeProfileChanges(
   }
 
   // Always add these event listeners regardless of Navigation API support
-  window.addEventListener("popstate", handleUrlChange);
-  window.addEventListener("hashchange", handleUrlChange);
-  document.addEventListener("visibilitychange", handleUrlChange);
+  //   window.addEventListener("popstate", handleUrlChange);
+  //   window.addEventListener("hashchange", handleUrlChange);
+  //   document.addEventListener("visibilitychange", handleUrlChange);
 }
 
 // Helper for UI elements to wait for an element to appear in the DOM

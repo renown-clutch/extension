@@ -72,55 +72,40 @@ function removeBanBadges() {
   document
     .querySelectorAll("[data-clutch-extension='true'].ban-badge")
     .forEach((badge) => {
-      console.log("removing ban badge", badge);
       badge.remove();
     });
 }
 
 async function renderBanBadges(bans: Ban[]): Promise<void> {
-  console.log("renderBanBadges", bans);
-  console.log("bans length", bans.length);
-
   if (!bans || bans.length === 0) return;
 
   const container = await waitForBannerContainer();
-  console.log("container", container);
 
-  // Check if there's already a ban badge from the site
   let existingBanBadge = container.querySelector(
     ".ban-badge:not([data-clutch-extension='true'])"
   );
 
-  // if there's already a ban badge from the site, we skip first ban from response
   if (existingBanBadge) {
     bans = bans.slice(1);
   }
 
   bans.forEach((ban) => {
     const banBadgeElement = createBanBadge(ban);
-    console.log("banBadgeElement created");
     container.appendChild(banBadgeElement);
-    console.log("banBadgeElement appended");
   });
 }
 
 export async function initialize(showBans: boolean): Promise<void> {
-  console.log("initialize ban badges", showBans);
-
   if (!showBans || !isProfilePage()) {
     removeBanBadges();
     return;
   }
 
   removeBanBadges();
-  console.log("ban_badges removed");
 
   const playerId = getPlayerIdFromUrl();
-  console.log("playerId", playerId);
   if (!playerId) return;
 
   const bans = await fetchUserBans(playerId);
-  console.log("bans", bans);
   await renderBanBadges(bans);
-  console.log("ban_badges rendered");
 }
