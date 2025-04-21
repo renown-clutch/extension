@@ -2,6 +2,25 @@
     color: #382829;
   }
 
+  .tooltip-wrapper .tooltip {
+  
+    background-color: #1f2937;
+    border: 1px solid #374151;
+    
+}
+
+.profile-match-list .match {
+  
+  background: linear-gradient(90deg, rgba(17, 24, 39, 0.872), hwb(215 12% 78%) 300px), var(--match-bg) no-repeat left center / auto 100%;
+  
+}
+.profile-match-list .match:hover {
+  
+  background: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px), var(--match-bg) no-repeat left center / auto 100%;
+    background-color: #030712;
+}
+
+
   .footer {
     background-color: #00030a ;
   }
@@ -1207,10 +1226,13 @@
     -webkit-text-fill-color: rgba(0,0,0,0);
   }
   
-  .waitlist .tooltip .tooltiptext {
-    background-color: #200e0e;
+  .waitlist .tooltip  .tooltiptext {
+    background-color: #1f2937;
     color: #fff;
+
   }
+
+  
   
   }
   
@@ -2531,10 +2553,13 @@
     color: #7bdbbc;
   }
   
+  
   .tooltip-wrapper {
     --border-color: rgb(60,44,44);
   }
   
+
+
   .tooltip-wrapper .tooltip {
     background-color: #200e0e;
     color: #fff;
