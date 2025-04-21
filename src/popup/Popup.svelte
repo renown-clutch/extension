@@ -105,10 +105,10 @@
 </script>
 
 <main class="w-[600px] bg-slate-950">
-  <div class="flex">
+  <div class="flex h-[440px]">
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
-    <div class="flex-1 p-8">
+    <div class="flex-1 p-8 overflow-y-auto">
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}
