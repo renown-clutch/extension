@@ -6,7 +6,11 @@ import {
 
 let currentPlayerId = "";
 let faceitUrl: string | null = null;
-let faceitUrlPromise: Promise<string | null> | null = null;
+let faceitElo: number | null = null;
+let faceitDataPromise: Promise<{
+  url: string | null;
+  elo: number | null;
+}> | null = null;
 
 let csstatsButton: HTMLAnchorElement | null = null;
 let faceitButton: HTMLAnchorElement | null = null;
@@ -17,6 +21,22 @@ function getExtensionUrl(path: string): string {
     document.currentScript?.getAttribute("src")?.split("/")[2] ||
     window.location.href.match(/chrome-extension:\/\/([^\/]+)/)?.[1];
   return `chrome-extension://${extensionId}/${path}`;
+}
+
+// Function to determine the faceit level icon based on ELO
+function getFaceitLevelIcon(elo: number | null): string {
+  if (elo === null) return "static/faceit.svg";
+
+  if (elo < 800) return "static/faceitlevels/lvl1.svg";
+  if (elo < 950) return "static/faceitlevels/lvl2.svg";
+  if (elo < 1100) return "static/faceitlevels/lvl3.svg";
+  if (elo < 1250) return "static/faceitlevels/lvl4.svg";
+  if (elo < 1400) return "static/faceitlevels/lvl5.svg";
+  if (elo < 1550) return "static/faceitlevels/lvl6.svg";
+  if (elo < 1700) return "static/faceitlevels/lvl7.svg";
+  if (elo < 1850) return "static/faceitlevels/lvl8.svg";
+  if (elo < 2000) return "static/faceitlevels/lvl9.svg";
+  return "static/faceitlevels/lvl10.svg";
 }
 
 function createButton({
@@ -83,15 +103,24 @@ function ensureButtons(profileButtons: {
   }
 }
 
-function updateButtonHrefs(playerId: string, faceitUrl: string | null) {
+function updateButtonHrefs(
+  playerId: string,
+  faceitData: { url: string | null; elo: number | null }
+) {
   if (csstatsButton) {
     csstatsButton.href = `https://csstats.gg/player/${playerId}`;
     csstatsButton.style.display = "flex";
   }
   if (faceitButton) {
-    if (faceitUrl) {
-      faceitButton.href = faceitUrl;
+    if (faceitData.url) {
+      faceitButton.href = faceitData.url;
       faceitButton.style.display = "flex";
+
+      // Update the faceit button icon based on ELO
+      const img = faceitButton.querySelector("img");
+      if (img) {
+        img.src = getExtensionUrl(getFaceitLevelIcon(faceitData.elo));
+      }
     } else {
       faceitButton.href = "#";
       faceitButton.style.display = "none";
@@ -119,24 +148,23 @@ function appendButtonsToDom() {
   }
 }
 
-async function fetchFaceitUrl(steamId: string): Promise<string | null> {
+async function fetchFaceitData(
+  steamId: string
+): Promise<{ url: string | null; elo: number | null }> {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(
       { type: "fetchFaceitUrl", steamId },
       (response) => {
         if (response && response.success) {
-          if (typeof response.data === "string") {
-            resolve(response.data);
-          } else if (
-            typeof response.data === "object" &&
-            response.data.faceit_url
-          ) {
-            resolve(response.data.faceit_url);
+          if (typeof response.data === "object") {
+            const url = response.data.url || null;
+            const elo = response.data.elo || null;
+            resolve({ url, elo });
           } else {
-            resolve(null);
+            resolve({ url: null, elo: null });
           }
         } else {
-          resolve(null);
+          resolve({ url: null, elo: null });
         }
       }
     );
@@ -165,18 +193,20 @@ export async function initialize(profileButtons: {
 
   currentPlayerId = playerId;
   ensureButtons(profileButtons);
-  updateButtonHrefs(currentPlayerId, null);
+  updateButtonHrefs(currentPlayerId, { url: null, elo: null });
 
   try {
     // Wait for the container to be available
     await waitForLinksDiv();
     appendButtonsToDom();
 
-    // Fetch and update Faceit URL if needed
+    // Fetch and update Faceit data if needed
     if (profileButtons.faceit) {
-      faceitUrlPromise = fetchFaceitUrl(currentPlayerId);
-      faceitUrl = await faceitUrlPromise;
-      updateButtonHrefs(currentPlayerId, faceitUrl);
+      faceitDataPromise = fetchFaceitData(currentPlayerId);
+      const faceitData = await faceitDataPromise;
+      faceitUrl = faceitData.url;
+      faceitElo = faceitData.elo;
+      updateButtonHrefs(currentPlayerId, faceitData);
       appendButtonsToDom();
     }
   } catch (error) {

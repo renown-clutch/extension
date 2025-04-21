@@ -33,10 +33,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const steamId = message.steamId;
     console.log("Fetching Faceit URL for Steam ID:", steamId);
 
-    fetch(`https://api.clutch.lorem.sh/get_user_faceit_url?steam_id=${steamId}`)
+    fetch(
+      `https://api.clutch.lorem.sh/get_user_faceit_elo_and_url?steam_id=${steamId}`
+    )
       .then(async (response) => {
         console.log(
-          "Faceit URL response status:",
+          "Faceit data response status:",
           response.status,
           response.statusText
         );
@@ -48,11 +50,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return safeJsonParse(response);
       })
       .then((data) => {
-        console.log("Faceit URL response in background:", data);
+        console.log("Faceit data response in background:", data);
         sendResponse({ success: true, data });
       })
       .catch((error: unknown) => {
-        console.error("Error fetching Faceit URL in background:", error);
+        console.error("Error fetching Faceit data in background:", error);
         const errorMessage =
           error instanceof Error ? error.message : String(error);
         sendResponse({
