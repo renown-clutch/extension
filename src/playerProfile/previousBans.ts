@@ -64,6 +64,37 @@ function createBanBadge(ban: Ban): HTMLDivElement {
   return banBadge;
 }
 
+function createNoBansBadge(): HTMLDivElement {
+  const banBadge = document.createElement("div");
+  banBadge.className = "ban-badge good";
+  banBadge.setAttribute("data-clutch-extension", "true");
+  banBadge.style.backgroundColor = "var(--toastify-color-success)";
+  banBadge.style.color = "var(--toastify-color-light)";
+
+  const checkSvg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  checkSvg.setAttribute("width", "16");
+  checkSvg.setAttribute("height", "16");
+  checkSvg.setAttribute("viewBox", "0 0 16 16");
+  checkSvg.setAttribute("fill", "currentColor");
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute(
+    "d",
+    "M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"
+  );
+  checkSvg.appendChild(path);
+
+  const textNode = document.createTextNode(" No previous bans");
+
+  banBadge.appendChild(checkSvg);
+  banBadge.appendChild(textNode);
+
+  return banBadge;
+}
+
 function waitForBannerContainer(): Promise<Element> {
   return waitForElement(".profile-banner .container");
 }
@@ -77,13 +108,17 @@ function removeBanBadges() {
 }
 
 async function renderBanBadges(bans: Ban[]): Promise<void> {
-  if (!bans || bans.length === 0) return;
-
   const container = await waitForBannerContainer();
 
   let existingBanBadge = container.querySelector(
     ".ban-badge:not([data-clutch-extension='true'])"
   );
+
+  if (!bans || bans.length === 0) {
+    const noBansBadge = createNoBansBadge();
+    container.appendChild(noBansBadge);
+    return;
+  }
 
   if (existingBanBadge) {
     bans = bans.slice(1);

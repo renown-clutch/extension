@@ -22,6 +22,18 @@ export type UserSettings = {
   keepAlive: boolean;
   showBans: boolean;
   showSkinDrops: boolean;
+  sounds: {
+    matchFound: {
+      volume: number;
+      enabled: boolean;
+      customSound: string | null;
+    };
+    partyInvite: {
+      volume: number;
+      enabled: boolean;
+      customSound: string | null;
+    };
+  };
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -40,4 +52,16 @@ export const defaultUserSettings: UserSettings = {
   keepAlive: false,
   showBans: true,
   showSkinDrops: true,
+  sounds: {
+    matchFound: {
+      volume: 70,
+      enabled: true,
+      customSound: null,
+    },
+    partyInvite: {
+      volume: 70,
+      enabled: true,
+      customSound: null,
+    },
+  },
 };
