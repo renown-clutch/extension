@@ -1,7 +1,7 @@
 export type TabName =
   | "Theme"
   | "Auto-accept"
-  | "Map voting"
+  | "Match"
   | "Sounds"
   | "Profiles"
   | "Settings";
@@ -31,6 +31,7 @@ export type UserSettings = {
     };
   };
   showFriendListRanks: boolean;
+  showFaceitRanksOnMatchPage: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -58,4 +59,5 @@ export const defaultUserSettings: UserSettings = {
     },
   },
   showFriendListRanks: true,
+  showFaceitRanksOnMatchPage: true,
 };

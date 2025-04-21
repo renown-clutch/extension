@@ -7,6 +7,7 @@ import {
 let currentPlayerId = "";
 let faceitUrl: string | null = null;
 let faceitElo: number | null = null;
+
 let faceitDataPromise: Promise<{
   url: string | null;
   elo: number | null;
@@ -153,12 +154,13 @@ async function fetchFaceitData(
 ): Promise<{ url: string | null; elo: number | null }> {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(
-      { type: "fetchFaceitUrl", steamId },
+      { type: "get_faceit_info", steam_ids: [steamId] },
       (response) => {
-        if (response && response.success) {
-          if (typeof response.data === "object") {
-            const url = response.data.url || null;
-            const elo = response.data.elo || null;
+        if (response && Object.keys(response).length > 0) {
+          const faceitData = response[steamId];
+          if (faceitData) {
+            const url = faceitData.url || null;
+            const elo = faceitData.elo || null;
             resolve({ url, elo });
           } else {
             resolve({ url: null, elo: null });

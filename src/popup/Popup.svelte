@@ -6,6 +6,7 @@
   import ProfilesTab from "./tabs/Profiles.svelte";
   import AutoAcceptTab from "./tabs/AutoAccept.svelte";
   import SettingsTab from "./tabs/Settings.svelte";
+  import MatchTab from "./tabs/Match.svelte";
   import { onMount, untrack } from "svelte";
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings } from "$lib/types";
@@ -65,6 +66,14 @@
       changes.showFriendListRanks = userSettings.showFriendListRanks;
     }
 
+    if (
+      previousSettings.showFaceitRanksOnMatchPage !==
+      userSettings.showFaceitRanksOnMatchPage
+    ) {
+      changes.showFaceitRanksOnMatchPage =
+        userSettings.showFaceitRanksOnMatchPage;
+    }
+
     return changes;
   }
 
@@ -104,11 +113,12 @@
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}
         <AutoAcceptTab bind:autoAccept={userSettings.autoAccept} />
-      {:else if userSettings.activeTab === "Map voting"}
-        <div class="py-2">
-          <h2 class="text-xl font-medium mb-4">Map Voting</h2>
-          <p>Map voting settings will be available soon.</p>
-        </div>
+      {:else if userSettings.activeTab === "Match"}
+        <MatchTab
+          bind:showFaceitRanksOnMatchPage={
+            userSettings.showFaceitRanksOnMatchPage
+          }
+        />
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab />
       {:else if userSettings.activeTab === "Profiles"}

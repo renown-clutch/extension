@@ -1,5 +1,5 @@
 // Example background script
-console.log("Background script loaded");
+console.log("Clutch extension background script loaded");
 
 // Listen for installation
 chrome.runtime.onInstalled.addListener(() => {
@@ -25,47 +25,22 @@ async function safeJsonParse(response: Response): Promise<any> {
   }
 }
 
+// Base URL for API calls
+const API_BASE_URL = "https://api.clutch.lorem.sh"; // Updated to use the same API as other features
+
 // Listen for messages from content script or popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Received message:", message);
+  console.log("Background script received message:", message);
 
-  if (message.type === "fetchFaceitUrl") {
-    const steamId = message.steamId;
-    console.log("Fetching Faceit URL for Steam ID:", steamId);
-
-    fetch(
-      `https://api.clutch.lorem.sh/get_user_faceit_elo_and_url?steam_id=${steamId}`
-    )
-      .then(async (response) => {
-        console.log(
-          "Faceit data response status:",
-          response.status,
-          response.statusText
-        );
-        if (!response.ok) {
-          throw new Error(
-            `API returned ${response.status}: ${response.statusText}`
-          );
-        }
-        return safeJsonParse(response);
-      })
-      .then((data) => {
-        console.log("Faceit data response in background:", data);
-        sendResponse({ success: true, data });
-      })
-      .catch((error: unknown) => {
-        console.error("Error fetching Faceit data in background:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        sendResponse({
-          success: false,
-          error: String(error),
-          details: errorMessage,
-        });
+  if (message.type === "get_faceit_info" && message.steam_ids) {
+    console.log("Getting Faceit info for Steam IDs:", message.steam_ids);
+    getFaceitInfo(message.steam_ids)
+      .then(sendResponse)
+      .catch((error) => {
+        console.error("Error getting Faceit info:", error);
+        sendResponse({});
       });
-
-    // Return true to indicate that we will send a response asynchronously
-    return true;
+    return true; // Indicates async response
   } else if (message.type === "fetchUserBans") {
     const steamId = message.steamId;
     console.log("Fetching bans for Steam ID:", steamId);
@@ -178,3 +153,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
+
+/**
+ * Get Faceit info for the given Steam IDs
+ */
+async function getFaceitInfo(steamIds: string[]): Promise<Record<string, any>> {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/get_users_faceit_elo_and_url`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          steam_ids: steamIds,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch Faceit info: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const data = await safeJsonParse(response);
+    console.log("Faceit info response:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching Faceit info:", error);
+    // Return empty object as fallback
+    return {};
+  }
+}

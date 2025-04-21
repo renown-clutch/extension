@@ -4,10 +4,9 @@
     Settings,
     Palette,
     CircleCheckBig,
-    Vote,
     Volume2,
     User,
-    Ban,
+    Swords,
   } from "@lucide/svelte";
 
   type Icon = typeof Settings;
@@ -20,7 +19,7 @@
   const sidebarItems: SidebarItem[] = [
     { name: "Theme", icon: Palette },
     { name: "Auto-accept", icon: CircleCheckBig },
-    { name: "Map voting", icon: Vote },
+    { name: "Match", icon: Swords },
     { name: "Sounds", icon: Volume2 },
     { name: "Profiles", icon: User },
     { name: "Settings", icon: Settings },
@@ -46,11 +45,9 @@
             role="button"
             tabindex="0"
             class="flex items-center gap-2 mb-2 p-3 hover:bg-slate-900 leading-tight transition-all rounded-md
-             outline-none text-start
-
-               
-
-                {activeTab === name ? 'bg-slate-900 ' : ''}"
+             outline-none text-start {activeTab === name
+              ? 'bg-slate-900 '
+              : ''}"
             onclick={() => (activeTab = name)}
             onkeydown={(e) => e.key === "Enter" && (activeTab = name)}
           >

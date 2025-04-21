@@ -22,6 +22,10 @@ import {
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
 import { observeProfileChanges } from "./utils/profileUtils";
+import {
+  initialize as initializeFaceitRanks,
+  updateSettings as updateFaceitRanksSettings,
+} from "./matchPage/faceitRanks";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -113,6 +117,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (changedParts.keepAlive !== undefined) {
     updateKeepAliveSettings(userSettings);
   }
+
+  if (changedParts.showFaceitRanksOnMatchPage !== undefined) {
+    updateFaceitRanksSettings(userSettings.showFaceitRanksOnMatchPage);
+  }
 }
 
 async function loadFromChromeStorage(): Promise<UserSettings> {
@@ -141,6 +149,7 @@ async function initialize() {
     initializeAutoAcceptPartyInvite(userSettings);
     initializeKeepAlive(userSettings);
     initializeFriendsList(userSettings);
+    initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
     console.log("Non-DOM dependent features initialized");
 
     // Wait for page to be ready before initializing DOM-dependent features
