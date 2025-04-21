@@ -3,6 +3,7 @@ console.log("Clutch extension content script loaded");
 import { initialize as initializeTheme } from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
 import { initialize as initializeProfileBans } from "./playerProfile/previousBans";
+import { initialize as initializeSkinDrops } from "./playerProfile/skinDrops";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
 import {
   initializeMatchFoundAutoAccept,
@@ -57,6 +58,10 @@ async function applyDomDependentSettings(settings: UserSettings) {
   if (settings.showBans) {
     initializeProfileBans(settings.showBans);
   }
+
+  if (settings.showSkinDrops) {
+    initializeSkinDrops(settings.showSkinDrops);
+  }
 }
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
@@ -81,6 +86,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
   if (changedParts.showBans !== undefined) {
     initializeProfileBans(changedParts.showBans);
+  }
+
+  if (changedParts.showSkinDrops !== undefined) {
+    initializeSkinDrops(changedParts.showSkinDrops);
   }
 
   if (changedParts.autoAccept) {
@@ -147,6 +156,10 @@ async function initialize() {
           if (userSettings.showBans) {
             console.log("Reinitializing profile bans");
             initializeProfileBans(userSettings.showBans);
+          }
+          if (userSettings.showSkinDrops) {
+            console.log("Reinitializing skin drops");
+            initializeSkinDrops(userSettings.showSkinDrops);
           }
         }, 300);
       }

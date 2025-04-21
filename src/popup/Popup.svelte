@@ -69,7 +69,7 @@
         userSettings = result.userSettings || defaultUserSettings;
         previousSettings = { ...userSettings };
         Object.keys(defaultUserSettings).forEach((key) => {
-          if (!(key in result.userSettings)) {
+          if (result.userSettings && !(key in result.userSettings)) {
             (userSettings as any)[key] = (defaultUserSettings as any)[key];
           }
         });
