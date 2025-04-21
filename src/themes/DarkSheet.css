@@ -1,5 +1,5 @@
 .primary-button.gradient {
-    color: #ff0000;
+    color: #382829;
   }
   
   .primary-button.light {
@@ -13,7 +13,7 @@
   }
   
   .primary-button.darker {
-    background-color: #251515;
+    background-color: #030712;
     color: #fff;
   }
   
@@ -41,7 +41,7 @@
   }
   
   .primary-button:not(:disabled):hover.darker {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .primary-button:not(:disabled):hover.leetify {
@@ -81,7 +81,7 @@
   }
   
   .input .input-container input {
-    background-color: #332323;
+    background-color: #030712;
     color: #fff;
   }
   
@@ -102,7 +102,7 @@
   }
   
   .landing-page .navbar.scrolled {
-    background-color: #251515;
+    background-color: #030712;
   }
   
   .navbar .container .content .links a {
@@ -118,28 +118,32 @@
   }
   
   .navbar .container .content .actions .notification .toggle {
-    background-color: #332323;
+    background-color: #030712;
     color: hsla(0,0%,100%,.65);
   }
   
   .navbar .container .content .actions .notification .notification-count .count {
-    color: #332323;
+    color: #030712;
   }
   
   .navbar .container .content .actions .notification.open .toggle {
     color: #fff;
   }
   
+  .site-layout>.grid aside.sidebar button.toggle {
+    background-color: #1f2937;
+}
+
   .navbar .container .content .actions .notification.open .toggle,.navbar .container .content .actions .notification:hover .toggle {
     background-color: #382829;
   }
   
   .navbar .container .content .actions .notification .notification-container .notification-content {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .navbar .container .content .actions .profile-menu .toggle {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .navbar .container .content .actions .profile-menu .toggle .arrow-wrapper {
@@ -155,7 +159,7 @@
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .top .name {
@@ -181,6 +185,10 @@
   .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper .text-button {
     color: #fff;
   }
+
+  .navbar {
+    border-bottom: 2px solid #111827;
+}
   
   .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper .text-button:hover {
     background-color: #382829;
@@ -189,12 +197,12 @@
   }
   
   @media screen and (max-width: 1079px) {
-    background-color: #251515;
+    background-color: #030712;
     transition: background-color,box-shadow .2s ease-in-out;
   }
   
   .navbar.open>.container .content .links {
-    background-color: #251515;
+    background-color: #030712;
   }
   
   .navbar.open>.container .content .links a {
@@ -206,7 +214,7 @@
   }
   
   .page.play .banner-notification {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .page.play .banner-notification .dismiss button {
@@ -230,13 +238,45 @@
   .page.play .live-matches .empty-state-text {
     color: hsla(0,0%,100%,.65);
   }
+
+  .live-match-list .match {
+    
+    background: linear-gradient(90deg, rgba(17, 24, 39, 0.872), hwb(215 12% 78%) 300px), var(--match-bg) no-repeat left center / auto 100%;
+    background-color: #030712;
+    
+}
+  .live-match-list .match:hover {
+    
+    background: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px), var(--match-bg) no-repeat left center / auto 100%;
+    background-color: #030712;
+    
+}
+
+.live-match-list .match .actions .match-link {
+
+  background-color: #374151;
+  
+}
+.live-match-list .match .actions .match-link:hover {
+
+  background-color: #374151;
+  
+}
+
+.live-match-list .match:hover .actions .match-link {
+  background-color: #4b5563;
+}
+
+.live-match-list .match.vote, .live-match-list .match:focus .actions .match-link, .live-match-list .match:hover .actions .match-link {
+  background-color: #374151;
+}
   
   .modal {
     background-color: rgba(0,0,0,.5);
   }
   
   .modal .modal-content {
-    background-color: #251515;
+    background-color: #030712;
   }
   
   .modal .modal-content .actions .close-button {
@@ -245,7 +285,7 @@
   
   @media screen and (min-width: 500px) {
     .waitlist-page .wrapper {
-          background-color:#2c1c1c;
+          background-color:#111827;
   }
   
   }
@@ -267,7 +307,7 @@
   }
   
   .user-badge .badge {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .user-badge .badge .content .steam-name {
@@ -334,6 +374,9 @@
     color: #fff;
   }
   
+  .party-player-card {
+    background: linear-gradient(45deg, #111827, #1f2937);
+
   .connect-copy-wrapper .connect-title {
     color: hsla(0,0%,100%,.5);
   }
@@ -420,15 +463,15 @@
   }
   
   .live-match-list .match {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .live-match-list .match.vote,.live-match-list .match:focus .actions .match-link,.live-match-list .match:hover .actions .match-link {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .live-match-list .match.vote:focus,.live-match-list .match.vote:hover {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .live-match-list .match .map .map-veto {
@@ -461,7 +504,7 @@
   }
   
   .live-match-list .match .actions .match-link {
-    background-color: #251515;
+    background-color: #030712;
     color: hsla(0,0%,100%,.8);
   }
   
@@ -590,7 +633,13 @@
   }
   
   .team-stats-table .row {
-    background-color: #2c1c1c;
+    position: relative;
+    background-color: #111827;
+    border-bottom: 1px solid hsla(0, 0%, 100%, .1);
+}
+
+  .team-stats-table .row {
+    background-color: #111827;
   }
   
   .team-stats-table .row .player .elo-wrapper .elo-change-number.positive {
@@ -634,7 +683,7 @@
   }
   
   .footer {
-    background-color: #200e0e;
+    background-color: #00030a;
   }
   
   .footer .copyright,.footer h4 {
@@ -652,7 +701,7 @@
   }
   
   .play-friend-list {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .play-friend-list .top .title {
@@ -664,7 +713,7 @@
   }
   
   .play-friend-list .search input {
-    background-color: #332323;
+    background-color: #030712;
     color: #fff;
   }
   
@@ -715,7 +764,7 @@
   }
   
   .confirm-match-modal .modal-content {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .confirm-match-modal .modal-content .title {
@@ -869,8 +918,8 @@
   }
   
   .notification-component {
-    --scrollbar-track-color: rgb(56,40,41);
-    --scrollbar-thumb-color: rgb(71,55,55);
+    --scrollbar-track-color: #111827;
+    --scrollbar-thumb-color: #1f2937;
   }
   
   .notification-component .title {
@@ -978,7 +1027,7 @@
   }
   
   .profile-recent-stats .stats .stat-card {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .profile-recent-stats .stats .stat-card .stat-value {
@@ -1038,7 +1087,7 @@
   }
   
   .profile-recent-stats .rank-elo .leetify-info {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .profile-banner .layout .wrapper .avatar {
@@ -1074,7 +1123,7 @@
   }
   
   .profile-banner .layout .actions .links .steam:hover {
-    background-color: #251515;
+    background-color: #030712;
   }
   
   }
@@ -1092,11 +1141,11 @@
   }
   
   .profile-friend-list .friend-row {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .profile-friend-list .friend-row:hover {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .accept-decline .decline {
@@ -1225,7 +1274,7 @@
   }
   
   .step.payment .period {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .step.payment .period button.option {
@@ -1235,7 +1284,7 @@
   
   .step.payment .period button.option.selected {
     background-color: #ffada0;
-    color: #2c1c1c;
+    color: #111827;
   }
   
   .step.payment .plans .plan .gradient-wrapper .discount {
@@ -1296,7 +1345,7 @@
   }
   
   .page.settings-layout .grid .membership-details .payment-details {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   }
@@ -1391,7 +1440,7 @@
   }
   
   .page.policies-layout .banning-policy table thead {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.policies-layout .banning-policy table .level {
@@ -1399,7 +1448,7 @@
   }
   
   .page.policies-layout .banning-policy table .group-name {
-    background-color: #2c1c1c;
+    background-color: #111827;
     color: #fff;
   }
   
@@ -1488,7 +1537,7 @@
   }
   
   input.iti__tel-input {
-    background-color: #332323;
+    background-color: #030712;
     color: #fff;
   }
   
@@ -1501,7 +1550,7 @@
   }
   
   input.iti__search-input {
-    background-color: #332323;
+    background-color: #030712;
     color: #fff;
   }
   
@@ -1593,7 +1642,7 @@
   }
   
   .country-selector .custom-select__control {
-    background-color: #332323;
+    background-color: #030712;
     border-color: #3c2c2c;
   }
   
@@ -1610,7 +1659,7 @@
   }
   
   .country-selector .custom-select__menu {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .country-selector .custom-select__dropdown-indicator,.country-selector .custom-select__dropdown-indicator:hover {
@@ -1646,8 +1695,8 @@
   }
   
   :root {
-    --scrollbar-track-color: rgb(51,35,35);
-    --scrollbar-thumb-color: rgb(56,40,41);
+    --scrollbar-track-color: #1f2937;
+    --scrollbar-thumb-color: #080b12;
   }
   
   ::-webkit-scrollbar-thumb {
@@ -1725,7 +1774,7 @@
   }
   
   .ban-banner .ban-banner-container .countdown {
-    background-color: #251515;
+    background-color: #030712;
     color: #ff5252;
   }
   
@@ -1750,7 +1799,7 @@
   }
   
   .report-modal .gap-wrapper .ban-options .option {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .report-modal .gap-wrapper .ban-options .option .radio-wrapper .radio.active {
@@ -1758,7 +1807,7 @@
   }
   
   .report-modal .gap-wrapper .ban-options .option .radio-wrapper .radio.active .dot {
-    background-color: #251515;
+    background-color: #030712;
   }
   
   .report-modal .gap-wrapper .ban-options .option .content {
@@ -1863,7 +1912,7 @@
   }
   
   .page.welcome-flow .got-ranking .ranks-scroll-wrapper {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.welcome-flow .got-ranking .ranks .rank .rank-name {
@@ -1903,7 +1952,7 @@
   }
   
   .page.welcome-flow .we-care .cards-wrapper .cards .card {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.welcome-flow .we-care .cards-wrapper .cards .card .text {
@@ -1932,11 +1981,11 @@
   
   .page.welcome-flow .contract .terms ol li:before {
     color: #ffe793;
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .page.welcome-flow .contract .signature .signature-field {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.welcome-flow .contract .signature .signature-field .placeholder {
@@ -1960,7 +2009,7 @@
   }
   
   .page.welcome-flow .connect-discord .discord-steps .discord-step {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.welcome-flow .connect-discord .discord-steps .discord-step .number {
@@ -2027,13 +2076,13 @@
   }
   
   .landing-page section.anti-cheat {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   }
   
   .landing-page section.ai-powered {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .landing-page section.feature-cards .grid {
@@ -2054,15 +2103,15 @@
   }
   
   .landing-page section.pricing {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .landing-page section.pricing .step.payment .period {
-    background-color: #251515;
+    background-color: #030712;
   }
   
   .faq .faq-item .question {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .faq .faq-item .question h3 {
@@ -2074,7 +2123,7 @@
   }
   
   .faq .faq-item .answer {
-    background-color: #2c1c1c;
+    background-color: #111827;
     color: hsla(0,0%,100%,.8);
   }
   
@@ -2083,7 +2132,7 @@
   }
   
   .discord-manage-link .badge {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .discord-manage-link .role-text {
@@ -2116,7 +2165,7 @@
   }
   
   .page.leaderboard .filtering .group .wrapper .leaderboard-mode-switch {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.leaderboard .filtering .group .wrapper .leaderboard-mode-switch .button {
@@ -2126,7 +2175,7 @@
   
   .page.leaderboard .filtering .group .wrapper .leaderboard-mode-switch .button.selected {
     background-color: #ffada0;
-    color: #2c1c1c;
+    color: #111827;
   }
   
   .page.leaderboard .filtering .group .button {
@@ -2142,11 +2191,11 @@
   }
   
   .page.leaderboard .data .visitor-placement-row .row:first-child,.page.leaderboard .data .visitor-placement-row .row:nth-child(2),.page.leaderboard .data .visitor-placement-row .row:nth-child(3) {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.leaderboard .data .row {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.leaderboard .data .row .player a {
@@ -2170,7 +2219,7 @@
   }
   
   .page.settings-layout .settings-invite-friends .invite-sent-modal .modal-content .user-card {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.settings-layout .settings-invite-friends .invite-sent-modal .modal-content .user-card .wrapper .status {
@@ -2182,7 +2231,7 @@
   }
   
   .page.settings-layout .settings-invite-friends .layout .friends-wrapper .search input {
-    background-color: #332323;
+    background-color: #030712;
     color: #fff;
   }
   
@@ -2191,7 +2240,7 @@
   }
   
   .page.settings-layout .settings-invite-friends .layout .friends-wrapper .friends {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.settings-layout .settings-invite-friends .layout .friends-wrapper .friends .mode-toggle button {
@@ -2235,15 +2284,15 @@
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card .circle {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card .circle:after {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card .circle .remaining {
@@ -2365,7 +2414,7 @@
   }
   
   .upcoming-skin-drop {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .upcoming-skin-drop .top .price {
@@ -2390,7 +2439,7 @@
   }
   
   .custom-selector .custom-select__control {
-    background-color: #332323;
+    background-color: #030712;
     border-color: #3c2c2c;
   }
   
@@ -2415,7 +2464,7 @@
   }
   
   .custom-selector .custom-select__menu {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .custom-selector .custom-select__dropdown-indicator,.custom-selector .custom-select__dropdown-indicator:hover {
@@ -2458,6 +2507,10 @@
   .tooltip-wrapper .tooltip .tooltip-arrow {
     background-color: #200e0e;
   }
+
+  .next-rank-progress {
+    background: linear-gradient(90deg, #111827, #1f2937);
+   
   
   .next-rank-progress .content .progress-bar {
     background-color: hsla(0,0%,100%,.1);
@@ -2510,7 +2563,7 @@
   }
   
   .sidebar-party-status .row .actions button.leave-party {
-    background-color: #332323;
+    background-color: #030712;
     color: hsla(0,0%,100%,.8);
   }
   
@@ -2523,17 +2576,17 @@
   }
   
   .site-layout>.grid aside.sidebar {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   }
   
   .site-layout>.grid aside.sidebar button.toggle {
-    background-color: #382829;
+    background-color: #1f2937;
   }
   
   .site-layout>.grid aside.sidebar button.toggle:hover {
-    background-color: #3c2c2c;
+    background-color: #374151;
   }
   
   .profile-match-list .header {
@@ -2541,11 +2594,11 @@
   }
   
   .profile-match-list .match {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .profile-match-list .match:focus .actions .match-link,.profile-match-list .match:hover .actions .match-link {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .profile-match-list .match.won .score .numbers {
@@ -2597,7 +2650,7 @@
   }
   
   .page.settings-layout .support-page .contact-channels .channel {
-    background-color: #2c1c1c;
+    background-color: #111827;
   }
   
   .page.settings-layout .support-page .contact-channels .channel .badge {
@@ -2606,7 +2659,7 @@
   }
   
   .page.settings-layout .support-page .contact-channels .channel .icon {
-    background-color: #332323;
+    background-color: #030712;
   }
   
   .page.settings-layout .support-page .contact-channels .channel .icon.discord {
@@ -2670,6 +2723,6 @@
   }
   
   body,html {
-    background-color: #ff5252;
+    background-color: #030712;
     color: #fff;
   }
