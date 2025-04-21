@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Clutch Extension",
+  "version": "1.0.0",
+  "description": "Enhance your Clutch experience",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://clutch.gg/*", "https://*.clutch.gg/*"],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/sounds/*", "static/*"],
+      "matches": ["https://*.clutch.gg/*", "https://clutch.gg/*"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://clutch.gg/*", "https://*.clutch.gg/*"],
+      "js": ["./content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "./background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "static/favicon-16.png",
+    "32": "static/favicon-32.png",
+    "48": "static/favicon-48.png",
+    "128": "static/favicon-128.png"
+  }
+} 

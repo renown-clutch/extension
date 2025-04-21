@@ -59,6 +59,13 @@
       changes.keepAlive = userSettings.keepAlive;
     }
 
+    if (
+      JSON.stringify(previousSettings.sounds) !==
+      JSON.stringify(userSettings.sounds)
+    ) {
+      changes.sounds = { ...userSettings.sounds };
+    }
+
     return changes;
   }
 
@@ -104,7 +111,7 @@
           <p>Map voting settings will be available soon.</p>
         </div>
       {:else if userSettings.activeTab === "Sounds"}
-        <SoundTab />
+        <SoundTab bind:sounds={userSettings.sounds} />
       {:else if userSettings.activeTab === "Profiles"}
         <ProfilesTab
           bind:profileButtons={userSettings.profileButtons}

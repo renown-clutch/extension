@@ -18,6 +18,10 @@ import {
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
 import { observeProfileChanges, isProfilePage } from "./utils/profileUtils";
+import {
+  initialize as initializeSoundControl,
+  updateSettings as updateSoundSettings,
+} from "./sound/soundControl";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -62,6 +66,9 @@ async function applyDomDependentSettings(settings: UserSettings) {
   if (settings.showSkinDrops) {
     initializeSkinDrops(settings.showSkinDrops);
   }
+
+  // Initialize sound control
+  initializeSoundControl(settings);
 }
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
@@ -99,6 +106,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
   if (changedParts.keepAlive !== undefined) {
     updateKeepAliveSettings(userSettings);
+  }
+
+  if (changedParts.sounds !== undefined) {
+    updateSoundSettings(userSettings);
   }
 }
 
