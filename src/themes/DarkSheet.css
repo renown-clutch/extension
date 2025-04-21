@@ -1,7 +1,19 @@
 .primary-button.gradient {
     color: #382829;
   }
+
+  .footer {
+    background-color: #00030a ;
+  }
+    
   
+  .profile-banner .layout .actions .links .steam {
+    background-color: #232323;
+}
+  .profile-banner .layout .actions .links .steam:hover {
+    background-color: #292929;
+}
+
   .primary-button.light {
     background-color: #ffbdb2;
     color: #382829;
@@ -201,6 +213,12 @@
     transition: background-color,box-shadow .2s ease-in-out;
   }
   
+  .team-stats-table .row {
+    position: relative;
+    background-color: #111827;
+    border-bottom: 1px solid hsla(0, 0%, 100%, .1);
+}
+
   .navbar.open>.container .content .links {
     background-color: #030712;
   }
@@ -462,6 +480,8 @@
     color: #fff;
   }
   
+
+  
   .live-match-list .match {
     background-color: #030712;
   }
@@ -632,11 +652,7 @@
     color: hsla(0,0%,100%,.5);
   }
   
-  .team-stats-table .row {
-    position: relative;
-    background-color: #111827;
-    border-bottom: 1px solid hsla(0, 0%, 100%, .1);
-}
+ 
 
   .team-stats-table .row {
     background-color: #111827;
@@ -682,10 +698,7 @@
     background-color: rgba(255,82,82,.1);
   }
   
-  .footer {
-    background-color: #00030a;
-  }
-  
+ 
   .footer .copyright,.footer h4 {
     color: hsla(0,0%,100%,.5);
   }
@@ -918,8 +931,9 @@
   }
   
   .notification-component {
-    --scrollbar-track-color: #111827;
-    --scrollbar-thumb-color: #1f2937;
+    --scrollbar-track-color: #101827d4;
+    --scrollbar-thumb-color: #1a243b;
+  
   }
   
   .notification-component .title {
@@ -1090,6 +1104,11 @@
     background-color: #111827;
   }
   
+  .profile-banner {
+    
+    background: linear-gradient(180deg, #1f2937, #111827);
+   
+
   .profile-banner .layout .wrapper .avatar {
     background-color: #200e0e;
   }
@@ -1106,6 +1125,9 @@
     color: #fff;
   }
   
+
+
+
   .profile-banner .layout .actions .links .leetify,.profile-banner .layout .actions .links .steam {
     color: #fff;
   }
@@ -1695,9 +1717,9 @@
   }
   
   :root {
-    --scrollbar-track-color: #1f2937;
-    --scrollbar-thumb-color: #080b12;
-  }
+    --scrollbar-track-color: #101827d4;
+    --scrollbar-thumb-color: #1a243b;
+}
   
   ::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb-color);
