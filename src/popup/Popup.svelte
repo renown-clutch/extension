@@ -35,12 +35,16 @@
 
     if (
       JSON.stringify(previousSettings.profileButtons) !==
-        JSON.stringify(userSettings.profileButtons) ||
-      previousSettings.showBans !== userSettings.showBans ||
-      previousSettings.showSkinDrops !== userSettings.showSkinDrops
+      JSON.stringify(userSettings.profileButtons)
     ) {
       changes.profileButtons = { ...userSettings.profileButtons };
+    }
+
+    if (previousSettings.showBans !== userSettings.showBans) {
       changes.showBans = userSettings.showBans;
+    }
+
+    if (previousSettings.showSkinDrops !== userSettings.showSkinDrops) {
       changes.showSkinDrops = userSettings.showSkinDrops;
     }
 

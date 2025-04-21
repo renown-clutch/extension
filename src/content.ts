@@ -2,6 +2,7 @@ console.log("Clutch extension content script loaded");
 
 import { initialize as initializeTheme } from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
+import { initialize as initializeProfileBans } from "./playerProfile/previousBans";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
 import {
   initializeMatchFoundAutoAccept,
@@ -15,10 +16,40 @@ import {
   initializeKeepAlive,
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
+import { observeProfileChanges, isProfilePage } from "./utils/profileUtils";
 
 let userSettings: UserSettings = defaultUserSettings;
-
 const LS_KEY = "userSettings";
+
+/**
+ * Waits for the page to be fully loaded and DOM to be ready
+ */
+function waitForPageReady(): Promise<void> {
+  return new Promise((resolve) => {
+    if (document.readyState === "complete") {
+      resolve();
+    } else {
+      window.addEventListener("load", () => resolve());
+    }
+  });
+}
+
+/**
+ * Applies settings that require DOM to be ready
+ */
+function applyDomDependentSettings(settings: UserSettings) {
+  if (settings.selectedTheme !== "default") {
+    initializeTheme(settings.selectedTheme);
+  }
+
+  if (settings.profileButtons.csstats || settings.profileButtons.faceit) {
+    initializeProfileButtons(settings.profileButtons);
+  }
+
+  if (settings.showBans) {
+    initializeProfileBans(settings.showBans);
+  }
+}
 
 function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (changedParts.selectedTheme && changedParts.selectedTheme !== "default") {
@@ -32,6 +63,11 @@ function applyChangedSettings(changedParts: Partial<UserSettings>) {
     ) {
       initializeProfileButtons(changedParts.profileButtons);
     }
+  }
+
+  if (changedParts.showBans !== undefined) {
+    console.log("bans changed", changedParts.showBans);
+    initializeProfileBans(changedParts.showBans);
   }
 
   if (changedParts.autoAccept) {
@@ -53,20 +89,33 @@ async function initialize() {
   const freshSettings = await loadFromChromeStorage();
   userSettings = freshSettings;
 
+  // Initialize non-DOM dependent features immediately
   initializeMatchFoundAutoAccept(userSettings);
   initializeAutoAcceptPartyInvite(userSettings);
   initializeKeepAlive(userSettings);
 
-  if (userSettings.selectedTheme !== "default") {
-    initializeTheme(userSettings.selectedTheme);
-  }
+  // Wait for page to be ready before initializing DOM-dependent features
+  await waitForPageReady();
+  applyDomDependentSettings(userSettings);
 
-  if (
-    userSettings.profileButtons.csstats ||
-    userSettings.profileButtons.faceit
-  ) {
-    initializeProfileButtons(userSettings.profileButtons);
-  }
+  // Set up profile change observer for profile-related features
+  observeProfileChanges((profileId) => {
+    console.log("Profile changed, reinitializing profile features", profileId);
+    if (profileId) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        if (
+          userSettings.profileButtons.csstats ||
+          userSettings.profileButtons.faceit
+        ) {
+          initializeProfileButtons(userSettings.profileButtons);
+        }
+        if (userSettings.showBans) {
+          initializeProfileBans(userSettings.showBans);
+        }
+      }, 300);
+    }
+  });
 }
 
 initialize();

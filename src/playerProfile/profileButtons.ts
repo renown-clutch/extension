@@ -1,19 +1,15 @@
-const PROFILE_URL_REGEX = /\/profile\/(\d+)/;
+import {
+  getPlayerIdFromUrl,
+  isProfilePage,
+  waitForElement,
+} from "../utils/profileUtils";
+
 let currentPlayerId = "";
 let faceitUrl: string | null = null;
 let faceitUrlPromise: Promise<string | null> | null = null;
 
 let csstatsButton: HTMLAnchorElement | null = null;
 let faceitButton: HTMLAnchorElement | null = null;
-
-function getPlayerIdFromUrl(): string | null {
-  const match = window.location.pathname.match(PROFILE_URL_REGEX);
-  return match ? match[1] : null;
-}
-
-function isProfilePage(): boolean {
-  return getPlayerIdFromUrl() !== null;
-}
 
 function getExtensionUrl(path: string): string {
   const extensionId =
@@ -148,83 +144,42 @@ async function fetchFaceitUrl(steamId: string): Promise<string | null> {
 }
 
 function waitForLinksDiv(): Promise<Element> {
-  return new Promise((resolve) => {
-    const tryFind = () => {
-      const linksDiv = document.querySelector(".profile-banner div.links");
-      if (linksDiv) {
-        resolve(linksDiv);
-      } else {
-        setTimeout(tryFind, 50);
-      }
-    };
-    tryFind();
-  });
+  return waitForElement(".profile-banner div.links");
 }
 
-async function handleProfilePage(profileButtons: {
+export async function initialize(profileButtons: {
   csstats: boolean;
   faceit: boolean;
-}) {
+}): Promise<void> {
+  // Clean up previous buttons
+  removeButtons();
+
+  // If we're not on a profile page or no buttons enabled, we're done
+  if (!isProfilePage() || (!profileButtons.csstats && !profileButtons.faceit)) {
+    return;
+  }
+
+  // Set up buttons for current profile
   const playerId = getPlayerIdFromUrl();
   if (!playerId) return;
+
   currentPlayerId = playerId;
   ensureButtons(profileButtons);
   updateButtonHrefs(currentPlayerId, null);
-  removeButtons();
-  await waitForLinksDiv();
-  appendButtonsToDom();
-  faceitUrlPromise = fetchFaceitUrl(currentPlayerId);
-  faceitUrl = await faceitUrlPromise;
-  updateButtonHrefs(currentPlayerId, faceitUrl);
-  appendButtonsToDom();
-}
 
-function handleNonProfilePage() {
-  removeButtons();
-  currentPlayerId = "";
-  faceitUrl = null;
-  faceitUrlPromise = null;
-}
+  try {
+    // Wait for the container to be available
+    await waitForLinksDiv();
+    appendButtonsToDom();
 
-let lastUrl = location.href;
-
-function onUrlChange(profileButtons: { csstats: boolean; faceit: boolean }) {
-  const isProfile = isProfilePage();
-  removeButtons();
-  if (isProfile) {
-    handleProfilePage(profileButtons);
-  } else {
-    handleNonProfilePage();
-  }
-}
-
-function observeUrlChanges(profileButtons: {
-  csstats: boolean;
-  faceit: boolean;
-}) {
-  window.addEventListener("popstate", () => onUrlChange(profileButtons));
-  window.addEventListener("hashchange", () => onUrlChange(profileButtons));
-  setInterval(() => {
-    if (location.href !== lastUrl) {
-      lastUrl = location.href;
-      onUrlChange(profileButtons);
+    // Fetch and update Faceit URL if needed
+    if (profileButtons.faceit) {
+      faceitUrlPromise = fetchFaceitUrl(currentPlayerId);
+      faceitUrl = await faceitUrlPromise;
+      updateButtonHrefs(currentPlayerId, faceitUrl);
+      appendButtonsToDom();
     }
-  }, 500);
-}
-
-export function initialize(profileButtons: {
-  csstats: boolean;
-  faceit: boolean;
-}): void {
-  ensureButtons(profileButtons);
-  if (isProfilePage()) {
-    handleProfilePage(profileButtons);
+  } catch (error) {
+    console.error("Error initializing profile buttons:", error);
   }
-  observeUrlChanges(profileButtons);
-
-  window.addEventListener("load", () => {
-    if (isProfilePage()) {
-      handleProfilePage(profileButtons);
-    }
-  });
 }

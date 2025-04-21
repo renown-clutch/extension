@@ -26,8 +26,6 @@ const processedElements = new Set<string>();
 
 // Initialize the theme
 export function initialize(theme: string): void {
-  console.log("Clutch theme initializing");
-
   if (theme === "dark") {
     colorMappings = darkColorMappings;
     rgbMappings = darkRgbMappings;
@@ -50,8 +48,6 @@ export function initialize(theme: string): void {
 
   // Set up observer for dynamically added elements and stylesheets
   observeDOMChanges();
-
-  console.log("Clutch theme initialized");
 }
 
 // Inject CSS variables
@@ -145,9 +141,7 @@ function replaceCSSColors(css: string): { result: string; modified: boolean } {
 
 // Process all existing inline styles
 function processAllInlineStyles(): void {
-  console.log("Processing all inline styles");
   const elements = document.querySelectorAll("[style]");
-  console.log(`Found ${elements.length} elements with inline styles`);
 
   elements.forEach((element) => {
     if (element instanceof HTMLElement) {
@@ -192,7 +186,6 @@ function processStyleElements(): void {
 
     if (modified) {
       element.textContent = result;
-      console.log("Modified <style> element");
     }
   });
 }
@@ -208,7 +201,6 @@ function processLinkStylesheets(): void {
     processedElements.add(link.href);
 
     try {
-      console.log(`Fetching external stylesheet: ${link.href}`);
       const response = await fetch(link.href);
       const css = await response.text();
 
@@ -220,7 +212,6 @@ function processLinkStylesheets(): void {
         newStyle.textContent = result;
         newStyle.setAttribute("data-processed-href", link.href);
         document.head.appendChild(newStyle);
-        console.log(`Injected modified styles for: ${link.href}`);
       }
     } catch (error) {
       console.error("Error processing external stylesheet:", error);
