@@ -2236,6 +2236,11 @@
     color: #fff;
   }
   
+  .game-info-wrapper {
+    
+    border-top: 2px solid #1f2937;
+}
+
   .page.settings-layout .settings-invite-friends .invite-sent-modal .modal-content .text {
     color: #fff;
   }
