@@ -39,12 +39,45 @@ try {
   console.error('Error preparing dist directory:', e);
 }
 
+// Copy theme CSS files
+function copyThemeFiles() {
+  console.log('Copying theme files...');
+  
+  const themesDir = resolve(__dirname, 'dist/themes');
+  if (!fs.existsSync(themesDir)) {
+    fs.mkdirSync(themesDir, { recursive: true });
+  }
+  
+  // Copy Dark theme CSS
+  const darkSrcPath = resolve(__dirname, 'src/themes/DarkSheet.css');
+  const darkDestPath = resolve(themesDir, 'DarkSheet.css');
+  if (fs.existsSync(darkSrcPath)) {
+    fs.copyFileSync(darkSrcPath, darkDestPath);
+    console.log('Copied DarkSheet.css');
+  } else {
+    console.warn('DarkSheet.css not found at', darkSrcPath);
+  }
+  
+  // Copy Light theme CSS
+  const lightSrcPath = resolve(__dirname, 'src/themes/LightSheet.css');
+  const lightDestPath = resolve(themesDir, 'LightSheet.css');
+  if (fs.existsSync(lightSrcPath)) {
+    fs.copyFileSync(lightSrcPath, lightDestPath);
+    console.log('Copied LightSheet.css');
+  } else {
+    console.warn('LightSheet.css not found at', lightSrcPath);
+  }
+}
+
 // Build each entry point
 async function buildEntries() {
   // Copy public files first
   if (fs.existsSync('public')) {
     fs.cpSync('public', 'dist', { recursive: true });
   }
+  
+  // Copy theme files
+  copyThemeFiles();
 
   for (const entry of entryPoints) {
     console.log(`Building ${entry.name}...`);

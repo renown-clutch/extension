@@ -40,7 +40,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["static/*.svg", "static/*.png"],
+      "resources": ["static/*.svg", "static/*.png", "themes/*.css"],
       "matches": ["*://*.renown.gg/*", "*://renown.gg/*"]
     }
   ]
