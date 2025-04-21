@@ -42,17 +42,17 @@
   />
   <SwitchComponent
     labelText="Show previous Bans"
-    descriptionText="Show previous all previous bans"
+    descriptionText="Show all previous bans for the player"
     bind:checked={showBans}
   />
   <SwitchComponent
     labelText="Show all Skin Drops"
-    descriptionText="Show all skin drops"
+    descriptionText="Show all skin drops that the player has received"
     bind:checked={showSkinDrops}
   />
   <SwitchComponent
     labelText="Friend List Ranks"
-    descriptionText="Show Friend's Ranks in Friend List"
+    descriptionText="Show Friend's Renown Ranks in Friend List"
     bind:checked={showFriendListRanks}
   />
 </main>

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Clutch Extension",
+  "name": "Clutch | Renown.gg extension",
   "version": "1.0.0",
-  "description": "Chrome extension built with Svelte",
+  "description": "Enhance your Renown.gg experience with player stats, lobby insights, and UI improvements.",
   "icons": {
     "16": "static/icon16.png",
     "32": "static/icon32.png",
@@ -23,7 +23,6 @@
     "activeTab"
   ],
   "host_permissions": [
-    "http://127.0.0.1:8000/*",
     "https://api.clutch.lorem.sh/*"
   ],
   "background": {
