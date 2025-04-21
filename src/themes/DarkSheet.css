@@ -6,6 +6,13 @@
     background-color: #00030a ;
   }
     
+  .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
+    background-color: #1f2937;
+}
+
+.navbar .container .content .actions .profile-menu .dropdown .content .dropdown-links a:hover {
+  background-color: #1f2937;
+}
   
   .profile-banner .layout .actions .links .steam {
     background-color: #232323;
@@ -2240,6 +2247,8 @@
     
     border-top: 2px solid #1f2937;
 }
+
+
 
   .page.settings-layout .settings-invite-friends .invite-sent-modal .modal-content .text {
     color: #fff;
