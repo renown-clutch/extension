@@ -27,17 +27,11 @@ console.log("Default user settings:", defaultUserSettings);
  * Waits for the page to be fully loaded and DOM to be ready
  */
 function waitForPageReady(): Promise<void> {
-  console.log(
-    `waitForPageReady called, current document.readyState: ${document.readyState}`
-  );
   return new Promise((resolve) => {
     if (document.readyState === "complete") {
-      console.log("Document already complete, resolving immediately");
       resolve();
     } else {
-      console.log("Document not ready, waiting for load event");
       window.addEventListener("load", () => {
-        console.log("Document load event fired, resolving");
         resolve();
       });
     }
@@ -48,64 +42,35 @@ function waitForPageReady(): Promise<void> {
  * Applies settings that require DOM to be ready
  */
 async function applyDomDependentSettings(settings: UserSettings) {
-  console.log("Applying DOM-dependent settings:", {
-    theme: settings.selectedTheme,
-    profileButtons: settings.profileButtons,
-    showBans: settings.showBans,
-  });
-
   if (settings.selectedTheme !== "default") {
-    console.log(`Initializing theme: ${settings.selectedTheme}`);
     try {
       await initializeTheme(settings.selectedTheme);
-      console.log(
-        `Theme initialization completed for: ${settings.selectedTheme}`
-      );
     } catch (error) {
       console.error("Error during theme initialization:", error);
     }
-  } else {
-    console.log("Using default theme, skipping theme initialization");
   }
 
   if (settings.profileButtons.csstats || settings.profileButtons.faceit) {
-    console.log(
-      "Initializing profile buttons with settings:",
-      settings.profileButtons
-    );
     initializeProfileButtons(settings.profileButtons);
   }
 
   if (settings.showBans) {
-    console.log("Initializing profile bans display");
     initializeProfileBans(settings.showBans);
   }
 }
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
-  console.log("Applying changed settings:", changedParts);
-
   if (changedParts.selectedTheme) {
-    console.log(`Theme changed to: ${changedParts.selectedTheme}`);
     if (changedParts.selectedTheme !== "default") {
       try {
         await initializeTheme(changedParts.selectedTheme);
-        console.log(
-          `Theme initialization completed for: ${changedParts.selectedTheme}`
-        );
       } catch (error) {
         console.error("Error applying theme change:", error);
       }
-    } else {
-      console.log("Changed to default theme, no theme initialization needed");
     }
   }
 
   if (changedParts.profileButtons) {
-    console.log(
-      "Profile buttons settings changed:",
-      changedParts.profileButtons
-    );
     if (
       changedParts.profileButtons.csstats ||
       changedParts.profileButtons.faceit
@@ -115,29 +80,23 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 
   if (changedParts.showBans !== undefined) {
-    console.log("Bans display setting changed:", changedParts.showBans);
     initializeProfileBans(changedParts.showBans);
   }
 
   if (changedParts.autoAccept) {
-    console.log("Auto accept settings changed:", changedParts.autoAccept);
     updateMatchFoundAutoAcceptSettings(userSettings);
     updateAutoAcceptPartyInviteSettings(userSettings);
   }
 
   if (changedParts.keepAlive !== undefined) {
-    console.log("Keep alive setting changed:", changedParts.keepAlive);
     updateKeepAliveSettings(userSettings);
   }
 }
 
 async function loadFromChromeStorage(): Promise<UserSettings> {
-  console.log("Loading settings from Chrome storage");
   try {
     const result = await chrome.storage.local.get(LS_KEY);
-    console.log("Chrome storage result:", result);
     const settings = result[LS_KEY] || defaultUserSettings;
-    console.log("Loaded settings:", settings);
     return settings;
   } catch (error) {
     console.error("Error loading settings from Chrome storage:", error);
