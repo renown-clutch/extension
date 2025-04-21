@@ -66,6 +66,10 @@ async function applyDomDependentSettings(settings: UserSettings) {
   if (settings.showSkinDrops) {
     initializeSkinDrops(settings.showSkinDrops);
   }
+
+  if (settings.showFriendListRanks) {
+    initializeFriendsList(settings);
+  }
 }
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {

@@ -59,6 +59,12 @@
       changes.keepAlive = userSettings.keepAlive;
     }
 
+    if (
+      previousSettings.showFriendListRanks !== userSettings.showFriendListRanks
+    ) {
+      changes.showFriendListRanks = userSettings.showFriendListRanks;
+    }
+
     return changes;
   }
 

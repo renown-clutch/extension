@@ -38,6 +38,18 @@ function formatElo(elo: number | null): string {
 }
 
 /**
+ * Removes rank badges from friends in the list
+ */
+function removeRankBadges(): void {
+  const tooltipWrappers = document.querySelectorAll(
+    ".profile-friend-list .tooltip-wrapper"
+  );
+  tooltipWrappers.forEach((wrapper) => {
+    wrapper.remove();
+  });
+}
+
+/**
  * Renders rank badges for friends in the list
  */
 function renderFriendRanks(
@@ -169,6 +181,10 @@ function observeFriendsPageNavigation(): void {
   document.addEventListener("clutchFriendsExtracted", (event: Event) => {
     const { friendIds, showRanks, ranks } = (event as CustomEvent).detail;
 
+    // Remove existing badges first
+    removeRankBadges();
+
+    // Then add them only if showRanks is true
     if (showRanks && ranks) {
       renderFriendRanks(friendIds, ranks);
     }
@@ -290,11 +306,17 @@ function observeFriendsPageNavigation(): void {
  * Updates the module settings
  */
 export function updateSettings(settings: UserSettings): void {
+  const previousShowRanks = showRanks;
   showRanks = settings.showFriendListRanks;
   console.log("Friends list settings updated, showRanks:", showRanks);
 
   // If we're already on a friends page, extract friends again with new settings
   if (isProfilePage() && isFriendsPage()) {
+    // If we turned off rank display, remove existing badges
+    if (previousShowRanks && !showRanks) {
+      removeRankBadges();
+    }
+
     // Reset the lastProcessedUrl to force a refresh with new settings
     lastProcessedUrl = "";
 
