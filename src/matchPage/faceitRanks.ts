@@ -18,6 +18,11 @@ function getLevelIconPath(level: number): string {
   return chrome.runtime.getURL(`static/faceitlevels/lvl${level}.svg`);
 }
 
+// Get fallback icon path for players with no Faceit profile
+function getFallbackIconPath(): string {
+  return chrome.runtime.getURL("static/faceitlevels/lvlx.svg");
+}
+
 /**
  * Cleans up any Faceit icons that have been added to the page
  */
@@ -197,30 +202,41 @@ async function getFaceitInfo(
  */
 function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
   try {
-    if (!faceitInfo || !faceitInfo.elo) {
-      console.warn("Invalid faceit info received:", faceitInfo);
-      return;
-    }
-
     // Check if row has at least one child element
     if (!playerRow.firstElementChild) {
       console.warn("Player row has no child elements:", playerRow);
       return;
     }
 
-    // Get Faceit level based on ELO
-    const faceitLevel = getFaceitLevel(faceitInfo.elo);
+    // Path to the level icon and tooltip text
+    let levelIconPath: string;
+    let tooltipText: string;
+    let profileUrl: string | undefined;
 
-    // Path to the level icon
-    const levelIconPath = getLevelIconPath(faceitLevel);
+    // If no valid faceit info is available, use the fallback icon
+    if (!faceitInfo || !faceitInfo.elo) {
+      console.warn("No Faceit profile found:", faceitInfo);
+      levelIconPath = getFallbackIconPath();
+      tooltipText = "No Faceit profile found";
+    } else {
+      // Get Faceit level based on ELO
+      const faceitLevel = getFaceitLevel(faceitInfo.elo);
+      levelIconPath = getLevelIconPath(faceitLevel);
+      tooltipText = `Faceit Level ${faceitLevel} (ELO: ${faceitInfo.elo})`;
+      profileUrl = faceitInfo.url;
+    }
 
-    // Create Faceit icon element as an anchor tag
-    const faceitIconElement = document.createElement("a");
+    // Create Faceit icon element as an anchor tag or div based on whether we have a profile
+    const faceitIconElement = document.createElement(profileUrl ? "a" : "div");
     faceitIconElement.className = "tooltip-wrapper faceit-icon";
     faceitIconElement.setAttribute("tabindex", "0");
-    faceitIconElement.style.cursor = "pointer";
-    faceitIconElement.href = faceitInfo.url;
-    faceitIconElement.target = "_blank";
+
+    // Only set href and other link attributes if we have a profile URL
+    if (profileUrl) {
+      faceitIconElement.style.cursor = "pointer";
+      faceitIconElement.setAttribute("href", profileUrl);
+      faceitIconElement.setAttribute("target", "_blank");
+    }
 
     // Create a container for the icon
     const iconsContainer = document.createElement("div");
@@ -233,18 +249,15 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
     faceitLevelIcon.src = levelIconPath;
     faceitLevelIcon.width = 34;
     faceitLevelIcon.height = 34;
-    faceitLevelIcon.alt = `Faceit Level ${faceitLevel}`;
+    faceitLevelIcon.alt = tooltipText;
     faceitLevelIcon.style.display = "inline-block";
 
     // Assemble the container
     iconsContainer.appendChild(faceitLevelIcon);
     faceitIconElement.appendChild(iconsContainer);
 
-    // Add tooltip showing Faceit ELO and level
-    faceitIconElement.setAttribute(
-      "title",
-      `Faceit Level ${faceitLevel} (ELO: ${faceitInfo.elo})`
-    );
+    // Add tooltip
+    faceitIconElement.setAttribute("title", tooltipText);
 
     // Always insert as the second element in the player row
     if (playerRow.firstElementChild.nextElementSibling) {
@@ -259,7 +272,11 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
     // Track the added element so we can remove it later if needed
     addedFaceitElements.push(faceitIconElement);
     console.log(
-      `Added Faceit icon for player with ELO: ${faceitInfo.elo} (Level ${faceitLevel})`
+      `Added Faceit icon for player: ${
+        !faceitInfo || !faceitInfo.elo
+          ? "No profile found"
+          : `ELO: ${faceitInfo.elo}`
+      }`
     );
   } catch (error) {
     console.error(
