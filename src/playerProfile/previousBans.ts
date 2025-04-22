@@ -37,7 +37,7 @@ async function fetchUserBans(steamId: string): Promise<Ban[]> {
 function createBanBadge(ban: Ban): HTMLDivElement {
   const banBadge = document.createElement("div");
   banBadge.className = "ban-badge";
-  banBadge.setAttribute("data-clutch-extension", "true");
+  banBadge.setAttribute("data-clutch-extension", "ban-element");
   banBadge.style.padding = "8px 12px";
   banBadge.style.margin = "0 8px 0 0";
   banBadge.style.fontSize = "12px";
@@ -92,7 +92,7 @@ function createBanBadge(ban: Ban): HTMLDivElement {
 function createNoBansBadge(): HTMLDivElement {
   const banBadge = document.createElement("div");
   banBadge.className = "ban-badge good";
-  banBadge.setAttribute("data-clutch-extension", "true");
+  banBadge.setAttribute("data-clutch-extension", "ban-element");
   banBadge.style.backgroundColor = "var(--toastify-color-success)";
   banBadge.style.color = "var(--toastify-color-light)";
   banBadge.style.padding = "8px 12px";
@@ -132,11 +132,11 @@ function waitForBannerContainer(): Promise<Element> {
   return waitForElement(".profile-banner .container");
 }
 
-function removeBanBadges() {
+function removeBanElements() {
   document
-    .querySelectorAll("[data-clutch-extension='true'].ban-badge")
-    .forEach((badge) => {
-      badge.remove();
+    .querySelectorAll("[data-clutch-extension='ban-element']")
+    .forEach((element) => {
+      element.remove();
     });
 }
 
@@ -144,7 +144,7 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   const container = await waitForBannerContainer();
 
   let existingBanBadge = container.querySelector(
-    ".ban-badge:not([data-clutch-extension='true'])"
+    ".ban-badge:not([data-clutch-extension='ban-element'])"
   );
 
   // Skip showing ban history if there's an existing ban badge and no additional bans to show
@@ -155,6 +155,7 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   // Add ban history header
   const headerDiv = document.createElement("div");
   headerDiv.className = "text";
+  headerDiv.setAttribute("data-clutch-extension", "ban-element");
   headerDiv.style.marginBottom = "8px";
   headerDiv.style.marginTop = "16px";
   headerDiv.style.fontWeight = "600";
@@ -179,11 +180,11 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
 
 export async function initialize(showBans: boolean): Promise<void> {
   if (!showBans || !isProfilePage()) {
-    removeBanBadges();
+    removeBanElements();
     return;
   }
 
-  removeBanBadges();
+  removeBanElements();
 
   const playerId = getPlayerIdFromUrl();
   if (!playerId) return;
