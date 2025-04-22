@@ -48,6 +48,13 @@ function waitForPageReady(): Promise<void> {
 }
 
 /**
+ * Checks if the extension context is still valid
+ */
+function isExtensionContextValid(): boolean {
+  return chrome.runtime && !!chrome.runtime.id;
+}
+
+/**
  * Applies settings that require DOM to be ready
  */
 async function applyDomDependentSettings(settings: UserSettings) {
@@ -125,11 +132,27 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
 async function loadFromChromeStorage(): Promise<UserSettings> {
   try {
+    // Check if extension context is still valid before making API calls
+    if (!isExtensionContextValid()) {
+      console.warn("Extension context invalidated, using default settings");
+      return defaultUserSettings;
+    }
+
     const result = await chrome.storage.local.get(LS_KEY);
     const settings = result[LS_KEY] || defaultUserSettings;
     return settings;
-  } catch (error) {
-    console.error("Error loading settings from Chrome storage:", error);
+  } catch (error: unknown) {
+    // Check specifically for context invalidated error
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn(
+        "Extension context invalidated during storage access, using default settings"
+      );
+    } else {
+      console.error("Error loading settings from Chrome storage:", error);
+    }
     return defaultUserSettings;
   }
 }
@@ -188,49 +211,101 @@ async function initialize() {
       }
     });
     console.log("Profile change observer set up successfully");
-  } catch (error) {
-    console.error("Error during content script initialization:", error);
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn(
+        "Extension context invalidated during initialization. Extension may have been updated or reloaded."
+      );
+    } else {
+      console.error("Error during content script initialization:", error);
+    }
   }
 }
 
 initialize();
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  console.log("Received message from popup:", message);
+// Wrap the message listener in a try-catch to handle potential context invalidation
+try {
+  if (isExtensionContextValid()) {
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      console.log("Received message from popup:", message);
 
-  if (message.type === "settingsUpdate") {
-    console.log("Settings update message received:", message.settings);
-    userSettings = message.settings;
+      try {
+        if (message.type === "settingsUpdate") {
+          console.log("Settings update message received:", message.settings);
+          userSettings = message.settings;
 
-    if (message.changedParts) {
-      console.log("Changed parts detected:", message.changedParts);
-      // Handle the async nature of theme application
-      applyChangedSettings(message.changedParts)
-        .then(() => {
-          console.log("Settings applied successfully");
+          if (message.changedParts) {
+            console.log("Changed parts detected:", message.changedParts);
+            // Handle the async nature of theme application
+            applyChangedSettings(message.changedParts)
+              .then(() => {
+                console.log("Settings applied successfully");
+                if (isExtensionContextValid()) {
+                  sendResponse({ status: "success" });
+                }
+              })
+              .catch((error: unknown) => {
+                console.error("Error applying settings:", error);
+                if (isExtensionContextValid()) {
+                  sendResponse({
+                    status: "error",
+                    message:
+                      error instanceof Error ? error.message : String(error),
+                  });
+                }
+              });
+
+            // Return true to indicate we will send response asynchronously
+            return true;
+          }
+
+          console.log("No changed parts specified, sending success response");
           sendResponse({ status: "success" });
-        })
-        .catch((error) => {
-          console.error("Error applying settings:", error);
-          sendResponse({ status: "error", message: error.message });
-        });
+        } else if (message.type === "forceReload") {
+          console.log("Force reload message received, reason:", message.reason);
+          sendResponse({ status: "reloading" });
 
-      // Return true to indicate we will send response asynchronously
+          // Reload the page to ensure observers catch popups
+          window.location.reload();
+        } else {
+          console.log("Unknown message type received");
+          sendResponse({ status: "unknown" });
+        }
+      } catch (error: unknown) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Extension context invalidated")
+        ) {
+          console.warn(
+            "Extension context invalidated while processing message"
+          );
+        } else {
+          console.error("Error processing message:", error);
+          if (isExtensionContextValid()) {
+            sendResponse({
+              status: "error",
+              message: error instanceof Error ? error.message : String(error),
+            });
+          }
+        }
+      }
+
       return true;
-    }
-
-    console.log("No changed parts specified, sending success response");
-    sendResponse({ status: "success" });
-  } else if (message.type === "forceReload") {
-    console.log("Force reload message received, reason:", message.reason);
-    sendResponse({ status: "reloading" });
-
-    // Reload the page to ensure observers catch popups
-    window.location.reload();
-  } else {
-    console.log("Unknown message type received");
-    sendResponse({ status: "unknown" });
+    });
   }
-
-  return true;
-});
+} catch (error: unknown) {
+  if (
+    error instanceof Error &&
+    error.message.includes("Extension context invalidated")
+  ) {
+    console.warn(
+      "Extension context invalidated when setting up message listener"
+    );
+  } else {
+    console.error("Error setting up message listener:", error);
+  }
+}
