@@ -12,6 +12,12 @@
   color: var(--toastify-text-color-dark);
 }
 
+.dropped-skin {
+ 
+  background: rgba(148, 157, 255, 0.071);
+  
+}
+
 .profile-match-list .skeleton .match {
  
   background: linear-gradient(90deg, rgba(17, 24, 39, 0.872), hwb(215 12% 78%) 300px);
