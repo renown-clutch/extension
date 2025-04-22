@@ -1,9 +1,9 @@
-import { mount } from 'svelte'
-import './popup.css'
-import App from './Popup.svelte'
+import { mount } from "svelte";
+import "./popup.css";
+import App from "./Popup.svelte";
 
 const app = mount(App, {
-  target: document.getElementById('popup')!,
-})
+  target: document.getElementById("popup")!,
+});
 
-export default app
+export default app;

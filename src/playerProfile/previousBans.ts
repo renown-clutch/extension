@@ -11,6 +11,7 @@ interface Ban {
   issued_on: string;
   expires_on: string | null;
   permanent: boolean;
+  duration_days: number | null;
 }
 
 async function fetchUserBans(steamId: string): Promise<Ban[]> {
@@ -42,19 +43,36 @@ function createBanBadge(ban: Ban): HTMLDivElement {
   banBadge.style.fontSize = "12px";
   banBadge.style.backgroundColor = "transparent";
   banBadge.style.border = "1px solid var(--toastify-color-error)";
-  
 
-  const strong1 = document.createElement("strong");
-  strong1.textContent = `${ban.category} - ${ban.severity}`;
+  // Add tooltip with date information
+  const issuedDate = new Date(ban.issued_on);
+  const formattedIssuedDate = formatDate(issuedDate);
 
   if (ban.permanent) {
+    banBadge.title = `Issued on: ${formattedIssuedDate}`;
+  } else if (ban.expires_on) {
+    const expiryDate = new Date(ban.expires_on);
+    const formattedExpiryDate = formatDate(expiryDate);
+    banBadge.title = `${formattedIssuedDate} - ${formattedExpiryDate}`;
+  }
+
+  const strong1 = document.createElement("strong");
+
+  if (ban.permanent) {
+    strong1.textContent = `${ban.category} - ${ban.severity}`;
     banBadge.appendChild(document.createTextNode("Banned for "));
     banBadge.appendChild(strong1);
     banBadge.appendChild(document.createTextNode(" permanently"));
+  } else if (ban.duration_days) {
+    strong1.textContent = `${ban.category} - ${ban.severity} (${ban.duration_days} Days)`;
+    banBadge.appendChild(document.createTextNode("Banned for "));
+    banBadge.appendChild(strong1);
   } else if (ban.expires_on) {
+    // Fallback to the old format if duration_days is not available
     const expiryDate = new Date(ban.expires_on);
     const formattedDate = formatDate(expiryDate);
 
+    strong1.textContent = `${ban.category} - ${ban.severity}`;
     const strong2 = document.createElement("strong");
     strong2.textContent = formattedDate;
 
@@ -63,6 +81,7 @@ function createBanBadge(ban: Ban): HTMLDivElement {
     banBadge.appendChild(document.createTextNode(" until "));
     banBadge.appendChild(strong2);
   } else {
+    strong1.textContent = `${ban.category} - ${ban.severity}`;
     banBadge.appendChild(document.createTextNode("Banned for "));
     banBadge.appendChild(strong1);
   }
@@ -127,6 +146,11 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   let existingBanBadge = container.querySelector(
     ".ban-badge:not([data-clutch-extension='true'])"
   );
+
+  // Skip showing ban history if there's an existing ban badge and no additional bans to show
+  if (existingBanBadge && (!bans || bans.length <= 1)) {
+    return;
+  }
 
   // Add ban history header
   const headerDiv = document.createElement("div");
