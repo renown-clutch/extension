@@ -32,6 +32,8 @@
         <span class="text-xs">Join our Discord</span>
       </a>
     </div>
-    <div><p class="capitalize text-slate-400 text-xs">Version 1.0.0</p></div>
+    <div>
+      <p class="capitalize text-slate-400 text-xs">Version 1.0.0</p>
+    </div>
   </footer>
 </main>
