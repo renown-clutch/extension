@@ -37,6 +37,12 @@ function createBanBadge(ban: Ban): HTMLDivElement {
   const banBadge = document.createElement("div");
   banBadge.className = "ban-badge";
   banBadge.setAttribute("data-clutch-extension", "true");
+  banBadge.style.padding = "8px 12px";
+  banBadge.style.margin = "0 8px 0 0";
+  banBadge.style.fontSize = "12px";
+  banBadge.style.backgroundColor = "transparent";
+  banBadge.style.border = "1px solid var(--toastify-color-error)";
+  
 
   const strong1 = document.createElement("strong");
   strong1.textContent = `${ban.category} - ${ban.severity}`;
@@ -70,6 +76,12 @@ function createNoBansBadge(): HTMLDivElement {
   banBadge.setAttribute("data-clutch-extension", "true");
   banBadge.style.backgroundColor = "var(--toastify-color-success)";
   banBadge.style.color = "var(--toastify-color-light)";
+  banBadge.style.padding = "8px 12px";
+  banBadge.style.margin = "0 4px 0 0";
+  banBadge.style.fontSize = "12px";
+  banBadge.style.lineHeight = "16px";
+  banBadge.style.maxWidth = "160px";
+  banBadge.style.justifyContent = "center";
 
   const checkSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -79,6 +91,8 @@ function createNoBansBadge(): HTMLDivElement {
   checkSvg.setAttribute("height", "16");
   checkSvg.setAttribute("viewBox", "0 0 16 16");
   checkSvg.setAttribute("fill", "currentColor");
+  checkSvg.style.verticalAlign = "middle";
+  checkSvg.style.marginRight = "6px";
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute(
@@ -113,6 +127,15 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   let existingBanBadge = container.querySelector(
     ".ban-badge:not([data-clutch-extension='true'])"
   );
+
+  // Add ban history header
+  const headerDiv = document.createElement("div");
+  headerDiv.className = "text";
+  headerDiv.style.marginBottom = "8px";
+  headerDiv.style.marginTop = "16px";
+  headerDiv.style.fontWeight = "600";
+  headerDiv.textContent = "Ban History";
+  container.appendChild(headerDiv);
 
   if (!bans || bans.length === 0) {
     const noBansBadge = createNoBansBadge();
