@@ -80,21 +80,17 @@ function renderFriendRanks(
     if (
       elo === undefined ||
       elo === null ||
-      profileLink.querySelector(".tooltip-wrapper")
+      row.querySelector(".tooltip-wrapper")
     )
       return;
 
-    // Find info div to insert after
-    const infoDiv = profileLink.querySelector(".info");
-    if (!infoDiv) return;
-
-    // Create rank badge element
+    // Skip if rank tier or formatted elo is empty
     const rankTier = getRankTier(elo);
     const formattedElo = formatElo(elo);
 
-    // Skip if rank tier or formatted elo is empty
     if (!rankTier || !formattedElo) return;
 
+    // Create rank badge element
     const badgeHtml = `
       <div class="tooltip-wrapper" tabindex="0">
         <div class="rank-badge ${rankTier}" style="--size:25px" aria-label="Rank: ${
@@ -106,13 +102,14 @@ function renderFriendRanks(
       </div>
     `;
 
-    // Create badge element and insert after info div
+    // Find the actions div
+    const actionsDiv = row.querySelector(".actions");
+    if (!actionsDiv) return;
+
+    // Create badge element and insert after actions div
     const badgeElement = document.createElement("div");
     badgeElement.innerHTML = badgeHtml.trim();
-    profileLink.insertBefore(
-      badgeElement.firstElementChild!,
-      infoDiv.nextSibling
-    );
+    row.insertBefore(badgeElement.firstElementChild!, actionsDiv.nextSibling);
   });
 }
 
