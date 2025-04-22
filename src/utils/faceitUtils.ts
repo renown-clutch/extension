@@ -22,6 +22,6 @@ export function getFaceitLevel(elo: number | null): number {
 export function getFaceitLevelIcon(elo: number | null): string {
   const level = getFaceitLevel(elo);
 
-  if (level === 0) return "static/faceit.svg";
+  if (level === 0) return "static/faceitlevels/lvlx.svg";
   return `static/faceitlevels/lvl${level}.svg`;
 }

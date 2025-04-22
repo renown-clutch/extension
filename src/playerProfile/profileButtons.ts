@@ -3,7 +3,7 @@ import {
   isProfilePage,
   waitForElement,
 } from "../utils/profileUtils";
-import { getFaceitLevelIcon } from "../utils/faceitUtils";
+import { getFaceitLevelIcon, getFaceitLevel } from "../utils/faceitUtils";
 
 let currentPlayerId = "";
 let faceitUrl: string | null = null;
@@ -106,6 +106,15 @@ function updateButtonHrefs(
       const img = faceitButton.querySelector("img");
       if (img) {
         img.src = getExtensionUrl(getFaceitLevelIcon(faceitData.elo));
+      }
+
+      // Update tooltip based on whether we have ELO data or not
+      if (faceitData.elo) {
+        faceitButton.title = `Faceit Level ${getFaceitLevel(
+          faceitData.elo
+        )} (ELO: ${faceitData.elo})`;
+      } else {
+        faceitButton.title = "No Faceit CS2 record found";
       }
     } else {
       faceitButton.href = "#";
