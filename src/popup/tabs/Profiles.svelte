@@ -30,26 +30,30 @@
 </script>
 
 <main class="flex flex-col gap-4">
+  <h2 class="text-lg">Profiles</h2>
   <SwitchComponent
-    labelText="CSStats Profile Button"
-    descriptionText="Show CSStats profile button on page"
+    labelText="CSStats Profiles"
+    descriptionText="Show CSStats profile button"
     bind:checked={profileButtons.csstats}
   />
   <SwitchComponent
-    labelText="Faceit Profile Button"
-    descriptionText="Show Faceit profile button on page"
+    labelText="Faceit Profiles"
+    descriptionText="Show Faceit profile button"
     bind:checked={profileButtons.faceit}
   />
+  <h2 class="text-lg">Bans</h2>
   <SwitchComponent
     labelText="Show previous Bans"
     descriptionText="Show all previous bans for the player"
     bind:checked={showBans}
   />
+  <h2 class="text-lg">Skins</h2>
   <SwitchComponent
     labelText="Show all Skin Drops"
     descriptionText="Show all skin drops that the player has received"
     bind:checked={showSkinDrops}
   />
+  <h2 class="text-lg">Friend List</h2>
   <SwitchComponent
     labelText="Friend List Ranks"
     descriptionText="Show Friend's Renown Ranks in Friend List"
