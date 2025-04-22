@@ -2,6 +2,20 @@
   background-color: #111827;
 }
 
+.sidebar-party-status {
+  background: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px);
+
+}
+
+.sidebar-party-status .row .actions button.leave-party:hover {
+  background-color: #111827;
+}
+
+.sidebar-party-status .row .actions button.leave-party {
+  background-color: #1f2937;
+  color: hsla(0, 0%, 100%, .8);
+}
+
 .Toastify__toast-theme--dark {
   background: var(--toastify-color-dark);
   color: var(--toastify-text-color-dark);
