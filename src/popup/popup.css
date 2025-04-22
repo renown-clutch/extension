@@ -76,3 +76,30 @@
     font-family: "Poppins", sans-serif;
   }
 }
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 10px;
+  background: hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--sidebar-accent));
+  border-radius: 8px;
+  border: 2px solid hsl(var(--background));
+}
+
+::-webkit-scrollbar-corner {
+  background: hsl(var(--background));
+}
+
+.dark ::-webkit-scrollbar {
+  background: hsl(var(--background));
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--sidebar-accent));
+  border: 2px solid hsl(var(--background));
+}
+
+.dark ::-webkit-scrollbar-corner {
+  background: hsl(var(--background));
+}
