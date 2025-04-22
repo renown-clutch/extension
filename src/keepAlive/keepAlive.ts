@@ -5,7 +5,6 @@ let lastKeepAlive: boolean | undefined = undefined;
 
 function doKeepAliveAction() {
   // Scroll by 1px and back to simulate activity
-  console.log("Doing keep alive action");
   window.scrollBy(0, 1);
   setTimeout(() => window.scrollBy(0, -1), 100);
 }

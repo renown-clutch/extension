@@ -4,7 +4,8 @@ import {
 } from "../utils/observerUtils";
 import { getFaceitLevel } from "../utils/faceitUtils";
 
-console.log("Faceit Ranks for match page module loaded");
+// Remove excessive log
+// console.log("Faceit Ranks for match page module loaded");
 
 // Keep track of processed elements and observer instances
 let processedTables = new Set();
@@ -56,9 +57,10 @@ function getFallbackIconPath(): string {
  * Cleans up any Faceit icons that have been added to the page
  */
 function cleanupFaceitIcons() {
-  console.log(
-    `Removing ${addedFaceitElements.length} Faceit icons from the page`
-  );
+  // Remove excessive logging
+  // console.log(
+  //   `Removing ${addedFaceitElements.length} Faceit icons from the page`
+  // );
 
   // Remove all added elements
   addedFaceitElements.forEach((element) => {
@@ -84,7 +86,8 @@ function cleanupFaceitIcons() {
  * Initializes the faceit ranks for match page feature
  */
 export function initialize(enabled: boolean) {
-  console.log("Initializing faceit ranks with enabled:", enabled);
+  // Remove excessive logging
+  // console.log("Initializing faceit ranks with enabled:", enabled);
 
   try {
     // Check if extension context is still valid before initializing
@@ -97,7 +100,8 @@ export function initialize(enabled: boolean) {
 
     // Ensure we're not in an inconsistent state
     if (currentObserver) {
-      console.log("Disconnecting previous observer before reinitializing");
+      // Remove excessive logging
+      // console.log("Disconnecting previous observer before reinitializing");
       disconnectSafeObserver(currentObserver);
       currentObserver = null;
     }
@@ -117,7 +121,8 @@ export function initialize(enabled: boolean) {
       return;
     }
 
-    console.log("Faceit Ranks for match page feature enabled");
+    // Remove excessive logging
+    // console.log("Faceit Ranks for match page feature enabled");
 
     // Process any tables that already exist on the page
     processTeamStatsTables();
