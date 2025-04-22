@@ -2,6 +2,7 @@ import {
   createSafeObserver,
   disconnectSafeObserver,
 } from "../utils/observerUtils";
+import { getFaceitLevel } from "../utils/faceitUtils";
 
 console.log("Faceit Ranks for match page module loaded");
 
@@ -11,20 +12,6 @@ let currentObserver: MutationObserver | null = null;
 let addedFaceitElements: HTMLElement[] = [];
 
 // Path to Faceit icon
-
-// Map of Faceit ELO ranges to levels
-function getFaceitLevel(elo: number): number {
-  if (elo <= 800) return 1;
-  if (elo <= 950) return 2;
-  if (elo <= 1100) return 3;
-  if (elo <= 1250) return 4;
-  if (elo <= 1400) return 5;
-  if (elo <= 1550) return 6;
-  if (elo <= 1700) return 7;
-  if (elo <= 1850) return 8;
-  if (elo <= 2000) return 9;
-  return 10; // 2001+
-}
 
 // Get level icon path based on level
 function getLevelIconPath(level: number): string {

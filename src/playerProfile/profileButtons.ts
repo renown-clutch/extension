@@ -3,6 +3,7 @@ import {
   isProfilePage,
   waitForElement,
 } from "../utils/profileUtils";
+import { getFaceitLevelIcon } from "../utils/faceitUtils";
 
 let currentPlayerId = "";
 let faceitUrl: string | null = null;
@@ -22,22 +23,6 @@ function getExtensionUrl(path: string): string {
     document.currentScript?.getAttribute("src")?.split("/")[2] ||
     window.location.href.match(/chrome-extension:\/\/([^\/]+)/)?.[1];
   return `chrome-extension://${extensionId}/${path}`;
-}
-
-// Function to determine the faceit level icon based on ELO
-function getFaceitLevelIcon(elo: number | null): string {
-  if (elo === null) return "static/faceit.svg";
-
-  if (elo < 800) return "static/faceitlevels/lvl1.svg";
-  if (elo < 950) return "static/faceitlevels/lvl2.svg";
-  if (elo < 1100) return "static/faceitlevels/lvl3.svg";
-  if (elo < 1250) return "static/faceitlevels/lvl4.svg";
-  if (elo < 1400) return "static/faceitlevels/lvl5.svg";
-  if (elo < 1550) return "static/faceitlevels/lvl6.svg";
-  if (elo < 1700) return "static/faceitlevels/lvl7.svg";
-  if (elo < 1850) return "static/faceitlevels/lvl8.svg";
-  if (elo < 2000) return "static/faceitlevels/lvl9.svg";
-  return "static/faceitlevels/lvl10.svg";
 }
 
 function createButton({
