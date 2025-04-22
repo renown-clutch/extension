@@ -5,7 +5,7 @@
 
 <main class=" flex flex-col gap-4">
   <Alert.Root class="bg-yellow-600">
-    <Alert.Title >Sorry!</Alert.Title>
+    <Alert.Title class="text-lg" >Sorry!</Alert.Title>
     <Alert.Description class="text-xs"
       >This feature is not available yet, but we are working on it!</Alert.Description
     >

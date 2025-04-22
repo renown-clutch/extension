@@ -2,6 +2,16 @@
   background-color: #111827;
 }
 
+.Toastify__toast-theme--dark {
+  background: var(--toastify-color-dark);
+  color: var(--toastify-text-color-dark);
+}
+
+.Toastify__toast-theme--dark {
+  background: #1f2937;
+  color: var(--toastify-text-color-dark);
+}
+
 .profile-match-list .skeleton .match {
  
   background: linear-gradient(90deg, rgba(17, 24, 39, 0.872), hwb(215 12% 78%) 300px);
