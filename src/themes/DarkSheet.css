@@ -7,8 +7,30 @@
 
 }
 
+.live-match-list .match.vote:focus, .live-match-list .match.vote:hover {
+  background-color: #d97706;
+}
+
 .sidebar-party-status .row .actions button.leave-party:hover {
-  background-color: #111827;
+  background-color: #f59e0b;
+}
+
+.page.current-match .player-list .player {
+ 
+  background: #111827;
+  border: 1px solid #1f2937;
+ 
+}
+
+.connect-copy-wrapper .connect-copy .connect-input {
+  background: #111827;
+ 
+}
+
+.connect-copy-wrapper .connect-copy .mask {
+  
+  background: #1f2937;
+ 
 }
 
 .sidebar-party-status .row .actions button.leave-party {
