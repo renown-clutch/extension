@@ -2,6 +2,35 @@
   background-color: #111827;
 }
 
+.profile-match-list .skeleton .match {
+ 
+  background: linear-gradient(90deg, rgba(17, 24, 39, 0.872), hwb(215 12% 78%) 300px);
+}
+
+.profile-banner .layout .wrapper .avatar {
+  
+  background-color: #111827;
+  
+}
+
+.tooltip-wrapper .tooltip {
+  background-color: #1f2937;
+ 
+}
+
+.profile-banner .layout .wrapper .flag {
+ 
+  background-color: #111827;
+  
+ 
+}
+
+.profile-match-list .skeleton .match .skeleton-box {
+  background: #1f2937;
+  animation: pulse 2s cubic-bezier(.4,0,.6,1) infinite;
+  border-radius: 3px
+}
+
 .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper {
   border-top: 2px solid #1f2937;
   padding: 8px 12px;
@@ -1149,11 +1178,12 @@
    
 
   .profile-banner .layout .wrapper .avatar {
-    background-color: #200e0e;
+    background-color: #111827;
   }
   
   .profile-banner .layout .wrapper .flag {
-    background-color: #200e0e;
+    background-color: #111827;
+
   }
   
   .profile-banner .layout .wrapper .info .info-wrapper .registered-since {
@@ -1250,7 +1280,7 @@
   }
   
   .waitlist .tooltip .tooltiptext:after {
-    border-top-color: #200e0e;
+    border-top-color: #1f2937;
   }
   
   }
@@ -2574,12 +2604,12 @@
 
 
   .tooltip-wrapper .tooltip {
-    background-color: #200e0e;
+    background-color: #1f2937;
     color: #fff;
   }
   
   .tooltip-wrapper .tooltip .tooltip-arrow {
-    background-color: #200e0e;
+    background-color: #1f2937;
   }
 
   .next-rank-progress {
