@@ -215,7 +215,6 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
 
     // If no valid faceit info is available, use the fallback icon
     if (!faceitInfo || !faceitInfo.elo) {
-      console.warn("No Faceit profile found:", faceitInfo);
       levelIconPath = getFallbackIconPath();
       tooltipText = "No Faceit profile found";
     } else {

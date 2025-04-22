@@ -147,23 +147,38 @@ async function fetchFaceitData(
   steamId: string
 ): Promise<{ url: string | null; elo: number | null }> {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage(
-      { type: "get_faceit_info", steam_ids: [steamId] },
-      (response) => {
-        if (response && Object.keys(response).length > 0) {
-          const faceitData = response[steamId];
-          if (faceitData) {
-            const url = faceitData.url || null;
-            const elo = faceitData.elo || null;
-            resolve({ url, elo });
+    try {
+      chrome.runtime.sendMessage(
+        { type: "get_faceit_info", steam_ids: [steamId] },
+        (response) => {
+          // Check for runtime error (like extension context invalidated)
+          if (chrome.runtime.lastError) {
+            console.warn(
+              "Faceit data fetch failed:",
+              chrome.runtime.lastError.message
+            );
+            resolve({ url: null, elo: null });
+            return;
+          }
+
+          if (response && Object.keys(response).length > 0) {
+            const faceitData = response[steamId];
+            if (faceitData) {
+              const url = faceitData.url || null;
+              const elo = faceitData.elo || null;
+              resolve({ url, elo });
+            } else {
+              resolve({ url: null, elo: null });
+            }
           } else {
             resolve({ url: null, elo: null });
           }
-        } else {
-          resolve({ url: null, elo: null });
         }
-      }
-    );
+      );
+    } catch (error) {
+      console.warn("Error in faceit data fetch:", error);
+      resolve({ url: null, elo: null });
+    }
   });
 }
 
@@ -175,37 +190,55 @@ export async function initialize(profileButtons: {
   csstats: boolean;
   faceit: boolean;
 }): Promise<void> {
-  // Clean up previous buttons
-  removeButtons();
-
-  // If we're not on a profile page or no buttons enabled, we're done
-  if (!isProfilePage() || (!profileButtons.csstats && !profileButtons.faceit)) {
-    return;
-  }
-
-  // Set up buttons for current profile
-  const playerId = getPlayerIdFromUrl();
-  if (!playerId) return;
-
-  currentPlayerId = playerId;
-  ensureButtons(profileButtons);
-  updateButtonHrefs(currentPlayerId, { url: null, elo: null });
-
   try {
-    // Wait for the container to be available
-    await waitForLinksDiv();
-    appendButtonsToDom();
+    // Clean up previous buttons
+    removeButtons();
 
-    // Fetch and update Faceit data if needed
-    if (profileButtons.faceit) {
-      faceitDataPromise = fetchFaceitData(currentPlayerId);
-      const faceitData = await faceitDataPromise;
-      faceitUrl = faceitData.url;
-      faceitElo = faceitData.elo;
-      updateButtonHrefs(currentPlayerId, faceitData);
+    // If we're not on a profile page or no buttons enabled, we're done
+    if (
+      !isProfilePage() ||
+      (!profileButtons.csstats && !profileButtons.faceit)
+    ) {
+      return;
+    }
+
+    // Set up buttons for current profile
+    const playerId = getPlayerIdFromUrl();
+    if (!playerId) return;
+
+    currentPlayerId = playerId;
+    ensureButtons(profileButtons);
+    updateButtonHrefs(currentPlayerId, { url: null, elo: null });
+
+    try {
+      // Wait for the container to be available
+      await waitForLinksDiv();
       appendButtonsToDom();
+
+      // Fetch and update Faceit data if needed
+      if (profileButtons.faceit) {
+        faceitDataPromise = fetchFaceitData(currentPlayerId);
+        const faceitData = await faceitDataPromise;
+        faceitUrl = faceitData.url;
+        faceitElo = faceitData.elo;
+        updateButtonHrefs(currentPlayerId, faceitData);
+        appendButtonsToDom();
+      }
+    } catch (error) {
+      // Handle specific extension context invalidated error
+      if (
+        error instanceof Error &&
+        error.message.includes("Extension context invalidated")
+      ) {
+        console.warn(
+          "Extension context was invalidated. This usually happens during extension reload or update."
+        );
+      } else {
+        console.error("Error initializing profile buttons:", error);
+      }
     }
   } catch (error) {
-    console.error("Error initializing profile buttons:", error);
+    // Catch any unexpected top-level errors
+    console.warn("Top-level error in profile buttons initialization:", error);
   }
 }
