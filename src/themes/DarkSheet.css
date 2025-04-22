@@ -335,17 +335,12 @@
 
   .navbar {
     border-bottom: 2px solid #111827;
-}
+    background-color: #030712; 
+    transition: background-color, box-shadow .2s ease-in-out;
+  }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper .text-button:hover {
     background-color: #1f2937;
-  }
-  
-  }
-  
-  @media screen and (max-width: 1079px) {
-    background-color: #030712;
-    transition: background-color,box-shadow .2s ease-in-out;
   }
   
   .team-stats-table .row {

@@ -15,16 +15,41 @@ let isFeatureEnabled = false;
 let pendingRequests = new Set<string>(); // Track Steam IDs with pending requests
 let processingInProgress = false; // Flag to prevent concurrent processing
 
+/**
+ * Checks if the extension context is still valid
+ */
+function isExtensionContextValid(): boolean {
+  return chrome.runtime && !!chrome.runtime.id;
+}
+
 // Path to Faceit icon
 
 // Get level icon path based on level
 function getLevelIconPath(level: number): string {
-  return chrome.runtime.getURL(`static/faceitlevels/lvl${level}.svg`);
+  try {
+    if (!isExtensionContextValid()) {
+      console.warn("Extension context invalid when getting level icon path");
+      return "";
+    }
+    return chrome.runtime.getURL(`static/faceitlevels/lvl${level}.svg`);
+  } catch (error) {
+    console.warn("Error getting level icon path:", error);
+    return "";
+  }
 }
 
 // Get fallback icon path for players with no Faceit profile
 function getFallbackIconPath(): string {
-  return chrome.runtime.getURL("static/faceitlevels/lvlx.svg");
+  try {
+    if (!isExtensionContextValid()) {
+      console.warn("Extension context invalid when getting fallback icon path");
+      return "";
+    }
+    return chrome.runtime.getURL("static/faceitlevels/lvlx.svg");
+  } catch (error) {
+    console.warn("Error getting fallback icon path:", error);
+    return "";
+  }
 }
 
 /**
@@ -61,72 +86,93 @@ function cleanupFaceitIcons() {
 export function initialize(enabled: boolean) {
   console.log("Initializing faceit ranks with enabled:", enabled);
 
-  // Ensure we're not in an inconsistent state
-  if (currentObserver) {
-    console.log("Disconnecting previous observer before reinitializing");
-    disconnectSafeObserver(currentObserver);
-    currentObserver = null;
-  }
+  try {
+    // Check if extension context is still valid before initializing
+    if (!isExtensionContextValid()) {
+      console.warn(
+        "Extension context invalid, skipping faceit ranks initialization"
+      );
+      return;
+    }
 
-  // Update feature state
-  isFeatureEnabled = enabled;
+    // Ensure we're not in an inconsistent state
+    if (currentObserver) {
+      console.log("Disconnecting previous observer before reinitializing");
+      disconnectSafeObserver(currentObserver);
+      currentObserver = null;
+    }
 
-  // Reset processed tables and players
-  processedTables = new Set();
-  processedPlayers = new Set();
-  pendingRequests = new Set();
-  processingInProgress = false;
+    // Update feature state
+    isFeatureEnabled = enabled;
 
-  // If feature is disabled, remove any existing Faceit icons
-  if (!enabled) {
-    cleanupFaceitIcons();
-    return;
-  }
+    // Reset processed tables and players
+    processedTables = new Set();
+    processedPlayers = new Set();
+    pendingRequests = new Set();
+    processingInProgress = false;
 
-  console.log("Faceit Ranks for match page feature enabled");
+    // If feature is disabled, remove any existing Faceit icons
+    if (!enabled) {
+      cleanupFaceitIcons();
+      return;
+    }
 
-  // Process any tables that already exist on the page
-  processTeamStatsTables();
+    console.log("Faceit Ranks for match page feature enabled");
 
-  // Process any standalone player elements
-  processPlayerElements();
+    // Process any tables that already exist on the page
+    processTeamStatsTables();
 
-  // Create the observer with our utility function
-  currentObserver = createSafeObserver(
-    (mutations) => {
-      // Skip processing if feature has been disabled
-      if (!isFeatureEnabled || processingInProgress) return;
+    // Process any standalone player elements
+    processPlayerElements();
 
-      let shouldProcessTables = false;
-      let shouldProcessPlayers = false;
+    // Create the observer with our utility function
+    currentObserver = createSafeObserver(
+      (mutations) => {
+        // Skip processing if feature has been disabled
+        if (!isFeatureEnabled || processingInProgress) return;
 
-      for (const mutation of mutations) {
-        if (mutation.type === "childList") {
-          const tables = document.querySelectorAll(".team-stats-table");
-          if (tables.length > 0) {
-            shouldProcessTables = true;
+        let shouldProcessTables = false;
+        let shouldProcessPlayers = false;
+
+        for (const mutation of mutations) {
+          if (mutation.type === "childList") {
+            const tables = document.querySelectorAll(".team-stats-table");
+            if (tables.length > 0) {
+              shouldProcessTables = true;
+            }
+
+            const players = document.querySelectorAll("a.player");
+            if (players.length > 0) {
+              shouldProcessPlayers = true;
+            }
+
+            if (shouldProcessTables && shouldProcessPlayers) break;
           }
-
-          const players = document.querySelectorAll("a.player");
-          if (players.length > 0) {
-            shouldProcessPlayers = true;
-          }
-
-          if (shouldProcessTables && shouldProcessPlayers) break;
         }
-      }
 
-      if (shouldProcessTables) {
-        processTeamStatsTables();
-      }
+        if (shouldProcessTables) {
+          processTeamStatsTables();
+        }
 
-      if (shouldProcessPlayers) {
-        processPlayerElements();
-      }
-    },
-    () => document.body,
-    { childList: true, subtree: true }
-  );
+        if (shouldProcessPlayers) {
+          processPlayerElements();
+        }
+      },
+      () => document.body,
+      { childList: true, subtree: true }
+    );
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn(
+        "Extension context invalidated during faceit ranks initialization"
+      );
+    } else {
+      console.error("Error initializing faceit ranks:", error);
+    }
+  }
 }
 
 /**
@@ -248,10 +294,37 @@ async function getFaceitInfo(
     // Set processing flag to prevent concurrent requests
     processingInProgress = true;
 
+    // Check if extension context is still valid before making API calls
+    if (!chrome.runtime || !chrome.runtime.id) {
+      console.warn("Extension context invalid, skipping Faceit info request");
+      return;
+    }
+
     // Send message to background script to get Faceit info
-    const response = await chrome.runtime.sendMessage({
-      type: "get_faceit_info",
-      steam_ids: newSteamIds,
+    const response = await new Promise<any>((resolve) => {
+      try {
+        chrome.runtime.sendMessage(
+          {
+            type: "get_faceit_info",
+            steam_ids: newSteamIds,
+          },
+          (response) => {
+            // Check for runtime error (like extension context invalidated)
+            if (chrome.runtime.lastError) {
+              console.warn(
+                "Faceit data fetch failed:",
+                chrome.runtime.lastError.message
+              );
+              resolve({});
+              return;
+            }
+            resolve(response || {});
+          }
+        );
+      } catch (error) {
+        console.warn("Error in Faceit data fetch:", error);
+        resolve({});
+      }
     });
 
     console.log("Received Faceit info:", response);
@@ -292,8 +365,15 @@ async function getFaceitInfo(
         Object.keys(response).length
       } possible Faceit icons`
     );
-  } catch (error) {
-    console.error("Error getting Faceit info:", error);
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn("Extension context invalidated during Faceit info request");
+    } else {
+      console.error("Error getting Faceit info:", error);
+    }
   } finally {
     // Reset processing flag
     processingInProgress = false;
@@ -329,10 +409,39 @@ async function getFaceitInfoForPlayers(
     // Set processing flag to prevent concurrent requests
     processingInProgress = true;
 
+    // Check if extension context is still valid before making API calls
+    if (!chrome.runtime || !chrome.runtime.id) {
+      console.warn(
+        "Extension context invalid, skipping Faceit info request for player elements"
+      );
+      return;
+    }
+
     // Send message to background script to get Faceit info
-    const response = await chrome.runtime.sendMessage({
-      type: "get_faceit_info",
-      steam_ids: newSteamIds,
+    const response = await new Promise<any>((resolve) => {
+      try {
+        chrome.runtime.sendMessage(
+          {
+            type: "get_faceit_info",
+            steam_ids: newSteamIds,
+          },
+          (response) => {
+            // Check for runtime error (like extension context invalidated)
+            if (chrome.runtime.lastError) {
+              console.warn(
+                "Faceit data fetch for players failed:",
+                chrome.runtime.lastError.message
+              );
+              resolve({});
+              return;
+            }
+            resolve(response || {});
+          }
+        );
+      } catch (error) {
+        console.warn("Error in Faceit data fetch for players:", error);
+        resolve({});
+      }
     });
 
     console.log("Received Faceit info for player elements:", response);
@@ -368,8 +477,17 @@ async function getFaceitInfoForPlayers(
         Object.keys(response).length
       } possible Faceit icons to player elements`
     );
-  } catch (error) {
-    console.error("Error getting Faceit info for player elements:", error);
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn(
+        "Extension context invalidated during Faceit info request for players"
+      );
+    } else {
+      console.error("Error getting Faceit info for player elements:", error);
+    }
   } finally {
     // Reset processing flag
     processingInProgress = false;
@@ -384,6 +502,14 @@ function addFaceitIconToPlayerElement(
   faceitInfo: any
 ) {
   try {
+    // Check if extension context is valid
+    if (!isExtensionContextValid()) {
+      console.warn(
+        "Extension context invalid, skipping adding Faceit icon to player element"
+      );
+      return;
+    }
+
     // Check if the player element already has a faceit-icon
     if (playerElem.querySelector(".faceit-icon")) {
       console.log("Player element already has a Faceit icon, skipping");
@@ -422,6 +548,14 @@ function addFaceitIconToPlayerElement(
       levelIconPath = getLevelIconPath(faceitLevel);
       tooltipText = `Faceit Level ${faceitLevel} (ELO: ${faceitInfo.elo})`;
       profileUrl = faceitInfo.url;
+    }
+
+    // Check if we have a valid icon path
+    if (!levelIconPath) {
+      console.warn(
+        "Could not get a valid icon path, skipping Faceit icon addition"
+      );
+      return;
     }
 
     // Create Faceit icon element
@@ -471,15 +605,24 @@ function addFaceitIconToPlayerElement(
           : `ELO: ${faceitInfo.elo}`
       }`
     );
-  } catch (error) {
-    console.error(
-      "Error adding Faceit icon to player element:",
-      error,
-      "Player element:",
-      playerElem,
-      "Faceit info:",
-      faceitInfo
-    );
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn(
+        "Extension context invalidated when adding Faceit icon to player element"
+      );
+    } else {
+      console.error(
+        "Error adding Faceit icon to player element:",
+        error,
+        "Player element:",
+        playerElem,
+        "Faceit info:",
+        faceitInfo
+      );
+    }
   }
 }
 
@@ -488,6 +631,14 @@ function addFaceitIconToPlayerElement(
  */
 function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
   try {
+    // Check if extension context is valid
+    if (!isExtensionContextValid()) {
+      console.warn(
+        "Extension context invalid, skipping adding Faceit icon to player row"
+      );
+      return;
+    }
+
     // Check if the player row already has a faceit-icon
     if (playerRow.querySelector(".faceit-icon")) {
       console.log("Player row already has a Faceit icon, skipping");
@@ -528,6 +679,14 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
       levelIconPath = getLevelIconPath(faceitLevel);
       tooltipText = `Faceit Level ${faceitLevel} (ELO: ${faceitInfo.elo})`;
       profileUrl = faceitInfo.url;
+    }
+
+    // Check if we have a valid icon path
+    if (!levelIconPath) {
+      console.warn(
+        "Could not get a valid icon path, skipping Faceit icon addition"
+      );
+      return;
     }
 
     // Create Faceit icon element as an anchor tag or div based on whether we have a profile
@@ -582,15 +741,24 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
           : `ELO: ${faceitInfo.elo}`
       }`
     );
-  } catch (error) {
-    console.error(
-      "Error adding Faceit icon to player row:",
-      error,
-      "Player row:",
-      playerRow,
-      "Faceit info:",
-      faceitInfo
-    );
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn(
+        "Extension context invalidated when adding Faceit icon to player row"
+      );
+    } else {
+      console.error(
+        "Error adding Faceit icon to player row:",
+        error,
+        "Player row:",
+        playerRow,
+        "Faceit info:",
+        faceitInfo
+      );
+    }
   }
 }
 
@@ -598,12 +766,33 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
  * Updates the faceit ranks feature settings
  */
 export function updateSettings(enabled: boolean) {
-  console.log("Updating faceit ranks for match page settings:", enabled);
+  try {
+    console.log("Updating faceit ranks for match page settings:", enabled);
 
-  // Only reinitialize if the state is actually changing
-  if (isFeatureEnabled !== enabled) {
-    initialize(enabled);
-  } else {
-    console.log("Feature state unchanged, skipping reinitialization");
+    // Check if extension context is still valid before updating settings
+    if (!isExtensionContextValid()) {
+      console.warn(
+        "Extension context invalid, skipping faceit ranks settings update"
+      );
+      return;
+    }
+
+    // Only reinitialize if the state is actually changing
+    if (isFeatureEnabled !== enabled) {
+      initialize(enabled);
+    } else {
+      console.log("Feature state unchanged, skipping reinitialization");
+    }
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Extension context invalidated")
+    ) {
+      console.warn(
+        "Extension context invalidated when updating faceit ranks settings"
+      );
+    } else {
+      console.error("Error updating faceit ranks settings:", error);
+    }
   }
 }
