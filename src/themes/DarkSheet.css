@@ -1,3 +1,12 @@
+.navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
+  background-color: #111827;
+}
+
+.navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper {
+  border-top: 2px solid #1f2937;
+  padding: 8px 12px;
+}
+
 .primary-button.gradient {
     color: #382829;
   }
@@ -7,6 +16,10 @@
     background-color: #1f2937;
     border: 1px solid #374151;
     
+}
+
+.navbar .container .content .actions .profile-menu .dropdown .content .dropdown-links a:hover {
+  background-color: #1f2937;
 }
 
 .profile-match-list .match {
@@ -156,7 +169,7 @@
   }
   
   .navbar .container .content .actions .notification .toggle {
-    background-color: #030712;
+    background-color: #111827;
     color: hsla(0,0%,100%,.65);
   }
   
@@ -173,7 +186,7 @@
 }
 
   .navbar .container .content .actions .notification.open .toggle,.navbar .container .content .actions .notification:hover .toggle {
-    background-color: #382829;
+    background-color: #1f2937;
   }
   
   .navbar .container .content .actions .notification .notification-container .notification-content {
@@ -181,7 +194,7 @@
   }
   
   .navbar .container .content .actions .profile-menu .toggle {
-    background-color: #030712;
+    background-color: #111827;
   }
   
   .navbar .container .content .actions .profile-menu .toggle .arrow-wrapper {
@@ -193,7 +206,7 @@
   }
   
   .navbar .container .content .actions .profile-menu.open .toggle,.navbar .container .content .actions .profile-menu:hover .toggle {
-    background-color: #382829;
+    background-color: #1f2937;
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content {
@@ -217,7 +230,7 @@
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .dropdown-links a:hover {
-    background-color: #382829;
+    background-color: #1f2937;
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper .text-button {
@@ -229,7 +242,7 @@
 }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper .text-button:hover {
-    background-color: #382829;
+    background-color: #1f2937;
   }
   
   }
@@ -2708,7 +2721,7 @@
     background-color: rgba(248,193,52,.1);
   }
   
-  }
+  
   
   .page.settings-layout .support-page .contact-channels .channel {
     background-color: #111827;
