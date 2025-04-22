@@ -1,3 +1,8 @@
+import {
+  createSafeObserver,
+  disconnectSafeObserver,
+} from "../utils/observerUtils";
+
 console.log("Faceit Ranks for match page module loaded");
 
 // Keep track of processed elements and observer instances
@@ -57,10 +62,8 @@ function cleanupFaceitIcons() {
  */
 export function initialize(enabled: boolean) {
   // Clean up any existing observer
-  if (currentObserver) {
-    currentObserver.disconnect();
-    currentObserver = null;
-  }
+  disconnectSafeObserver(currentObserver);
+  currentObserver = null;
 
   // Reset processed tables
   processedTables = new Set();
@@ -76,30 +79,28 @@ export function initialize(enabled: boolean) {
   // Process any tables that already exist on the page
   processTeamStatsTables();
 
-  // Set up the observer to look for team-stats-table elements
-  currentObserver = new MutationObserver((mutations) => {
-    let shouldProcess = false;
+  // Create the observer with our utility function
+  currentObserver = createSafeObserver(
+    (mutations) => {
+      let shouldProcess = false;
 
-    for (const mutation of mutations) {
-      if (mutation.type === "childList") {
-        const tables = document.querySelectorAll(".team-stats-table");
-        if (tables.length > 0) {
-          shouldProcess = true;
-          break;
+      for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          const tables = document.querySelectorAll(".team-stats-table");
+          if (tables.length > 0) {
+            shouldProcess = true;
+            break;
+          }
         }
       }
-    }
 
-    if (shouldProcess) {
-      processTeamStatsTables();
-    }
-  });
-
-  // Start observing the document body for DOM changes
-  currentObserver.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
+      if (shouldProcess) {
+        processTeamStatsTables();
+      }
+    },
+    () => document.body,
+    { childList: true, subtree: true }
+  );
 }
 
 /**

@@ -1,5 +1,6 @@
 import { isProfilePage, waitForElement } from "../utils/profileUtils";
 import { defaultUserSettings, type UserSettings } from "../lib/types";
+import { createSafeObserver } from "../utils/observerUtils";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
 let showRanks = true; // Default to true
@@ -261,45 +262,39 @@ function observeFriendsPageNavigation(): void {
     });
   }
 
-  // Set up MutationObserver to watch for DOM changes that might indicate navigation
-  const observer = new MutationObserver((mutations) => {
-    if (isProcessing) return; // Skip if we're already processing
+  // Set up MutationObserver using the utility function
+  createSafeObserver(
+    (mutations) => {
+      if (isProcessing) return; // Skip if we're already processing
 
-    let shouldCheck = false;
-    for (const mutation of mutations) {
-      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-        // Check if any significant elements were added that might indicate page loaded
-        for (const node of mutation.addedNodes) {
-          if (
-            node.nodeType === Node.ELEMENT_NODE &&
-            (node as Element).classList &&
-            ((node as Element).classList.contains("profile-friend-list") ||
-              (node as Element).querySelector(".profile-friend-list"))
-          ) {
-            shouldCheck = true;
-            break;
+      let shouldCheck = false;
+      for (const mutation of mutations) {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          // Check if any significant elements were added that might indicate page loaded
+          for (const node of mutation.addedNodes) {
+            if (
+              node.nodeType === Node.ELEMENT_NODE &&
+              (node as Element).classList &&
+              ((node as Element).classList.contains("profile-friend-list") ||
+                (node as Element).querySelector(".profile-friend-list"))
+            ) {
+              shouldCheck = true;
+              break;
+            }
           }
+          if (shouldCheck) break;
         }
-        if (shouldCheck) break;
       }
-    }
 
-    if (shouldCheck && isFriendsPage()) {
-      debouncedCheckAndExtract();
-    }
-  });
-
-  // Start observing once the body is available
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true });
-  } else {
-    window.addEventListener("DOMContentLoaded", () => {
-      observer.observe(document.body, { childList: true, subtree: true });
-    });
-  }
-
-  // Initial check in case we're already on a friends page
-  checkAndExtractFriends();
+      if (shouldCheck && isFriendsPage()) {
+        debouncedCheckAndExtract();
+      }
+    },
+    () => document.body,
+    { childList: true, subtree: true },
+    // Initial check after successful setup
+    checkAndExtractFriends
+  );
 }
 
 /**

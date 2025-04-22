@@ -1,4 +1,8 @@
 import type { UserSettings } from "../lib/types";
+import {
+  createSafeObserver,
+  disconnectSafeObserver,
+} from "../utils/observerUtils";
 
 let latestUserSettings: UserSettings | null = null;
 let observer: MutationObserver | null = null;
@@ -6,39 +10,40 @@ let observer: MutationObserver | null = null;
 export function initializeMatchFoundAutoAccept(userSettings: UserSettings) {
   latestUserSettings = userSettings;
 
-  if (observer) {
-    observer.disconnect();
-    observer = null;
-  }
+  // Clean up any existing observer
+  disconnectSafeObserver(observer);
+  observer = null;
 
-  observer = new MutationObserver(() => {
-    const modal = findMatchFoundModal();
+  // Create the observer with our utility function
+  observer = createSafeObserver(
+    () => {
+      const modal = findMatchFoundModal();
 
-    if (modal && latestUserSettings?.autoAccept.match) {
-      const acceptBtn = modal.querySelector<HTMLButtonElement>(
-        "button.primary-button"
-      );
+      if (modal && latestUserSettings?.autoAccept.match) {
+        const acceptBtn = modal.querySelector<HTMLButtonElement>(
+          "button.primary-button"
+        );
 
-      if (acceptBtn) {
-        setTimeout(() => {
-          if (
-            document.body.contains(modal) &&
-            document.body.contains(acceptBtn)
-          ) {
-            acceptBtn.click();
-          }
-        }, 1000);
+        if (acceptBtn) {
+          setTimeout(() => {
+            if (
+              document.body.contains(modal) &&
+              document.body.contains(acceptBtn)
+            ) {
+              acceptBtn.click();
+            }
+          }, 1000);
+        }
       }
+    },
+    () => document.body,
+    { childList: true, subtree: true },
+    () => {
+      // Run checks after successful setup
+      checkForExistingMatchFound();
+      setTimeout(checkForExistingMatchFound, 500);
     }
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
-
-  checkForExistingMatchFound();
-  setTimeout(checkForExistingMatchFound, 500);
+  );
 }
 
 function findMatchFoundModal(): Element | null {

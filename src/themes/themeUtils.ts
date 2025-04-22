@@ -1,3 +1,5 @@
+import { createHeadObserver } from "../utils/observerUtils";
+
 const styleElement = document.createElement("style");
 styleElement.id = "clutch-theme";
 
@@ -56,14 +58,16 @@ async function loadAndApplyTheme(theme: string): Promise<void> {
         document.head.appendChild(styleElement);
         isThemeInjected = true;
       } else {
-        const observer = new MutationObserver(() => {
-          if (document.head) {
-            document.head.appendChild(styleElement);
-            isThemeInjected = true;
-            observer.disconnect();
-          }
-        });
-        observer.observe(document.documentElement, { childList: true });
+        // Use our new utility for head observer
+        createHeadObserver(
+          () => {
+            if (document.head && !isThemeInjected) {
+              document.head.appendChild(styleElement);
+              isThemeInjected = true;
+            }
+          },
+          { childList: true }
+        );
       }
     }
   } catch (error) {

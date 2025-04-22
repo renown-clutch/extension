@@ -1,3 +1,5 @@
+import { createSafeObserver } from "./observerUtils";
+
 export const PROFILE_URL_REGEX = /\/profile\/(\d+)/;
 
 export function getPlayerIdFromUrl(): string | null {
@@ -55,40 +57,12 @@ export function observeProfileChanges(
   window.addEventListener("hashchange", handleUrlChange);
   document.addEventListener("visibilitychange", handleUrlChange);
 
-  // Add MutationObserver to detect DOM changes that might indicate page navigation
-  // Only observe if document.body exists
-  if (document.body) {
-    try {
-      const observer = new MutationObserver(() => {
-        handleUrlChange();
-      });
-
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-    } catch (error) {
-      console.error("Error setting up MutationObserver:", error);
-    }
-  } else {
-    // If document.body doesn't exist yet, wait for it and then observe
-    window.addEventListener("DOMContentLoaded", () => {
-      if (document.body) {
-        try {
-          const observer = new MutationObserver(() => {
-            handleUrlChange();
-          });
-
-          observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-          });
-        } catch (error) {
-          console.error("Error setting up MutationObserver:", error);
-        }
-      }
-    });
-  }
+  // Use our utility function to create the observer
+  createSafeObserver(
+    () => handleUrlChange(),
+    () => document.body,
+    { childList: true, subtree: true }
+  );
 }
 
 // Helper for UI elements to wait for an element to appear in the DOM
