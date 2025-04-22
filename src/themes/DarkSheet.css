@@ -7,6 +7,10 @@
 
 }
 
+.live-match-list .match.vote, .live-match-list .match:focus .actions .match-link, .live-match-list .match:hover .actions .match-link {
+  background-color: #d97706;
+}
+
 .confirm-match-modal .modal-content {
   border: 3px solid rgba(0,0,0,0);
   background-image: linear-gradient(rgba(20, 29, 47,) 0 0),conic-gradient(from var(--angle) at 50% 50%,rgb(255,173,160) 0deg,rgba(255,173,160,0) 1turn);
