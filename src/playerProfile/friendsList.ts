@@ -135,7 +135,7 @@ async function extractFriendIds(): Promise<string[]> {
         }
       }
     });
-    console.log(`Found ${friendIds.length} friends on the page`);
+
     return friendIds;
   } catch (error) {
     console.error("Error extracting friend IDs:", error);
@@ -202,7 +202,6 @@ function observeFriendsPageNavigation(): void {
       isProcessing = true;
       lastProcessedUrl = currentUrl;
 
-      console.log("Detected friends page, extracting friend IDs");
       const friendIds = await extractFriendIds();
 
       // Only fetch ranks if we should show them
@@ -210,7 +209,6 @@ function observeFriendsPageNavigation(): void {
       if (showRanks && friendIds.length > 0) {
         try {
           ranks = await fetchFriendsRanks(friendIds);
-          console.log("Retrieved ranks for friends:", ranks);
         } catch (error) {
           console.error("Error fetching friend ranks:", error);
         }
@@ -300,7 +298,6 @@ function observeFriendsPageNavigation(): void {
 export function updateSettings(settings: UserSettings): void {
   const previousShowRanks = showRanks;
   showRanks = settings.showFriendListRanks;
-  console.log("Friends list settings updated, showRanks:", showRanks);
 
   // If we're already on a friends page, extract friends again with new settings
   if (isProfilePage() && isFriendsPage()) {
@@ -339,8 +336,6 @@ export function updateSettings(settings: UserSettings): void {
  * Initializes the friends list feature
  */
 export function initialize(settings?: UserSettings): void {
-  console.log("Initializing friends list module");
-
   // Update settings if provided
   if (settings) {
     showRanks = settings.showFriendListRanks;

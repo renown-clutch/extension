@@ -39,7 +39,6 @@
 
     // If either setting was changed, force reload
     if (matchChanged || partyChanged) {
-      console.log("Auto-accept setting changed, requesting page reload");
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
           chrome.tabs.sendMessage(tabs[0].id, {

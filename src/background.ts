@@ -1,6 +1,3 @@
-// Example background script
-// console.log("Clutch extension background script loaded");
-
 // Listen for installation
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension installed");
@@ -9,8 +6,6 @@ chrome.runtime.onInstalled.addListener(() => {
 // Helper function to safely parse JSON with detailed error handling
 async function safeJsonParse(response: Response): Promise<any> {
   const text = await response.text();
-  // Remove excessive log of raw API response
-  // console.log("Raw API response:", text);
 
   try {
     return JSON.parse(text);
@@ -31,12 +26,7 @@ const API_BASE_URL = "https://api.clutch.lorem.sh"; // Updated to use the same A
 
 // Listen for messages from content script or popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Log only message type instead of full message
-  console.log("Background received message type:", message.type);
-
   if (message.type === "get_faceit_info" && message.steam_ids) {
-    // Remove excessive logging of IDs
-    // console.log("Getting Faceit info for Steam IDs:", message.steam_ids);
     getFaceitInfo(message.steam_ids)
       .then(sendResponse)
       .catch((error) => {
@@ -46,17 +36,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Indicates async response
   } else if (message.type === "fetchUserBans") {
     const steamId = message.steamId;
-    // Remove excessive logging of steamId
-    // console.log("Fetching bans for Steam ID:", steamId);
 
     fetch(`https://api.clutch.lorem.sh/get_user_bans?steam_id=${steamId}`)
       .then(async (response) => {
-        // Remove excessive logging of API response status
-        // console.log(
-        //   "User bans response status:",
-        //   response.status,
-        //   response.statusText
-        // );
         if (!response.ok) {
           throw new Error(
             `API returned ${response.status}: ${response.statusText}`
@@ -65,8 +47,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return safeJsonParse(response);
       })
       .then((data) => {
-        // Remove excessive logging of API response data
-        // console.log("User bans response in background:", data);
         sendResponse({ success: true, data });
       })
       .catch((error: unknown) => {
@@ -83,17 +63,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   } else if (message.type === "fetchUserDrops") {
     const steamId = message.steamId;
-    // Remove excessive logging of steamId
-    // console.log("Fetching drops for Steam ID:", steamId);
 
     fetch(`https://api.clutch.lorem.sh/get_user_drops?steam_id=${steamId}`)
       .then(async (response) => {
-        // Remove excessive logging of API response status
-        // console.log(
-        //   "User drops response status:",
-        //   response.status,
-        //   response.statusText
-        // );
         if (!response.ok) {
           throw new Error(
             `API returned ${response.status}: ${response.statusText}`
@@ -102,8 +74,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return safeJsonParse(response);
       })
       .then((data) => {
-        // Remove excessive logging of API response data
-        // console.log("User drops response in background:", data);
         sendResponse({ success: true, data });
       })
       .catch((error: unknown) => {
@@ -120,8 +90,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   } else if (message.type === "fetchUsersRanks") {
     const steamIds = message.steamIds;
-    // Only log number of users, not actual IDs
-    console.log("Fetching ranks for", steamIds.length, "users");
 
     fetch(`https://api.clutch.lorem.sh/get_users_ranks`, {
       method: "POST",
@@ -133,12 +101,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }),
     })
       .then(async (response) => {
-        // Remove excessive logging of API response status
-        // console.log(
-        //   "Users ranks response status:",
-        //   response.status,
-        //   response.statusText
-        // );
         if (!response.ok) {
           throw new Error(
             `API returned ${response.status}: ${response.statusText}`
@@ -147,8 +109,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return safeJsonParse(response);
       })
       .then((data) => {
-        // Remove excessive logging of API response data
-        // console.log("Users ranks response in background:", data);
         sendResponse({ success: true, data });
       })
       .catch((error: unknown) => {
@@ -191,8 +151,6 @@ async function getFaceitInfo(steamIds: string[]): Promise<Record<string, any>> {
     }
 
     const data = await safeJsonParse(response);
-    // Remove excessive logging of full API response
-    // console.log("Faceit info response:", data);
     return data;
   } catch (error) {
     console.error("Error fetching Faceit info:", error);

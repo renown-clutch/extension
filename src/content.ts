@@ -1,5 +1,4 @@
-// Remove initial log
-// console.log("Clutch extension content script loaded");
+console.log("Clutch extension content script loaded");
 
 import { initialize as initializeTheme } from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
@@ -30,9 +29,6 @@ import {
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
-
-// Remove excessive log
-// console.log("Default user settings:", defaultUserSettings);
 
 /**
  * Waits for the page to be fully loaded and DOM to be ready
@@ -160,72 +156,38 @@ async function loadFromChromeStorage(): Promise<UserSettings> {
 }
 
 async function initialize() {
-  // Reduce excessive logging
-  // console.log("Content script initialization started");
-
   try {
-    // Remove excessive log
-    // console.log("Loading fresh settings from Chrome storage");
     const freshSettings = await loadFromChromeStorage();
     userSettings = freshSettings;
-    // Remove excessive log
-    // console.log("Settings loaded successfully");
 
-    // Remove excessive log
-    // console.log("Initializing non-DOM dependent features");
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
     initializeKeepAlive(userSettings);
     initializeFriendsList(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
-    // Remove excessive log
-    // console.log("Non-DOM dependent features initialized");
 
-    // Remove excessive log
-    // console.log("Waiting for page to be ready");
     await waitForPageReady();
-    // Remove excessive log
-    // console.log("Page is ready, proceeding with DOM-dependent features");
 
     await applyDomDependentSettings(userSettings);
-    // Remove excessive log
-    // console.log("DOM-dependent settings applied successfully");
 
-    // Remove excessive log
-    // console.log("Setting up profile change observer");
     observeProfileChanges((profileId) => {
-      // Remove excessive log
-      // console.log("Profile changed event triggered, profile ID:", profileId);
       if (profileId) {
-        // Small delay to ensure DOM is updated
-        // Remove excessive log
-        // console.log("Setting timeout to reinitialize profile features");
         setTimeout(() => {
-          // Remove excessive log
-          // console.log("Reinitializing profile features after profile change");
           if (
             userSettings.profileButtons.csstats ||
             userSettings.profileButtons.faceit
           ) {
-            // Remove excessive log
-            // console.log("Reinitializing profile buttons");
             initializeProfileButtons(userSettings.profileButtons);
           }
           if (userSettings.showBans) {
-            // Remove excessive log
-            // console.log("Reinitializing profile bans");
             initializeProfileBans(userSettings.showBans);
           }
           if (userSettings.showSkinDrops) {
-            // Remove excessive log
-            // console.log("Reinitializing skin drops");
             initializeSkinDrops(userSettings.showSkinDrops);
           }
         }, 300);
       }
     });
-    // Remove excessive log
-    // console.log("Profile change observer set up successfully");
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -251,18 +213,11 @@ try {
 
       try {
         if (message.type === "settingsUpdate") {
-          // Remove excessive log
-          // console.log("Settings update message received:", message.settings);
           userSettings = message.settings;
 
           if (message.changedParts) {
-            // Remove excessive log
-            // console.log("Changed parts detected:", message.changedParts);
-            // Handle the async nature of theme application
             applyChangedSettings(message.changedParts)
               .then(() => {
-                // Remove excessive log
-                // console.log("Settings applied successfully");
                 if (isExtensionContextValid()) {
                   sendResponse({ status: "success" });
                 }
@@ -283,7 +238,6 @@ try {
             }
           }
         } else if (message.type === "forceReload") {
-          console.log("Force reload message received, reason:", message.reason);
           sendResponse({ status: "reloading" });
 
           // Reload the page to ensure observers catch popups

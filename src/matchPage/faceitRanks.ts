@@ -4,9 +4,6 @@ import {
 } from "../utils/observerUtils";
 import { getFaceitLevel } from "../utils/faceitUtils";
 
-// Remove excessive log
-// console.log("Faceit Ranks for match page module loaded");
-
 // Keep track of processed elements and observer instances
 let processedTables = new Set();
 let processedPlayers = new Set();
@@ -57,11 +54,6 @@ function getFallbackIconPath(): string {
  * Cleans up any Faceit icons that have been added to the page
  */
 function cleanupFaceitIcons() {
-  // Remove excessive logging
-  // console.log(
-  //   `Removing ${addedFaceitElements.length} Faceit icons from the page`
-  // );
-
   // Remove all added elements
   addedFaceitElements.forEach((element) => {
     if (element && element.parentNode) {
@@ -86,9 +78,6 @@ function cleanupFaceitIcons() {
  * Initializes the faceit ranks for match page feature
  */
 export function initialize(enabled: boolean) {
-  // Remove excessive logging
-  // console.log("Initializing faceit ranks with enabled:", enabled);
-
   try {
     // Check if extension context is still valid before initializing
     if (!isExtensionContextValid()) {
@@ -100,8 +89,6 @@ export function initialize(enabled: boolean) {
 
     // Ensure we're not in an inconsistent state
     if (currentObserver) {
-      // Remove excessive logging
-      // console.log("Disconnecting previous observer before reinitializing");
       disconnectSafeObserver(currentObserver);
       currentObserver = null;
     }
@@ -120,9 +107,6 @@ export function initialize(enabled: boolean) {
       cleanupFaceitIcons();
       return;
     }
-
-    // Remove excessive logging
-    // console.log("Faceit Ranks for match page feature enabled");
 
     // Process any tables that already exist on the page
     processTeamStatsTables();
@@ -211,7 +195,6 @@ function processPlayerElements() {
   });
 
   if (newPlayersFound && steamIds.length > 0) {
-    console.log(`Found ${steamIds.length} new player elements`);
     getFaceitInfoForPlayers(steamIds, playerElems);
   }
 }
@@ -222,7 +205,6 @@ function processPlayerElements() {
 function processTeamStatsTables() {
   const teamStatsTables = document.querySelectorAll(".team-stats-table");
   if (teamStatsTables.length === 0) {
-    console.log("No team stats tables found on the page");
     return;
   }
 
@@ -234,7 +216,6 @@ function processTeamStatsTables() {
     // Skip already processed tables
     if (processedTables.has(table)) return;
 
-    console.log("Processing new team stats table:", table);
     newTablesFound = true;
 
     // Mark as processed
@@ -242,7 +223,6 @@ function processTeamStatsTables() {
 
     // Find all player links in this table
     const playerLinks = table.querySelectorAll(".row .player");
-    console.log(`Found ${playerLinks.length} player links in table`);
 
     playerLinks.forEach((playerLink) => {
       const href = playerLink.getAttribute("href");
@@ -251,22 +231,18 @@ function processTeamStatsTables() {
         steamIds.push(steamId);
         playerRows.set(steamId, playerLink as HTMLElement);
       } else {
-        console.warn("Found player link with invalid href:", href, playerLink);
       }
     });
   });
 
   if (newTablesFound) {
-    console.log(`Processed ${processedTables.size} team stats tables`);
-
     if (steamIds.length > 0) {
-      console.log(`Found ${steamIds.length} player steam IDs`);
       getFaceitInfo(steamIds, playerRows);
     } else {
       console.warn("No valid Steam IDs found in tables");
     }
   } else {
-    console.log("No new team stats tables found to process");
+    console.warn("No new team stats tables found to process");
   }
 }
 
@@ -282,13 +258,13 @@ async function getFaceitInfo(
     const newSteamIds = steamIds.filter((id) => !pendingRequests.has(id));
 
     if (newSteamIds.length === 0) {
-      console.log(
+      console.warn(
         "All Steam IDs are already being processed, skipping request"
       );
       return;
     }
 
-    console.log(
+    console.warn(
       `Requesting Faceit info for ${newSteamIds.length} steam IDs:`,
       newSteamIds
     );
@@ -332,13 +308,8 @@ async function getFaceitInfo(
       }
     });
 
-    console.log("Received Faceit info:", response);
-
     // Check if feature was disabled during the API call
     if (!isFeatureEnabled) {
-      console.log(
-        "Feature was disabled during API call, skipping icon addition"
-      );
       return;
     }
 
@@ -346,9 +317,6 @@ async function getFaceitInfo(
       console.warn("Empty or invalid response received for Faceit info");
       return;
     }
-
-    // Log player rows we have for debugging
-    console.log("Player rows found:", Array.from(playerRows.keys()));
 
     // Add Faceit icons to player rows
     let iconCount = 0;
@@ -364,12 +332,6 @@ async function getFaceitInfo(
       // Remove from pending set
       pendingRequests.delete(steamId);
     }
-
-    console.log(
-      `Added ${iconCount} of ${
-        Object.keys(response).length
-      } possible Faceit icons`
-    );
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -397,16 +359,8 @@ async function getFaceitInfoForPlayers(
     const newSteamIds = steamIds.filter((id) => !pendingRequests.has(id));
 
     if (newSteamIds.length === 0) {
-      console.log(
-        "All Steam IDs are already being processed, skipping request"
-      );
       return;
     }
-
-    console.log(
-      `Requesting Faceit info for ${newSteamIds.length} player elements:`,
-      newSteamIds
-    );
 
     // Mark these Steam IDs as pending
     newSteamIds.forEach((id) => pendingRequests.add(id));
@@ -449,13 +403,8 @@ async function getFaceitInfoForPlayers(
       }
     });
 
-    console.log("Received Faceit info for player elements:", response);
-
     // Check if feature was disabled during the API call
     if (!isFeatureEnabled) {
-      console.log(
-        "Feature was disabled during API call, skipping icon addition"
-      );
       return;
     }
 
@@ -476,12 +425,6 @@ async function getFaceitInfoForPlayers(
       // Remove from pending set
       pendingRequests.delete(steamId);
     }
-
-    console.log(
-      `Added ${iconCount} of ${
-        Object.keys(response).length
-      } possible Faceit icons to player elements`
-    );
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -517,7 +460,6 @@ function addFaceitIconToPlayerElement(
 
     // Check if the player element already has a faceit-icon
     if (playerElem.querySelector(".faceit-icon")) {
-      console.log("Player element already has a Faceit icon, skipping");
       return;
     }
 
@@ -602,14 +544,6 @@ function addFaceitIconToPlayerElement(
 
     // Track the added element
     addedFaceitElements.push(faceitIconElement);
-
-    console.log(
-      `Added Faceit icon sized ${imgWidth}x${imgHeight} for player: ${
-        !faceitInfo || !faceitInfo.elo
-          ? "No profile found"
-          : `ELO: ${faceitInfo.elo}`
-      }`
-    );
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -646,7 +580,6 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
 
     // Check if the player row already has a faceit-icon
     if (playerRow.querySelector(".faceit-icon")) {
-      console.log("Player row already has a Faceit icon, skipping");
       return;
     }
 
@@ -739,13 +672,6 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
 
     // Track the added element so we can remove it later if needed
     addedFaceitElements.push(faceitIconElement);
-    console.log(
-      `Added Faceit icon sized ${imgWidth}x${imgHeight} for player: ${
-        !faceitInfo || !faceitInfo.elo
-          ? "No profile found"
-          : `ELO: ${faceitInfo.elo}`
-      }`
-    );
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -772,8 +698,6 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
  */
 export function updateSettings(enabled: boolean) {
   try {
-    console.log("Updating faceit ranks for match page settings:", enabled);
-
     // Check if extension context is still valid before updating settings
     if (!isExtensionContextValid()) {
       console.warn(
@@ -786,7 +710,6 @@ export function updateSettings(enabled: boolean) {
     if (isFeatureEnabled !== enabled) {
       initialize(enabled);
     } else {
-      console.log("Feature state unchanged, skipping reinitialization");
     }
   } catch (error: unknown) {
     if (

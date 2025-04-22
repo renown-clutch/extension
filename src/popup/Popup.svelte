@@ -15,7 +15,6 @@
   let previousSettings: UserSettings = { ...defaultUserSettings };
 
   function sendSettingsToContentScript(changedParts?: Partial<UserSettings>) {
-    console.log("Sending settings to content script");
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id) {
         chrome.tabs.sendMessage(tabs[0].id, {
