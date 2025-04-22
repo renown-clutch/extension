@@ -11,6 +11,9 @@ let processedTables = new Set();
 let processedPlayers = new Set();
 let currentObserver: MutationObserver | null = null;
 let addedFaceitElements: HTMLElement[] = [];
+let isFeatureEnabled = false;
+let pendingRequests = new Set<string>(); // Track Steam IDs with pending requests
+let processingInProgress = false; // Flag to prevent concurrent processing
 
 // Path to Faceit icon
 
@@ -46,21 +49,33 @@ function cleanupFaceitIcons() {
     }
   });
 
-  // Reset the array
+  // Reset tracking arrays and flags
   addedFaceitElements = [];
+  pendingRequests.clear();
+  processingInProgress = false;
 }
 
 /**
  * Initializes the faceit ranks for match page feature
  */
 export function initialize(enabled: boolean) {
-  // Clean up any existing observer
-  disconnectSafeObserver(currentObserver);
-  currentObserver = null;
+  console.log("Initializing faceit ranks with enabled:", enabled);
+
+  // Ensure we're not in an inconsistent state
+  if (currentObserver) {
+    console.log("Disconnecting previous observer before reinitializing");
+    disconnectSafeObserver(currentObserver);
+    currentObserver = null;
+  }
+
+  // Update feature state
+  isFeatureEnabled = enabled;
 
   // Reset processed tables and players
   processedTables = new Set();
   processedPlayers = new Set();
+  pendingRequests = new Set();
+  processingInProgress = false;
 
   // If feature is disabled, remove any existing Faceit icons
   if (!enabled) {
@@ -79,6 +94,9 @@ export function initialize(enabled: boolean) {
   // Create the observer with our utility function
   currentObserver = createSafeObserver(
     (mutations) => {
+      // Skip processing if feature has been disabled
+      if (!isFeatureEnabled || processingInProgress) return;
+
       let shouldProcessTables = false;
       let shouldProcessPlayers = false;
 
@@ -202,6 +220,87 @@ function processTeamStatsTables() {
 }
 
 /**
+ * Get Faceit information for the provided Steam IDs
+ */
+async function getFaceitInfo(
+  steamIds: string[],
+  playerRows: Map<string, HTMLElement>
+) {
+  try {
+    // Filter out Steam IDs that are already being processed
+    const newSteamIds = steamIds.filter((id) => !pendingRequests.has(id));
+
+    if (newSteamIds.length === 0) {
+      console.log(
+        "All Steam IDs are already being processed, skipping request"
+      );
+      return;
+    }
+
+    console.log(
+      `Requesting Faceit info for ${newSteamIds.length} steam IDs:`,
+      newSteamIds
+    );
+
+    // Mark these Steam IDs as pending
+    newSteamIds.forEach((id) => pendingRequests.add(id));
+
+    // Set processing flag to prevent concurrent requests
+    processingInProgress = true;
+
+    // Send message to background script to get Faceit info
+    const response = await chrome.runtime.sendMessage({
+      type: "get_faceit_info",
+      steam_ids: newSteamIds,
+    });
+
+    console.log("Received Faceit info:", response);
+
+    // Check if feature was disabled during the API call
+    if (!isFeatureEnabled) {
+      console.log(
+        "Feature was disabled during API call, skipping icon addition"
+      );
+      return;
+    }
+
+    if (!response || Object.keys(response).length === 0) {
+      console.warn("Empty or invalid response received for Faceit info");
+      return;
+    }
+
+    // Log player rows we have for debugging
+    console.log("Player rows found:", Array.from(playerRows.keys()));
+
+    // Add Faceit icons to player rows
+    let iconCount = 0;
+    for (const [steamId, faceitInfo] of Object.entries(response)) {
+      const playerRow = playerRows.get(steamId);
+      if (playerRow) {
+        addFaceitIconToPlayerRow(playerRow, faceitInfo);
+        iconCount++;
+      } else {
+        console.warn(`Could not find player row for Steam ID: ${steamId}`);
+      }
+
+      // Remove from pending set
+      pendingRequests.delete(steamId);
+    }
+
+    console.log(
+      `Added ${iconCount} of ${
+        Object.keys(response).length
+      } possible Faceit icons`
+    );
+  } catch (error) {
+    console.error("Error getting Faceit info:", error);
+  } finally {
+    // Reset processing flag
+    processingInProgress = false;
+  }
+}
+
+/**
  * Get Faceit information for standalone player elements
  */
 async function getFaceitInfoForPlayers(
@@ -209,15 +308,42 @@ async function getFaceitInfoForPlayers(
   playerElems: Map<string, HTMLElement>
 ) {
   try {
-    console.log("Requesting Faceit info for player elements:", steamIds);
+    // Filter out Steam IDs that are already being processed
+    const newSteamIds = steamIds.filter((id) => !pendingRequests.has(id));
+
+    if (newSteamIds.length === 0) {
+      console.log(
+        "All Steam IDs are already being processed, skipping request"
+      );
+      return;
+    }
+
+    console.log(
+      `Requesting Faceit info for ${newSteamIds.length} player elements:`,
+      newSteamIds
+    );
+
+    // Mark these Steam IDs as pending
+    newSteamIds.forEach((id) => pendingRequests.add(id));
+
+    // Set processing flag to prevent concurrent requests
+    processingInProgress = true;
 
     // Send message to background script to get Faceit info
     const response = await chrome.runtime.sendMessage({
       type: "get_faceit_info",
-      steam_ids: steamIds,
+      steam_ids: newSteamIds,
     });
 
     console.log("Received Faceit info for player elements:", response);
+
+    // Check if feature was disabled during the API call
+    if (!isFeatureEnabled) {
+      console.log(
+        "Feature was disabled during API call, skipping icon addition"
+      );
+      return;
+    }
 
     if (!response || Object.keys(response).length === 0) {
       console.warn("Empty or invalid response received for Faceit info");
@@ -232,6 +358,9 @@ async function getFaceitInfoForPlayers(
         addFaceitIconToPlayerElement(playerElem, faceitInfo);
         iconCount++;
       }
+
+      // Remove from pending set
+      pendingRequests.delete(steamId);
     }
 
     console.log(
@@ -241,6 +370,9 @@ async function getFaceitInfoForPlayers(
     );
   } catch (error) {
     console.error("Error getting Faceit info for player elements:", error);
+  } finally {
+    // Reset processing flag
+    processingInProgress = false;
   }
 }
 
@@ -348,54 +480,6 @@ function addFaceitIconToPlayerElement(
       "Faceit info:",
       faceitInfo
     );
-  }
-}
-
-/**
- * Get Faceit information for the provided Steam IDs
- */
-async function getFaceitInfo(
-  steamIds: string[],
-  playerRows: Map<string, HTMLElement>
-) {
-  try {
-    console.log("Requesting Faceit info for steam IDs:", steamIds);
-
-    // Send message to background script to get Faceit info
-    const response = await chrome.runtime.sendMessage({
-      type: "get_faceit_info",
-      steam_ids: steamIds,
-    });
-
-    console.log("Received Faceit info:", response);
-
-    if (!response || Object.keys(response).length === 0) {
-      console.warn("Empty or invalid response received for Faceit info");
-      return;
-    }
-
-    // Log player rows we have for debugging
-    console.log("Player rows found:", Array.from(playerRows.keys()));
-
-    // Add Faceit icons to player rows
-    let iconCount = 0;
-    for (const [steamId, faceitInfo] of Object.entries(response)) {
-      const playerRow = playerRows.get(steamId);
-      if (playerRow) {
-        addFaceitIconToPlayerRow(playerRow, faceitInfo);
-        iconCount++;
-      } else {
-        console.warn(`Could not find player row for Steam ID: ${steamId}`);
-      }
-    }
-
-    console.log(
-      `Added ${iconCount} of ${
-        Object.keys(response).length
-      } possible Faceit icons`
-    );
-  } catch (error) {
-    console.error("Error getting Faceit info:", error);
   }
 }
 
@@ -515,5 +599,11 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
  */
 export function updateSettings(enabled: boolean) {
   console.log("Updating faceit ranks for match page settings:", enabled);
-  initialize(enabled);
+
+  // Only reinitialize if the state is actually changing
+  if (isFeatureEnabled !== enabled) {
+    initialize(enabled);
+  } else {
+    console.log("Feature state unchanged, skipping reinitialization");
+  }
 }
