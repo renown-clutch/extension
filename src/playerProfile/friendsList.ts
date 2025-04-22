@@ -97,10 +97,10 @@ function renderFriendRanks(
 
     const badgeHtml = `
       <div class="tooltip-wrapper" tabindex="0">
-        <div class="rank-badge ${rankTier}" style="--size:30px" aria-label="Rank: ${
+        <div class="rank-badge ${rankTier}" style="--size:25px" aria-label="Rank: ${
       rankTier.charAt(0).toUpperCase() + rankTier.slice(1)
     }, Elo: ${formattedElo}">
-          <img alt="Renown rank ${rankTier}" loading="lazy" width="30" height="30" decoding="async" data-nimg="1" style="color:transparent" src="https://cdn.renown.gg/images/ranks/${rankTier}.svg">
+          <img alt="Renown rank ${rankTier}" loading="lazy" width="25" height="25" decoding="async" data-nimg="1" style="color:transparent" src="https://cdn.renown.gg/images/ranks/${rankTier}.svg">
           <span>${formattedElo}</span>
         </div>
       </div>

@@ -221,6 +221,12 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
     console.log("No changed parts specified, sending success response");
     sendResponse({ status: "success" });
+  } else if (message.type === "forceReload") {
+    console.log("Force reload message received, reason:", message.reason);
+    sendResponse({ status: "reloading" });
+
+    // Reload the page to ensure observers catch popups
+    window.location.reload();
   } else {
     console.log("Unknown message type received");
     sendResponse({ status: "unknown" });
