@@ -238,11 +238,7 @@ function processTeamStatsTables() {
   if (newTablesFound) {
     if (steamIds.length > 0) {
       getFaceitInfo(steamIds, playerRows);
-    } else {
-      console.warn("No valid Steam IDs found in tables");
     }
-  } else {
-    console.warn("No new team stats tables found to process");
   }
 }
 
@@ -258,16 +254,8 @@ async function getFaceitInfo(
     const newSteamIds = steamIds.filter((id) => !pendingRequests.has(id));
 
     if (newSteamIds.length === 0) {
-      console.warn(
-        "All Steam IDs are already being processed, skipping request"
-      );
       return;
     }
-
-    console.warn(
-      `Requesting Faceit info for ${newSteamIds.length} steam IDs:`,
-      newSteamIds
-    );
 
     // Mark these Steam IDs as pending
     newSteamIds.forEach((id) => pendingRequests.add(id));
@@ -325,8 +313,6 @@ async function getFaceitInfo(
       if (playerRow) {
         addFaceitIconToPlayerRow(playerRow, faceitInfo);
         iconCount++;
-      } else {
-        console.warn(`Could not find player row for Steam ID: ${steamId}`);
       }
 
       // Remove from pending set
