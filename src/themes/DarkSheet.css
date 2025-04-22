@@ -19,7 +19,7 @@
   background-color: #d97706;
 }
 .live-match-list .match.vote, .live-match-list .match:focus .actions .match-link, .live-match-list .match:hover .actions .match-link {
-  background-color: #f59e0b;
+  background-color: #b45309;
 }
 
 .sidebar-party-status .row .actions button.leave-party:hover {
@@ -417,7 +417,7 @@
 }
 
 .live-match-list .match.vote, .live-match-list .match:focus .actions .match-link, .live-match-list .match:hover .actions .match-link {
-  background-color: #fbbf24;
+  background-color: #1f2937;
 }
   
   .modal {
