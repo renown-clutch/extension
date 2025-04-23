@@ -94,9 +94,9 @@
     bind:checked={showFriendListRanks}
   />
   <SwitchComponent
-    labelText="Sort Friends by Renown Ranks"
+    labelText="Sort Friends by Elo"
     descriptionText={showFriendListRanks
-      ? "Sort friends by Renown Ranks (highest first)"
+      ? "Sort friends by Elo (highest first)"
       : "Enable Friend List Ranks to use this feature"}
     bind:checked={sortFriendsByRenownElo}
     disabled={!showFriendListRanks}
