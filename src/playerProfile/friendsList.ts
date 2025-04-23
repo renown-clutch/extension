@@ -1,9 +1,10 @@
 import { isProfilePage, waitForElement } from "../utils/profileUtils";
-import { defaultUserSettings, type UserSettings } from "../lib/types";
+import { type UserSettings } from "../lib/types";
 import { createSafeObserver } from "../utils/observerUtils";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
 let showRanks = true; // Default to true
+let sortFriendsByRenownElo = false; // Default to false
 let isProcessing = false; // Flag to prevent multiple concurrent processes
 let lastProcessedUrl = ""; // Track the last processed URL
 let debounceTimer: number | null = null; // For debouncing
@@ -21,12 +22,12 @@ function isFriendsPage(): boolean {
 function getRankTier(elo: number | null): string {
   if (elo === null) return "";
   if (elo >= 25000) return "renowned";
-  if (elo >= 21500) return "master";
+  if (elo >= 22000) return "master";
   if (elo >= 19000) return "diamond";
   if (elo >= 16000) return "platinum";
   if (elo >= 13000) return "gold";
-  if (elo >= 11500) return "silver";
-  if (elo >= 9000) return "bronze";
+  if (elo >= 10000) return "silver";
+  if (elo >= 100) return "bronze";
   return "";
 }
 
@@ -57,6 +58,36 @@ function renderFriendRanks(
   friendIds: string[],
   ranks: Record<string, number | null>
 ): void {
+  // If sorting is enabled, rearrange the DOM order of .friend-row elements
+  if (sortFriendsByRenownElo) {
+    const friendListContainer = document.querySelector(".profile-friend-list");
+    if (friendListContainer) {
+      // Map steamId to friend-row element
+      const steamIdToRow = new Map();
+      const friendRows = friendListContainer.querySelectorAll(".friend-row");
+      friendRows.forEach((row) => {
+        const profileLink = row.querySelector("a.profile-link");
+        if (!profileLink) return;
+        const href = profileLink.getAttribute("href");
+        if (!href) return;
+        const match = href.match(/\/profile\/(\d+)/);
+        if (!match || !match[1]) return;
+        steamIdToRow.set(match[1], row);
+      });
+      // Sort friendIds by Elo
+      const sortedIds = [...friendIds].sort((a, b) => {
+        const eloA = ranks[a] ?? -1;
+        const eloB = ranks[b] ?? -1;
+        return eloB - eloA;
+      });
+      // Re-append rows in sorted order
+      sortedIds.forEach((id) => {
+        const row = steamIdToRow.get(id);
+        if (row) friendListContainer.appendChild(row);
+      });
+    }
+  }
+
   // Find all friend rows inside the profile-friend-list div
   const friendRows = document.querySelectorAll(
     ".profile-friend-list .friend-row"
@@ -298,6 +329,7 @@ function observeFriendsPageNavigation(): void {
 export function updateSettings(settings: UserSettings): void {
   const previousShowRanks = showRanks;
   showRanks = settings.showFriendListRanks;
+  sortFriendsByRenownElo = settings.sortFriendsByRenownElo;
 
   // If we're already on a friends page, extract friends again with new settings
   if (isProfilePage() && isFriendsPage()) {
@@ -339,6 +371,7 @@ export function initialize(settings?: UserSettings): void {
   // Update settings if provided
   if (settings) {
     showRanks = settings.showFriendListRanks;
+    sortFriendsByRenownElo = settings.sortFriendsByRenownElo;
   }
 
   observeFriendsPageNavigation();

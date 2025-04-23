@@ -109,7 +109,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     initializeSkinDrops(changedParts.showSkinDrops);
   }
 
-  if (changedParts.showFriendListRanks !== undefined) {
+  if (
+    changedParts.showFriendListRanks !== undefined ||
+    changedParts.sortFriendsByRenownElo !== undefined
+  ) {
     // Update friends list module when this setting changes
     updateFriendsListSettings(userSettings);
   }

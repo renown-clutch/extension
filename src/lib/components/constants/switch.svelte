@@ -6,6 +6,8 @@
     descriptionText = "Default Description",
     switchId = "default-switch",
     checked = $bindable(false),
+    disabled = false,
+    warn = false,
   } = $props();
 </script>
 
@@ -14,7 +16,7 @@
 >
   <div class="max-w-[24ch]">
     <h2 class="text-sm">{labelText}</h2>
-    <DiscriptionToggle text={descriptionText} />
+    <DiscriptionToggle text={descriptionText} {warn} />
   </div>
-  <Switch id={switchId} bind:checked />
+  <Switch id={switchId} bind:checked {disabled} />
 </div>

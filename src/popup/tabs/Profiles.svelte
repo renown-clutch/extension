@@ -2,10 +2,14 @@
   import SwitchComponent from "$lib/components/constants/switch.svelte";
 
   let {
-    profileButtons = $bindable({}),
+    profileButtons = $bindable({
+      csstats: false,
+      faceit: false,
+    }),
     showBans = $bindable(false),
     showSkinDrops = $bindable(false),
     showFriendListRanks = $bindable(false),
+    sortFriendsByRenownElo = $bindable(false),
   } = $props();
 
   let previousProfileButtons = { ...profileButtons };
@@ -58,5 +62,14 @@
     labelText="Friend List Ranks"
     descriptionText="Show Friend's Renown Ranks in Friend List"
     bind:checked={showFriendListRanks}
+  />
+  <SwitchComponent
+    labelText="Sort Friends by Renown Ranks"
+    descriptionText={showFriendListRanks
+      ? "Sort friends by Renown Ranks (highest first)"
+      : "Enable Friend List Ranks to use this feature"}
+    bind:checked={sortFriendsByRenownElo}
+    disabled={!showFriendListRanks}
+    warn={!showFriendListRanks}
   />
 </main>

@@ -73,6 +73,13 @@
         userSettings.showFaceitRanksOnMatchPage;
     }
 
+    if (
+      previousSettings.sortFriendsByRenownElo !==
+      userSettings.sortFriendsByRenownElo
+    ) {
+      changes.sortFriendsByRenownElo = userSettings.sortFriendsByRenownElo;
+    }
+
     return changes;
   }
 
@@ -126,6 +133,7 @@
           bind:showBans={userSettings.showBans}
           bind:showSkinDrops={userSettings.showSkinDrops}
           bind:showFriendListRanks={userSettings.showFriendListRanks}
+          bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
         />
       {:else if userSettings.activeTab === "Settings"}
         <SettingsTab bind:keepAlive={userSettings.keepAlive} />
