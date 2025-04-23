@@ -64,40 +64,40 @@
 </script>
 
 <main class="flex flex-col gap-4">
-  <h2 class="text-lg">Profiles</h2>
+  <h2 class="text-lg">Buttons</h2>
   <SwitchComponent
-    labelText="CSStats Profiles"
+    labelText="CSStats Button"
     descriptionText="Show CSStats profile button"
     bind:checked={csstatsProfileButton}
   />
   <SwitchComponent
-    labelText="Faceit Profiles"
+    labelText="Faceit Button"
     descriptionText="Show Faceit profile button"
     bind:checked={faceitProfileButton}
   />
   <h2 class="text-lg">Bans</h2>
   <SwitchComponent
-    labelText="Show previous Bans"
-    descriptionText="Show all previous bans for the player"
+    labelText="Ban History"
+    descriptionText="Show previous bans of the player in the profile"
     bind:checked={showBans}
   />
-  <h2 class="text-lg">Skins</h2>
+  <h2 class="text-lg">Drops</h2>
   <SwitchComponent
-    labelText="Show all Skin Drops"
-    descriptionText="Show all skin drops that the player has received"
+    labelText="Skin Drops"
+    descriptionText="Show all skin drops that player has received"
     bind:checked={showSkinDrops}
   />
   <h2 class="text-lg">Friend List</h2>
   <SwitchComponent
-    labelText="Friend List Ranks"
+    labelText="Ranks in Friends List "
     descriptionText="Show Friend's Renown Ranks in Friend List"
     bind:checked={showFriendListRanks}
   />
   <SwitchComponent
-    labelText="Sort Friends by Elo"
+    labelText="Sort Friends List"
     descriptionText={showFriendListRanks
       ? "Sort friends by Elo (highest first)"
-      : "Enable Friend List Ranks to use this feature"}
+      : "Enable Ranks in Friends List to use this feature"}
     bind:checked={sortFriendsByRenownElo}
     disabled={!showFriendListRanks}
     warn={!showFriendListRanks}
