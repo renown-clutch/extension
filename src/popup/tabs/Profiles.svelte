@@ -14,24 +14,49 @@
   let previousFaceitProfileButton = faceitProfileButton;
   let previousSortFriendsByRenownElo = sortFriendsByRenownElo;
 
-  function sendReloadMessage() {
+  function sendReloadMessage(feature: string) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0] && tabs[0].id) {
-        chrome.tabs.reload(tabs[0].id);
+      if (tabs[0] && tabs[0].id && tabs[0].url) {
+        const url = tabs[0].url;
+
+        // Profile features should only reload on profile pages
+        if (
+          (feature === "csstats" || feature === "faceit") &&
+          url.match(/renown\.gg\/profile\/[^\/]+/)
+        ) {
+          chrome.tabs.reload(tabs[0].id);
+        }
+
+        // Sort friends should only reload on the friends page
+        else if (
+          feature === "sortFriends" &&
+          url.match(/renown\.gg\/profile\/[^\/]+\/friends/)
+        ) {
+          chrome.tabs.reload(tabs[0].id);
+        }
       }
     });
   }
 
   $effect(() => {
     if (
-      (previousCsstatsProfileButton === true &&
-        csstatsProfileButton === false) ||
-      (previousFaceitProfileButton === true && faceitProfileButton === false) ||
-      (previousSortFriendsByRenownElo === true &&
-        sortFriendsByRenownElo === false)
+      previousCsstatsProfileButton === true &&
+      csstatsProfileButton === false
     ) {
-      sendReloadMessage();
+      sendReloadMessage("csstats");
     }
+
+    if (previousFaceitProfileButton === true && faceitProfileButton === false) {
+      sendReloadMessage("faceit");
+    }
+
+    if (
+      previousSortFriendsByRenownElo === true &&
+      sortFriendsByRenownElo === false
+    ) {
+      sendReloadMessage("sortFriends");
+    }
+
     previousCsstatsProfileButton = csstatsProfileButton;
     previousFaceitProfileButton = faceitProfileButton;
     previousSortFriendsByRenownElo = sortFriendsByRenownElo;
