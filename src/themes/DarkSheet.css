@@ -3,7 +3,7 @@
 }
 
 .page-sub-menu-wrapper .page-sub-menu .link a.active {
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.927);
+  -webkit-text-fill-color: #ffffff;
   color: #ff94ab;
 }
 
@@ -1607,12 +1607,9 @@ input.iti__tel-input {
     color: #fff;
   }
   
-  .page-sub-menu-wrapper .page-sub-menu .link a.active {
-    -webkit-text-fill-color: rgba(0,0,0,0);
-    color: #ff94ab;
-  }
+ 
   
-  }
+
   
   .page.policies-layout .grid h1 {
     color: #fff;
