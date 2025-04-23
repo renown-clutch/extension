@@ -28,10 +28,6 @@ This will:
 - Build the extension
 - Create a zip file named `clutch_extension_123.zip` in the project root
 
-## Need an official Svelte framework?
-
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
-
 Add shadcn component:
 
 ```
