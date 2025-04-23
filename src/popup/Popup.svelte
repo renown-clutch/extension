@@ -34,10 +34,16 @@
     }
 
     if (
-      JSON.stringify(previousSettings.profileButtons) !==
-      JSON.stringify(userSettings.profileButtons)
+      previousSettings.csstatsProfileButton !==
+      userSettings.csstatsProfileButton
     ) {
-      changes.profileButtons = { ...userSettings.profileButtons };
+      changes.csstatsProfileButton = userSettings.csstatsProfileButton;
+    }
+
+    if (
+      previousSettings.faceitProfileButton !== userSettings.faceitProfileButton
+    ) {
+      changes.faceitProfileButton = userSettings.faceitProfileButton;
     }
 
     if (previousSettings.showBans !== userSettings.showBans) {
@@ -129,7 +135,8 @@
         <SoundTab />
       {:else if userSettings.activeTab === "Profiles"}
         <ProfilesTab
-          bind:profileButtons={userSettings.profileButtons}
+          bind:csstatsProfileButton={userSettings.csstatsProfileButton}
+          bind:faceitProfileButton={userSettings.faceitProfileButton}
           bind:showBans={userSettings.showBans}
           bind:showSkinDrops={userSettings.showSkinDrops}
           bind:showFriendListRanks={userSettings.showFriendListRanks}

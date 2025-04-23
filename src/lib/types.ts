@@ -11,10 +11,8 @@ export type UserSettings = {
   selectedTheme: "" | "light" | "dark" | "default";
   showConfirmModal: boolean;
   showInviteModal: boolean;
-  profileButtons: {
-    csstats: boolean;
-    faceit: boolean;
-  };
+  csstatsProfileButton: boolean;
+  faceitProfileButton: boolean;
   autoAccept: {
     match: boolean;
     party: boolean;
@@ -40,10 +38,8 @@ export const defaultUserSettings: UserSettings = {
   selectedTheme: "",
   showConfirmModal: false,
   showInviteModal: false,
-  profileButtons: {
-    csstats: true,
-    faceit: true,
-  },
+  csstatsProfileButton: true,
+  faceitProfileButton: true,
   autoAccept: {
     match: false,
     party: false,

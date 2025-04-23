@@ -187,8 +187,8 @@ function waitForLinksDiv(): Promise<Element> {
 }
 
 export async function initialize(profileButtons: {
-  csstats: boolean;
-  faceit: boolean;
+  csstats?: boolean;
+  faceit?: boolean;
 }): Promise<void> {
   try {
     // Clean up previous buttons
@@ -207,7 +207,10 @@ export async function initialize(profileButtons: {
     if (!playerId) return;
 
     currentPlayerId = playerId;
-    ensureButtons(profileButtons);
+    ensureButtons({
+      csstats: profileButtons.csstats ?? false,
+      faceit: profileButtons.faceit ?? false,
+    });
     updateButtonHrefs(currentPlayerId, { url: null, elo: null });
 
     try {

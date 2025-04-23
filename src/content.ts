@@ -64,8 +64,11 @@ async function applyDomDependentSettings(settings: UserSettings) {
     }
   }
 
-  if (settings.profileButtons.csstats || settings.profileButtons.faceit) {
-    initializeProfileButtons(settings.profileButtons);
+  if (settings.csstatsProfileButton || settings.faceitProfileButton) {
+    initializeProfileButtons({
+      csstats: settings.csstatsProfileButton,
+      faceit: settings.faceitProfileButton,
+    });
   }
 
   if (settings.showBans) {
@@ -92,13 +95,20 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     }
   }
 
-  if (changedParts.profileButtons) {
-    if (
-      changedParts.profileButtons.csstats ||
-      changedParts.profileButtons.faceit
-    ) {
-      initializeProfileButtons(changedParts.profileButtons);
-    }
+  if (changedParts.csstatsProfileButton || changedParts.faceitProfileButton) {
+    initializeProfileButtons({
+      csstats:
+        changedParts.csstatsProfileButton !== undefined
+          ? changedParts.csstatsProfileButton
+          : userSettings.csstatsProfileButton,
+      faceit:
+        changedParts.faceitProfileButton !== undefined
+          ? changedParts.faceitProfileButton
+          : userSettings.faceitProfileButton,
+    });
+  }
+
+  if (changedParts.faceitProfileButton) {
   }
 
   if (changedParts.showBans !== undefined) {
@@ -177,10 +187,13 @@ async function initialize() {
       if (profileId) {
         setTimeout(() => {
           if (
-            userSettings.profileButtons.csstats ||
-            userSettings.profileButtons.faceit
+            userSettings.csstatsProfileButton ||
+            userSettings.faceitProfileButton
           ) {
-            initializeProfileButtons(userSettings.profileButtons);
+            initializeProfileButtons({
+              csstats: userSettings.csstatsProfileButton,
+              faceit: userSettings.faceitProfileButton,
+            });
           }
           if (userSettings.showBans) {
             initializeProfileBans(userSettings.showBans);

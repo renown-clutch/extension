@@ -2,17 +2,17 @@
   import SwitchComponent from "$lib/components/constants/switch.svelte";
 
   let {
-    profileButtons = $bindable({
-      csstats: false,
-      faceit: false,
-    }),
+    csstatsProfileButton = $bindable(false),
+    faceitProfileButton = $bindable(false),
     showBans = $bindable(false),
     showSkinDrops = $bindable(false),
     showFriendListRanks = $bindable(false),
     sortFriendsByRenownElo = $bindable(false),
   } = $props();
 
-  let previousProfileButtons = { ...profileButtons };
+  let previousCsstatsProfileButton = csstatsProfileButton;
+  let previousFaceitProfileButton = faceitProfileButton;
+  let previousSortFriendsByRenownElo = sortFriendsByRenownElo;
 
   function sendReloadMessage() {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -24,12 +24,17 @@
 
   $effect(() => {
     if (
-      previousProfileButtons.csstats !== profileButtons.csstats ||
-      previousProfileButtons.faceit !== profileButtons.faceit
+      (previousCsstatsProfileButton === true &&
+        csstatsProfileButton === false) ||
+      (previousFaceitProfileButton === true && faceitProfileButton === false) ||
+      (previousSortFriendsByRenownElo === true &&
+        sortFriendsByRenownElo === false)
     ) {
       sendReloadMessage();
     }
-    previousProfileButtons = { ...profileButtons };
+    previousCsstatsProfileButton = csstatsProfileButton;
+    previousFaceitProfileButton = faceitProfileButton;
+    previousSortFriendsByRenownElo = sortFriendsByRenownElo;
   });
 </script>
 
@@ -38,12 +43,12 @@
   <SwitchComponent
     labelText="CSStats Profiles"
     descriptionText="Show CSStats profile button"
-    bind:checked={profileButtons.csstats}
+    bind:checked={csstatsProfileButton}
   />
   <SwitchComponent
     labelText="Faceit Profiles"
     descriptionText="Show Faceit profile button"
-    bind:checked={profileButtons.faceit}
+    bind:checked={faceitProfileButton}
   />
   <h2 class="text-lg">Bans</h2>
   <SwitchComponent
