@@ -2,6 +2,11 @@
   background-color: #111827;
 }
 
+.page-sub-menu-wrapper .page-sub-menu .link a.active {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.927);
+  color: #ff94ab;
+}
+
 .sidebar-party-status {
   background: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px);
 
@@ -17,6 +22,60 @@
   
   background-color: #111827;
   
+}
+
+.country-selector .custom-select__control {
+
+  border-color: #141d2e;
+}
+
+input.iti__tel-input {
+  border: 1px solid #141d2e;
+  
+}
+
+.country-selector .custom-select__control {
+  background-color: #030712;
+  border-color: #141d2e;
+}
+
+.country-selector .custom-select__control:hover {
+  border-color: #141d2e;
+}
+
+.country-selector .custom-select__option--is-focused, .country-selector .custom-select__option:hover {
+  background-color: #141d2e;
+}
+
+.page-sub-menu-wrapper .page-sub-menu {
+ flex-direction: column;
+  border-right: 2px solid #111827;
+  
+}
+
+.country-selector .custom-select__menu {
+
+  border: 1px solid #141d2e;
+  
+}
+
+.input .input-container input {
+  
+  border: 1px solid #111827;
+  
+}
+
+
+
+.page.settings-layout .settings-invite-friends .layout .friends-wrapper .friends .mode-toggle button {
+  
+  border-bottom: 2px solid #141d2e;
+ 
+}
+
+.page.settings-layout .settings-invite-friends .invite-count .card .circle:before {
+  
+  background: conic-gradient(from 0deg, #ff94ab 0, #ffa576 var(--progress), #141d2e var(--progress), #162034 100%);
 }
 
 .live-match-list .match.vote:focus, .live-match-list .match.vote:hover {
@@ -1799,11 +1858,11 @@
   
   .country-selector .custom-select__control {
     background-color: #030712;
-    border-color: #3c2c2c;
+    border-color: #141d2e;
   }
   
   .country-selector .custom-select__control:hover {
-    border-color: #3c2c2c;
+    border-color: #141d2e;
   }
   
   .country-selector .custom-select__control--is-focused,.country-selector .custom-select__control--is-focused:hover {
