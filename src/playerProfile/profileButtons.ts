@@ -16,6 +16,7 @@ let faceitDataPromise: Promise<{
 
 let csstatsButton: HTMLAnchorElement | null = null;
 let faceitButton: HTMLAnchorElement | null = null;
+let buttonObserver: MutationObserver | null = null;
 
 function getExtensionUrl(path: string): string {
   const extensionId =
@@ -126,11 +127,23 @@ function updateButtonHrefs(
 function removeButtons() {
   csstatsButton?.remove();
   faceitButton?.remove();
+
+  // Disconnect any existing observer
+  if (buttonObserver) {
+    buttonObserver.disconnect();
+    buttonObserver = null;
+  }
 }
 
 function appendButtonsToDom() {
+  console.log("Appending buttons to DOM");
   const linksDiv = document.querySelector(".profile-banner div.links");
+  console.log(linksDiv);
   if (!linksDiv) return;
+
+  // Check if buttons are already in the DOM
+  const buttonsExist = linksDiv.querySelector('[data-clutch-extension="true"]');
+
   if (csstatsButton && !linksDiv.contains(csstatsButton)) {
     linksDiv.appendChild(csstatsButton);
   }
@@ -141,6 +154,44 @@ function appendButtonsToDom() {
   ) {
     linksDiv.appendChild(faceitButton);
   }
+
+  // Set up mutation observer to detect if our div gets replaced
+  setupButtonObserver(linksDiv);
+}
+
+function setupButtonObserver(linksDiv: Element) {
+  // Only set up the observer once
+  if (buttonObserver) return;
+
+  // We need to observe the parent element to detect if linksDiv gets replaced
+  const parent = linksDiv.parentElement;
+  if (!parent) return;
+
+  buttonObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === "childList") {
+        // Check if our buttons were removed or if the links div was replaced
+        const currentLinksDiv = document.querySelector(
+          ".profile-banner div.links"
+        );
+        if (!currentLinksDiv) continue;
+
+        // If there are no extension buttons in the current links div, re-inject them
+        const hasButtons = currentLinksDiv.querySelector(
+          '[data-clutch-extension="true"]'
+        );
+        if (!hasButtons) {
+          console.log("Links div replaced, re-injecting buttons");
+          appendButtonsToDom();
+        }
+      }
+    }
+  });
+
+  buttonObserver.observe(parent, {
+    childList: true,
+    subtree: true,
+  });
 }
 
 async function fetchFaceitData(
@@ -192,6 +243,8 @@ export async function initialize(profileButtons: {
 }): Promise<void> {
   try {
     // Clean up previous buttons
+    console.log("Initializing profile buttons");
+    console.log(profileButtons);
     removeButtons();
 
     // If we're not on a profile page or no buttons enabled, we're done
@@ -218,6 +271,18 @@ export async function initialize(profileButtons: {
       await waitForLinksDiv();
       appendButtonsToDom();
 
+      // Add a delayed retry to handle race conditions with Next.js rendering
+      setTimeout(() => {
+        const linksDiv = document.querySelector(".profile-banner div.links");
+        const hasButtons = linksDiv?.querySelector(
+          '[data-clutch-extension="true"]'
+        );
+        if (linksDiv && !hasButtons) {
+          console.log("Retrying button injection after delay");
+          appendButtonsToDom();
+        }
+      }, 500);
+
       // Fetch and update Faceit data if needed
       if (profileButtons.faceit) {
         faceitDataPromise = fetchFaceitData(currentPlayerId);
@@ -226,6 +291,7 @@ export async function initialize(profileButtons: {
         faceitElo = faceitData.elo;
         updateButtonHrefs(currentPlayerId, faceitData);
         appendButtonsToDom();
+        console.log("Profile buttons initialized");
       }
     } catch (error) {
       // Handle specific extension context invalidated error

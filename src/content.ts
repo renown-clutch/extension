@@ -69,6 +69,8 @@ async function applyDomDependentSettings(settings: UserSettings) {
   }
 
   if (settings.csstatsProfileButton || settings.faceitProfileButton) {
+    console.log(settings);
+    console.log("Initializing profile buttons from applyDomDependentSettings");
     initializeProfileButtons({
       csstats: settings.csstatsProfileButton,
       faceit: settings.faceitProfileButton,
@@ -100,6 +102,7 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 
   if (changedParts.csstatsProfileButton || changedParts.faceitProfileButton) {
+    console.log("Initializing profile buttons from changed settings");
     initializeProfileButtons({
       csstats:
         changedParts.csstatsProfileButton !== undefined
@@ -200,6 +203,7 @@ async function initialize() {
             userSettings.csstatsProfileButton ||
             userSettings.faceitProfileButton
           ) {
+            console.log("Initializing profile buttons from profile change");
             initializeProfileButtons({
               csstats: userSettings.csstatsProfileButton,
               faceit: userSettings.faceitProfileButton,
