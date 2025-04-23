@@ -8,6 +8,10 @@ import {
   initialize as initializeFriendsList,
   updateSettings as updateFriendsListSettings,
 } from "./playerProfile/friendsList";
+import {
+  initialize as initializeSidebarFriends,
+  updateSettings as updateSidebarFriendsSettings,
+} from "./playerProfile/sidebarFriends";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
 import {
   initializeMatchFoundAutoAccept,
@@ -127,6 +131,11 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     updateFriendsListSettings(userSettings);
   }
 
+  if (changedParts.showSidebarFriendRanks !== undefined) {
+    // Update sidebar friends module when this setting changes
+    updateSidebarFriendsSettings(userSettings);
+  }
+
   if (changedParts.autoAccept) {
     updateMatchFoundAutoAcceptSettings(userSettings);
     updateAutoAcceptPartyInviteSettings(userSettings);
@@ -177,6 +186,7 @@ async function initialize() {
     initializeAutoAcceptPartyInvite(userSettings);
     initializeKeepAlive(userSettings);
     initializeFriendsList(userSettings);
+    initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
 
     await waitForPageReady();

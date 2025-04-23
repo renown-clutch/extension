@@ -31,6 +31,7 @@ export type UserSettings = {
   showFriendListRanks: boolean;
   showFaceitRanksOnMatchPage: boolean;
   sortFriendsByRenownElo: boolean;
+  showSidebarFriendRanks: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -58,4 +59,5 @@ export const defaultUserSettings: UserSettings = {
   showFriendListRanks: true,
   showFaceitRanksOnMatchPage: true,
   sortFriendsByRenownElo: false,
+  showSidebarFriendRanks: true,
 };

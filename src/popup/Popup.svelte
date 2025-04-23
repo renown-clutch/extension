@@ -86,6 +86,13 @@
       changes.sortFriendsByRenownElo = userSettings.sortFriendsByRenownElo;
     }
 
+    if (
+      previousSettings.showSidebarFriendRanks !==
+      userSettings.showSidebarFriendRanks
+    ) {
+      changes.showSidebarFriendRanks = userSettings.showSidebarFriendRanks;
+    }
+
     return changes;
   }
 
@@ -141,6 +148,7 @@
           bind:showSkinDrops={userSettings.showSkinDrops}
           bind:showFriendListRanks={userSettings.showFriendListRanks}
           bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
+          bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
         />
       {:else if userSettings.activeTab === "Settings"}
         <SettingsTab bind:keepAlive={userSettings.keepAlive} />

@@ -8,6 +8,7 @@
     showSkinDrops = $bindable(false),
     showFriendListRanks = $bindable(false),
     sortFriendsByRenownElo = $bindable(false),
+    showSidebarFriendRanks = $bindable(false),
   } = $props();
 
   let previousCsstatsProfileButton = csstatsProfileButton;
@@ -101,5 +102,11 @@
     bind:checked={sortFriendsByRenownElo}
     disabled={!showFriendListRanks}
     warn={!showFriendListRanks}
+  />
+  <h2 class="text-lg">Sidebar</h2>
+  <SwitchComponent
+    labelText="Ranks in Sidebar"
+    descriptionText="Show Friend's Renown Ranks in Sidebar"
+    bind:checked={showSidebarFriendRanks}
   />
 </main>
