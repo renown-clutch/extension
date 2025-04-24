@@ -1,5 +1,14 @@
+:root {
+  --slate-950: #020618;
+  --slate-900: #0f172b;
+  --slate-800: #1d293d;
+  --slate-700: #314158;
+  --slate-600: #45556c;
+  --linear-gradient-90: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px)
+}
+
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
-  background-color: #111827;
+  background-color: var(--slate-900);
 }
 
 .page-sub-menu-wrapper .page-sub-menu .link a.active {
@@ -8,60 +17,61 @@
 }
 
 .sidebar-party-status {
-  background: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px);
+  background: var(--linear-gradient-90);
 
 }
 
 .live-match-list .match.vote, .live-match-list .match:focus .actions .match-link, .live-match-list .match:hover .actions .match-link {
-  background-color: #d97706;
+  background-color: var(--slate-900);
 }
 
 .confirm-match-modal .modal-content {
   border: 3px solid rgba(0,0,0,0);
   background-image: linear-gradient(rgba(20, 29, 47,) 0 0),conic-gradient(from var(--angle) at 50% 50%,rgb(255,173,160) 0deg,rgba(255,173,160,0) 1turn);
   
-  background-color: #111827;
+  background-color: var(--slate-900);
   
 }
 
 .country-selector .custom-select__control {
 
-  border-color: #141d2e;
+  border-color: var(--slate-800);
+  border-right: 2px solid var(--slate-900);
 }
 
 input.iti__tel-input {
-  border: 1px solid #141d2e;
+  border: 1px solid var(--slate-800);
   
 }
 
 .country-selector .custom-select__control {
-  background-color: #030712;
-  border-color: #141d2e;
+  background-color: var(--slate-950);
+  border-color: var(--slate-800);
 }
 
 .country-selector .custom-select__control:hover {
-  border-color: #141d2e;
+  border-color: var(--slate-800);
 }
 
 .country-selector .custom-select__option--is-focused, .country-selector .custom-select__option:hover {
-  background-color: #141d2e;
+  background-color: var(--slate-800);
 }
 
 .page-sub-menu-wrapper .page-sub-menu {
  flex-direction: column;
-  border-right: 2px solid #111827;
+  border-right: 2px solid var(--slate-900);
   
 }
 
 .country-selector .custom-select__menu {
 
-  border: 1px solid #141d2e;
+  border: 1px solid var(--slate-800);
   
 }
 
 .input .input-container input {
   
-  border: 1px solid #111827;
+  border: 1px solid var(--slate-900);
   
 }
 
@@ -69,46 +79,46 @@ input.iti__tel-input {
 
 .page.settings-layout .settings-invite-friends .layout .friends-wrapper .friends .mode-toggle button {
   
-  border-bottom: 2px solid #141d2e;
+  border-bottom: 2px solid var(--slate-800);
  
 }
 
 .page.settings-layout .settings-invite-friends .invite-count .card .circle:before {
   
-  background: conic-gradient(from 0deg, #ff94ab 0, #ffa576 var(--progress), #141d2e var(--progress), #162034 100%);
+  background: conic-gradient(from 0deg, #ff94ab 0, #ffa576 var(--progress), var(--slate-800) var(--progress), #162034 100%);
 }
 
 .live-match-list .match.vote:focus, .live-match-list .match.vote:hover {
-  background-color: #d97706;
+  background-color: var(--slate-900);
 }
 .live-match-list .match.vote, .live-match-list .match:focus .actions .match-link, .live-match-list .match:hover .actions .match-link {
   background-color: #b45309;
 }
 
 .sidebar-party-status .row .actions button.leave-party:hover {
-  background-color: #111827;
+  background-color: var(--slate-900);
 }
 
 .page.current-match .player-list .player {
  
-  background: #111827;
-  border: 1px solid #1f2937;
+  background: var(--slate-900);
+  border: 1px solid var(--slate-700);
  
 }
 
 .connect-copy-wrapper .connect-copy .connect-input {
-  background: #111827;
+  background: var(--slate-900);
  
 }
 
 .connect-copy-wrapper .connect-copy .mask {
   
-  background: #1f2937;
+  background: var(--slate-700);
  
 }
 
 .sidebar-party-status .row .actions button.leave-party {
-  background-color: #1f2937;
+  background-color: var(--slate-700);
   color: hsla(0, 0%, 100%, .8);
 }
 
@@ -118,7 +128,7 @@ input.iti__tel-input {
 }
 
 .Toastify__toast-theme--dark {
-  background: #1f2937;
+  background: var(--slate-700);
   color: var(--toastify-text-color-dark);
 }
 
@@ -135,30 +145,30 @@ input.iti__tel-input {
 
 .profile-banner .layout .wrapper .avatar {
   
-  background-color: #111827;
+  background-color: var(--slate-900);
   
 }
 
 .tooltip-wrapper .tooltip {
-  background-color: #1f2937;
+  background-color: var(--slate-700);
  
 }
 
 .profile-banner .layout .wrapper .flag {
  
-  background-color: #111827;
+  background-color: var(--slate-900);
   
  
 }
 
 .profile-match-list .skeleton .match .skeleton-box {
-  background: #1f2937;
+  background: var(--slate-700);
   animation: pulse 2s cubic-bezier(.4,0,.6,1) infinite;
   border-radius: 3px
 }
 
 .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper {
-  border-top: 2px solid #1f2937;
+  border-top: 2px solid var(--slate-700);
   padding: 8px 12px;
 }
 
@@ -168,13 +178,13 @@ input.iti__tel-input {
 
   .tooltip-wrapper .tooltip {
   
-    background-color: #1f2937;
-    border: 1px solid #374151;
+    background-color: var(--slate-700);
+    border: 1px solid var(--slate-600);
     
 }
 
 .navbar .container .content .actions .profile-menu .dropdown .content .dropdown-links a:hover {
-  background-color: #1f2937;
+  background-color: var(--slate-700);
 }
 
 .profile-match-list .match {
@@ -184,8 +194,8 @@ input.iti__tel-input {
 }
 .profile-match-list .match:hover {
   
-  background: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px), var(--match-bg) no-repeat left center / auto 100%;
-    background-color: #030712;
+  background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+    background-color: var(--slate-950);
 }
 
 
@@ -194,11 +204,11 @@ input.iti__tel-input {
   }
     
   .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
 }
 
 .navbar .container .content .actions .profile-menu .dropdown .content .dropdown-links a:hover {
-  background-color: #1f2937;
+  background-color: var(--slate-700);
 }
   
   .profile-banner .layout .actions .links .steam {
@@ -219,7 +229,7 @@ input.iti__tel-input {
   }
   
   .primary-button.darker {
-    background-color: #030712;
+    background-color: var(--slate-900);
     color: #fff;
   }
   
@@ -247,7 +257,7 @@ input.iti__tel-input {
   }
   
   .primary-button:not(:disabled):hover.darker {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .primary-button:not(:disabled):hover.leetify {
@@ -287,7 +297,7 @@ input.iti__tel-input {
   }
   
   .input .input-container input {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: #fff;
   }
   
@@ -308,7 +318,7 @@ input.iti__tel-input {
   }
   
   .landing-page .navbar.scrolled {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .navbar .container .content .links a {
@@ -324,12 +334,12 @@ input.iti__tel-input {
   }
   
   .navbar .container .content .actions .notification .toggle {
-    background-color: #111827;
+    background-color: var(--slate-900);
     color: hsla(0,0%,100%,.65);
   }
   
   .navbar .container .content .actions .notification .notification-count .count {
-    color: #030712;
+    color: var(--slate-950);
   }
   
   .navbar .container .content .actions .notification.open .toggle {
@@ -337,19 +347,19 @@ input.iti__tel-input {
   }
   
   .site-layout>.grid aside.sidebar button.toggle {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
 }
 
   .navbar .container .content .actions .notification.open .toggle,.navbar .container .content .actions .notification:hover .toggle {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
   
   .navbar .container .content .actions .notification .notification-container .notification-content {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .navbar .container .content .actions .profile-menu .toggle {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .navbar .container .content .actions .profile-menu .toggle .arrow-wrapper {
@@ -361,11 +371,11 @@ input.iti__tel-input {
   }
   
   .navbar .container .content .actions .profile-menu.open .toggle,.navbar .container .content .actions .profile-menu:hover .toggle {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .top .name {
@@ -385,7 +395,7 @@ input.iti__tel-input {
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .dropdown-links a:hover {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper .text-button {
@@ -393,23 +403,23 @@ input.iti__tel-input {
   }
 
   .navbar {
-    border-bottom: 2px solid #111827;
-    background-color: #030712; 
+    border-bottom: 2px solid var(--slate-900);
+    background-color: var(--slate-950); 
     transition: background-color, box-shadow .2s ease-in-out;
   }
   
   .navbar .container .content .actions .profile-menu .dropdown .content .logout-wrapper .text-button:hover {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
   
   .team-stats-table .row {
     position: relative;
-    background-color: #111827;
+    background-color: var(--slate-900);
     border-bottom: 1px solid hsla(0, 0%, 100%, .1);
 }
 
   .navbar.open>.container .content .links {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .navbar.open>.container .content .links a {
@@ -421,7 +431,7 @@ input.iti__tel-input {
   }
   
   .page.play .banner-notification {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .page.play .banner-notification .dismiss button {
@@ -449,24 +459,24 @@ input.iti__tel-input {
   .live-match-list .match {
     
     background: linear-gradient(90deg, rgba(17, 24, 39, 0.872), hwb(215 12% 78%) 300px), var(--match-bg) no-repeat left center / auto 100%;
-    background-color: #030712;
+    background-color: var(--slate-950);
     
 }
   .live-match-list .match:hover {
     
-    background: linear-gradient(90deg, rgba(20, 29, 47, 0.872), hwb(216 15% 74%) 300px), var(--match-bg) no-repeat left center / auto 100%;
-    background-color: #030712;
+    background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+    background-color: var(--slate-950);
     
 }
 
 .live-match-list .match .actions .match-link {
 
-  background-color: #374151;
+  background-color: var(--slate-600);
   
 }
 .live-match-list .match .actions .match-link:hover {
 
-  background-color: #374151;
+  background-color: var(--slate-600);
   
 }
 
@@ -475,7 +485,7 @@ input.iti__tel-input {
 }
 
 .live-match-list .match.vote, .live-match-list .match:focus .actions .match-link, .live-match-list .match:hover .actions .match-link {
-  background-color: #1f2937;
+  background-color: var(--slate-900);
 }
   
   .modal {
@@ -483,7 +493,7 @@ input.iti__tel-input {
   }
   
   .modal .modal-content {
-    background-color: #030712;
+    background-color: var(--slate-900);
   }
   
   .modal .modal-content .actions .close-button {
@@ -492,7 +502,7 @@ input.iti__tel-input {
   
   @media screen and (min-width: 500px) {
     .waitlist-page .wrapper {
-          background-color:#111827;
+          background-color:var(--slate-900);
   }
   
   }
@@ -514,7 +524,7 @@ input.iti__tel-input {
   }
   
   .user-badge .badge {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .user-badge .badge .content .steam-name {
@@ -582,7 +592,7 @@ input.iti__tel-input {
   }
   
   .party-player-card {
-    background: linear-gradient(45deg, #111827, #1f2937);
+    background: linear-gradient(45deg, var(--slate-900), var(--slate-700));
 
   .connect-copy-wrapper .connect-title {
     color: hsla(0,0%,100%,.5);
@@ -672,15 +682,15 @@ input.iti__tel-input {
 
   
   .live-match-list .match {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .live-match-list .match.vote,.live-match-list .match:focus .actions .match-link,.live-match-list .match:hover .actions .match-link {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .live-match-list .match.vote:focus,.live-match-list .match.vote:hover {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .live-match-list .match .map .map-veto {
@@ -713,7 +723,7 @@ input.iti__tel-input {
   }
   
   .live-match-list .match .actions .match-link {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: hsla(0,0%,100%,.8);
   }
   
@@ -844,7 +854,7 @@ input.iti__tel-input {
  
 
   .team-stats-table .row {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .team-stats-table .row .player .elo-wrapper .elo-change-number.positive {
@@ -903,7 +913,7 @@ input.iti__tel-input {
   }
   
   .play-friend-list {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .play-friend-list .top .title {
@@ -915,7 +925,7 @@ input.iti__tel-input {
   }
   
   .play-friend-list .search input {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: #fff;
   }
   
@@ -962,7 +972,7 @@ input.iti__tel-input {
   }
   
   .confirm-match-modal {
-    background-color: rgba(0,0,0,.5);
+    background-color: var(--slate-900);
   }
   
   .confirm-match-modal .modal-content {
@@ -971,6 +981,7 @@ input.iti__tel-input {
   
   .confirm-match-modal .modal-content .title {
     color: #fff;
+    background-color: var(--slate-900);
   }
   
   .confirm-match-modal .modal-content .waiting-for-others .player-count {
@@ -1166,7 +1177,7 @@ input.iti__tel-input {
   }
   
   .notification-component .notifications .row.info .icon {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
   
   .notification-component .notifications .row.info .color,.notification-component .notifications .row.info .icon {
@@ -1230,7 +1241,7 @@ input.iti__tel-input {
   }
   
   .profile-recent-stats .stats .stat-card {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .profile-recent-stats .stats .stat-card .stat-value {
@@ -1290,20 +1301,20 @@ input.iti__tel-input {
   }
   
   .profile-recent-stats .rank-elo .leetify-info {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .profile-banner {
     
-    background: linear-gradient(180deg, #1f2937, #111827);
+    background: linear-gradient(180deg, var(--slate-700), var(--slate-900));
    
 
   .profile-banner .layout .wrapper .avatar {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .profile-banner .layout .wrapper .flag {
-    background-color: #111827;
+    background-color: var(--slate-900);
 
   }
   
@@ -1335,7 +1346,7 @@ input.iti__tel-input {
   }
   
   .profile-banner .layout .actions .links .steam:hover {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   }
@@ -1353,11 +1364,11 @@ input.iti__tel-input {
   }
   
   .profile-friend-list .friend-row {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .profile-friend-list .friend-row:hover {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
   
   .accept-decline .decline {
@@ -1391,7 +1402,7 @@ input.iti__tel-input {
   }
   
   .waitlist .tooltip  .tooltiptext {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
     color: #fff;
 
   }
@@ -1401,7 +1412,7 @@ input.iti__tel-input {
   }
   
   .waitlist .tooltip .tooltiptext:after {
-    border-top-color: #1f2937;
+    border-top-color: var(--slate-700);
   }
   
   }
@@ -1489,7 +1500,7 @@ input.iti__tel-input {
   }
   
   .step.payment .period {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .step.payment .period button.option {
@@ -1499,7 +1510,7 @@ input.iti__tel-input {
   
   .step.payment .period button.option.selected {
     background-color: #ffada0;
-    color: #111827;
+    color: var(--slate-900);
   }
   
   .step.payment .plans .plan .gradient-wrapper .discount {
@@ -1560,7 +1571,7 @@ input.iti__tel-input {
   }
   
   .page.settings-layout .grid .membership-details .payment-details {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   }
@@ -1652,7 +1663,7 @@ input.iti__tel-input {
   }
   
   .page.policies-layout .banning-policy table thead {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.policies-layout .banning-policy table .level {
@@ -1660,7 +1671,7 @@ input.iti__tel-input {
   }
   
   .page.policies-layout .banning-policy table .group-name {
-    background-color: #111827;
+    background-color: var(--slate-900);
     color: #fff;
   }
   
@@ -1749,7 +1760,7 @@ input.iti__tel-input {
   }
   
   input.iti__tel-input {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: #fff;
   }
   
@@ -1762,7 +1773,7 @@ input.iti__tel-input {
   }
   
   input.iti__search-input {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: #fff;
   }
   
@@ -1854,12 +1865,12 @@ input.iti__tel-input {
   }
   
   .country-selector .custom-select__control {
-    background-color: #030712;
-    border-color: #141d2e;
+    background-color: var(--slate-950);
+    border-color: var(--slate-800);
   }
   
   .country-selector .custom-select__control:hover {
-    border-color: #141d2e;
+    border-color: var(--slate-800);
   }
   
   .country-selector .custom-select__control--is-focused,.country-selector .custom-select__control--is-focused:hover {
@@ -1871,7 +1882,7 @@ input.iti__tel-input {
   }
   
   .country-selector .custom-select__menu {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .country-selector .custom-select__dropdown-indicator,.country-selector .custom-select__dropdown-indicator:hover {
@@ -1986,7 +1997,7 @@ input.iti__tel-input {
   }
   
   .ban-banner .ban-banner-container .countdown {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: #ff5252;
   }
   
@@ -2011,7 +2022,7 @@ input.iti__tel-input {
   }
   
   .report-modal .gap-wrapper .ban-options .option {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .report-modal .gap-wrapper .ban-options .option .radio-wrapper .radio.active {
@@ -2019,7 +2030,7 @@ input.iti__tel-input {
   }
   
   .report-modal .gap-wrapper .ban-options .option .radio-wrapper .radio.active .dot {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .report-modal .gap-wrapper .ban-options .option .content {
@@ -2124,7 +2135,7 @@ input.iti__tel-input {
   }
   
   .page.welcome-flow .got-ranking .ranks-scroll-wrapper {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.welcome-flow .got-ranking .ranks .rank .rank-name {
@@ -2164,7 +2175,7 @@ input.iti__tel-input {
   }
   
   .page.welcome-flow .we-care .cards-wrapper .cards .card {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.welcome-flow .we-care .cards-wrapper .cards .card .text {
@@ -2193,11 +2204,11 @@ input.iti__tel-input {
   
   .page.welcome-flow .contract .terms ol li:before {
     color: #ffe793;
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .page.welcome-flow .contract .signature .signature-field {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.welcome-flow .contract .signature .signature-field .placeholder {
@@ -2221,7 +2232,7 @@ input.iti__tel-input {
   }
   
   .page.welcome-flow .connect-discord .discord-steps .discord-step {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.welcome-flow .connect-discord .discord-steps .discord-step .number {
@@ -2288,13 +2299,13 @@ input.iti__tel-input {
   }
   
   .landing-page section.anti-cheat {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   }
   
   .landing-page section.ai-powered {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .landing-page section.feature-cards .grid {
@@ -2315,15 +2326,15 @@ input.iti__tel-input {
   }
   
   .landing-page section.pricing {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .landing-page section.pricing .step.payment .period {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .faq .faq-item .question {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .faq .faq-item .question h3 {
@@ -2335,7 +2346,7 @@ input.iti__tel-input {
   }
   
   .faq .faq-item .answer {
-    background-color: #111827;
+    background-color: var(--slate-900);
     color: hsla(0,0%,100%,.8);
   }
   
@@ -2344,7 +2355,7 @@ input.iti__tel-input {
   }
   
   .discord-manage-link .badge {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .discord-manage-link .role-text {
@@ -2377,7 +2388,7 @@ input.iti__tel-input {
   }
   
   .page.leaderboard .filtering .group .wrapper .leaderboard-mode-switch {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.leaderboard .filtering .group .wrapper .leaderboard-mode-switch .button {
@@ -2387,7 +2398,7 @@ input.iti__tel-input {
   
   .page.leaderboard .filtering .group .wrapper .leaderboard-mode-switch .button.selected {
     background-color: #ffada0;
-    color: #111827;
+    color: var(--slate-900);
   }
   
   .page.leaderboard .filtering .group .button {
@@ -2403,11 +2414,11 @@ input.iti__tel-input {
   }
   
   .page.leaderboard .data .visitor-placement-row .row:first-child,.page.leaderboard .data .visitor-placement-row .row:nth-child(2),.page.leaderboard .data .visitor-placement-row .row:nth-child(3) {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.leaderboard .data .row {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.leaderboard .data .row .player a {
@@ -2428,7 +2439,7 @@ input.iti__tel-input {
   
   .game-info-wrapper {
     
-    border-top: 2px solid #1f2937;
+    border-top: 2px solid var(--slate-700);
 }
 
 
@@ -2438,7 +2449,7 @@ input.iti__tel-input {
   }
   
   .page.settings-layout .settings-invite-friends .invite-sent-modal .modal-content .user-card {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.settings-layout .settings-invite-friends .invite-sent-modal .modal-content .user-card .wrapper .status {
@@ -2450,7 +2461,7 @@ input.iti__tel-input {
   }
   
   .page.settings-layout .settings-invite-friends .layout .friends-wrapper .search input {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: #fff;
   }
   
@@ -2459,7 +2470,7 @@ input.iti__tel-input {
   }
   
   .page.settings-layout .settings-invite-friends .layout .friends-wrapper .friends {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.settings-layout .settings-invite-friends .layout .friends-wrapper .friends .mode-toggle button {
@@ -2503,15 +2514,15 @@ input.iti__tel-input {
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card .circle {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card .circle:after {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.settings-layout .settings-invite-friends .invite-count .card .circle .remaining {
@@ -2633,7 +2644,7 @@ input.iti__tel-input {
   }
   
   .upcoming-skin-drop {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .upcoming-skin-drop .top .price {
@@ -2658,7 +2669,7 @@ input.iti__tel-input {
   }
   
   .custom-selector .custom-select__control {
-    background-color: #030712;
+    background-color: var(--slate-950);
     border-color: #3c2c2c;
   }
   
@@ -2683,7 +2694,7 @@ input.iti__tel-input {
   }
   
   .custom-selector .custom-select__menu {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .custom-selector .custom-select__dropdown-indicator,.custom-selector .custom-select__dropdown-indicator:hover {
@@ -2722,16 +2733,16 @@ input.iti__tel-input {
 
 
   .tooltip-wrapper .tooltip {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
     color: #fff;
   }
   
   .tooltip-wrapper .tooltip .tooltip-arrow {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
 
   .next-rank-progress {
-    background: linear-gradient(90deg, #111827, #1f2937);
+    background: linear-gradient(90deg, var(--slate-900), var(--slate-700));
    
   
   .next-rank-progress .content .progress-bar {
@@ -2785,7 +2796,7 @@ input.iti__tel-input {
   }
   
   .sidebar-party-status .row .actions button.leave-party {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: hsla(0,0%,100%,.8);
   }
   
@@ -2798,17 +2809,17 @@ input.iti__tel-input {
   }
   
   .site-layout>.grid aside.sidebar {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   }
   
   .site-layout>.grid aside.sidebar button.toggle {
-    background-color: #1f2937;
+    background-color: var(--slate-700);
   }
   
   .site-layout>.grid aside.sidebar button.toggle:hover {
-    background-color: #374151;
+    background-color: var(--slate-600);
   }
   
   .profile-match-list .header {
@@ -2816,11 +2827,11 @@ input.iti__tel-input {
   }
   
   .profile-match-list .match {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .profile-match-list .match:focus .actions .match-link,.profile-match-list .match:hover .actions .match-link {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .profile-match-list .match.won .score .numbers {
@@ -2872,7 +2883,7 @@ input.iti__tel-input {
   
   
   .page.settings-layout .support-page .contact-channels .channel {
-    background-color: #111827;
+    background-color: var(--slate-900);
   }
   
   .page.settings-layout .support-page .contact-channels .channel .badge {
@@ -2881,7 +2892,7 @@ input.iti__tel-input {
   }
   
   .page.settings-layout .support-page .contact-channels .channel .icon {
-    background-color: #030712;
+    background-color: var(--slate-950);
   }
   
   .page.settings-layout .support-page .contact-channels .channel .icon.discord {
@@ -2945,6 +2956,6 @@ input.iti__tel-input {
   }
   
   body,html {
-    background-color: #030712;
+    background-color: var(--slate-950);
     color: #fff;
   }
