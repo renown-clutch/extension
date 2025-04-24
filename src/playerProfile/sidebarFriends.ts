@@ -1,43 +1,31 @@
 import { type UserSettings } from "../lib/types";
 import { createSafeObserver } from "../utils/observerUtils";
+import {
+  getRankTier,
+  formatElo,
+  createRankBadgeElement,
+} from "../utils/rankBadgeUtils";
 
 let showRanks = true; // Default to true
 let isProcessing = false; // Flag to prevent multiple concurrent processes
 let debounceTimer: number | null = null; // For debouncing
-
-/**
- * Determines rank tier based on elo
- */
-function getRankTier(elo: number | null): string {
-  if (elo === null) return "";
-  if (elo >= 25000) return "renowned";
-  if (elo >= 22000) return "master";
-  if (elo >= 19000) return "diamond";
-  if (elo >= 16000) return "platinum";
-  if (elo >= 13000) return "gold";
-  if (elo >= 10000) return "silver";
-  if (elo >= 100) return "bronze";
-  return "";
-}
-
-/**
- * Formats elo number with comma as thousands separator
- */
-function formatElo(elo: number | null): string {
-  if (elo === null) return "";
-  return elo.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+let isPerformingBadgeOperation = false; // Flag to prevent observer reactions to our own operations
+let hasBadgesBeenAdded = false; // Track if badges have already been added
 
 /**
  * Removes rank badges from friends in the sidebar
  */
 function removeRankBadges(): void {
+  console.log("Removing rank badges from sidebar friends");
+  isPerformingBadgeOperation = true;
   const tooltipWrappers = document.querySelectorAll(
     ".sidebar-content .friends .profile-link .tooltip-wrapper"
   );
   tooltipWrappers.forEach((wrapper) => {
     wrapper.remove();
   });
+  hasBadgesBeenAdded = false;
+  isPerformingBadgeOperation = false;
 }
 
 /**
@@ -47,15 +35,21 @@ function renderFriendRanks(
   friendIds: string[],
   ranks: Record<string, number | null>
 ): void {
+  isPerformingBadgeOperation = true;
   // Find all friend rows inside the sidebar friends div
   const friendRows = document.querySelectorAll(
     ".sidebar-content .friends .friend-row"
   );
 
+  let badgesAdded = false;
+
   friendRows.forEach((row) => {
     // Get profile link and extract steam ID
     const profileLink = row.querySelector(".profile-link");
     if (!profileLink) return;
+
+    // Skip if already added a badge to this profile link
+    if (profileLink.querySelector(".tooltip-wrapper")) return;
 
     const href = profileLink.getAttribute("href");
     if (!href) return;
@@ -69,32 +63,20 @@ function renderFriendRanks(
     // Skip if we don't have rank info or elo is null
     if (elo === undefined || elo === null) return;
 
-    // Skip if already added a badge
-    if (profileLink.querySelector(".tooltip-wrapper")) return;
-
-    // Skip if rank tier or formatted elo is empty
+    // Skip if rank tier is empty
     const rankTier = getRankTier(elo);
-    const formattedElo = formatElo(elo);
-
-    if (!rankTier || !formattedElo) return;
-
-    // Create rank badge element
-    const badgeHtml = `
-      <div class="tooltip-wrapper" tabindex="0">
-        <div class="rank-badge ${rankTier}" style="--size:20px; display: flex; align-items: center;" aria-label="Rank: ${
-      rankTier.charAt(0).toUpperCase() + rankTier.slice(1)
-    }, Elo: ${formattedElo}">
-          <img alt="Renown rank ${rankTier}" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" style="color:transparent" src="https://cdn.renown.gg/images/ranks/${rankTier}.svg">
-          <span style="margin-left: 4px;">${formattedElo}</span>
-        </div>
-      </div>
-    `;
+    if (!rankTier) return;
 
     // Create badge element and append to profile-link as last element
-    const badgeElement = document.createElement("div");
-    badgeElement.innerHTML = badgeHtml.trim();
-    profileLink.appendChild(badgeElement.firstElementChild!);
+    const badgeElement = createRankBadgeElement(rankTier, elo, 20, true);
+    profileLink.appendChild(badgeElement);
+    badgesAdded = true;
   });
+
+  if (badgesAdded) {
+    hasBadgesBeenAdded = true;
+  }
+  isPerformingBadgeOperation = false;
 }
 
 /**
@@ -172,25 +154,41 @@ async function processSidebarFriends(): Promise<void> {
       return;
     }
 
+    // If badges are not supposed to be shown, remove them if needed
+    if (!showRanks) {
+      if (
+        document.querySelector(
+          ".sidebar-content .friends .profile-link .tooltip-wrapper"
+        )
+      ) {
+        removeRankBadges();
+      }
+      isProcessing = false;
+      return;
+    }
+
+    // If badges should be shown but are already added, skip processing
+    if (
+      hasBadgesBeenAdded &&
+      document.querySelector(
+        ".sidebar-content .friends .profile-link .tooltip-wrapper"
+      )
+    ) {
+      isProcessing = false;
+      return;
+    }
+
     // Extract friend IDs from the sidebar
     const friendIds = await extractFriendIds();
 
-    // Only fetch ranks if we should show them and there are friends
-    let ranks = {};
-    if (showRanks && friendIds.length > 0) {
+    // Only fetch ranks if there are friends and we haven't added badges yet
+    if (friendIds.length > 0) {
       try {
-        ranks = await fetchFriendsRanks(friendIds);
+        const ranks = await fetchFriendsRanks(friendIds);
+        renderFriendRanks(friendIds, ranks);
       } catch (error) {
         console.error("Error fetching sidebar friend ranks:", error);
       }
-    }
-
-    // Remove existing badges first
-    removeRankBadges();
-
-    // Add them again if showRanks is true
-    if (showRanks) {
-      renderFriendRanks(friendIds, ranks);
     }
   } catch (error) {
     console.error("Error processing sidebar friends:", error);
@@ -215,14 +213,31 @@ function observeSidebarFriends(): void {
   // Set up MutationObserver using the utility function
   createSafeObserver(
     (mutations) => {
-      if (isProcessing) return; // Skip if already processing
+      if (isProcessing || isPerformingBadgeOperation) return; // Skip if already processing or performing badge operations
 
       let shouldProcess = false;
       for (const mutation of mutations) {
         if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-          // Check for sidebar friends section or changes to it
-          shouldProcess = true;
-          break;
+          // Only process if new friend rows were added (not just sidebar being opened/closed)
+          const addedFriendContent = Array.from(mutation.addedNodes).some(
+            (node) => {
+              if (node instanceof Element) {
+                return (
+                  node.classList?.contains("friend-row") ||
+                  (node.querySelector &&
+                    node.querySelector(
+                      ".friend-row:not(:has(.tooltip-wrapper))"
+                    ))
+                );
+              }
+              return false;
+            }
+          );
+
+          if (addedFriendContent) {
+            shouldProcess = true;
+            break;
+          }
         }
       }
 
@@ -236,12 +251,15 @@ function observeSidebarFriends(): void {
     processSidebarFriends
   );
 
-  // Also check when the sidebar is toggled
+  // Don't process when sidebar is toggled, as it just affects visibility
   document.addEventListener("click", (event) => {
     const target = event.target as HTMLElement;
     if (target.classList.contains("toggle") || target.closest(".toggle")) {
-      // Wait a bit for the sidebar to fully expand/collapse
-      setTimeout(debouncedProcessSidebarFriends, 300);
+      // Don't reprocess badges when just toggling sidebar visibility
+      // If we haven't added badges yet (e.g., first time sidebar is opened), allow processing
+      if (!hasBadgesBeenAdded && showRanks) {
+        setTimeout(debouncedProcessSidebarFriends, 300);
+      }
     }
   });
 }
@@ -250,16 +268,17 @@ function observeSidebarFriends(): void {
  * Updates the module settings
  */
 export function updateSettings(settings: UserSettings): void {
+  const previousShowRanks = showRanks;
   showRanks = settings.showSidebarFriendRanks;
 
-  // If we're already on a page with the sidebar, process friends again with new settings
-  const sidebarFriends = document.querySelector(".sidebar-content .friends");
-  if (sidebarFriends) {
+  // If the setting changed, take appropriate action
+  if (previousShowRanks !== showRanks) {
+    // If ranks are turned off, remove existing badges
     if (!showRanks) {
-      // If ranks are turned off, just remove existing badges
       removeRankBadges();
     } else {
-      // Otherwise reprocess with new settings
+      // If ranks are turned on, process friends to add badges
+      hasBadgesBeenAdded = false; // Reset flag so badges will be added
       processSidebarFriends();
     }
   }
@@ -336,6 +355,8 @@ export function initialize(settings?: UserSettings): void {
   if (settings) {
     showRanks = settings.showSidebarFriendRanks;
   }
+
+  hasBadgesBeenAdded = false;
 
   // Inject CSS for collapsed sidebar
   injectCollapseCSS();

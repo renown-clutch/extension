@@ -243,8 +243,6 @@ export async function initialize(profileButtons: {
 }): Promise<void> {
   try {
     // Clean up previous buttons
-    console.log("Initializing profile buttons");
-    console.log(profileButtons);
     removeButtons();
 
     // If we're not on a profile page or no buttons enabled, we're done

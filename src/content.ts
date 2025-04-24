@@ -60,17 +60,7 @@ function isExtensionContextValid(): boolean {
  * Applies settings that require DOM to be ready
  */
 async function applyDomDependentSettings(settings: UserSettings) {
-  if (settings.selectedTheme !== "default") {
-    try {
-      await initializeTheme(settings.selectedTheme);
-    } catch (error) {
-      console.error("Error during theme initialization:", error);
-    }
-  }
-
   if (settings.csstatsProfileButton || settings.faceitProfileButton) {
-    console.log(settings);
-    console.log("Initializing profile buttons from applyDomDependentSettings");
     initializeProfileButtons({
       csstats: settings.csstatsProfileButton,
       faceit: settings.faceitProfileButton,
@@ -102,7 +92,6 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 
   if (changedParts.csstatsProfileButton || changedParts.faceitProfileButton) {
-    console.log("Initializing profile buttons from changed settings");
     initializeProfileButtons({
       csstats:
         changedParts.csstatsProfileButton !== undefined
@@ -184,7 +173,19 @@ async function initialize() {
   try {
     const freshSettings = await loadFromChromeStorage();
     userSettings = freshSettings;
+
+    // Apply theme immediately after loading settings
+    if (userSettings.selectedTheme !== "default") {
+      try {
+        await initializeTheme(userSettings.selectedTheme);
+      } catch (error) {
+        console.error("Error during theme initialization:", error);
+      }
+    }
+
     await waitForPageReady();
+
+    await applyDomDependentSettings(userSettings);
 
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
@@ -193,8 +194,6 @@ async function initialize() {
     initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
 
-    await applyDomDependentSettings(userSettings);
-
     observeProfileChanges((profileId) => {
       if (profileId) {
         setTimeout(() => {
@@ -202,7 +201,6 @@ async function initialize() {
             userSettings.csstatsProfileButton ||
             userSettings.faceitProfileButton
           ) {
-            console.log("Initializing profile buttons from profile change");
             initializeProfileButtons({
               csstats: userSettings.csstatsProfileButton,
               faceit: userSettings.faceitProfileButton,

@@ -1,6 +1,11 @@
 import { isProfilePage, waitForElement } from "../utils/profileUtils";
 import { type UserSettings } from "../lib/types";
 import { createSafeObserver } from "../utils/observerUtils";
+import {
+  getRankTier,
+  formatElo,
+  createRankBadgeElement,
+} from "../utils/rankBadgeUtils";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
 let showRanks = true; // Default to true
@@ -14,29 +19,6 @@ let debounceTimer: number | null = null; // For debouncing
  */
 function isFriendsPage(): boolean {
   return FRIENDS_PAGE_REGEX.test(window.location.pathname);
-}
-
-/**
- * Determines rank tier based on elo
- */
-function getRankTier(elo: number | null): string {
-  if (elo === null) return "";
-  if (elo >= 25000) return "renowned";
-  if (elo >= 22000) return "master";
-  if (elo >= 19000) return "diamond";
-  if (elo >= 16000) return "platinum";
-  if (elo >= 13000) return "gold";
-  if (elo >= 10000) return "silver";
-  if (elo >= 100) return "bronze";
-  return "";
-}
-
-/**
- * Formats elo number with comma as thousands separator
- */
-function formatElo(elo: number | null): string {
-  if (elo === null) return "";
-  return elo.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 /**
@@ -115,32 +97,17 @@ function renderFriendRanks(
     )
       return;
 
-    // Skip if rank tier or formatted elo is empty
+    // Skip if rank tier is empty
     const rankTier = getRankTier(elo);
-    const formattedElo = formatElo(elo);
-
-    if (!rankTier || !formattedElo) return;
-
-    // Create rank badge element
-    const badgeHtml = `
-      <div class="tooltip-wrapper" tabindex="0">
-        <div class="rank-badge ${rankTier}" style="--size:25px" aria-label="Rank: ${
-      rankTier.charAt(0).toUpperCase() + rankTier.slice(1)
-    }, Elo: ${formattedElo}">
-          <img alt="Renown rank ${rankTier}" loading="lazy" width="25" height="25" decoding="async" data-nimg="1" style="color:transparent" src="https://cdn.renown.gg/images/ranks/${rankTier}.svg">
-          <span>${formattedElo}</span>
-        </div>
-      </div>
-    `;
+    if (!rankTier) return;
 
     // Find the actions div
     const actionsDiv = row.querySelector(".actions");
     if (!actionsDiv) return;
 
     // Create badge element and insert after actions div
-    const badgeElement = document.createElement("div");
-    badgeElement.innerHTML = badgeHtml.trim();
-    row.insertBefore(badgeElement.firstElementChild!, actionsDiv.nextSibling);
+    const badgeElement = createRankBadgeElement(rankTier, elo, 25, true);
+    row.insertBefore(badgeElement, actionsDiv.nextSibling);
   });
 }
 
