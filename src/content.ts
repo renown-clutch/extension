@@ -95,7 +95,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     }
   }
 
-  if (changedParts.csstatsProfileButton || changedParts.faceitProfileButton) {
+  if (
+    changedParts.csstatsProfileButton !== undefined ||
+    changedParts.faceitProfileButton !== undefined
+  ) {
     initializeProfileButtons({
       csstats:
         changedParts.csstatsProfileButton !== undefined
@@ -106,9 +109,6 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
           ? changedParts.faceitProfileButton
           : userSettings.faceitProfileButton,
     });
-  }
-
-  if (changedParts.faceitProfileButton) {
   }
 
   if (changedParts.showBans !== undefined) {

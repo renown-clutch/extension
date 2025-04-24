@@ -19,7 +19,6 @@ let debounceTimer: number | null = null;
  * @param enabled - Whether the link should be displayed
  */
 export function initializeExtensionButton(enabled: boolean): void {
-  console.log("Initializing Clutch navbar button, enabled:", enabled);
   isEnabled = enabled;
 
   if (enabled) {
@@ -34,8 +33,6 @@ export function initializeExtensionButton(enabled: boolean): void {
  * @param enabled - Whether the link should be displayed
  */
 export function updateExtensionButtonSettings(enabled: boolean): void {
-  console.log("Updating Clutch navbar button, enabled:", enabled);
-
   if (isEnabled === enabled) return; // No change needed
 
   isEnabled = enabled;

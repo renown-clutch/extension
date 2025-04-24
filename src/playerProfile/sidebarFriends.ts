@@ -16,7 +16,6 @@ let hasBadgesBeenAdded = false; // Track if badges have already been added
  * Removes rank badges from friends in the sidebar
  */
 function removeRankBadges(): void {
-  console.log("Removing rank badges from sidebar friends");
   isPerformingBadgeOperation = true;
   const tooltipWrappers = document.querySelectorAll(
     ".sidebar-content .friends .profile-link .tooltip-wrapper"

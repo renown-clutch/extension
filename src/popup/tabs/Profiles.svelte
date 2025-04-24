@@ -41,17 +41,6 @@
 
   $effect(() => {
     if (
-      previousCsstatsProfileButton === true &&
-      csstatsProfileButton === false
-    ) {
-      sendReloadMessage("csstats");
-    }
-
-    if (previousFaceitProfileButton === true && faceitProfileButton === false) {
-      sendReloadMessage("faceit");
-    }
-
-    if (
       previousSortFriendsByRenownElo === true &&
       sortFriendsByRenownElo === false
     ) {

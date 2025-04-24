@@ -73,7 +73,7 @@ function ensureButtons(profileButtons: {
 }): void {
   if (profileButtons.csstats && !csstatsButton) {
     csstatsButton = createButton({
-      className: "clutch-button1",
+      className: "clutch-csstats-button",
       href: "#",
       bgColor: "#292c34",
       iconPath: "static/csstats.svg",
@@ -81,7 +81,7 @@ function ensureButtons(profileButtons: {
   }
   if (profileButtons.faceit && !faceitButton) {
     faceitButton = createButton({
-      className: "clutch-button2",
+      className: "clutch-faceit-button",
       href: "#",
       bgColor: "#141616",
       iconPath: "static/faceit.svg",
@@ -125,8 +125,15 @@ function updateButtonHrefs(
 }
 
 function removeButtons() {
-  csstatsButton?.remove();
-  faceitButton?.remove();
+  // Find and remove buttons from DOM if they exist
+  const buttonsInDom = document.querySelectorAll(
+    '[data-clutch-extension="true"]'
+  );
+  buttonsInDom.forEach((button) => button.remove());
+
+  // Reset button references
+  csstatsButton = null;
+  faceitButton = null;
 
   // Disconnect any existing observer
   if (buttonObserver) {
@@ -176,7 +183,6 @@ function setupButtonObserver(linksDiv: Element) {
           '[data-clutch-extension="true"]'
         );
         if (!hasButtons) {
-          console.log("Links div replaced, re-injecting buttons");
           appendButtonsToDom();
         }
       }
@@ -263,18 +269,6 @@ export async function initialize(profileButtons: {
       // Wait for the container to be available
       await waitForLinksDiv();
       appendButtonsToDom();
-
-      // Add a delayed retry to handle race conditions with Next.js rendering
-      setTimeout(() => {
-        const linksDiv = document.querySelector(".profile-banner div.links");
-        const hasButtons = linksDiv?.querySelector(
-          '[data-clutch-extension="true"]'
-        );
-        if (linksDiv && !hasButtons) {
-          console.log("Retrying button injection after delay");
-          appendButtonsToDom();
-        }
-      }, 500);
 
       // Fetch and update Faceit data if needed
       if (profileButtons.faceit) {
