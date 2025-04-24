@@ -22,6 +22,49 @@ function isFriendsPage(): boolean {
 }
 
 /**
+ * Applies CSS styling to ensure friend names are truncated and badges are positioned consistently
+ */
+function applyFriendListStyling(): void {
+  // Check if the style is already added
+  if (document.getElementById("clutch-friends-list-style")) return;
+
+  const styleEl = document.createElement("style");
+  styleEl.id = "clutch-friends-list-style";
+  styleEl.textContent = `
+    .profile-friend-list .friend-row {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .profile-friend-list .friend-row .profile-link {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      margin-right: 10px;
+    }
+    .profile-friend-list .friend-row .info {
+      overflow: hidden;
+      flex: 1;
+    }
+    .profile-friend-list .friend-row .info .name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+    }
+    .profile-friend-list .friend-row .tooltip-wrapper {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-left: auto;
+      margin-right: 10px;
+    }
+  `;
+  document.head.appendChild(styleEl);
+}
+
+/**
  * Removes rank badges from friends in the list
  */
 function removeRankBadges(): void {
@@ -40,6 +83,9 @@ function renderFriendRanks(
   friendIds: string[],
   ranks: Record<string, number | null>
 ): void {
+  // Apply styling to ensure consistent layout
+  applyFriendListStyling();
+
   // If sorting is enabled, rearrange the DOM order of .friend-row elements
   if (sortFriendsByRenownElo) {
     const friendListContainer = document.querySelector(".profile-friend-list");
@@ -101,13 +147,15 @@ function renderFriendRanks(
     const rankTier = getRankTier(elo);
     if (!rankTier) return;
 
-    // Find the actions div
-    const actionsDiv = row.querySelector(".actions");
-    if (!actionsDiv) return;
-
-    // Create badge element and insert after actions div
+    // Create badge element and append it to the row (after the profile link and actions)
     const badgeElement = createRankBadgeElement(rankTier, elo, 25, true);
-    row.insertBefore(badgeElement, actionsDiv.nextSibling);
+    const actionsDiv = row.querySelector(".actions");
+
+    if (actionsDiv) {
+      row.insertBefore(badgeElement, actionsDiv.nextSibling);
+    } else {
+      row.appendChild(badgeElement);
+    }
   });
 }
 
