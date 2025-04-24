@@ -15,8 +15,8 @@
   }: WithoutChildrenOrChild<SliderPrimitive.RootProps> = $props();
 </script>
 
-<div class="flex flex-col  gap-2 w-full">
-  <h2 class="text-sm font-normal">{value} seconds</h2>
+<div class="flex flex-col items-center  gap-2 w-full">
+  <h2 class="text-sm w-full text-left font-normal">{value} seconds</h2>
   <SliderPrimitive.Root
     bind:ref
     bind:value={value as never}
