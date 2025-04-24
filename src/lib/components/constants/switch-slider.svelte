@@ -9,9 +9,17 @@
     descriptionText2 = "Default Description",
     switchId = "default-switch",
     checked = $bindable(false),
+    sliderValue = $bindable(3),
+    maxValue = 7,
     disabled = false,
     warn = false,
   } = $props();
+
+  let sliderValueArray = $derived([sliderValue]);
+
+  $effect(() => {
+    sliderValue = sliderValueArray[0];
+  });
 </script>
 
 <div
@@ -31,18 +39,17 @@
     <div class="flex flex-col items-center mt-4">
       <SliderWithState
         type="multiple"
-        value={[3]}
-        max={7}
+        bind:value={sliderValueArray}
+        max={maxValue}
         step={1}
         class="max-w-[95%]"
-        {disabled}
+        disabled={disabled || !checked}
       />
       <section
         class="flex-1 max-w-[95%] flex w-full justify-between text-xs text-slate-400 pt-2"
       >
-        <p>1s</p>
-        
-        <p>7s</p>
+        <p>0s</p>
+        <p>{maxValue}s</p>
       </section>
     </div>
   </div>

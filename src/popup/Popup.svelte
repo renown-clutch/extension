@@ -61,6 +61,20 @@
       changes.autoAccept = { ...userSettings.autoAccept };
     }
 
+    if (
+      previousSettings.matchAutoAcceptDelay !==
+      userSettings.matchAutoAcceptDelay
+    ) {
+      changes.matchAutoAcceptDelay = userSettings.matchAutoAcceptDelay;
+    }
+
+    if (
+      previousSettings.partyAutoAcceptDelay !==
+      userSettings.partyAutoAcceptDelay
+    ) {
+      changes.partyAutoAcceptDelay = userSettings.partyAutoAcceptDelay;
+    }
+
     if (previousSettings.keepAlive !== userSettings.keepAlive) {
       changes.keepAlive = userSettings.keepAlive;
     }
@@ -139,7 +153,11 @@
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}
-        <AutoAcceptTab bind:autoAccept={userSettings.autoAccept} />
+        <AutoAcceptTab
+          bind:autoAccept={userSettings.autoAccept}
+          bind:matchAutoAcceptDelay={userSettings.matchAutoAcceptDelay}
+          bind:partyAutoAcceptDelay={userSettings.partyAutoAcceptDelay}
+        />
       {:else if userSettings.activeTab === "Match"}
         <MatchTab
           bind:showFaceitRanksOnMatchPage={

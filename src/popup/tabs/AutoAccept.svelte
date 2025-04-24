@@ -1,19 +1,24 @@
 <script lang="ts">
-  import SwitchComponent from "$lib/components/constants/switch.svelte";
   import type { UserSettings } from "$lib/types";
+  import { defaultUserSettings } from "$lib/types";
   import { onMount } from "svelte";
   import SwitchSlider from "$lib/components/constants/switch-slider.svelte";
 
   let {
-    autoAccept = $bindable<UserSettings["autoAccept"]>({
-      match: false,
-      party: false,
-    }),
+    autoAccept = $bindable<UserSettings["autoAccept"]>(
+      defaultUserSettings.autoAccept
+    ),
+    matchAutoAcceptDelay = $bindable<UserSettings["matchAutoAcceptDelay"]>(
+      defaultUserSettings.matchAutoAcceptDelay
+    ),
+    partyAutoAcceptDelay = $bindable<UserSettings["partyAutoAcceptDelay"]>(
+      defaultUserSettings.partyAutoAcceptDelay
+    ),
   } = $props();
 
   // Keep track of previous values to detect changes
-  let previousMatch = false;
-  let previousParty = false;
+  let previousMatch = defaultUserSettings.autoAccept.match;
+  let previousParty = defaultUserSettings.autoAccept.party;
 
   onMount(() => {
     previousMatch = autoAccept.match;
@@ -30,15 +35,12 @@
       return;
     }
 
-    // Check if settings were changed in any way
     const matchChanged = previousMatch !== autoAccept.match;
     const partyChanged = previousParty !== autoAccept.party;
 
-    // Update previous values
     previousMatch = autoAccept.match;
     previousParty = autoAccept.party;
 
-    // If either setting was changed, force reload
     if (matchChanged || partyChanged) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
@@ -48,9 +50,11 @@
               ? autoAccept.match
                 ? "match_auto_accept_enabled"
                 : "match_auto_accept_disabled"
-              : autoAccept.party
-                ? "party_auto_accept_enabled"
-                : "party_auto_accept_disabled",
+              : partyChanged
+                ? autoAccept.party
+                  ? "party_auto_accept_enabled"
+                  : "party_auto_accept_disabled"
+                : "auto_accept_delay_changed",
           });
         }
       });
@@ -64,28 +68,18 @@
     labelText="Match found"
     descriptionText="Auto-accept new matches"
     labelText2="Delay"
-    descriptionText2="Number of seconds to wait before accepting matches automatically."
-
+    descriptionText2="Delay in seconds before accepting"
+    bind:checked={autoAccept.match}
+    bind:sliderValue={matchAutoAcceptDelay}
   />
   <h2 class="text-lg">Lobby invite</h2>
   <SwitchSlider
     labelText="Lobby invite"
     descriptionText="Auto-accept new lobby invitations"
     labelText2="Delay"
-    descriptionText2="Number of seconds to wait before accepting lobby invitations automatically."
-
-  />
-  <SwitchComponent
-    labelText="Match found"
-    descriptionText="Auto-accept new matches"
-    switchId="match-found"
-    bind:checked={autoAccept.match}
-  />
-  <SwitchComponent
-    labelText="Lobby invite"
-    descriptionText="Auto-accept new lobby invitations"
-    switchId="lobby-invite"
+    descriptionText2="Delay in seconds before accepting"
     bind:checked={autoAccept.party}
+    bind:sliderValue={partyAutoAcceptDelay}
   />
 </main>
 

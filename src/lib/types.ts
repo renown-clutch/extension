@@ -25,6 +25,8 @@ export type UserSettings = {
     match: boolean;
     party: boolean;
   };
+  matchAutoAcceptDelay: number;
+  partyAutoAcceptDelay: number;
   keepAlive: boolean;
   showBans: boolean;
   showSkinDrops: boolean;
@@ -54,7 +56,9 @@ export const defaultUserSettings: UserSettings = {
     match: false,
     party: false,
   },
-  keepAlive: false,
+  matchAutoAcceptDelay: 3,
+  partyAutoAcceptDelay: 3,
+  keepAlive: true,
   showBans: true,
   showSkinDrops: true,
   sounds: {

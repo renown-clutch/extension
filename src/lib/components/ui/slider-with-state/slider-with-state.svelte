@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Clock } from "@lucide/svelte";
   import {
     Slider as SliderPrimitive,
     type WithoutChildrenOrChild,
@@ -15,7 +14,7 @@
   }: WithoutChildrenOrChild<SliderPrimitive.RootProps> = $props();
 </script>
 
-<div class="flex flex-col items-center  gap-2 w-full">
+<div class="flex flex-col items-center gap-2 w-full">
   <h2 class="text-sm w-full text-left font-normal">{value} seconds</h2>
   <SliderPrimitive.Root
     bind:ref
