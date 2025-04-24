@@ -30,6 +30,10 @@ import {
   initialize as initializeFaceitRanks,
   updateSettings as updateFaceitRanksSettings,
 } from "./matchPage/faceitRanks";
+import {
+  initializeExtensionButton,
+  updateExtensionButtonSettings,
+} from "./navbar/extensionButton";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -140,6 +144,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (changedParts.showFaceitRanksOnMatchPage !== undefined) {
     updateFaceitRanksSettings(userSettings.showFaceitRanksOnMatchPage);
   }
+
+  if (changedParts.showExtensionNavbarButton !== undefined) {
+    updateExtensionButtonSettings(userSettings.showExtensionNavbarButton);
+  }
 }
 
 async function loadFromChromeStorage(): Promise<UserSettings> {
@@ -193,6 +201,7 @@ async function initialize() {
     initializeFriendsList(userSettings);
     initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
+    initializeExtensionButton(userSettings.showExtensionNavbarButton);
 
     observeProfileChanges((profileId) => {
       if (profileId) {

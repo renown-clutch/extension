@@ -32,6 +32,7 @@ export type UserSettings = {
   showFaceitRanksOnMatchPage: boolean;
   sortFriendsByRenownElo: boolean;
   showSidebarFriendRanks: boolean;
+  showExtensionNavbarButton: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -60,4 +61,5 @@ export const defaultUserSettings: UserSettings = {
   showFaceitRanksOnMatchPage: true,
   sortFriendsByRenownElo: false,
   showSidebarFriendRanks: true,
+  showExtensionNavbarButton: true,
 };

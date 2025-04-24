@@ -93,6 +93,14 @@
       changes.showSidebarFriendRanks = userSettings.showSidebarFriendRanks;
     }
 
+    if (
+      previousSettings.showExtensionNavbarButton !==
+      userSettings.showExtensionNavbarButton
+    ) {
+      changes.showExtensionNavbarButton =
+        userSettings.showExtensionNavbarButton;
+    }
+
     return changes;
   }
 
@@ -151,7 +159,12 @@
           bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
         />
       {:else if userSettings.activeTab === "Settings"}
-        <SettingsTab bind:keepAlive={userSettings.keepAlive} />
+        <SettingsTab
+          bind:keepAlive={userSettings.keepAlive}
+          bind:showExtensionNavbarButton={
+            userSettings.showExtensionNavbarButton
+          }
+        />
       {/if}
     </div>
   </div>

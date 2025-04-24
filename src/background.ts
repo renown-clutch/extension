@@ -123,6 +123,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
 
     return true;
+  } else if (message.action === "openPopup") {
+    chrome.action.openPopup();
+    return true;
   }
 });
 
