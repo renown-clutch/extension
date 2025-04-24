@@ -2,6 +2,7 @@
   import SwitchComponent from "$lib/components/constants/switch.svelte";
   import type { UserSettings } from "$lib/types";
   import { onMount } from "svelte";
+  import SwitchSlider from "$lib/components/constants/switch-slider.svelte";
 
   let {
     autoAccept = $bindable<UserSettings["autoAccept"]>({
@@ -58,6 +59,22 @@
 </script>
 
 <main class=" flex flex-col gap-4">
+  <h2 class="text-lg">Match found</h2>
+  <SwitchSlider
+    labelText="Match found"
+    descriptionText="Auto-accept new matches"
+    labelText2="Delay"
+    descriptionText2="Number of seconds to wait before accepting matches automatically."
+
+  />
+  <h2 class="text-lg">Lobby invite</h2>
+  <SwitchSlider
+    labelText="Lobby invite"
+    descriptionText="Auto-accept new lobby invitations"
+    labelText2="Delay"
+    descriptionText2="Number of seconds to wait before accepting lobby invitations automatically."
+
+  />
   <SwitchComponent
     labelText="Match found"
     descriptionText="Auto-accept new matches"
