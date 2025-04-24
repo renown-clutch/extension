@@ -184,6 +184,7 @@ async function initialize() {
   try {
     const freshSettings = await loadFromChromeStorage();
     userSettings = freshSettings;
+    await waitForPageReady();
 
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
@@ -191,8 +192,6 @@ async function initialize() {
     initializeFriendsList(userSettings);
     initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
-
-    await waitForPageReady();
 
     await applyDomDependentSettings(userSettings);
 
