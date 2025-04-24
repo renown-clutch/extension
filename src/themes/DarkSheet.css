@@ -6,6 +6,7 @@
   --slate-700: #314158;
   --slate-600: #45556c;
   --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
+  --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
   --linear-gradient-90-2: linear-gradient(90deg, var(--slate-900), var(--slate-800));;
   --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47,) 0 0),conic-gradient(from var(--angle) at 50% 50%,rgb(255,173,160) 0deg,rgba(255,173,160,0) 1turn);
@@ -201,7 +202,7 @@ input.iti__tel-input {
 }
 .profile-match-list .match:hover {
   
-  background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+  background: var(--linear-gradient-90-hover), var(--match-bg) no-repeat left center / auto 100%;
     background-color: var(--slate-950);
 }
 
@@ -471,7 +472,7 @@ input.iti__tel-input {
 }
   .live-match-list .match:hover {
     
-    background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+    background: var(--linear-gradient-90-hover), var(--match-bg) no-repeat left center / auto 100%;
     background-color: var(--slate-950);
     
 }
