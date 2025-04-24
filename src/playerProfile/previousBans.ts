@@ -101,28 +101,104 @@ function createNoBansBadge(): HTMLDivElement {
   banBadge.style.lineHeight = "16px";
   banBadge.style.maxWidth = "160px";
   banBadge.style.justifyContent = "center";
+  banBadge.style.display = "flex";
+  banBadge.style.alignItems = "center";
 
-  const checkSvg = document.createElementNS(
+  // Create badge-check SVG from Lucide
+  const badgeCheckSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg"
   );
-  checkSvg.setAttribute("width", "16");
-  checkSvg.setAttribute("height", "16");
-  checkSvg.setAttribute("viewBox", "0 0 16 16");
-  checkSvg.setAttribute("fill", "currentColor");
-  checkSvg.style.verticalAlign = "middle";
-  checkSvg.style.marginRight = "6px";
+  badgeCheckSvg.setAttribute("width", "16");
+  badgeCheckSvg.setAttribute("height", "16");
+  badgeCheckSvg.setAttribute("viewBox", "0 0 24 24");
+  badgeCheckSvg.setAttribute("fill", "none");
+  badgeCheckSvg.setAttribute("stroke", "currentColor");
+  badgeCheckSvg.setAttribute("stroke-width", "2");
+  badgeCheckSvg.setAttribute("stroke-linecap", "round");
+  badgeCheckSvg.setAttribute("stroke-linejoin", "round");
+  badgeCheckSvg.style.verticalAlign = "middle";
+  badgeCheckSvg.style.marginRight = "6px";
 
-  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-  path.setAttribute(
+  // Badge-check path
+  const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path1.setAttribute(
     "d",
-    "M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"
+    "M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"
   );
-  checkSvg.appendChild(path);
+
+  const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path2.setAttribute("d", "m9 12 2 2 4-4");
+
+  badgeCheckSvg.appendChild(path1);
+  badgeCheckSvg.appendChild(path2);
 
   const textNode = document.createTextNode(" No previous bans");
 
-  banBadge.appendChild(checkSvg);
+  banBadge.appendChild(badgeCheckSvg);
+  banBadge.appendChild(textNode);
+
+  return banBadge;
+}
+
+function createNoOtherBansBadge(): HTMLDivElement {
+  const banBadge = document.createElement("div");
+  banBadge.className = "ban-badge";
+  banBadge.setAttribute("data-clutch-extension", "ban-element");
+  banBadge.style.padding = "6px 10px";
+  banBadge.style.margin = "0 8px 0 0";
+  banBadge.style.fontSize = "12px";
+  banBadge.style.backgroundColor = "transparent";
+  banBadge.style.border = "1px solid var(--toastify-color-transparent)";
+  banBadge.style.color = "var(--toastify-color-transparent)";
+  banBadge.style.display = "inline-flex";
+  banBadge.style.alignItems = "center";
+  banBadge.style.whiteSpace = "nowrap";
+
+  // Create search-x SVG from Lucide
+  const searchXSvg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  searchXSvg.setAttribute("width", "14");
+  searchXSvg.setAttribute("height", "14");
+  searchXSvg.setAttribute("viewBox", "0 0 24 24");
+  searchXSvg.setAttribute("fill", "none");
+  searchXSvg.setAttribute("stroke", "currentColor");
+  searchXSvg.setAttribute("stroke-width", "2");
+  searchXSvg.setAttribute("stroke-linecap", "round");
+  searchXSvg.setAttribute("stroke-linejoin", "round");
+  searchXSvg.style.verticalAlign = "middle";
+  searchXSvg.style.marginRight = "4px";
+
+  // Search-x paths
+  const circle = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "circle"
+  );
+  circle.setAttribute("cx", "11");
+  circle.setAttribute("cy", "11");
+  circle.setAttribute("r", "8");
+
+  const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line1.setAttribute("x1", "21");
+  line1.setAttribute("x2", "16.65");
+  line1.setAttribute("y1", "21");
+  line1.setAttribute("y2", "16.65");
+
+  const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line2.setAttribute("x1", "8");
+  line2.setAttribute("x2", "14");
+  line2.setAttribute("y1", "11");
+  line2.setAttribute("y2", "11");
+
+  searchXSvg.appendChild(circle);
+  searchXSvg.appendChild(line1);
+  searchXSvg.appendChild(line2);
+
+  const textNode = document.createTextNode("No other bans found");
+
+  banBadge.appendChild(searchXSvg);
   banBadge.appendChild(textNode);
 
   return banBadge;
@@ -147,12 +223,7 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
     ".ban-badge:not([data-clutch-extension='ban-element'])"
   );
 
-  // Skip showing ban history if there's an existing ban badge and no additional bans to show
-  if (existingBanBadge && (!bans || bans.length <= 1)) {
-    return;
-  }
-
-  // Add ban history header
+  // Add ban history header in all cases
   const headerDiv = document.createElement("div");
   headerDiv.className = "text";
   headerDiv.setAttribute("data-clutch-extension", "ban-element");
@@ -161,6 +232,13 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   headerDiv.style.fontWeight = "600";
   headerDiv.textContent = "Ban History";
   container.appendChild(headerDiv);
+
+  // If there's an existing ban badge and no additional bans to show
+  if (existingBanBadge && (!bans || bans.length <= 1)) {
+    const noOtherBansBadge = createNoOtherBansBadge();
+    container.appendChild(noOtherBansBadge);
+    return;
+  }
 
   if (!bans || bans.length === 0) {
     const noBansBadge = createNoBansBadge();

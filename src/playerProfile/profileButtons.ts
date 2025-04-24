@@ -136,13 +136,8 @@ function removeButtons() {
 }
 
 function appendButtonsToDom() {
-  console.log("Appending buttons to DOM");
   const linksDiv = document.querySelector(".profile-banner div.links");
-  console.log(linksDiv);
   if (!linksDiv) return;
-
-  // Check if buttons are already in the DOM
-  const buttonsExist = linksDiv.querySelector('[data-clutch-extension="true"]');
 
   if (csstatsButton && !linksDiv.contains(csstatsButton)) {
     linksDiv.appendChild(csstatsButton);
@@ -289,7 +284,6 @@ export async function initialize(profileButtons: {
         faceitElo = faceitData.elo;
         updateButtonHrefs(currentPlayerId, faceitData);
         appendButtonsToDom();
-        console.log("Profile buttons initialized");
       }
     } catch (error) {
       // Handle specific extension context invalidated error
