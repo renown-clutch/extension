@@ -85,7 +85,6 @@ async function applyDomDependentSettings(settings: UserSettings) {
 }
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
-  console.log("applyChangedSettings", changedParts);
   if (changedParts.selectedTheme) {
     if (changedParts.selectedTheme !== "default") {
       try {
@@ -253,9 +252,6 @@ initialize();
 try {
   if (isExtensionContextValid()) {
     chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      // Change to only log message type, not full message content
-      console.log("Received message type:", message.type);
-
       try {
         if (message.type === "settingsUpdate") {
           userSettings = message.settings;

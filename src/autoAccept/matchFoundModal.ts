@@ -85,8 +85,12 @@ function processMatch(modal: Element, modalId: string) {
   // Mark this match as processed
   processedMatches.add(modalId);
 
-  const delay = latestUserSettings?.matchAutoAcceptDelay || 3;
-  const delayMs = delay === 0 ? 0 : delay * 1000;
+  // Use nullish coalescing instead of logical OR to handle 0 value properly
+  const delay = latestUserSettings?.matchAutoAcceptDelay ?? 3;
+  const delayMs = delay * 1000;
+
+  // Extra buffer only if there is a delay
+  const bufferMs = delay > 0 ? 500 : 0;
 
   setTimeout(() => {
     if (document.body.contains(modal) && document.body.contains(acceptBtn)) {
@@ -94,7 +98,7 @@ function processMatch(modal: Element, modalId: string) {
     }
     // Reset the processing flag
     isProcessingMatch = false;
-  }, delayMs + 500); // Extra 500ms for stability when delay is 0
+  }, delayMs + bufferMs); // Buffer only added when delay > 0
 }
 
 // Set up a timer to periodically clean up the processedMatches set
