@@ -34,6 +34,7 @@ import {
   initializeExtensionButton,
   updateExtensionButtonSettings,
 } from "./navbar/extensionButton";
+import { embedPopupInShadow } from "./embedPopup";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -202,6 +203,9 @@ async function initialize() {
     initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
+
+    // Embed popup in shadow DOM for testing
+    embedPopupInShadow();
 
     observeProfileChanges((profileId) => {
       if (profileId) {
