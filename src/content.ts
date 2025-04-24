@@ -1,6 +1,11 @@
 console.log("Clutch extension content script loaded");
 
-import { initialize as initializeTheme } from "./themes/themeUtils";
+import {
+  initialize as initializeTheme,
+  initTempStyling,
+  getThemeFromLocalStorage,
+  saveThemeToLocalStorage,
+} from "./themes/themeUtils";
 import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
 import { initialize as initializeProfileBans } from "./playerProfile/previousBans";
 import { initialize as initializeSkinDrops } from "./playerProfile/skinDrops";
@@ -37,6 +42,31 @@ import {
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
+
+// Apply temporary styling immediately before anything else
+initTempStyling();
+
+// Apply dark theme immediately from localStorage if available
+(async function applyThemeImmediately() {
+  try {
+    const cachedTheme = getThemeFromLocalStorage();
+    if (cachedTheme && cachedTheme !== "default") {
+      // Initialize theme from cached value immediately
+      initializeTheme(cachedTheme);
+    } else if (isExtensionContextValid()) {
+      // Fall back to Chrome storage if no cached theme
+      const result = await chrome.storage.local.get(LS_KEY);
+      const settings = result[LS_KEY] || defaultUserSettings;
+
+      if (settings.selectedTheme && settings.selectedTheme !== "default") {
+        // Initialize theme from storage
+        initializeTheme(settings.selectedTheme);
+      }
+    }
+  } catch (error) {
+    console.error("Error applying immediate theme:", error);
+  }
+})();
 
 /**
  * Waits for the page to be fully loaded and DOM to be ready
@@ -257,6 +287,12 @@ try {
           userSettings = message.settings;
 
           if (message.changedParts) {
+            // Add this code to update theme in localStorage when it changes
+            if (message.changedParts.selectedTheme) {
+              // Update localStorage when theme changes from popup
+              saveThemeToLocalStorage(message.changedParts.selectedTheme);
+            }
+
             applyChangedSettings(message.changedParts)
               .then(() => {
                 if (isExtensionContextValid()) {
