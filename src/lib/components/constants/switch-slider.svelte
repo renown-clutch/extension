@@ -1,7 +1,7 @@
 <script>
   import DiscriptionToggle from "$lib/components/constants/discriptionToggle.svelte";
   import { Switch } from "$lib/components/ui/switch/index.js";
-  import { Slider } from "$lib/components/ui/slider/index.js";
+  import { SliderWithState } from "$lib/components/ui/slider-with-state/index.js";
   let {
     labelText = "Default Label",
     labelText2 = "Default Label",
@@ -29,9 +29,9 @@
     <h2 class="text-sm">{labelText2}</h2>
     <DiscriptionToggle text={descriptionText2} {warn} />
     <div class="flex flex-col items-center mt-4">
-      <Slider
+      <SliderWithState
         type="multiple"
-        value={[50]}
+        value={[3]}
         max={7}
         step={1}
         class="max-w-[95%]"
@@ -41,6 +41,7 @@
         class="flex-1 max-w-[95%] flex w-full justify-between text-xs text-slate-400 pt-2"
       >
         <p>1s</p>
+        
         <p>7s</p>
       </section>
     </div>
