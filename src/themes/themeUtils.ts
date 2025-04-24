@@ -2,17 +2,34 @@ import { createHeadObserver } from "../utils/observerUtils";
 
 // Constants for theme storage
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
+const TEMP_STYLE_CACHE_KEY = "clutch-temp-styles-cache";
 
-// Add dedicated temporary styles for each theme
+// Paths for the theme files
+const DARK_SHEET_PATH = chrome.runtime.getURL("themes/DarkSheet.css");
+const PINK_SHEET_PATH = chrome.runtime.getURL("themes/PinkSheet.css");
+const PURPLE_SHEET_PATH = chrome.runtime.getURL("themes/PurpleSheet.css");
+const GREEN_SHEET_PATH = chrome.runtime.getURL("themes/GreenSheet.css");
+const DARK_GRAY_SHEET_PATH = chrome.runtime.getURL("themes/DarkGraySheet.css");
+
+// Fallback temp styles in case we can't load the CSS immediately
 const tempThemeStyles: Record<string, string> = {
-  dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; } .site-layout>.grid aside.sidebar { background-color: #0f172b !important; } .party-player-card { background: linear-gradient(45deg, #0f172b, #1d293d) !important; } .next-rank-progress { background: linear-gradient(90deg, #0f172b, #314158) !important; } .footer { background-color: #00030a !important; } .play-friend-list { background-color: #0f172b !important; } .navbar { border-bottom: 2px solid #0f172b !important; background-color: #020618 !important; } .site-layout>.grid aside.sidebar button.toggle { background-color: #314158 !important; } .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle { background-color: #0f172b !important; } ::-webkit-scrollbar-track { background-color: rgba(5, 11, 38, 0.797) !important; } ::-webkit-scrollbar-thumb { background-color: #1d293d !important; }",
-  pink: "html, body { background-color: #440c21 !important; color: #fff !important; transition: none !important; } .site-layout>.grid aside.sidebar { background-color: #5c1130 !important; } .party-player-card { background: linear-gradient(45deg, #5c1130, #881a4a) !important; } .next-rank-progress { background: linear-gradient(90deg, #5c1130, #b42463) !important; } .footer { background-color: #440c21 !important; } .play-friend-list { background-color: #5c1130 !important; } .navbar { border-bottom: 2px solid #5c1130 !important; background-color: #440c21 !important; } .site-layout>.grid aside.sidebar button.toggle { background-color: #b42463 !important; } .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle { background-color: #5c1130 !important; } ::-webkit-scrollbar-track { background-color: rgba(92, 17, 48, 0.8) !important; } ::-webkit-scrollbar-thumb { background-color: #e02e7d !important; }",
+  dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
+  pink: "html, body { background-color: #440c21 !important; color: #fff !important; transition: none !important; }",
   purple:
-    "html, body { background-color: #1a0033 !important; color: #fff !important; transition: none !important; } .site-layout>.grid aside.sidebar { background-color: #2b0052 !important; } .party-player-card { background: linear-gradient(45deg, #2b0052, #3a006f) !important; } .next-rank-progress { background: linear-gradient(90deg, #2b0052, #4a008c) !important; } .footer { background-color: #0d0020 !important; } .play-friend-list { background-color: #2b0052 !important; } .navbar { border-bottom: 2px solid #2b0052 !important; background-color: #1a0033 !important; } .site-layout>.grid aside.sidebar button.toggle { background-color: #4a008c !important; } .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle { background-color: #2b0052 !important; } ::-webkit-scrollbar-track { background-color: rgba(26, 0, 51, 0.797) !important; } ::-webkit-scrollbar-thumb { background-color: #3a006f !important; }",
+    "html, body { background-color: #1a0033 !important; color: #fff !important; transition: none !important; }",
   green:
-    "html, body { background-color: #0a2613 !important; color: #fff !important; transition: none !important; } .site-layout>.grid aside.sidebar { background-color: #0e3218 !important; } .party-player-card { background: linear-gradient(45deg, #0e3218, #174023) !important; } .next-rank-progress { background: linear-gradient(90deg, #0e3218, #245434) !important; } .footer { background-color: #051409 !important; } .play-friend-list { background-color: #0e3218 !important; } .navbar { border-bottom: 2px solid #0e3218 !important; background-color: #0a2613 !important; } .site-layout>.grid aside.sidebar button.toggle { background-color: #245434 !important; } .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle { background-color: #0e3218 !important; } ::-webkit-scrollbar-track { background-color: rgba(10, 38, 19, 0.797) !important; } ::-webkit-scrollbar-thumb { background-color: #174023 !important; }",
+    "html, body { background-color: #0a2613 !important; color: #fff !important; transition: none !important; }",
   darkgray:
-    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; } .site-layout>.grid aside.sidebar { background-color: #1f1f1f !important; } .party-player-card { background: linear-gradient(45deg, #1f1f1f, #2a2a2a) !important; } .next-rank-progress { background: linear-gradient(90deg, #1f1f1f, #333333) !important; } .footer { background-color: #1a1a1a !important; } .play-friend-list { background-color: #1f1f1f !important; } .navbar { border-bottom: 2px solid #1f1f1f !important; background-color: #1a1a1a !important; } .site-layout>.grid aside.sidebar button.toggle { background-color: #333333 !important; } .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle { background-color: #1f1f1f !important; } ::-webkit-scrollbar-track { background-color: rgba(31, 31, 31, 0.8) !important; } ::-webkit-scrollbar-thumb { background-color: #444444 !important; }",
+    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
+};
+
+// Map themes to their file paths
+const themePathMap: Record<string, string> = {
+  dark: DARK_SHEET_PATH,
+  pink: PINK_SHEET_PATH,
+  purple: PURPLE_SHEET_PATH,
+  green: GREEN_SHEET_PATH,
+  darkgray: DARK_GRAY_SHEET_PATH,
 };
 
 // Add temporary style element to prevent flash
@@ -25,22 +42,27 @@ styleElement.id = "clutch-theme";
 
 let isThemeInjected = false;
 let isTempThemeInjected = false;
+let currentTheme: string | null = null;
 
-const DARK_SHEET_PATH = chrome.runtime.getURL("themes/DarkSheet.css");
-const PINK_SHEET_PATH = chrome.runtime.getURL("themes/PinkSheet.css");
-const PURPLE_SHEET_PATH = chrome.runtime.getURL("themes/PurpleSheet.css");
-const GREEN_SHEET_PATH = chrome.runtime.getURL("themes/GreenSheet.css");
-const DARK_GRAY_SHEET_PATH = chrome.runtime.getURL("themes/DarkGraySheet.css");
+// Cache for stylesheets
+const stylesheetCache: Record<string, string> = {};
+
+// Try to load cached temp styles from localStorage
+try {
+  const cachedStyles = localStorage.getItem(TEMP_STYLE_CACHE_KEY);
+  if (cachedStyles) {
+    const parsedStyles = JSON.parse(cachedStyles);
+    Object.keys(parsedStyles).forEach((theme) => {
+      stylesheetCache[themePathMap[theme]] = parsedStyles[theme];
+    });
+  }
+} catch (e) {
+  console.error("Failed to load cached temp styles:", e);
+}
 
 // Preload all stylesheets when the module loads
 (function preloadStylesheets() {
-  const paths = [
-    DARK_SHEET_PATH,
-    PINK_SHEET_PATH,
-    PURPLE_SHEET_PATH,
-    GREEN_SHEET_PATH,
-    DARK_GRAY_SHEET_PATH,
-  ];
+  const paths = Object.values(themePathMap);
 
   // Create preload links for faster loading
   paths.forEach((path) => {
@@ -60,14 +82,28 @@ const DARK_GRAY_SHEET_PATH = chrome.runtime.getURL("themes/DarkGraySheet.css");
       })
       .then((stylesheet) => {
         stylesheetCache[path] = stylesheet;
+
+        // Update temp styles cache in localStorage
+        try {
+          const tempStylesCache: Record<string, string> = {};
+          Object.entries(themePathMap).forEach(([theme, path]) => {
+            if (stylesheetCache[path]) {
+              tempStylesCache[theme] = stylesheetCache[path];
+            }
+          });
+          localStorage.setItem(
+            TEMP_STYLE_CACHE_KEY,
+            JSON.stringify(tempStylesCache)
+          );
+        } catch (e) {
+          console.error("Failed to cache temp styles:", e);
+        }
       })
       .catch((error) => {
         console.error(`Error preloading stylesheet:`, error);
       });
   });
 })();
-
-const stylesheetCache: Record<string, string> = {};
 
 // Save theme preference to localStorage for faster access
 export function saveThemeToLocalStorage(theme: string): void {
@@ -91,9 +127,33 @@ export function getThemeFromLocalStorage(): string | null {
 // Apply temporary styling immediately to prevent flash
 function applyTempStyling(theme: string = "dark"): void {
   if (!isTempThemeInjected && document.documentElement) {
-    // Set appropriate temp style based on theme
-    tempStyleElement.textContent =
-      tempThemeStyles[theme] || tempThemeStyles.dark;
+    // Try to use cached full stylesheet first if available
+    const themePath = themePathMap[theme] || themePathMap.dark;
+    if (stylesheetCache[themePath]) {
+      // Extract only essential styles for quick application
+      let cssText = stylesheetCache[themePath];
+
+      // Extract just the root variables and body styles
+      const rootMatch = cssText.match(/:root\s*{[^}]+}/);
+      const bodyMatch = cssText.match(/body,html\s*{[^}]+}/);
+
+      let essentialStyles = "";
+      if (rootMatch) essentialStyles += rootMatch[0];
+      if (bodyMatch) essentialStyles += bodyMatch[0];
+
+      if (essentialStyles) {
+        tempStyleElement.textContent = essentialStyles;
+      } else {
+        // Fall back to simplified temp styles if extraction fails
+        tempStyleElement.textContent =
+          tempThemeStyles[theme] || tempThemeStyles.dark;
+      }
+    } else {
+      // Fall back to simplified temp styles
+      tempStyleElement.textContent =
+        tempThemeStyles[theme] || tempThemeStyles.dark;
+    }
+
     document.documentElement.appendChild(tempStyleElement);
     isTempThemeInjected = true;
   }
@@ -166,27 +226,7 @@ async function loadStylesheet(url: string): Promise<string> {
 }
 
 async function loadAndApplyTheme(theme: string): Promise<void> {
-  let url;
-
-  switch (theme) {
-    case "dark":
-      url = DARK_SHEET_PATH;
-      break;
-    case "pink":
-      url = PINK_SHEET_PATH;
-      break;
-    case "purple":
-      url = PURPLE_SHEET_PATH;
-      break;
-    case "green":
-      url = GREEN_SHEET_PATH;
-      break;
-    case "darkgray":
-      url = DARK_GRAY_SHEET_PATH;
-      break;
-    default:
-      url = DARK_SHEET_PATH;
-  }
+  const url = themePathMap[theme] || themePathMap.dark;
 
   try {
     const stylesheet = await loadStylesheet(url);

@@ -116,13 +116,8 @@ function createSkinsContainer(drops: Drop[]): HTMLDivElement {
 
   const title = document.createElement("div");
   title.className = "title";
-  title.textContent = "Recent Skin Drops";
+  title.textContent = "Skin Drops";
   container.appendChild(title);
-
-  const text = document.createElement("div");
-  text.className = "text";
-  text.textContent = "Skin drops from Renown.gg matches";
-  container.appendChild(text);
 
   const scroll = document.createElement("div");
   scroll.className = "scroll";
@@ -130,7 +125,6 @@ function createSkinsContainer(drops: Drop[]): HTMLDivElement {
   const content = document.createElement("div");
   content.className = "content";
   content.style.marginBottom = "0px";
-  
 
   drops.forEach((drop) => {
     content.appendChild(createDroppedSkinElement(drop));

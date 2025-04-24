@@ -19,7 +19,7 @@
   );
 
   $effect(() => {
-    if (previousTheme && previousTheme !== selectedTheme) {
+    if (selectedTheme === "default" && previousTheme !== selectedTheme) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0] && tabs[0].id) {
           chrome.tabs.reload(tabs[0].id);
