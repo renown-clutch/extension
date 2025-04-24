@@ -7,12 +7,21 @@ let isThemeInjected = false;
 let currentTheme: string | null = null;
 
 const DARK_SHEET_PATH = chrome.runtime.getURL("themes/DarkSheet.css");
-const LIGHT_SHEET_PATH = chrome.runtime.getURL("themes/LightSheet.css");
+const PINK_SHEET_PATH = chrome.runtime.getURL("themes/PinkSheet.css");
+const PURPLE_SHEET_PATH = chrome.runtime.getURL("themes/PurpleSheet.css");
+const GREEN_SHEET_PATH = chrome.runtime.getURL("themes/GreenSheet.css");
+const DARK_GRAY_SHEET_PATH = chrome.runtime.getURL("themes/DarkGraySheet.css");
 
 const stylesheetCache: Record<string, string> = {};
 
 export async function initialize(theme: string): Promise<void> {
-  if (theme !== "dark" && theme !== "light") {
+  if (
+    theme !== "dark" &&
+    theme !== "pink" &&
+    theme !== "purple" &&
+    theme !== "green" &&
+    theme !== "darkgray"
+  ) {
     return;
   }
 
@@ -47,7 +56,27 @@ async function loadStylesheet(url: string): Promise<string> {
 }
 
 async function loadAndApplyTheme(theme: string): Promise<void> {
-  const url = theme === "dark" ? DARK_SHEET_PATH : LIGHT_SHEET_PATH;
+  let url;
+
+  switch (theme) {
+    case "dark":
+      url = DARK_SHEET_PATH;
+      break;
+    case "pink":
+      url = PINK_SHEET_PATH;
+      break;
+    case "purple":
+      url = PURPLE_SHEET_PATH;
+      break;
+    case "green":
+      url = GREEN_SHEET_PATH;
+      break;
+    case "darkgray":
+      url = DARK_GRAY_SHEET_PATH;
+      break;
+    default:
+      url = DARK_SHEET_PATH;
+  }
 
   try {
     const stylesheet = await loadStylesheet(url);

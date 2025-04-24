@@ -6,9 +6,17 @@ export type TabName =
   | "Profiles"
   | "Settings";
 
+export type Theme =
+  | "default"
+  | "darkgray"
+  | "dark"
+  | "pink"
+  | "purple"
+  | "green";
+
 export type UserSettings = {
   activeTab: TabName;
-  selectedTheme: "" | "light" | "dark" | "default";
+  selectedTheme: Theme | "";
   showConfirmModal: boolean;
   showInviteModal: boolean;
   csstatsProfileButton: boolean;

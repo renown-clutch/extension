@@ -48,24 +48,25 @@ function copyThemeFiles() {
     fs.mkdirSync(themesDir, { recursive: true });
   }
   
-  // Copy Dark theme CSS
-  const darkSrcPath = resolve(__dirname, 'src/themes/DarkSheet.css');
-  const darkDestPath = resolve(themesDir, 'DarkSheet.css');
-  if (fs.existsSync(darkSrcPath)) {
-    fs.copyFileSync(darkSrcPath, darkDestPath);
-    console.log('Copied DarkSheet.css');
+  // Read all CSS files from src/themes directory
+  const srcThemesDir = resolve(__dirname, 'src/themes');
+  if (fs.existsSync(srcThemesDir)) {
+    const themeFiles = fs.readdirSync(srcThemesDir)
+      .filter(file => file.endsWith('.css'));
+    
+    // Copy each CSS file to dist/themes
+    for (const file of themeFiles) {
+      const srcPath = resolve(srcThemesDir, file);
+      const destPath = resolve(themesDir, file);
+      fs.copyFileSync(srcPath, destPath);
+      console.log(`Copied ${file}`);
+    }
+    
+    if (themeFiles.length === 0) {
+      console.warn('No CSS theme files found in', srcThemesDir);
+    }
   } else {
-    console.warn('DarkSheet.css not found at', darkSrcPath);
-  }
-  
-  // Copy Light theme CSS
-  const lightSrcPath = resolve(__dirname, 'src/themes/LightSheet.css');
-  const lightDestPath = resolve(themesDir, 'LightSheet.css');
-  if (fs.existsSync(lightSrcPath)) {
-    fs.copyFileSync(lightSrcPath, lightDestPath);
-    console.log('Copied LightSheet.css');
-  } else {
-    console.warn('LightSheet.css not found at', lightSrcPath);
+    console.warn('Themes directory not found at', srcThemesDir);
   }
 }
 

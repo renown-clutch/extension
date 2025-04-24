@@ -4,8 +4,11 @@
 
   const themes = [
     { label: "Default", value: "default" },
-    // { label: "Light", value: "light" },
     { label: "Dark", value: "dark" },
+    { label: "Dark Gray", value: "darkgray" },
+    { label: "Pink", value: "pink" },
+    { label: "Purple", value: "purple" },
+    { label: "Green", value: "green" },
   ];
 
   let { selectedTheme = $bindable("") } = $props();
