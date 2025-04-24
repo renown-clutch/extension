@@ -1,30 +1,57 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
   import { MessageSquare } from "@lucide/svelte";
+  import Switch from "$lib/components/ui/switch/switch.svelte";
+  import DescriptionToggle from "$lib/components/constants/discriptionToggle.svelte";
+  import { onMount } from "svelte";
 
   let {
     keepAlive = $bindable(false),
-    showExtensionNavbarButton = $bindable(false),
+    showExtensionNavbarButton = $bindable(true),
+    showFloatingButton = $bindable(false),
   } = $props();
 
   let keepAliveSwitchId = "keep-alive-switch";
   let extensionButtonSwitchId = "extension-button-switch";
+
+  onMount(() => {
+    console.log("Settings.svelte mounted");
+  });
 </script>
 
 <main class="flex flex-col h-full">
-  <div class="flex flex-col gap-4">
-    <SwitchComponent
-      labelText="Keep Alive"
-      descriptionText="Keep the renown page alive to prevent it from sleeping"
-      switchId={keepAliveSwitchId}
-      bind:checked={keepAlive}
-    />
-    <SwitchComponent
-      labelText="Clutch Navbar Link"
-      descriptionText="Show a Clutch link in the navbar to open the extension popup"
-      switchId={extensionButtonSwitchId}
-      bind:checked={showExtensionNavbarButton}
-    />
+  <div class="space-y-6">
+    <h1 class="text-3xl font-bold">Settings</h1>
+
+    <div class="space-y-2">
+      <div class="flex justify-between items-center py-4">
+        <div class="space-y-0.5">
+          <h4 class="text-base leading-none">Keep CS2 active</h4>
+          <DescriptionToggle
+            text="Keep the connection to CS2 alive while you browse the website."
+          />
+        </div>
+        <Switch bind:checked={keepAlive} />
+      </div>
+
+      <div class="flex justify-between items-center py-4">
+        <div class="space-y-0.5">
+          <h4 class="text-base leading-none">Show Extension Button</h4>
+          <DescriptionToggle text="Show the extension button in the navbar." />
+        </div>
+        <Switch bind:checked={showExtensionNavbarButton} />
+      </div>
+
+      <div class="flex justify-between items-center py-4">
+        <div class="space-y-0.5">
+          <h4 class="text-base leading-none">Floating Button</h4>
+          <DescriptionToggle
+            text="Show a floating button in the corner with quick access to settings (like Repeek)."
+          />
+        </div>
+        <Switch bind:checked={showFloatingButton} />
+      </div>
+    </div>
   </div>
 
   <footer class="mt-auto pt-4 flex justify-between items-center">

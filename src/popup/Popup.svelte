@@ -101,6 +101,12 @@
         userSettings.showExtensionNavbarButton;
     }
 
+    if (
+      previousSettings.showFloatingButton !== userSettings.showFloatingButton
+    ) {
+      changes.showFloatingButton = userSettings.showFloatingButton;
+    }
+
     return changes;
   }
 
@@ -164,6 +170,7 @@
           bind:showExtensionNavbarButton={
             userSettings.showExtensionNavbarButton
           }
+          bind:showFloatingButton={userSettings.showFloatingButton}
         />
       {/if}
     </div>

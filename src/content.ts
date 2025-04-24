@@ -34,6 +34,10 @@ import {
   initializeExtensionButton,
   updateExtensionButtonSettings,
 } from "./navbar/extensionButton";
+import {
+  initializeFloatingButton,
+  updateFloatingButtonSettings,
+} from "./navbar/floatingButton";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -81,6 +85,10 @@ async function applyDomDependentSettings(settings: UserSettings) {
 
   if (settings.showFriendListRanks) {
     initializeFriendsList(settings);
+  }
+
+  if (settings.showFloatingButton) {
+    initializeFloatingButton(settings.showFloatingButton);
   }
 }
 
@@ -148,6 +156,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (changedParts.showExtensionNavbarButton !== undefined) {
     updateExtensionButtonSettings(userSettings.showExtensionNavbarButton);
   }
+
+  if (changedParts.showFloatingButton !== undefined) {
+    updateFloatingButtonSettings(userSettings.showFloatingButton);
+  }
 }
 
 async function loadFromChromeStorage(): Promise<UserSettings> {
@@ -202,6 +214,7 @@ async function initialize() {
     initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
+    initializeFloatingButton(userSettings.showFloatingButton);
 
     observeProfileChanges((profileId) => {
       if (profileId) {
