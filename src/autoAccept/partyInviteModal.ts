@@ -128,7 +128,16 @@ function findPartyInviteModal(): Element | null {
   const inviteElements = document.querySelectorAll(".toast-party-invite");
 
   if (inviteElements.length > 0) {
-    return inviteElements[0].closest(".Toastify__toast");
+    // Check if this is a friend request - if so, don't consider it a party invite
+    const element = inviteElements[0];
+    const invitedToElement = element.querySelector(".invited-to");
+    if (
+      invitedToElement &&
+      invitedToElement.textContent?.includes("friend request")
+    ) {
+      return null;
+    }
+    return element.closest(".Toastify__toast");
   }
 
   return document.querySelector("#clutch-ext-invite-toast");
