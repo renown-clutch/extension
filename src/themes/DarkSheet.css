@@ -4,6 +4,7 @@
   --slate-900-80: #0f172bdb;
   --slate-800: #1d293d;
   --slate-700: #314158;
+  --slate-700-80: #314158db;
   --slate-600: #45556c;
   --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
   --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
@@ -17,6 +18,27 @@
 
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
+}
+
+.match-veto .voting-options .voting-card .overlay {
+ 
+  background: var(--slate-900-80);
+ 
+}
+
+.match-veto .voting-options .voting-card:hover .overlay {
+  background: var(--slate-700-80);
+}
+
+.match-veto .voting-options .voting-card {
+  
+  border: 1px solid var(--slate-700);
+ 
+}
+
+.checkbox-wrapper {
+  position: relative;
+  filter: grayscale(1);
 }
 
 .page-sub-menu-wrapper .page-sub-menu .link a.active {

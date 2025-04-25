@@ -4,6 +4,7 @@
   --slate-900-80: #2b0052db;
   --slate-800: #3a006f;
   --slate-700: #4a008c;
+  --slate-700-80: #4a008cdb;
   --slate-600: #5900a8;
   --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
@@ -13,9 +14,29 @@
   --scrollbar-color: #3a006f;
   --footer: #0d0020;
 }
-
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
+}
+
+.match-veto .voting-options .voting-card .overlay {
+ 
+  background: var(--slate-900-80);
+ 
+}
+
+.match-veto .voting-options .voting-card:hover .overlay {
+  background: var(--slate-700-80);
+}
+
+.match-veto .voting-options .voting-card {
+  
+  border: 1px solid var(--slate-700);
+ 
+}
+
+.checkbox-wrapper {
+  position: relative;
+  filter: grayscale(1);
 }
 
 .page-sub-menu-wrapper .page-sub-menu .link a.active {
@@ -201,7 +222,7 @@ input.iti__tel-input {
 }
 .profile-match-list .match:hover {
   
-  background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+  background: var(--linear-gradient-90-hover), var(--match-bg) no-repeat left center / auto 100%;
     background-color: var(--slate-950);
 }
 
@@ -471,7 +492,7 @@ input.iti__tel-input {
 }
   .live-match-list .match:hover {
     
-    background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+    background: var(--linear-gradient-90-hover), var(--match-bg) no-repeat left center / auto 100%;
     background-color: var(--slate-950);
     
 }
