@@ -1,12 +1,8 @@
-import {
-  getPlayerIdFromUrl,
-  isProfilePage,
-  waitForElement,
-} from "../utils/profileUtils";
+import { getPlayerIdFromUrl, waitForElement } from "../utils/profileUtils";
+import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 
 let isEnabled = false;
 let highestEloElement: HTMLDivElement | null = null;
-let observer: MutationObserver | null = null;
 
 /**
  * Fetch the highest ELO for a player
@@ -17,7 +13,6 @@ async function fetchHighestElo(steamId: string): Promise<number | null> {
       chrome.runtime.sendMessage(
         { type: "fetchProfileData", steamId },
         (response) => {
-          // Check for runtime error
           if (chrome.runtime.lastError) {
             console.warn(
               "Highest ELO data fetch failed:",
@@ -51,12 +46,13 @@ async function displayHighestElo(playerId: string) {
   // Remove any existing element
   removeHighestEloElement();
 
+  const container = await waitForElement(".profile-banner .container");
+
   // Find the rank-badge element
-  const rankBadgeElement = await waitForElement(
-    ".profile-banner .name-elo .rank-badge"
-  );
+  const rankBadgeElement = await waitForElement(".profile-banner .name-elo");
+  console.log("rankBadgeElement", rankBadgeElement);
   if (!rankBadgeElement) {
-    console.warn("Could not find rank badge element to append highest ELO");
+    console.log("No rank badge element found");
     return;
   }
 
@@ -68,42 +64,27 @@ async function displayHighestElo(playerId: string) {
   }
 
   // Create the highest ELO element
-  highestEloElement = document.createElement("div");
-  highestEloElement.setAttribute(
-    "data-clutch-extension",
+  const highestEloElement = createRankBadgeElement(
+    highestElo,
+    20,
+    true,
     "highest-elo-element"
   );
-  highestEloElement.className = "highest-elo";
-  highestEloElement.style.display = "flex";
-  highestEloElement.style.alignItems = "center";
-  highestEloElement.style.marginLeft = "8px";
-  highestEloElement.style.fontSize = "12px";
-  highestEloElement.style.color = "#ffc107"; // Gold color for highest ELO
-  highestEloElement.style.fontWeight = "bold";
-
-  // Format the highest ELO number with commas
-  const formattedElo = highestElo.toLocaleString();
-  highestEloElement.innerHTML = `<span title="Highest ELO: ${formattedElo}">Peak: ${formattedElo}</span>`;
 
   // Insert the element after the rank badge
-  rankBadgeElement.insertAdjacentElement("afterend", highestEloElement);
+  rankBadgeElement.appendChild(highestEloElement);
 }
 
 /**
  * Remove the highest ELO element from the DOM
  */
 function removeHighestEloElement() {
+  console.log("Removing highest ELO element");
   const elements = document.querySelectorAll(
     '[data-clutch-extension="highest-elo-element"]'
   );
   elements.forEach((element) => element.remove());
   highestEloElement = null;
-
-  // Disconnect observer if it exists
-  if (observer) {
-    observer.disconnect();
-    observer = null;
-  }
 }
 
 /**

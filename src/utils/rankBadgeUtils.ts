@@ -45,7 +45,6 @@ export function getRankIconPath(rankTier: string): string {
  * Creates a rank badge element
  */
 export function createRankBadgeElement(
-  rankTier: string,
   elo: number | null,
   size: number = 20,
   includeEloText: boolean = true,
@@ -53,6 +52,8 @@ export function createRankBadgeElement(
 ): HTMLElement {
   // Get formatted values
   const formattedElo = formatElo(elo);
+  const rankTier = getRankTier(elo);
+
   const capitalizedRankTier =
     rankTier.charAt(0).toUpperCase() + rankTier.slice(1);
 
@@ -73,11 +74,8 @@ export function createRankBadgeElement(
   // Create image element
   const img = document.createElement("img");
   img.alt = `Renown rank ${rankTier}`;
-  img.loading = "lazy";
   img.width = size;
   img.height = size;
-  img.decoding = "async";
-  img.dataset.nimg = "1";
   img.style.color = "transparent";
   img.src = getRankIconPath(rankTier);
 

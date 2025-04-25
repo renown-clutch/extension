@@ -67,7 +67,7 @@ function renderFriendRanks(
     if (!rankTier) return;
 
     // Create badge element and append to profile-link as last element
-    const badgeElement = createRankBadgeElement(rankTier, elo, 20, true);
+    const badgeElement = createRankBadgeElement(elo, 20, true);
     profileLink.appendChild(badgeElement);
     badgesAdded = true;
   });

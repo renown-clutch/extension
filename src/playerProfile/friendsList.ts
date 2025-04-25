@@ -143,12 +143,8 @@ function renderFriendRanks(
     )
       return;
 
-    // Skip if rank tier is empty
-    const rankTier = getRankTier(elo);
-    if (!rankTier) return;
-
     // Create badge element and append it to the row (after the profile link and actions)
-    const badgeElement = createRankBadgeElement(rankTier, elo, 25, true);
+    const badgeElement = createRankBadgeElement(elo, 25, true);
     const actionsDiv = row.querySelector(".actions");
 
     if (actionsDiv) {
