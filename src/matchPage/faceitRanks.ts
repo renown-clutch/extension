@@ -16,6 +16,11 @@ let processingInProgress = false; // Flag to prevent concurrent processing
 let ignoreObserverChanges = false; // Flag to prevent observer reacting to our own changes
 
 /**
+ * Tracks mapping between Steam IDs and added Faceit elements
+ */
+let faceitIconMap = new Map<string, HTMLElement>(); // Map steamId -> faceit icon element
+
+/**
  * Checks if the extension context is still valid
  */
 function isExtensionContextValid(): boolean {
@@ -72,6 +77,7 @@ function cleanupFaceitIcons() {
 
   // Reset tracking arrays and flags
   addedFaceitElements = [];
+  faceitIconMap.clear();
   pendingRequests.clear();
   processingInProgress = false;
 }
@@ -256,19 +262,38 @@ function setupTeamPositionObserver() {
             // Set flag to ignore observer changes during processing
             ignoreObserverChanges = true;
 
-            // Debounce the reprocessing
+            // Instead of removing all icons and adding them back, we'll update
+            // or keep the existing ones in place to avoid flickering.
             setTimeout(() => {
               try {
-                // Clean up existing faceit icons and reprocess
-                cleanupFaceitIcons();
-
-                // Reset processed sets to force reprocessing
-                processedTables = new Set();
+                // Reset processed players set but don't clean up icons
                 processedPlayers = new Set();
 
-                // Reprocess everything
+                // Reprocess without removing existing icons
                 processTeamStatsTables();
                 processPlayerElements();
+
+                // Now handle any orphaned icons (players that no longer exist)
+                const currentPlayerIds = new Set<string>();
+                document.querySelectorAll("a.player").forEach((player) => {
+                  const href = player.getAttribute("href");
+                  if (href && href.startsWith("/profile/")) {
+                    const steamId = href.replace("/profile/", "");
+                    currentPlayerIds.add(steamId);
+                  }
+                });
+
+                // Remove icons for players that are no longer present
+                for (const [steamId, element] of faceitIconMap.entries()) {
+                  if (!currentPlayerIds.has(steamId) && element.parentNode) {
+                    element.parentNode.removeChild(element);
+                    faceitIconMap.delete(steamId);
+                    const index = addedFaceitElements.indexOf(element);
+                    if (index !== -1) {
+                      addedFaceitElements.splice(index, 1);
+                    }
+                  }
+                }
               } finally {
                 // Always make sure to reset the ignore flag
                 setTimeout(() => {
@@ -351,19 +376,26 @@ function processPlayerElements() {
   let playerElems: Map<string, HTMLElement> = new Map();
 
   playerElements.forEach((player) => {
-    // Skip already processed players
-    if (processedPlayers.has(player)) return;
-
-    newPlayersFound = true;
-
-    // Mark as processed
-    processedPlayers.add(player);
-
     const href = player.getAttribute("href");
     if (href && href.startsWith("/profile/")) {
       const steamId = href.replace("/profile/", "");
-      steamIds.push(steamId);
-      playerElems.set(steamId, player as HTMLElement);
+
+      // Skip already processed players that have icons
+      const existingIcon = player.querySelector(".faceit-icon");
+
+      // Always include players with existing icons for updates
+      // or ones we haven't processed yet
+      if (!processedPlayers.has(player) || existingIcon) {
+        newPlayersFound = true;
+
+        // Mark as processed
+        if (!processedPlayers.has(player)) {
+          processedPlayers.add(player);
+        }
+
+        steamIds.push(steamId);
+        playerElems.set(steamId, player as HTMLElement);
+      }
     }
   });
 
@@ -617,8 +649,20 @@ function addFaceitIconToPlayerElement(
       return;
     }
 
+    // Extract the Steam ID from the player element
+    const href = playerElem.getAttribute("href");
+    const steamId = href ? href.replace("/profile/", "") : null;
+
+    // Skip if we can't determine the Steam ID
+    if (!steamId) {
+      return;
+    }
+
     // Check if the player element already has a faceit-icon
-    if (playerElem.querySelector(".faceit-icon")) {
+    const existingIcon = playerElem.querySelector(".faceit-icon");
+    if (existingIcon) {
+      // If the player already has an icon, update its contents directly
+      updateExistingFaceitIcon(existingIcon as HTMLElement, faceitInfo);
       return;
     }
 
@@ -668,6 +712,7 @@ function addFaceitIconToPlayerElement(
     const faceitIconElement = document.createElement("div");
     faceitIconElement.className = "tooltip-wrapper faceit-icon";
     faceitIconElement.setAttribute("tabindex", "0");
+    faceitIconElement.setAttribute("data-steam-id", steamId);
 
     // Create custom tooltip div
     const tooltipElement = document.createElement("div");
@@ -733,6 +778,9 @@ function addFaceitIconToPlayerElement(
 
     // Track the added element
     addedFaceitElements.push(faceitIconElement);
+
+    // Store mapping of Steam ID to faceit icon element
+    faceitIconMap.set(steamId, faceitIconElement);
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -755,6 +803,63 @@ function addFaceitIconToPlayerElement(
 }
 
 /**
+ * Update an existing Faceit icon with new data
+ */
+function updateExistingFaceitIcon(iconElement: HTMLElement, faceitInfo: any) {
+  try {
+    // Check if extension context is valid
+    if (!isExtensionContextValid()) {
+      return;
+    }
+
+    // Get the img element within the icon, either direct or within an <a> tag
+    const imgElement = iconElement.querySelector("img");
+    if (!imgElement) return;
+
+    // Get the tooltip element
+    const tooltipElement = iconElement.querySelector(".clutch-tooltip");
+    if (!tooltipElement) return;
+
+    // Update the icon path and tooltip text
+    let levelIconPath: string;
+    let tooltipText: string;
+    let profileUrl: string | undefined;
+
+    // If no valid faceit info is available, use the fallback icon
+    if (!faceitInfo || !faceitInfo.elo) {
+      levelIconPath = getFallbackIconPath();
+      tooltipText = "No Faceit profile found";
+    } else {
+      // Get Faceit level based on ELO
+      const faceitLevel = getFaceitLevel(faceitInfo.elo);
+      levelIconPath = getLevelIconPath(faceitLevel);
+      tooltipText = `Faceit Level ${faceitLevel} (ELO: ${faceitInfo.elo})`;
+      profileUrl = faceitInfo.url;
+    }
+
+    // Check if we have a valid icon path
+    if (!levelIconPath) return;
+
+    // Update the image source
+    imgElement.src = levelIconPath;
+    imgElement.alt = tooltipText;
+
+    // Update the tooltip text
+    tooltipElement.textContent = tooltipText;
+
+    // If there's an anchor element, update its href
+    const anchorElement = iconElement.querySelector("a");
+    if (anchorElement && profileUrl) {
+      anchorElement.href = profileUrl;
+    }
+    // If we have a profile URL but no anchor, or vice versa, we'd need to recreate the element
+    // But that's more complex and may cause flickering, so we'll stick with this simple update
+  } catch (error) {
+    console.error("Error updating existing Faceit icon:", error);
+  }
+}
+
+/**
  * Add Faceit icon to a player row
  */
 function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
@@ -767,8 +872,20 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
       return;
     }
 
+    // Extract the Steam ID from the player row
+    const href = playerRow.getAttribute("href");
+    const steamId = href ? href.replace("/profile/", "") : null;
+
+    // Skip if we can't determine the Steam ID
+    if (!steamId) {
+      return;
+    }
+
     // Check if the player row already has a faceit-icon
-    if (playerRow.querySelector(".faceit-icon")) {
+    const existingIcon = playerRow.querySelector(".faceit-icon");
+    if (existingIcon) {
+      // If the player already has an icon, update its contents directly
+      updateExistingFaceitIcon(existingIcon as HTMLElement, faceitInfo);
       return;
     }
 
@@ -820,6 +937,7 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
     const faceitIconElement = document.createElement(profileUrl ? "a" : "div");
     faceitIconElement.className = "tooltip-wrapper faceit-icon";
     faceitIconElement.setAttribute("tabindex", "0");
+    faceitIconElement.setAttribute("data-steam-id", steamId);
     faceitIconElement.style.position = "relative";
 
     // Create custom tooltip div
@@ -889,6 +1007,9 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
 
     // Track the added element so we can remove it later if needed
     addedFaceitElements.push(faceitIconElement);
+
+    // Store mapping of Steam ID to faceit icon element
+    faceitIconMap.set(steamId, faceitIconElement);
   } catch (error: unknown) {
     if (
       error instanceof Error &&
