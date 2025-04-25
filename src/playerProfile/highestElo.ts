@@ -1,7 +1,7 @@
 import { getPlayerIdFromUrl, waitForElement } from "../utils/profileUtils";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
+import { isProfilePage } from "../utils/profileUtils";
 
-let isEnabled = false;
 let highestEloElement: HTMLDivElement | null = null;
 
 /**
@@ -41,9 +41,6 @@ async function fetchHighestElo(steamId: string): Promise<number | null> {
  * Create and display the highest ELO element
  */
 async function displayHighestElo(playerId: string) {
-  if (!isEnabled) return;
-
-  // Remove any existing element
   removeHighestEloElement();
 
   await waitForElement(".profile-banner .container");
@@ -86,7 +83,6 @@ async function displayHighestElo(playerId: string) {
  * Remove the highest ELO element from the DOM
  */
 function removeHighestEloElement() {
-  console.log("Removing highest ELO element");
   const elements = document.querySelectorAll(
     '[data-clutch-extension="highest-elo-element"]'
   );
@@ -98,9 +94,11 @@ function removeHighestEloElement() {
  * Initialize the highest ELO feature
  */
 export function initialize(enabled: boolean): void {
-  isEnabled = enabled;
+  if (!isProfilePage()) {
+    return;
+  }
 
-  if (!isEnabled) {
+  if (!enabled) {
     removeHighestEloElement();
     return;
   }
@@ -116,7 +114,5 @@ export function initialize(enabled: boolean): void {
 }
 
 export function updateSettings(enabled: boolean): void {
-  if (isEnabled === enabled) return;
-
   initialize(enabled);
 }
