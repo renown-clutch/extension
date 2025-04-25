@@ -9,6 +9,7 @@
     showFriendListRanks = $bindable(false),
     sortFriendsByRenownElo = $bindable(false),
     showSidebarFriendRanks = $bindable(false),
+    showHighestElo = $bindable(false),
   } = $props();
 
   let previousCsstatsProfileButton = csstatsProfileButton;
@@ -64,6 +65,12 @@
     labelText="Faceit Button"
     descriptionText="Show Faceit profile button"
     bind:checked={faceitProfileButton}
+  />
+  <h2 class="text-lg">Profile</h2>
+  <SwitchComponent
+    labelText="Highest ELO"
+    descriptionText="Show player's highest ELO in their profile"
+    bind:checked={showHighestElo}
   />
   <h2 class="text-lg">Bans</h2>
   <SwitchComponent

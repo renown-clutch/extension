@@ -52,7 +52,7 @@
       </a>
     </div>
     <div>
-      <p class="capitalize text-slate-400 text-xs">Version 1.0.1</p>
+      <p class="capitalize text-slate-400 text-xs">Version 1.0.2</p>
     </div>
   </footer>
 </main>

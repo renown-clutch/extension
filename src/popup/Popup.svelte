@@ -115,6 +115,10 @@
         userSettings.showExtensionNavbarButton;
     }
 
+    if (previousSettings.showHighestElo !== userSettings.showHighestElo) {
+      changes.showHighestElo = userSettings.showHighestElo;
+    }
+
     return changes;
   }
 
@@ -175,6 +179,7 @@
           bind:showFriendListRanks={userSettings.showFriendListRanks}
           bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
           bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
+          bind:showHighestElo={userSettings.showHighestElo}
         />
       {:else if userSettings.activeTab === "Settings"}
         <SettingsTab

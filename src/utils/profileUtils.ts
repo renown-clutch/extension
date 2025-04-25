@@ -73,7 +73,7 @@ export function waitForElement(selector: string): Promise<Element> {
       if (element) {
         resolve(element);
       } else {
-        setTimeout(tryFind, 50);
+        setTimeout(tryFind, 250);
       }
     };
     tryFind();

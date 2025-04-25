@@ -88,6 +88,33 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
 
     return true;
+  } else if (message.type === "fetchProfileData") {
+    const steamId = message.steamId;
+
+    fetch(`https://api.clutch.lorem.sh/get_profile_data?steam_id=${steamId}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(
+            `API returned ${response.status}: ${response.statusText}`
+          );
+        }
+        return safeJsonParse(response);
+      })
+      .then((data) => {
+        sendResponse({ success: true, data });
+      })
+      .catch((error: unknown) => {
+        console.error("Error fetching profile data in background:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        sendResponse({
+          success: false,
+          error: String(error),
+          details: errorMessage,
+        });
+      });
+
+    return true;
   } else if (message.type === "fetchUsersRanks") {
     const steamIds = message.steamIds;
 

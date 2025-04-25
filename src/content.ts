@@ -17,6 +17,10 @@ import {
   initialize as initializeSidebarFriends,
   updateSettings as updateSidebarFriendsSettings,
 } from "./playerProfile/sidebarFriends";
+// import {
+//   initialize as initializeHighestElo,
+//   updateSettings as updateHighestEloSettings,
+// } from "./playerProfile/highestElo";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
 import {
   initializeMatchFoundAutoAccept,
@@ -101,10 +105,6 @@ async function applyDomDependentSettings(settings: UserSettings) {
     });
   }
 
-  if (settings.showBans) {
-    initializeProfileBans(settings.showBans);
-  }
-
   if (settings.showSkinDrops) {
     initializeSkinDrops(settings.showSkinDrops);
   }
@@ -112,6 +112,14 @@ async function applyDomDependentSettings(settings: UserSettings) {
   if (settings.showFriendListRanks) {
     initializeFriendsList(settings);
   }
+
+  if (settings.showBans) {
+    initializeProfileBans(settings.showBans);
+  }
+
+  // if (settings.showHighestElo) {
+  //   initializeHighestElo(settings.showHighestElo);
+  // }
 }
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
@@ -148,6 +156,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (changedParts.showSkinDrops !== undefined) {
     initializeSkinDrops(changedParts.showSkinDrops);
   }
+
+  // if (changedParts.showHighestElo !== undefined) {
+  //   updateHighestEloSettings(changedParts.showHighestElo);
+  // }
 
   if (
     changedParts.showFriendListRanks !== undefined ||
@@ -259,6 +271,9 @@ async function initialize() {
           if (userSettings.showSkinDrops) {
             initializeSkinDrops(userSettings.showSkinDrops);
           }
+          // if (userSettings.showHighestElo) {
+          //   initializeHighestElo(userSettings.showHighestElo);
+          // }
         }, 300);
       }
     });
