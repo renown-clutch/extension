@@ -112,11 +112,8 @@ function removeHighestEloElement() {
 export function initialize(enabled: boolean): void {
   isEnabled = enabled;
 
-  // Clean up previous elements
-  removeHighestEloElement();
-
-  // If not enabled or not on a profile page, we're done
-  if (!isEnabled || !isProfilePage()) {
+  if (!isEnabled) {
+    removeHighestEloElement();
     return;
   }
 
@@ -127,35 +124,11 @@ export function initialize(enabled: boolean): void {
     return;
   }
 
-  // Display highest ELO
   displayHighestElo(playerId);
-
-  // Set up observer to watch for changes to the profile banner
-  const profileBanner = document.querySelector(".profile-banner");
-  if (profileBanner) {
-    observer = new MutationObserver((mutations) => {
-      // Check if our element was removed
-      if (
-        !document.querySelector('[data-clutch-extension="highest-elo-element"]')
-      ) {
-        displayHighestElo(playerId);
-      }
-    });
-
-    observer.observe(profileBanner, {
-      childList: true,
-      subtree: true,
-    });
-  }
 }
 
-/**
- * Update settings for the highest ELO feature
- */
 export function updateSettings(enabled: boolean): void {
-  // If setting didn't change, do nothing
   if (isEnabled === enabled) return;
 
-  // Update state and reinitialize
   initialize(enabled);
 }
