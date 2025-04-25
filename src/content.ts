@@ -157,20 +157,18 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     initializeSkinDrops(changedParts.showSkinDrops);
   }
 
-  // if (changedParts.showHighestElo !== undefined) {
-  //   updateHighestEloSettings(changedParts.showHighestElo);
-  // }
+  if (changedParts.showHighestElo !== undefined) {
+    updateHighestEloSettings(changedParts.showHighestElo);
+  }
 
   if (
     changedParts.showFriendListRanks !== undefined ||
     changedParts.sortFriendsByRenownElo !== undefined
   ) {
-    // Update friends list module when this setting changes
     updateFriendsListSettings(userSettings);
   }
 
   if (changedParts.showSidebarFriendRanks !== undefined) {
-    // Update sidebar friends module when this setting changes
     updateSidebarFriendsSettings(userSettings);
   }
 

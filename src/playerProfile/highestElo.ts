@@ -46,11 +46,11 @@ async function displayHighestElo(playerId: string) {
   // Remove any existing element
   removeHighestEloElement();
 
-  const container = await waitForElement(".profile-banner .container");
+  await waitForElement(".profile-banner .container");
 
   // Find the rank-badge element
   const rankBadgeElement = await waitForElement(".profile-banner .name-elo");
-  console.log("rankBadgeElement", rankBadgeElement);
+
   if (!rankBadgeElement) {
     console.log("No rank badge element found");
     return;
@@ -63,27 +63,21 @@ async function displayHighestElo(playerId: string) {
     return;
   }
 
-  // Create the highest ELO element
   const peakEloBadge = createRankBadgeElement(highestElo, 20, true, "");
 
-  // Create container div with styled according to screenshot
   const wrapper = document.createElement("div");
   wrapper.style.cssText =
     "display: flex; align-items: center; gap: 1rem; border-left: solid var(--slate-600); padding-left: 1rem;";
   wrapper.setAttribute("data-clutch-extension", "highest-elo-element");
 
-  // Create "Peak ELO" label
   const peakEloLabel = document.createElement("div");
   peakEloLabel.textContent = "Peak ELO";
 
-  // Add both elements to the wrapper
   wrapper.appendChild(peakEloLabel);
   wrapper.appendChild(peakEloBadge);
 
-  // Store reference to the element for later removal
   highestEloElement = wrapper;
 
-  // Insert the element after the rank badge
   rankBadgeElement.appendChild(wrapper);
 }
 

@@ -496,6 +496,26 @@ function addFaceitIconToPlayerElement(
     faceitIconElement.className = "tooltip-wrapper faceit-icon";
     faceitIconElement.setAttribute("tabindex", "0");
 
+    // Create custom tooltip div
+    const tooltipElement = document.createElement("div");
+    tooltipElement.className = "clutch-tooltip";
+    tooltipElement.textContent = tooltipText;
+    tooltipElement.style.position = "absolute";
+    tooltipElement.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    tooltipElement.style.color = "white";
+    tooltipElement.style.padding = "4px 8px";
+    tooltipElement.style.borderRadius = "4px";
+    tooltipElement.style.fontSize = "12px";
+    tooltipElement.style.whiteSpace = "nowrap";
+    tooltipElement.style.zIndex = "9999";
+    tooltipElement.style.pointerEvents = "none";
+    tooltipElement.style.opacity = "0";
+    tooltipElement.style.transition = "opacity 0.1s";
+    tooltipElement.style.bottom = "100%";
+    tooltipElement.style.left = "50%";
+    tooltipElement.style.transform = "translateX(-50%)";
+    tooltipElement.style.marginBottom = "5px";
+
     if (profileUrl) {
       const linkElement = document.createElement("a");
       linkElement.href = profileUrl;
@@ -522,8 +542,18 @@ function addFaceitIconToPlayerElement(
       faceitIconElement.appendChild(faceitLevelIcon);
     }
 
-    // Add tooltip
-    faceitIconElement.setAttribute("title", tooltipText);
+    // Add event listeners for tooltip
+    faceitIconElement.addEventListener("mouseenter", () => {
+      tooltipElement.style.opacity = "1";
+    });
+
+    faceitIconElement.addEventListener("mouseleave", () => {
+      tooltipElement.style.opacity = "0";
+    });
+
+    // Add custom tooltip to faceit icon element
+    faceitIconElement.style.position = "relative";
+    faceitIconElement.appendChild(tooltipElement);
 
     // Insert after avatar wrapper
     avatarWrapper.insertAdjacentElement("afterend", faceitIconElement);
@@ -617,6 +647,27 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
     const faceitIconElement = document.createElement(profileUrl ? "a" : "div");
     faceitIconElement.className = "tooltip-wrapper faceit-icon";
     faceitIconElement.setAttribute("tabindex", "0");
+    faceitIconElement.style.position = "relative";
+
+    // Create custom tooltip div
+    const tooltipElement = document.createElement("div");
+    tooltipElement.className = "clutch-tooltip";
+    tooltipElement.textContent = tooltipText;
+    tooltipElement.style.position = "absolute";
+    tooltipElement.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    tooltipElement.style.color = "white";
+    tooltipElement.style.padding = "4px 8px";
+    tooltipElement.style.borderRadius = "4px";
+    tooltipElement.style.fontSize = "12px";
+    tooltipElement.style.whiteSpace = "nowrap";
+    tooltipElement.style.zIndex = "9999";
+    tooltipElement.style.pointerEvents = "none";
+    tooltipElement.style.opacity = "0";
+    tooltipElement.style.transition = "opacity 0.1s";
+    tooltipElement.style.bottom = "100%";
+    tooltipElement.style.left = "50%";
+    tooltipElement.style.transform = "translateX(-50%)";
+    tooltipElement.style.marginBottom = "5px";
 
     // Only set href and other link attributes if we have a profile URL
     if (profileUrl) {
@@ -642,9 +693,16 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
     // Assemble the container
     iconsContainer.appendChild(faceitLevelIcon);
     faceitIconElement.appendChild(iconsContainer);
+    faceitIconElement.appendChild(tooltipElement);
 
-    // Add tooltip
-    faceitIconElement.setAttribute("title", tooltipText);
+    // Add event listeners for tooltip
+    faceitIconElement.addEventListener("mouseenter", () => {
+      tooltipElement.style.opacity = "1";
+    });
+
+    faceitIconElement.addEventListener("mouseleave", () => {
+      tooltipElement.style.opacity = "0";
+    });
 
     // Always insert as the second element in the player row
     if (playerRow.firstElementChild.nextElementSibling) {
