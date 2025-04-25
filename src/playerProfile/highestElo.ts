@@ -72,6 +72,7 @@ async function displayHighestElo(playerId: string) {
 
   const peakEloLabel = document.createElement("div");
   peakEloLabel.textContent = "Peak ELO";
+  peakEloLabel.style.fontSize = "14px";
 
   wrapper.appendChild(peakEloLabel);
   wrapper.appendChild(peakEloBadge);
