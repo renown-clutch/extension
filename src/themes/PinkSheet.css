@@ -4,6 +4,7 @@
   --slate-900-80: #5c1130db; /* Dark pink/maroon with opacity */
   --slate-800: #881a4a;  /* Medium-dark pink */
   --slate-700: #b42463;  /* Medium pink */
+  --slate-700-80: #b42463db;  /* Medium pink */
   --slate-600: #e02e7d;  /* Lighter pink */
   --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
@@ -13,9 +14,29 @@
   --scrollbar-color: #e02e7d; /* Lighter pink */
   --footer: #440c21; /* Very dark pink/maroon */
 }
-
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
+}
+
+.match-veto .voting-options .voting-card .overlay {
+ 
+  background: var(--slate-900-80);
+ 
+}
+
+.match-veto .voting-options .voting-card:hover .overlay {
+  background: var(--slate-700-80);
+}
+
+.match-veto .voting-options .voting-card {
+  
+  border: 1px solid var(--slate-700);
+ 
+}
+
+.checkbox-wrapper {
+  position: relative;
+  filter: grayscale(1);
 }
 
 .page-sub-menu-wrapper .page-sub-menu .link a.active {
@@ -201,7 +222,7 @@ input.iti__tel-input {
 }
 .profile-match-list .match:hover {
   
-  background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+  background: var(--linear-gradient-90-hover), var(--match-bg) no-repeat left center / auto 100%;
     background-color: var(--slate-950);
 }
 
@@ -471,7 +492,7 @@ input.iti__tel-input {
 }
   .live-match-list .match:hover {
     
-    background: var(--linear-gradient-90), var(--match-bg) no-repeat left center / auto 100%;
+    background: var(--linear-gradient-90-hover), var(--match-bg) no-repeat left center / auto 100%;
     background-color: var(--slate-950);
     
 }
