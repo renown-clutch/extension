@@ -8,10 +8,12 @@ import { getFaceitLevel } from "../utils/faceitUtils";
 let processedTables = new Set();
 let processedPlayers = new Set();
 let currentObserver: MutationObserver | null = null;
+let teamPositionObserver: MutationObserver | null = null;
 let addedFaceitElements: HTMLElement[] = [];
 let isFeatureEnabled = false;
 let pendingRequests = new Set<string>(); // Track Steam IDs with pending requests
 let processingInProgress = false; // Flag to prevent concurrent processing
+let ignoreObserverChanges = false; // Flag to prevent observer reacting to our own changes
 
 /**
  * Checks if the extension context is still valid
@@ -93,6 +95,11 @@ export function initialize(enabled: boolean) {
       currentObserver = null;
     }
 
+    if (teamPositionObserver) {
+      disconnectSafeObserver(teamPositionObserver);
+      teamPositionObserver = null;
+    }
+
     // Update feature state
     isFeatureEnabled = enabled;
 
@@ -150,6 +157,9 @@ export function initialize(enabled: boolean) {
       () => document.body,
       { childList: true, subtree: true }
     );
+
+    // Add position observer for player reordering
+    setupTeamPositionObserver();
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -161,6 +171,169 @@ export function initialize(enabled: boolean) {
     } else {
       console.error("Error initializing faceit ranks:", error);
     }
+  }
+}
+
+/**
+ * Setup team position observer to detect player reordering and team side switches
+ */
+function setupTeamPositionObserver() {
+  try {
+    // Clean up any existing position observer
+    if (teamPositionObserver) {
+      disconnectSafeObserver(teamPositionObserver);
+      teamPositionObserver = null;
+    }
+
+    // Select player list containers instead of team stats tables
+    const playerLists = document.querySelectorAll(".player-list");
+    if (playerLists.length === 0) {
+      // If no containers found, retry after a short delay
+      setTimeout(setupTeamPositionObserver, 200);
+      return;
+    }
+
+    console.log("Found player lists:", playerLists.length);
+
+    // Setup observer for each player list container
+    playerLists.forEach((container) => {
+      // Create observer that watches for changes to child nodes or attributes
+      teamPositionObserver = createSafeObserver(
+        (mutations) => {
+          // Skip processing if feature has been disabled or we're already processing
+          if (!isFeatureEnabled || ignoreObserverChanges) return;
+
+          let playerOrderChanged = false;
+
+          for (const mutation of mutations) {
+            // Skip mutations that are caused by our own code
+            if (
+              mutation.target &&
+              mutation.target instanceof HTMLElement &&
+              ((mutation.target.classList &&
+                mutation.target.classList.contains("faceit-icon")) ||
+                (mutation.target.closest &&
+                  mutation.target.closest(".faceit-icon")))
+            ) {
+              continue;
+            }
+
+            // Check for changes to the player list children order
+            if (mutation.type === "childList") {
+              // Check if the mutation is affecting a player element and not our injected elements
+              const addedNodes = Array.from(mutation.addedNodes);
+              const removedNodes = Array.from(mutation.removedNodes);
+
+              const isPlayerChange = [...addedNodes, ...removedNodes].some(
+                (node) => {
+                  return (
+                    node instanceof HTMLElement &&
+                    (node.classList.contains("player") ||
+                      node.querySelector(".player"))
+                  );
+                }
+              );
+
+              if (isPlayerChange) {
+                console.log("Player elements changed in player list");
+                playerOrderChanged = true;
+                break;
+              }
+            } else if (
+              mutation.type === "attributes" &&
+              mutation.target instanceof HTMLElement &&
+              mutation.target.classList.contains("player")
+            ) {
+              console.log("Player attributes changed");
+              playerOrderChanged = true;
+              break;
+            }
+          }
+
+          if (playerOrderChanged) {
+            console.log("Player order changed, reprocessing icons");
+
+            // Set flag to ignore observer changes during processing
+            ignoreObserverChanges = true;
+
+            // Debounce the reprocessing
+            setTimeout(() => {
+              try {
+                // Clean up existing faceit icons and reprocess
+                cleanupFaceitIcons();
+
+                // Reset processed sets to force reprocessing
+                processedTables = new Set();
+                processedPlayers = new Set();
+
+                // Reprocess everything
+                processTeamStatsTables();
+                processPlayerElements();
+              } finally {
+                // Always make sure to reset the ignore flag
+                setTimeout(() => {
+                  ignoreObserverChanges = false;
+                }, 100);
+              }
+            }, 50);
+          }
+        },
+        () => container,
+        {
+          childList: true, // Watch for added/removed nodes
+          subtree: true, // Watch children
+          attributes: true, // Watch for attribute changes
+        }
+      );
+    });
+
+    // Also observe the parent containers as they might be replaced entirely
+    const teamPlayerContainers = document.querySelectorAll(
+      ".team1-players, .team2-players"
+    );
+    teamPlayerContainers.forEach((container) => {
+      createSafeObserver(
+        (mutations) => {
+          // Skip processing if feature has been disabled or we're already processing
+          if (!isFeatureEnabled || ignoreObserverChanges) return;
+
+          for (const mutation of mutations) {
+            if (mutation.type === "childList") {
+              // Check if this is a significant change to the team container
+              const addedNodes = Array.from(mutation.addedNodes);
+              const hasPlayerList = addedNodes.some(
+                (node) =>
+                  node instanceof HTMLElement &&
+                  (node.classList.contains("player-list") ||
+                    node.querySelector(".player-list"))
+              );
+
+              if (hasPlayerList) {
+                console.log(
+                  "Team player container changed, setting up observers again"
+                );
+                // The entire player list has been replaced, setup observers again
+                setTimeout(() => {
+                  ignoreObserverChanges = true;
+                  try {
+                    setupTeamPositionObserver();
+                  } finally {
+                    setTimeout(() => {
+                      ignoreObserverChanges = false;
+                    }, 100);
+                  }
+                }, 100);
+                break;
+              }
+            }
+          }
+        },
+        () => container,
+        { childList: true }
+      );
+    });
+  } catch (error) {
+    console.error("Error setting up team position observer:", error);
   }
 }
 
@@ -754,6 +927,10 @@ export function updateSettings(enabled: boolean) {
     if (isFeatureEnabled !== enabled) {
       initialize(enabled);
     } else {
+      // If already enabled, just refresh the observers
+      if (enabled) {
+        setupTeamPositionObserver();
+      }
     }
   } catch (error: unknown) {
     if (
