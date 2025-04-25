@@ -204,10 +204,6 @@ function createNoOtherBansBadge(): HTMLDivElement {
   return banBadge;
 }
 
-function waitForBannerContainer(): Promise<Element> {
-  return waitForElement(".profile-banner .container");
-}
-
 function removeBanElements() {
   document
     .querySelectorAll("[data-clutch-extension='ban-element']")
@@ -217,7 +213,7 @@ function removeBanElements() {
 }
 
 async function renderBanBadges(bans: Ban[]): Promise<void> {
-  const container = await waitForBannerContainer();
+  const container = await waitForElement(".profile-banner .container");
 
   let existingBanBadge = container.querySelector(
     ".ban-badge:not([data-clutch-extension='ban-element'])"
@@ -257,16 +253,17 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
 }
 
 export async function initialize(showBans: boolean): Promise<void> {
-  if (!showBans || !isProfilePage()) {
+  if (!showBans) {
     removeBanElements();
     return;
   }
 
-  removeBanElements();
-
   const playerId = getPlayerIdFromUrl();
-  if (!playerId) return;
-
+  if (!playerId) {
+    console.log(`[Clutch] Could not get player ID from URL`);
+    return;
+  }
   const bans = await fetchUserBans(playerId);
+
   await renderBanBadges(bans);
 }

@@ -66,16 +66,70 @@ export function observeProfileChanges(
 }
 
 // Helper for UI elements to wait for an element to appear in the DOM
-export function waitForElement(selector: string): Promise<Element> {
-  return new Promise((resolve) => {
+export function waitForElement(
+  selector: string,
+  options?: {
+    checkStability?: boolean;
+    stabilityTimeout?: number;
+    pollInterval?: number;
+    stabilityThreshold?: number;
+  }
+): Promise<Element> {
+  const {
+    checkStability = true,
+    stabilityTimeout = 1000,
+    pollInterval = 250,
+    stabilityThreshold = 2,
+  } = options || {};
+
+  const stabilityPollInterval = 10;
+
+  return new Promise((resolve, reject) => {
     const tryFind = () => {
       const element = document.querySelector(selector);
       if (element) {
-        resolve(element);
+        if (!checkStability) {
+          resolve(element);
+        } else {
+          // Initialize stability checking
+          let lastHtml = element.innerHTML;
+          let stabilityCounter = 0;
+          let startTime = Date.now();
+
+          const checkStability = () => {
+            if (Date.now() - startTime > stabilityTimeout) {
+              resolve(element);
+              return;
+            }
+
+            const currentElement = document.querySelector(selector);
+            if (!currentElement) {
+              setTimeout(checkStability, stabilityPollInterval);
+              return;
+            }
+
+            if (currentElement.innerHTML === lastHtml) {
+              stabilityCounter++;
+
+              if (stabilityCounter >= stabilityThreshold) {
+                resolve(currentElement);
+                return;
+              }
+            } else {
+              stabilityCounter = 0;
+              lastHtml = currentElement.innerHTML;
+            }
+
+            setTimeout(checkStability, stabilityPollInterval);
+          };
+
+          setTimeout(checkStability, stabilityPollInterval);
+        }
       } else {
-        setTimeout(tryFind, 250);
+        setTimeout(tryFind, pollInterval);
       }
     };
+
     tryFind();
   });
 }
