@@ -36,7 +36,12 @@
   }
 
   $effect(() => {
-    if (selectedTheme === "default" && previousTheme !== selectedTheme) {
+    if (
+      selectedTheme === "default" &&
+      previousTheme !== "" &&
+      previousTheme !== selectedTheme
+    ) {
+      console.log("Reloading page");
       reloadPage();
     }
     previousTheme = selectedTheme;
