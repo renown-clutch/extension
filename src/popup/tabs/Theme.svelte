@@ -41,7 +41,6 @@
       previousTheme !== "" &&
       previousTheme !== selectedTheme
     ) {
-      console.log("Reloading page");
       reloadPage();
     }
     previousTheme = selectedTheme;
