@@ -7,6 +7,7 @@
   --slate-700-80: #4a008cdb;
   --slate-600: #5900a8;
   --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
+  --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
   --linear-gradient-90-2: linear-gradient(90deg, var(--slate-900), var(--slate-800));;
   --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47,) 0 0),conic-gradient(from var(--angle) at 50% 50%,rgb(208,160,255) 0deg,rgba(208,160,255,0) 1turn);
@@ -14,6 +15,7 @@
   --scrollbar-color: #3a006f;
   --footer: #0d0020;
 }
+
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
 }
