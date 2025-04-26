@@ -142,8 +142,6 @@ export function waitForElement(
   });
 }
 
-// Helper function to generate a simple hash of element's children structure
-// This avoids using innerHTML while still detecting content changes
 function getElementChildrenHash(element: Element): string {
   // Create a simple hash based on childNodes' nodeType, nodeName and textContent length
   let hash = "";
