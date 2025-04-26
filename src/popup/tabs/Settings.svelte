@@ -1,6 +1,6 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
-  import { MessageSquare } from "@lucide/svelte";
+  import { onMount } from "svelte";
 
   let {
     keepAlive = $bindable(false),
@@ -9,6 +9,21 @@
 
   let keepAliveSwitchId = "keep-alive-switch";
   let extensionButtonSwitchId = "extension-button-switch";
+
+  // Check if we're running in Firefox
+  let isFirefox = $state(false);
+  let navbarFeatureDisabled = $state(false);
+
+  onMount(() => {
+    // Detect Firefox
+    isFirefox = typeof browser !== "undefined";
+    navbarFeatureDisabled = isFirefox;
+
+    // If we're in Firefox, ensure the button is disabled and unchecked
+    if (isFirefox) {
+      showExtensionNavbarButton = false;
+    }
+  });
 </script>
 
 <main class="flex flex-col h-full">
@@ -21,9 +36,12 @@
     />
     <SwitchComponent
       labelText="Clutch Navbar Link"
-      descriptionText="Show a Clutch link in the navbar to open the extension popup"
+      descriptionText={isFirefox
+        ? "This feature is not available in Firefox due to browser limitations"
+        : "Show a Clutch link in the navbar to open the extension popup"}
       switchId={extensionButtonSwitchId}
       bind:checked={showExtensionNavbarButton}
+      disabled={navbarFeatureDisabled}
     />
   </div>
 
