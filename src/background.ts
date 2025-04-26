@@ -1,5 +1,11 @@
+import browserAPI, {
+  type RuntimeMessage,
+  type MessageSender,
+  type SendResponseCallback,
+} from "./lib/browserAPI";
+
 // Listen for installation
-chrome.runtime.onInstalled.addListener(() => {
+browserAPI.runtime.onInstalled.addListener(() => {
   console.log("Extension installed");
 });
 
@@ -24,137 +30,168 @@ async function safeJsonParse(response: Response): Promise<any> {
 // Base URL for API calls
 const API_BASE_URL = "https://api.clutch.lorem.sh"; // Updated to use the same API as other features
 
-// Listen for messages from content script or popup
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "get_faceit_info" && message.steam_ids) {
-    getFaceitInfo(message.steam_ids)
-      .then(sendResponse)
-      .catch((error) => {
-        console.error("Error getting Faceit info:", error);
-        sendResponse({});
-      });
-    return true; // Indicates async response
-  } else if (message.type === "fetchUserBans") {
-    const steamId = message.steamId;
-
-    fetch(`https://api.clutch.lorem.sh/get_user_bans?steam_id=${steamId}`)
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(
-            `API returned ${response.status}: ${response.statusText}`
-          );
-        }
-        return safeJsonParse(response);
-      })
-      .then((data) => {
-        sendResponse({ success: true, data });
-      })
-      .catch((error: unknown) => {
-        console.error("Error fetching user bans in background:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        sendResponse({
-          success: false,
-          error: String(error),
-          details: errorMessage,
-        });
-      });
-
-    return true;
-  } else if (message.type === "fetchUserDrops") {
-    const steamId = message.steamId;
-
-    fetch(`https://api.clutch.lorem.sh/get_user_drops?steam_id=${steamId}`)
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(
-            `API returned ${response.status}: ${response.statusText}`
-          );
-        }
-        return safeJsonParse(response);
-      })
-      .then((data) => {
-        sendResponse({ success: true, data });
-      })
-      .catch((error: unknown) => {
-        console.error("Error fetching user drops in background:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        sendResponse({
-          success: false,
-          error: String(error),
-          details: errorMessage,
-        });
-      });
-
-    return true;
-  } else if (message.type === "fetchProfileData") {
-    const steamId = message.steamId;
-
-    fetch(`https://api.clutch.lorem.sh/get_profile_data?steam_id=${steamId}`)
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(
-            `API returned ${response.status}: ${response.statusText}`
-          );
-        }
-        return safeJsonParse(response);
-      })
-      .then((data) => {
-        sendResponse({ success: true, data });
-      })
-      .catch((error: unknown) => {
-        console.error("Error fetching profile data in background:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        sendResponse({
-          success: false,
-          error: String(error),
-          details: errorMessage,
-        });
-      });
-
-    return true;
-  } else if (message.type === "fetchUsersRanks") {
-    const steamIds = message.steamIds;
-
-    fetch(`https://api.clutch.lorem.sh/get_users_ranks`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        steam_ids: steamIds,
-      }),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(
-            `API returned ${response.status}: ${response.statusText}`
-          );
-        }
-        return safeJsonParse(response);
-      })
-      .then((data) => {
-        sendResponse({ success: true, data });
-      })
-      .catch((error: unknown) => {
-        console.error("Error fetching users ranks in background:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        sendResponse({
-          success: false,
-          error: String(error),
-          details: errorMessage,
-        });
-      });
-
-    return true;
-  } else if (message.action === "openPopup") {
-    chrome.action.openPopup();
-    return true;
+// Function to handle popup opening in Firefox
+function openPopupWindow() {
+  try {
+    if (typeof browser !== "undefined" && browser.browserAction) {
+      // For Firefox, try the browserAction API
+      try {
+        browser.browserAction.openPopup();
+      } catch (error) {
+        console.warn("Could not use browserAction.openPopup:", error);
+        // Firefox 57+ fallback - open popup in a normal extension popup style
+        browser.action.openPopup();
+      }
+    } else if (typeof chrome !== "undefined") {
+      // Chrome's approach is simplest
+      if (chrome.action && chrome.action.openPopup) {
+        chrome.action.openPopup();
+      }
+    }
+  } catch (error) {
+    console.error("Failed to open popup:", error);
   }
-});
+}
+
+// Listen for messages from content script or popup
+browserAPI.runtime.onMessage.addListener(
+  (
+    message: RuntimeMessage,
+    sender: MessageSender,
+    sendResponse: SendResponseCallback
+  ) => {
+    if (message.type === "get_faceit_info" && message.steam_ids) {
+      getFaceitInfo(message.steam_ids)
+        .then(sendResponse)
+        .catch((error) => {
+          console.error("Error getting Faceit info:", error);
+          sendResponse({});
+        });
+      return true; // Indicates async response
+    } else if (message.type === "fetchUserBans") {
+      const steamId = message.steamId;
+
+      fetch(`https://api.clutch.lorem.sh/get_user_bans?steam_id=${steamId}`)
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          }
+          return safeJsonParse(response);
+        })
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error: unknown) => {
+          console.error("Error fetching user bans in background:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: errorMessage,
+          });
+        });
+
+      return true;
+    } else if (message.type === "fetchUserDrops") {
+      const steamId = message.steamId;
+
+      fetch(`https://api.clutch.lorem.sh/get_user_drops?steam_id=${steamId}`)
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          }
+          return safeJsonParse(response);
+        })
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error: unknown) => {
+          console.error("Error fetching user drops in background:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: errorMessage,
+          });
+        });
+
+      return true;
+    } else if (message.type === "fetchProfileData") {
+      const steamId = message.steamId;
+
+      fetch(`https://api.clutch.lorem.sh/get_profile_data?steam_id=${steamId}`)
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          }
+          return safeJsonParse(response);
+        })
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error: unknown) => {
+          console.error("Error fetching profile data in background:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: errorMessage,
+          });
+        });
+
+      return true;
+    } else if (message.type === "fetchUsersRanks") {
+      const steamIds = message.steamIds;
+
+      fetch(`https://api.clutch.lorem.sh/get_users_ranks`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          steam_ids: steamIds,
+        }),
+      })
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          }
+          return safeJsonParse(response);
+        })
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error: unknown) => {
+          console.error("Error fetching users ranks in background:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: errorMessage,
+          });
+        });
+
+      return true;
+    } else if (message.action === "openPopup") {
+      // Handle popup opening
+      openPopupWindow();
+      sendResponse({ success: true });
+      return true;
+    }
+  }
+);
 
 /**
  * Get Faceit info for the given Steam IDs

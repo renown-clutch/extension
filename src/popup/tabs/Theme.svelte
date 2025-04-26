@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Label } from "$lib/components/ui/label/index.js";
   import * as Select from "$lib/components/ui/select/index.js";
+  import browserAPI from "$lib/browserAPI";
 
   const themes = [
     { label: "Default", value: "default" },
@@ -18,13 +19,25 @@
     themes.find((t) => t.value === selectedTheme)?.label ?? "Select a theme"
   );
 
-  $effect(() => {
-    if (selectedTheme === "default" && previousTheme !== selectedTheme) {
+  function reloadPage() {
+    if (typeof chrome !== "undefined" && chrome.tabs) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0] && tabs[0].id) {
+        if (tabs[0]?.id) {
           chrome.tabs.reload(tabs[0].id);
         }
       });
+    } else if (typeof browser !== "undefined" && browser.tabs) {
+      browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+        if (tabs[0]?.id) {
+          browser.tabs.reload(tabs[0].id);
+        }
+      });
+    }
+  }
+
+  $effect(() => {
+    if (selectedTheme === "default" && previousTheme !== selectedTheme) {
+      reloadPage();
     }
     previousTheme = selectedTheme;
   });

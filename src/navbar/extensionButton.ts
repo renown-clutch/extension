@@ -3,6 +3,7 @@
  */
 
 import { createSafeObserver } from "../utils/observerUtils";
+import browserAPI from "../lib/browserAPI";
 
 const BUTTON_ID = "clutch-extension-navbar-link";
 
@@ -140,6 +141,24 @@ async function processNavbar(): Promise<void> {
 }
 
 /**
+ * Handler for button click - opens popup in a cross-browser compatible way
+ */
+function handleButtonClick(e: MouseEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Send a message to the background script to handle popup opening
+  // This is the most reliable cross-browser solution
+  if (typeof browser !== "undefined") {
+    browser.runtime.sendMessage({ action: "openPopup" }).catch((err) => {
+      console.error("Firefox message failed:", err);
+    });
+  } else if (typeof chrome !== "undefined") {
+    chrome.runtime.sendMessage({ action: "openPopup" });
+  }
+}
+
+/**
  * Add the CLUTCH link to the navbar
  */
 async function addLinkToNavbar(): Promise<void> {
@@ -175,11 +194,7 @@ async function addLinkToNavbar(): Promise<void> {
       clutchLink.textContent = "CLUTCH";
 
       // Add click handler to open extension popup
-      clutchLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        chrome.runtime.sendMessage({ action: "openPopup" });
-      });
+      clutchLink.addEventListener("click", handleButtonClick);
 
       // Insert after the banlist link
       banlistLink.after(clutchLink);

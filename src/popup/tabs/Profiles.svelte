@@ -1,5 +1,6 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
+  import browserAPI from "$lib/browserAPI";
 
   let {
     csstatsProfileButton = $bindable(false),
@@ -16,6 +17,22 @@
   let previousFaceitProfileButton = faceitProfileButton;
   let previousSortFriendsByRenownElo = sortFriendsByRenownElo;
 
+  function reloadPage() {
+    if (typeof chrome !== "undefined" && chrome.tabs) {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]?.id) {
+          chrome.tabs.reload(tabs[0].id);
+        }
+      });
+    } else if (typeof browser !== "undefined" && browser.tabs) {
+      browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+        if (tabs[0]?.id) {
+          browser.tabs.reload(tabs[0].id);
+        }
+      });
+    }
+  }
+
   function sendReloadMessage(feature: string) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0] && tabs[0].id && tabs[0].url) {
@@ -26,7 +43,7 @@
           (feature === "csstats" || feature === "faceit") &&
           url.match(/renown\.gg\/profile\/[^\/]+/)
         ) {
-          chrome.tabs.reload(tabs[0].id);
+          reloadPage();
         }
 
         // Sort friends should only reload on the friends page
@@ -34,7 +51,7 @@
           feature === "sortFriends" &&
           url.match(/renown\.gg\/profile\/[^\/]+\/friends/)
         ) {
-          chrome.tabs.reload(tabs[0].id);
+          reloadPage();
         }
       }
     });

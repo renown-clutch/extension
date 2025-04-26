@@ -3,6 +3,7 @@
   import { defaultUserSettings } from "$lib/types";
   import { onMount } from "svelte";
   import SwitchSlider from "$lib/components/constants/switch-slider.svelte";
+  import browserAPI from "$lib/browserAPI";
 
   let {
     autoAccept = $bindable<UserSettings["autoAccept"]>(
@@ -42,24 +43,29 @@
     previousParty = autoAccept.party;
 
     if (matchChanged || partyChanged) {
+      forceReload();
+    }
+  });
+
+  function forceReload() {
+    if (typeof chrome !== "undefined" && chrome.tabs) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
           chrome.tabs.sendMessage(tabs[0].id, {
             type: "forceReload",
-            reason: matchChanged
-              ? autoAccept.match
-                ? "match_auto_accept_enabled"
-                : "match_auto_accept_disabled"
-              : partyChanged
-                ? autoAccept.party
-                  ? "party_auto_accept_enabled"
-                  : "party_auto_accept_disabled"
-                : "auto_accept_delay_changed",
+          });
+        }
+      });
+    } else if (typeof browser !== "undefined" && browser.tabs) {
+      browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+        if (tabs[0]?.id) {
+          browser.tabs.sendMessage(tabs[0].id, {
+            type: "forceReload",
           });
         }
       });
     }
-  });
+  }
 </script>
 
 <main class=" flex flex-col gap-4">

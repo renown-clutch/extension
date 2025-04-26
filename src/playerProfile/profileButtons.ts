@@ -4,6 +4,7 @@ import {
   waitForElement,
 } from "../utils/profileUtils";
 import { getFaceitLevelIcon, getFaceitLevel } from "../utils/faceitUtils";
+import browserAPI from "../lib/browserAPI";
 
 let currentPlayerId = "";
 let faceitUrl: string | null = null;
@@ -19,11 +20,36 @@ let faceitButton: HTMLAnchorElement | null = null;
 let buttonObserver: MutationObserver | null = null;
 
 function getExtensionUrl(path: string): string {
-  const extensionId =
-    chrome.runtime.id ||
-    document.currentScript?.getAttribute("src")?.split("/")[2] ||
-    window.location.href.match(/chrome-extension:\/\/([^\/]+)/)?.[1];
-  return `chrome-extension://${extensionId}/${path}`;
+  try {
+    // Try to use the browser-agnostic API first
+    if (browserAPI && browserAPI.runtime && browserAPI.runtime.getURL) {
+      return browserAPI.runtime.getURL(path);
+    }
+
+    // Fallbacks for different scenarios
+    if (typeof browser !== "undefined" && browser.runtime) {
+      return browser.runtime.getURL(path);
+    }
+
+    if (typeof chrome !== "undefined" && chrome.runtime) {
+      return chrome.runtime.getURL(path);
+    }
+
+    // Final fallback using DOM methods
+    const extensionId =
+      document.currentScript?.getAttribute("src")?.split("/")[2] ||
+      window.location.href.match(/chrome-extension:\/\/([^\/]+)/)?.[1] ||
+      window.location.href.match(/moz-extension:\/\/([^\/]+)/)?.[1];
+
+    // Use moz-extension for Firefox and chrome-extension for Chrome
+    const protocol = navigator.userAgent.includes("Firefox")
+      ? "moz-extension"
+      : "chrome-extension";
+    return `${protocol}://${extensionId}/${path}`;
+  } catch (error) {
+    console.error("Error getting extension URL:", error);
+    return path; // Return the relative path as fallback
+  }
 }
 
 function createButton({
@@ -200,19 +226,10 @@ async function fetchFaceitData(
 ): Promise<{ url: string | null; elo: number | null }> {
   return new Promise((resolve) => {
     try {
-      chrome.runtime.sendMessage(
+      // Use browserAPI with proper response handling
+      browserAPI.runtime.sendMessage(
         { type: "get_faceit_info", steam_ids: [steamId] },
         (response) => {
-          // Check for runtime error (like extension context invalidated)
-          if (chrome.runtime.lastError) {
-            console.warn(
-              "Faceit data fetch failed:",
-              chrome.runtime.lastError.message
-            );
-            resolve({ url: null, elo: null });
-            return;
-          }
-
           if (response && Object.keys(response).length > 0) {
             const faceitData = response[steamId];
             if (faceitData) {

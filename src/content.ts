@@ -1,5 +1,10 @@
 console.log("Clutch extension content script loaded");
 
+import browserAPI, {
+  type RuntimeMessage,
+  type MessageSender,
+  type SendResponseCallback,
+} from "./lib/browserAPI";
 import {
   initialize as initializeTheme,
   initTempStyling,
@@ -57,9 +62,12 @@ initTempStyling();
     if (cachedTheme && cachedTheme !== "default") {
       // Initialize theme from cached value immediately
       initializeTheme(cachedTheme);
-    } else if (isExtensionContextValid()) {
-      // Fall back to Chrome storage if no cached theme
-      const result = await chrome.storage.local.get(LS_KEY);
+    } else if (browserAPI.isContextValid()) {
+      // Fall back to browser storage if no cached theme
+      const result = (await browserAPI.storage.local.get(LS_KEY)) as Record<
+        string,
+        any
+      >;
       const settings = result[LS_KEY] || defaultUserSettings;
 
       if (settings.selectedTheme && settings.selectedTheme !== "default") {
@@ -91,7 +99,7 @@ function waitForPageReady(): Promise<void> {
  * Checks if the extension context is still valid
  */
 function isExtensionContextValid(): boolean {
-  return chrome.runtime && !!chrome.runtime.id;
+  return browserAPI.isContextValid();
 }
 
 /**
@@ -198,7 +206,7 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 }
 
-async function loadFromChromeStorage(): Promise<UserSettings> {
+async function loadFromBrowserStorage(): Promise<UserSettings> {
   try {
     // Check if extension context is still valid before making API calls
     if (!isExtensionContextValid()) {
@@ -206,7 +214,10 @@ async function loadFromChromeStorage(): Promise<UserSettings> {
       return defaultUserSettings;
     }
 
-    const result = await chrome.storage.local.get(LS_KEY);
+    const result = (await browserAPI.storage.local.get(LS_KEY)) as Record<
+      string,
+      any
+    >;
     const settings = result[LS_KEY] || defaultUserSettings;
     return settings;
   } catch (error: unknown) {
@@ -219,7 +230,7 @@ async function loadFromChromeStorage(): Promise<UserSettings> {
         "Extension context invalidated during storage access, using default settings"
       );
     } else {
-      console.error("Error loading settings from Chrome storage:", error);
+      console.error("Error loading settings from browser storage:", error);
     }
     return defaultUserSettings;
   }
@@ -227,7 +238,7 @@ async function loadFromChromeStorage(): Promise<UserSettings> {
 
 async function initialize() {
   try {
-    const freshSettings = await loadFromChromeStorage();
+    const freshSettings = await loadFromBrowserStorage();
     userSettings = freshSettings;
 
     // Apply theme immediately after loading settings
@@ -294,65 +305,71 @@ initialize();
 // Wrap the message listener in a try-catch to handle potential context invalidation
 try {
   if (isExtensionContextValid()) {
-    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-      try {
-        if (message.type === "settingsUpdate") {
-          userSettings = message.settings;
+    browserAPI.runtime.onMessage.addListener(
+      (
+        message: RuntimeMessage,
+        _sender: MessageSender,
+        sendResponse: SendResponseCallback
+      ) => {
+        try {
+          if (message.type === "settingsUpdate") {
+            userSettings = message.settings;
 
-          if (message.changedParts) {
-            // Add this code to update theme in localStorage when it changes
-            if (message.changedParts.selectedTheme) {
-              // Update localStorage when theme changes from popup
-              saveThemeToLocalStorage(message.changedParts.selectedTheme);
+            if (message.changedParts) {
+              // Add this code to update theme in localStorage when it changes
+              if (message.changedParts.selectedTheme) {
+                // Update localStorage when theme changes from popup
+                saveThemeToLocalStorage(message.changedParts.selectedTheme);
+              }
+
+              applyChangedSettings(message.changedParts)
+                .then(() => {
+                  if (isExtensionContextValid()) {
+                    sendResponse({ status: "success" });
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error applying settings:", error);
+                  if (isExtensionContextValid()) {
+                    sendResponse({
+                      status: "error",
+                      message: "Failed to apply settings",
+                    });
+                  }
+                });
+              return true; // Keep the messaging channel open for the async response
+            } else {
+              if (isExtensionContextValid()) {
+                sendResponse({ status: "success" });
+              }
             }
+          } else if (message.type === "forceReload") {
+            sendResponse({ status: "reloading" });
 
-            applyChangedSettings(message.changedParts)
-              .then(() => {
-                if (isExtensionContextValid()) {
-                  sendResponse({ status: "success" });
-                }
-              })
-              .catch((error) => {
-                console.error("Error applying settings:", error);
-                if (isExtensionContextValid()) {
-                  sendResponse({
-                    status: "error",
-                    message: "Failed to apply settings",
-                  });
-                }
-              });
-            return true; // Keep the messaging channel open for the async response
+            // Reload the page to ensure observers catch popups
+            window.location.reload();
           } else {
-            if (isExtensionContextValid()) {
-              sendResponse({ status: "success" });
-            }
+            console.log("Unknown message type received");
+            sendResponse({ status: "unknown" });
           }
-        } else if (message.type === "forceReload") {
-          sendResponse({ status: "reloading" });
-
-          // Reload the page to ensure observers catch popups
-          window.location.reload();
-        } else {
-          console.log("Unknown message type received");
-          sendResponse({ status: "unknown" });
-        }
-      } catch (error: unknown) {
-        console.error("Error processing message:", error);
-        if (
-          error instanceof Error &&
-          error.message.includes("Extension context invalidated")
-        ) {
-          console.warn(
-            "Extension context invalidated during message processing"
-          );
-        } else if (isExtensionContextValid()) {
-          sendResponse({
-            status: "error",
-            message: "Error processing message",
-          });
+        } catch (error: unknown) {
+          console.error("Error processing message:", error);
+          if (
+            error instanceof Error &&
+            error.message.includes("Extension context invalidated")
+          ) {
+            console.warn(
+              "Extension context invalidated during message processing"
+            );
+          } else if (isExtensionContextValid()) {
+            sendResponse({
+              status: "error",
+              message: "Error processing message",
+            });
+          }
         }
       }
-    });
+    );
   }
 } catch (error: unknown) {
   if (

@@ -10,20 +10,50 @@
   import { onMount, untrack } from "svelte";
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings } from "$lib/types";
+  import browserAPI from "$lib/browserAPI";
 
   let userSettings: UserSettings = $state<UserSettings>(defaultUserSettings);
   let previousSettings: UserSettings = { ...defaultUserSettings };
 
+  // Helper function to strip proxies by converting to and from JSON
+  function stripProxies(obj: any): any {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
   function sendSettingsToContentScript(changedParts?: Partial<UserSettings>) {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          type: "settingsUpdate",
-          settings: userSettings,
-          changedParts: changedParts || userSettings,
+    try {
+      // Make sure to strip any proxies before sending
+      const settingsToSend = stripProxies(userSettings);
+      const changedPartsToSend = changedParts
+        ? stripProxies(changedParts)
+        : settingsToSend;
+
+      if (typeof browser !== "undefined" && browser.tabs) {
+        browser.tabs
+          .query({ active: true, currentWindow: true })
+          .then((tabs) => {
+            if (tabs[0]?.id) {
+              browser.tabs.sendMessage(tabs[0].id, {
+                type: "settingsUpdate",
+                settings: settingsToSend,
+                changedParts: changedPartsToSend,
+              });
+            }
+          });
+      } else if (typeof chrome !== "undefined" && chrome.tabs) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]?.id) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              type: "settingsUpdate",
+              settings: settingsToSend,
+              changedParts: changedPartsToSend,
+            });
+          }
         });
       }
-    });
+    } catch (error) {
+      console.error("Error sending settings to content script:", error);
+    }
   }
 
   function detectChanges(): Partial<UserSettings> {
@@ -122,29 +152,73 @@
     return changes;
   }
 
-  onMount(() => {
-    chrome.storage.local.get("userSettings", (result) => {
+  onMount(async () => {
+    try {
+      let settings;
+
+      // Try the direct Firefox API first if available
+      if (typeof browser !== "undefined" && browser.storage) {
+        const result = await browser.storage.local.get("userSettings");
+        settings = result.userSettings;
+      } else {
+        // Fall back to Chrome or wrapper
+        const result = (await browserAPI.storage.local.get("userSettings")) as {
+          userSettings?: UserSettings;
+        };
+        settings = result.userSettings;
+      }
+
       // Use untrack to prevent this state update from triggering the effect
       untrack(() => {
-        userSettings = result.userSettings || defaultUserSettings;
-        previousSettings = { ...userSettings };
-        Object.keys(defaultUserSettings).forEach((key) => {
-          if (result.userSettings && !(key in result.userSettings)) {
-            (userSettings as any)[key] = (defaultUserSettings as any)[key];
-          }
-        });
+        if (settings) {
+          userSettings = settings;
+          previousSettings = { ...settings };
+
+          // Ensure all default settings are present
+          Object.keys(defaultUserSettings).forEach((key) => {
+            if (!(key in userSettings)) {
+              (userSettings as any)[key] = (defaultUserSettings as any)[key];
+            }
+          });
+        } else {
+          userSettings = defaultUserSettings;
+          previousSettings = { ...defaultUserSettings };
+        }
       });
-    });
+
+      // Log for debugging
+      console.log("Loaded settings:", userSettings);
+    } catch (error) {
+      console.error("Error loading settings:", error);
+    }
   });
 
   $effect(() => {
-    chrome.storage.local.set({ userSettings });
+    // Ensure storage interactions work in Firefox
+    try {
+      // Strip proxies before storing
+      const settingsToStore = stripProxies(userSettings);
 
-    const changes = detectChanges();
+      if (typeof browser !== "undefined" && browser.storage) {
+        // Firefox: Use the direct API
+        browser.storage.local
+          .set({ userSettings: settingsToStore })
+          .catch((error) => {
+            console.error("Error saving settings to Firefox storage:", error);
+          });
+      } else {
+        // Chrome: Use our wrapper
+        browserAPI.storage.local.set({ userSettings: settingsToStore });
+      }
 
-    if (Object.keys(changes).length > 0) {
-      sendSettingsToContentScript(changes);
-      previousSettings = { ...userSettings };
+      const changes = detectChanges();
+
+      if (Object.keys(changes).length > 0) {
+        sendSettingsToContentScript(changes);
+        previousSettings = stripProxies(userSettings);
+      }
+    } catch (error) {
+      console.error("Error in settings effect:", error);
     }
   });
 </script>

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "node build.js",
+    "build:firefox": "node build-firefox.js",
     "watch": "node build.js --watch",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",

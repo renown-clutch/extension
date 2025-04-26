@@ -18,6 +18,12 @@
       "128": "static/icon128.png"
     }
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "clutch-extension@lorem.sh",
+      "strict_min_version": "109.0"
+    }
+  },
   "permissions": [
     "storage",
     "activeTab"

@@ -1,15 +1,18 @@
 import { createHeadObserver } from "../utils/observerUtils";
+import browserAPI from "../lib/browserAPI";
 
 // Constants for theme storage
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
 const TEMP_STYLE_CACHE_KEY = "clutch-temp-styles-cache";
 
 // Paths for the theme files
-const DARK_SHEET_PATH = chrome.runtime.getURL("themes/DarkSheet.css");
-const PINK_SHEET_PATH = chrome.runtime.getURL("themes/PinkSheet.css");
-const PURPLE_SHEET_PATH = chrome.runtime.getURL("themes/PurpleSheet.css");
-const GREEN_SHEET_PATH = chrome.runtime.getURL("themes/GreenSheet.css");
-const DARK_GRAY_SHEET_PATH = chrome.runtime.getURL("themes/DarkGraySheet.css");
+const DARK_SHEET_PATH = browserAPI.runtime.getURL("themes/DarkSheet.css");
+const PINK_SHEET_PATH = browserAPI.runtime.getURL("themes/PinkSheet.css");
+const PURPLE_SHEET_PATH = browserAPI.runtime.getURL("themes/PurpleSheet.css");
+const GREEN_SHEET_PATH = browserAPI.runtime.getURL("themes/GreenSheet.css");
+const DARK_GRAY_SHEET_PATH = browserAPI.runtime.getURL(
+  "themes/DarkGraySheet.css"
+);
 
 // Fallback temp styles in case we can't load the CSS immediately
 const tempThemeStyles: Record<string, string> = {
