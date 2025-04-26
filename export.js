@@ -45,14 +45,21 @@ async function updateVersions() {
     fs.writeFileSync(settingsPath, settingsContent);
     console.log(`✅ Updated version in Settings.svelte to ${version}`);
 
-    // Run the build
-    console.log('📦 Building extension...');
+    // Ensure export directory exists
+    const exportDir = path.join(__dirname, 'export');
+    if (!fs.existsSync(exportDir)) {
+      fs.mkdirSync(exportDir);
+      console.log('📁 Created export directory');
+    }
+
+    // Run the Chrome build
+    console.log('📦 Building Chrome extension...');
     await execAsync('npm run build');
-    console.log('✅ Build completed');
+    console.log('✅ Chrome build completed');
 
     // Create zip file
-    const zipFilename = `clutch_extension_${versionForFilename}.zip`;
-    const output = fs.createWriteStream(path.join(__dirname, zipFilename));
+    const zipFilename = `clutch_extension_chrome_${versionForFilename}.zip`;
+    const output = fs.createWriteStream(path.join(exportDir, zipFilename));
     const archive = archiver('zip', { zlib: { level: 9 } });
 
     archive.pipe(output);
@@ -60,10 +67,10 @@ async function updateVersions() {
     
     await archive.finalize();
     
-    console.log(`✅ Created ${zipFilename}`);
-    console.log('Export completed successfully! 🎉');
+    console.log(`✅ Created ${zipFilename} in export/ directory`);
+    console.log('Chrome export completed successfully! 🎉');
   } catch (error) {
-    console.error('Error during export process:', error);
+    console.error('Error during Chrome export process:', error);
     process.exit(1);
   }
 }

@@ -91,8 +91,9 @@ export function waitForElement(
         if (!checkStability) {
           resolve(element);
         } else {
-          // Initialize stability checking
-          let lastHtml = element.innerHTML;
+          // Initialize stability checking with a safer approach
+          let lastChildCount = element.childNodes.length;
+          let lastChildrenHash = getElementChildrenHash(element);
           let stabilityCounter = 0;
           let startTime = Date.now();
 
@@ -108,7 +109,13 @@ export function waitForElement(
               return;
             }
 
-            if (currentElement.innerHTML === lastHtml) {
+            const currentChildCount = currentElement.childNodes.length;
+            const currentChildrenHash = getElementChildrenHash(currentElement);
+
+            if (
+              currentChildCount === lastChildCount &&
+              currentChildrenHash === lastChildrenHash
+            ) {
               stabilityCounter++;
 
               if (stabilityCounter >= stabilityThreshold) {
@@ -117,7 +124,8 @@ export function waitForElement(
               }
             } else {
               stabilityCounter = 0;
-              lastHtml = currentElement.innerHTML;
+              lastChildCount = currentChildCount;
+              lastChildrenHash = currentChildrenHash;
             }
 
             setTimeout(checkStability, stabilityPollInterval);
@@ -132,6 +140,26 @@ export function waitForElement(
 
     tryFind();
   });
+}
+
+// Helper function to generate a simple hash of element's children structure
+// This avoids using innerHTML while still detecting content changes
+function getElementChildrenHash(element: Element): string {
+  // Create a simple hash based on childNodes' nodeType, nodeName and textContent length
+  let hash = "";
+  for (let i = 0; i < element.childNodes.length; i++) {
+    const node = element.childNodes[i];
+    const nodeType = node.nodeType;
+    const nodeName = node.nodeName;
+    // For text nodes, use the length of text content
+    const contentInfo =
+      nodeType === Node.TEXT_NODE
+        ? node.textContent?.length || 0
+        : node.childNodes.length;
+
+    hash += `${nodeType}-${nodeName}-${contentInfo};`;
+  }
+  return hash;
 }
 
 export function formatDate(date: Date): string {

@@ -18,6 +18,28 @@ This guide explains how to install and use the Clutch extension in Firefox.
 
 3. The Firefox-compatible version will be created in the `dist-firefox` directory.
 
+## Exporting for Distribution
+
+You can create distribution packages for Firefox with the following command:
+
+```
+npm run export:firefox 1.0.3
+```
+
+Replace `1.0.3` with your desired version number. This will:
+
+1. Update version numbers in all necessary files
+2. Build the Firefox extension
+3. Create a ZIP file named `clutch_extension_firefox_103.zip` (version without dots)
+
+To export both Chrome and Firefox versions at once:
+
+```
+npm run export:all 1.0.3
+```
+
+This will create two ZIP files, one for Chrome and one for Firefox.
+
 ## Installing in Firefox
 
 ### Temporary Installation (for testing)

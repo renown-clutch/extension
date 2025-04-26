@@ -65,46 +65,137 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
   const weaponName = drop.skin_name.split(" | ")[0];
   const skinName = drop.skin_name.split(" | ")[1];
 
-  droppedSkin.innerHTML = `
-    <div class="top">
-      <a href="/match/${drop.match_id}">
-        <div class="match-link">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="16" height="16">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6m0 0v6m0-6L10 14"></path>
-          </svg>#${drop.match_id}
-        </div>
-      </a>
-      <div class="price">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="16" height="16">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M7.5 7.5h.01m13.58 6.41-7.17 7.17a2 2 0 0 1-2.83 0L2.5 12.5v-10h10l8.59 8.59a2 2 0 0 1 0 2.82"></path>
-        </svg>€${drop.buff_price ? Math.round(drop.buff_price / 100) : "?"}
-      </div>
-    </div>
-    <div class="skin-image-wrapper">
-      <img alt="Skin" loading="lazy" width="99" height="74" decoding="async" data-nimg="1" 
-        srcset="/_next/image?url=https%3A%2F%2Fcommunity.akamai.steamstatic.com%2Feconomy%2Fimage%2F${
-          drop.icon_hash
-        }&amp;w=128&amp;q=75 1x, 
-                /_next/image?url=https%3A%2F%2Fcommunity.akamai.steamstatic.com%2Feconomy%2Fimage%2F${
-                  drop.icon_hash
-                }&amp;w=256&amp;q=75 2x" 
-        src="/_next/image?url=https%3A%2F%2Fcommunity.akamai.steamstatic.com%2Feconomy%2Fimage%2F${
-          drop.icon_hash
-        }&amp;w=256&amp;q=75" 
-        style="color: transparent;">
-    </div>
-    <div class="skin-details">
-      <div class="weapon" style="color: ${getRarityColor(
-        drop.rarity_name
-      )}">${weaponName}</div>
-      <div class="skin-name">${skinName}</div>
-      <div class="exterior">${drop.exterior} (${drop.float_value.toFixed(
-    3
-  )})</div>
-    </div>
-  `;
+  // Create top section
+  const topDiv = document.createElement("div");
+  topDiv.className = "top";
+
+  // Create match link
+  const matchLink = document.createElement("a");
+  matchLink.href = `/match/${drop.match_id}`;
+
+  const matchLinkDiv = document.createElement("div");
+  matchLinkDiv.className = "match-link";
+
+  // Create SVG for match link
+  const matchSvg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  matchSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  matchSvg.setAttribute("fill", "none");
+  matchSvg.setAttribute("viewBox", "0 0 24 24");
+  matchSvg.setAttribute("width", "16");
+  matchSvg.setAttribute("height", "16");
+
+  const matchPath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path"
+  );
+  matchPath.setAttribute("stroke", "currentColor");
+  matchPath.setAttribute("stroke-linecap", "round");
+  matchPath.setAttribute("stroke-linejoin", "round");
+  matchPath.setAttribute("stroke-width", "2");
+  matchPath.setAttribute(
+    "d",
+    "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6m0 0v6m0-6L10 14"
+  );
+
+  matchSvg.appendChild(matchPath);
+  matchLinkDiv.appendChild(matchSvg);
+
+  // Add match ID text
+  matchLinkDiv.appendChild(document.createTextNode(`#${drop.match_id}`));
+  matchLink.appendChild(matchLinkDiv);
+  topDiv.appendChild(matchLink);
+
+  // Create price section
+  const priceDiv = document.createElement("div");
+  priceDiv.className = "price";
+
+  // Create price SVG
+  const priceSvg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  priceSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  priceSvg.setAttribute("fill", "none");
+  priceSvg.setAttribute("viewBox", "0 0 24 24");
+  priceSvg.setAttribute("width", "16");
+  priceSvg.setAttribute("height", "16");
+
+  const pricePath = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "path"
+  );
+  pricePath.setAttribute("stroke", "currentColor");
+  pricePath.setAttribute("stroke-linecap", "round");
+  pricePath.setAttribute("stroke-linejoin", "round");
+  pricePath.setAttribute("stroke-width", "2");
+  pricePath.setAttribute(
+    "d",
+    "M7.5 7.5h.01m13.58 6.41-7.17 7.17a2 2 0 0 1-2.83 0L2.5 12.5v-10h10l8.59 8.59a2 2 0 0 1 0 2.82"
+  );
+
+  priceSvg.appendChild(pricePath);
+  priceDiv.appendChild(priceSvg);
+
+  // Add price text
+  priceDiv.appendChild(
+    document.createTextNode(
+      `€${drop.buff_price ? Math.round(drop.buff_price / 100) : "?"}`
+    )
+  );
+  topDiv.appendChild(priceDiv);
+
+  // Add top div to main container
+  droppedSkin.appendChild(topDiv);
+
+  // Create skin image wrapper
+  const imageWrapper = document.createElement("div");
+  imageWrapper.className = "skin-image-wrapper";
+
+  const img = document.createElement("img");
+  img.alt = "Skin";
+  img.loading = "lazy";
+  img.width = 99;
+  img.height = 74;
+  img.decoding = "async";
+  img.setAttribute("data-nimg", "1");
+
+  const iconUrl = `https://community.akamai.steamstatic.com/economy/image/${drop.icon_hash}`;
+  img.srcset =
+    `/_next/image?url=${encodeURIComponent(iconUrl)}&w=128&q=75 1x, ` +
+    `/_next/image?url=${encodeURIComponent(iconUrl)}&w=256&q=75 2x`;
+  img.src = `/_next/image?url=${encodeURIComponent(iconUrl)}&w=256&q=75`;
+  img.style.color = "transparent";
+
+  imageWrapper.appendChild(img);
+  droppedSkin.appendChild(imageWrapper);
+
+  // Create skin details section
+  const detailsDiv = document.createElement("div");
+  detailsDiv.className = "skin-details";
+
+  // Weapon name with rarity color
+  const weaponDiv = document.createElement("div");
+  weaponDiv.className = "weapon";
+  weaponDiv.style.color = getRarityColor(drop.rarity_name);
+  weaponDiv.textContent = weaponName;
+  detailsDiv.appendChild(weaponDiv);
+
+  // Skin name
+  const skinNameDiv = document.createElement("div");
+  skinNameDiv.className = "skin-name";
+  skinNameDiv.textContent = skinName;
+  detailsDiv.appendChild(skinNameDiv);
+
+  // Exterior and float
+  const exteriorDiv = document.createElement("div");
+  exteriorDiv.className = "exterior";
+  exteriorDiv.textContent = `${drop.exterior} (${drop.float_value.toFixed(3)})`;
+  detailsDiv.appendChild(exteriorDiv);
+
+  droppedSkin.appendChild(detailsDiv);
 
   return droppedSkin;
 }

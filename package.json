@@ -1,7 +1,7 @@
 {
   "name": "clutch-ext",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,9 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json",
     "clean": "rm -rf dist node_modules",
-    "export": "node export.js"
+    "export": "node export.js",
+    "export:firefox": "node export-firefox.js",
+    "export:all": "node export-all.js"
   },
   "devDependencies": {
     "@lucide/svelte": "^0.487.0",

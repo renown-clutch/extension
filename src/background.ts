@@ -33,18 +33,18 @@ const API_BASE_URL = "https://api.clutch.lorem.sh"; // Updated to use the same A
 // Function to handle popup opening in Firefox
 function openPopupWindow() {
   try {
-    if (typeof browser !== "undefined" && browser.browserAction) {
-      // For Firefox, try the browserAction API
-      try {
-        browser.browserAction.openPopup();
-      } catch (error) {
-        console.warn("Could not use browserAction.openPopup:", error);
-        // Firefox 57+ fallback - open popup in a normal extension popup style
-        browser.action.openPopup();
-      }
+    // Check if this is Firefox
+    const isFirefox = typeof browser !== "undefined";
+
+    if (isFirefox) {
+      // For Firefox, just log that this feature is disabled
+      console.log(
+        "Popup opening from navbar is disabled in Firefox due to browser limitations"
+      );
+      return; // Early return, do nothing for Firefox
     } else if (typeof chrome !== "undefined") {
-      // Chrome's approach is simplest
-      if (chrome.action && chrome.action.openPopup) {
+      // Chrome's approach - simply use the action API
+      if (chrome.action && typeof chrome.action.openPopup === "function") {
         chrome.action.openPopup();
       }
     }

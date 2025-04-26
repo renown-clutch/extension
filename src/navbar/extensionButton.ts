@@ -20,9 +20,13 @@ let debounceTimer: number | null = null;
  * @param enabled - Whether the link should be displayed
  */
 export function initializeExtensionButton(enabled: boolean): void {
-  isEnabled = enabled;
+  // Check if this is Firefox - disable the feature for Firefox
+  const isFirefox = typeof browser !== "undefined";
 
-  if (enabled) {
+  // Set enabled state (always false for Firefox)
+  isEnabled = enabled && !isFirefox;
+
+  if (isEnabled) {
     setupNavbarObserver();
   } else {
     removeLinkFromNavbar();
@@ -34,11 +38,17 @@ export function initializeExtensionButton(enabled: boolean): void {
  * @param enabled - Whether the link should be displayed
  */
 export function updateExtensionButtonSettings(enabled: boolean): void {
-  if (isEnabled === enabled) return; // No change needed
+  // Check if this is Firefox - disable the feature for Firefox
+  const isFirefox = typeof browser !== "undefined";
 
-  isEnabled = enabled;
+  // Calculate new enabled state (always false for Firefox)
+  const newEnabledState = enabled && !isFirefox;
 
-  if (enabled) {
+  if (isEnabled === newEnabledState) return; // No change needed
+
+  isEnabled = newEnabledState;
+
+  if (isEnabled) {
     setupNavbarObserver();
   } else {
     removeLinkFromNavbar();
@@ -147,14 +157,45 @@ function handleButtonClick(e: MouseEvent) {
   e.preventDefault();
   e.stopPropagation();
 
-  // Send a message to the background script to handle popup opening
-  // This is the most reliable cross-browser solution
+  // For Firefox: try direct methods with fallbacks
   if (typeof browser !== "undefined") {
-    browser.runtime.sendMessage({ action: "openPopup" }).catch((err) => {
-      console.error("Firefox message failed:", err);
-    });
+    try {
+      // Try to open popup directly first (this works when user clicked)
+      if (
+        browser.browserAction &&
+        typeof browser.browserAction.openPopup === "function"
+      ) {
+        browser.browserAction.openPopup();
+      } else if (
+        browser.action &&
+        typeof browser.action.openPopup === "function"
+      ) {
+        browser.action.openPopup();
+      } else {
+        // Fallback to the message approach which uses windows.create
+        browser.runtime.sendMessage({ action: "openPopup" }).catch((err) => {
+          console.error("Firefox message failed:", err);
+          // Final fallback - open directly
+          const popupURL = browser.runtime.getURL("popup.html");
+          window.open(popupURL, "clutch-popup", "width=400,height=600");
+        });
+      }
+    } catch (err) {
+      // If direct opening fails, send message to background script
+      browser.runtime.sendMessage({ action: "openPopup" }).catch((err) => {
+        console.error("Firefox message failed:", err);
+        // Last resort - use window.open (should work with user gesture)
+        const popupURL = browser.runtime.getURL("popup.html");
+        window.open(popupURL, "clutch-popup", "width=400,height=600");
+      });
+    }
   } else if (typeof chrome !== "undefined") {
-    chrome.runtime.sendMessage({ action: "openPopup" });
+    // For Chrome: try direct approach first, then use message
+    if (chrome.action && typeof chrome.action.openPopup === "function") {
+      chrome.action.openPopup();
+    } else {
+      chrome.runtime.sendMessage({ action: "openPopup" });
+    }
   }
 }
 

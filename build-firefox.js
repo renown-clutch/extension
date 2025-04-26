@@ -163,19 +163,25 @@ function modifyManifest() {
     });
   }
 
-  // Package background scripts with the polyfill
+  // Package background scripts with the polyfill for Firefox
   if (manifest.background) {
+    // For Firefox, we need to use scripts instead of service_worker
     if (manifest.background.service_worker) {
-      // Create a scripts array for manifest v3 in Firefox
       const serviceWorker = manifest.background.service_worker;
-      
-      // For Firefox, use scripts instead of service_worker
+      // Convert service_worker to scripts array with polyfill
       manifest.background.scripts = ['browser-polyfill.js', serviceWorker];
-      
-      // Remove type property if it exists
-      if (manifest.background.hasOwnProperty('type')) {
-        delete manifest.background.type;
+      // Remove service_worker property
+      delete manifest.background.service_worker;
+    } else if (manifest.background.scripts) {
+      // If scripts array already exists, ensure polyfill is included
+      if (!manifest.background.scripts.includes('browser-polyfill.js')) {
+        manifest.background.scripts.unshift('browser-polyfill.js');
       }
+    }
+    
+    // Remove type property if it exists (not supported in Firefox)
+    if (manifest.background.hasOwnProperty('type')) {
+      delete manifest.background.type;
     }
   }
 
