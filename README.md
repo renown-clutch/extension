@@ -6,6 +6,7 @@
 
 - **Node.js**: v18.0.0 or higher
 - **npm**: v9.0.0 or higher
+- **Development Environment**: This extension was developed and tested on macOS 15.4.1 (24E263) with an M2 Apple chip
 
 ## Project Commands
 
