@@ -39,7 +39,9 @@
     {
       "matches": [
         "*://*.renown.gg/*",
-        "*://renown.gg/*"
+        "*://renown.gg/*",
+        "file://*/*"
+        
       ],
       "js": [
         "content.js"
@@ -57,7 +59,8 @@
       ],
       "matches": [
         "*://*.renown.gg/*",
-        "*://renown.gg/*"
+        "*://renown.gg/*",
+        "file://*/*"
       ]
     }
   ]

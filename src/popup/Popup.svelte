@@ -124,6 +124,12 @@
     }
 
     if (
+      previousSettings.showTeamAverageElo !== userSettings.showTeamAverageElo
+    ) {
+      changes.showTeamAverageElo = userSettings.showTeamAverageElo;
+    }
+
+    if (
       previousSettings.sortFriendsByRenownElo !==
       userSettings.sortFriendsByRenownElo
     ) {
@@ -241,6 +247,7 @@
           bind:showFaceitRanksOnMatchPage={
             userSettings.showFaceitRanksOnMatchPage
           }
+          bind:showTeamAverageElo={userSettings.showTeamAverageElo}
         />
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab />

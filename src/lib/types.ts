@@ -40,6 +40,7 @@ export type UserSettings = {
   };
   showFriendListRanks: boolean;
   showFaceitRanksOnMatchPage: boolean;
+  showTeamAverageElo: boolean;
   sortFriendsByRenownElo: boolean;
   showSidebarFriendRanks: boolean;
   showExtensionNavbarButton: boolean;
@@ -72,6 +73,7 @@ export const defaultUserSettings: UserSettings = {
   },
   showFriendListRanks: true,
   showFaceitRanksOnMatchPage: true,
+  showTeamAverageElo: true,
   sortFriendsByRenownElo: false,
   showSidebarFriendRanks: true,
   showExtensionNavbarButton: true,

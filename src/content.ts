@@ -45,6 +45,10 @@ import {
   updateSettings as updateFaceitRanksSettings,
 } from "./matchPage/faceitRanks";
 import {
+  initialize as initializeTeamAverageElo,
+  updateSettings as updateTeamAverageEloSettings,
+} from "./matchPage/teamAverageElo";
+import {
   initializeExtensionButton,
   updateExtensionButtonSettings,
 } from "./navbar/extensionButton";
@@ -201,6 +205,16 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     updateFaceitRanksSettings(userSettings.showFaceitRanksOnMatchPage);
   }
 
+  if (
+    changedParts.showTeamAverageElo !== undefined ||
+    changedParts.showFaceitRanksOnMatchPage !== undefined
+  ) {
+    updateTeamAverageEloSettings(
+      userSettings.showTeamAverageElo,
+      userSettings.showFaceitRanksOnMatchPage
+    );
+  }
+
   if (changedParts.showExtensionNavbarButton !== undefined) {
     updateExtensionButtonSettings(userSettings.showExtensionNavbarButton);
   }
@@ -260,6 +274,10 @@ async function initialize() {
     initializeFriendsList(userSettings);
     initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
+    initializeTeamAverageElo(
+      userSettings.showTeamAverageElo,
+      userSettings.showFaceitRanksOnMatchPage
+    );
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
 
     observeProfileChanges((profileId) => {
