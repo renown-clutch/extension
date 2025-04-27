@@ -49,6 +49,10 @@ import {
   updateSettings as updateTeamAverageEloSettings,
 } from "./matchPage/teamAverageElo";
 import {
+  initialize as initializeTeamAverageEloLive,
+  updateSettings as updateTeamAverageEloLiveSettings,
+} from "./matchPage/teamAverageEloLive";
+import {
   initializeExtensionButton,
   updateExtensionButtonSettings,
 } from "./navbar/extensionButton";
@@ -213,6 +217,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
       userSettings.showTeamAverageElo,
       userSettings.showFaceitRanksOnMatchPage
     );
+    updateTeamAverageEloLiveSettings(
+      userSettings.showTeamAverageElo,
+      userSettings.showFaceitRanksOnMatchPage
+    );
   }
 
   if (changedParts.showExtensionNavbarButton !== undefined) {
@@ -275,6 +283,10 @@ async function initialize() {
     initializeSidebarFriends(userSettings);
     initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
     initializeTeamAverageElo(
+      userSettings.showTeamAverageElo,
+      userSettings.showFaceitRanksOnMatchPage
+    );
+    initializeTeamAverageEloLive(
       userSettings.showTeamAverageElo,
       userSettings.showFaceitRanksOnMatchPage
     );
