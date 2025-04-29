@@ -53,10 +53,10 @@ export function createFaceitBadgeElement(
     --size:${size}px; 
     display: flex; 
     align-items: center;
-    background-color: #1A1A2E; 
-    border-radius: 8px;
-    padding: 3px 8px 3px 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    background-color: var(--slate-700); 
+    border-radius: 20px;
+    padding: 4px 10px 4px 8px;
+    
     ${additionalStyles}
   `;
   faceitBadge.setAttribute(

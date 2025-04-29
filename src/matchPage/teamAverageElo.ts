@@ -316,7 +316,7 @@ async function processTeamTable(table: HTMLElement) {
     // Create wrapper with styling similar to highest ELO
     const wrapper = document.createElement("div");
     wrapper.style.cssText =
-      "display: flex; align-items: center; gap: 1rem; border-left: solid var(--slate-600); padding-left: 1rem; margin-left: 8px;";
+      "display: flex; align-items: center; gap: 1rem; border-left: solid var(--slate-600); padding-left: 1rem; ";
     wrapper.setAttribute("data-clutch-extension", "team-average-elo-element");
     wrapper.setAttribute(
       "data-team-id",
