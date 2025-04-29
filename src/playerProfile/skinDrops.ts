@@ -65,18 +65,15 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
   const weaponName = drop.skin_name.split(" | ")[0];
   const skinName = drop.skin_name.split(" | ")[1];
 
-  // Create top section
   const topDiv = document.createElement("div");
   topDiv.className = "top";
 
-  // Create match link
   const matchLink = document.createElement("a");
   matchLink.href = `/match/${drop.match_id}`;
 
   const matchLinkDiv = document.createElement("div");
   matchLinkDiv.className = "match-link";
 
-  // Create SVG for match link
   const matchSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg"
@@ -103,16 +100,13 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
   matchSvg.appendChild(matchPath);
   matchLinkDiv.appendChild(matchSvg);
 
-  // Add match ID text
   matchLinkDiv.appendChild(document.createTextNode(`#${drop.match_id}`));
   matchLink.appendChild(matchLinkDiv);
   topDiv.appendChild(matchLink);
 
-  // Create price section
   const priceDiv = document.createElement("div");
   priceDiv.className = "price";
 
-  // Create price SVG
   const priceSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg"
@@ -139,7 +133,6 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
   priceSvg.appendChild(pricePath);
   priceDiv.appendChild(priceSvg);
 
-  // Add price text
   priceDiv.appendChild(
     document.createTextNode(
       `€${drop.buff_price ? Math.round(drop.buff_price / 100) : "?"}`
@@ -147,10 +140,8 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
   );
   topDiv.appendChild(priceDiv);
 
-  // Add top div to main container
   droppedSkin.appendChild(topDiv);
 
-  // Create skin image wrapper
   const imageWrapper = document.createElement("div");
   imageWrapper.className = "skin-image-wrapper";
 
@@ -172,24 +163,20 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
   imageWrapper.appendChild(img);
   droppedSkin.appendChild(imageWrapper);
 
-  // Create skin details section
   const detailsDiv = document.createElement("div");
   detailsDiv.className = "skin-details";
 
-  // Weapon name with rarity color
   const weaponDiv = document.createElement("div");
   weaponDiv.className = "weapon";
   weaponDiv.style.color = getRarityColor(drop.rarity_name);
   weaponDiv.textContent = weaponName;
   detailsDiv.appendChild(weaponDiv);
 
-  // Skin name
   const skinNameDiv = document.createElement("div");
   skinNameDiv.className = "skin-name";
   skinNameDiv.textContent = skinName;
   detailsDiv.appendChild(skinNameDiv);
 
-  // Exterior and float
   const exteriorDiv = document.createElement("div");
   exteriorDiv.className = "exterior";
   exteriorDiv.textContent = `${drop.exterior} (${drop.float_value.toFixed(3)})`;
@@ -202,7 +189,7 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
 
 function createSkinsContainer(drops: Drop[]): HTMLDivElement {
   const container = document.createElement("div");
-  container.className = "container drops-container";
+  container.className = "container drops-container clutch-skin-drops-container";
   container.setAttribute("data-clutch-extension", "true");
 
   const title = document.createElement("div");
@@ -229,13 +216,10 @@ function createSkinsContainer(drops: Drop[]): HTMLDivElement {
 
 function removeExistingDropsContainer() {
   document
-    .querySelectorAll("[data-clutch-extension='true']")
+    .querySelectorAll(".clutch-skin-drops-container")
     .forEach((element) => {
-      if (
-        element.classList.contains("drops-container") ||
-        element.parentElement?.classList.contains("drops-container")
-      ) {
-        element.remove();
+      if (element.parentElement?.classList.contains("drops-container")) {
+        element.parentElement?.remove();
       }
     });
 }
@@ -255,7 +239,7 @@ async function renderDropsUI(drops: Drop[]): Promise<void> {
   containerElem.parentElement?.insertBefore(dropsContainer, containerElem);
 }
 
-export async function initialize(showDrops: boolean): Promise<void> {
+export async function initializeSkinDrops(showDrops: boolean): Promise<void> {
   if (!isProfilePage()) {
     return;
   }

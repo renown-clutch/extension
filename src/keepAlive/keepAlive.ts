@@ -4,7 +4,6 @@ let keepAliveIntervalId: number | null = null;
 let lastKeepAlive: boolean | undefined = undefined;
 
 function doKeepAliveAction() {
-  // Scroll by 1px and back to simulate activity
   window.scrollBy(0, 1);
   setTimeout(() => window.scrollBy(0, -1), 100);
 }
@@ -18,10 +17,7 @@ export function updateKeepAliveSettings(settings: UserSettings) {
     if (keepAliveIntervalId !== null) {
       clearInterval(keepAliveIntervalId);
     }
-    keepAliveIntervalId = window.setInterval(
-      doKeepAliveAction,
-      60 * 1000 // Hardcoded to 60 seconds
-    );
+    keepAliveIntervalId = window.setInterval(doKeepAliveAction, 60 * 1000);
     lastKeepAlive = settings.keepAlive;
   } else if (!settings.keepAlive && keepAliveIntervalId !== null) {
     clearInterval(keepAliveIntervalId);

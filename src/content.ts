@@ -4,25 +4,16 @@ import browserAPI, {
   type SendResponseCallback,
 } from "./lib/browserAPI";
 import {
-  initialize as initializeTheme,
   initTempStyling,
   saveThemeToLocalStorage,
+  initializeTheme,
 } from "./themes/themeUtils";
-import { initialize as initializeProfileButtons } from "./playerProfile/profileButtons";
-import { initialize as initializeProfileBans } from "./playerProfile/previousBans";
-import { initialize as initializeSkinDrops } from "./playerProfile/skinDrops";
-import {
-  initialize as initializeFriendsList,
-  updateSettings as updateFriendsListSettings,
-} from "./playerProfile/friendsList";
-import {
-  initialize as initializeSidebarFriends,
-  updateSettings as updateSidebarFriendsSettings,
-} from "./playerProfile/sidebarFriends";
-import {
-  initialize as initializeHighestElo,
-  updateSettings as updateHighestEloSettings,
-} from "./playerProfile/highestElo";
+import { initializeProfileButtons } from "./playerProfile/profileButtons";
+import { initializeProfileBans } from "./playerProfile/previousBans";
+import { initializeSkinDrops } from "./playerProfile/skinDrops";
+import { initializeFriendsList } from "./playerProfile/friendsList";
+import { initializeSidebarFriends } from "./playerProfile/sidebarFriends";
+import { initializeHighestElo } from "./playerProfile/highestElo";
 import { defaultUserSettings, type UserSettings } from "./lib/types";
 import {
   initializeMatchFoundAutoAccept,
@@ -37,21 +28,18 @@ import {
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
 import {
-  initialize as initializeFaceitRanks,
-  updateSettings as updateFaceitRanksSettings,
+  initializeFaceitRanks,
+  updateFaceitRanksSettings,
 } from "./matchPage/faceitRanks";
 import {
-  initialize as initializeTeamAverageElo,
-  updateSettings as updateTeamAverageEloSettings,
+  initializeTeamAverageElo,
+  updateTeamAverageEloSettings,
 } from "./matchPage/teamAverageElo";
 import {
-  initialize as initializeTeamAverageEloLive,
-  updateSettings as updateTeamAverageEloLiveSettings,
+  initializeTeamAverageEloLive,
+  updateTeamAverageEloLiveSettings,
 } from "./matchPage/teamAverageEloLive";
-import {
-  initialize as initializeExtensionButton,
-  updateSettings as updateExtensionButtonSettings,
-} from "./navbar/extensionButton";
+import { initializeExtensionButton } from "./navbar/extensionButton";
 import { getCurrentPage } from "./utils/pageUtils";
 
 let userSettings: UserSettings = defaultUserSettings;
@@ -107,18 +95,18 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 
   if (changedParts.showHighestElo !== undefined) {
-    updateHighestEloSettings(changedParts.showHighestElo);
+    initializeHighestElo(changedParts.showHighestElo);
   }
 
   if (
     changedParts.showFriendListRanks !== undefined ||
     changedParts.sortFriendsByRenownElo !== undefined
   ) {
-    updateFriendsListSettings(userSettings);
+    initializeFriendsList(userSettings);
   }
 
   if (changedParts.showSidebarFriendRanks !== undefined) {
-    updateSidebarFriendsSettings(userSettings);
+    initializeSidebarFriends(userSettings);
   }
 
   if (
@@ -163,7 +151,7 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 
   if (changedParts.showExtensionNavbarButton !== undefined) {
-    updateExtensionButtonSettings(userSettings.showExtensionNavbarButton);
+    initializeExtensionButton(userSettings.showExtensionNavbarButton);
   }
 }
 

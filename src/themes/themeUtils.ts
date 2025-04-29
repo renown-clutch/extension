@@ -179,7 +179,7 @@ export function initTempStyling(): void {
   }
 }
 
-export async function initialize(theme: string): Promise<void> {
+export async function initializeTheme(theme: string): Promise<void> {
   if (
     theme !== "dark" &&
     theme !== "pink" &&

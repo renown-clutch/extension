@@ -130,7 +130,9 @@ async function fetchFaceitData(
   });
 }
 
-export async function initialize(settings: UserSettings): Promise<void> {
+export async function initializeProfileButtons(
+  settings: UserSettings
+): Promise<void> {
   if (!isProfilePage()) {
     return;
   }

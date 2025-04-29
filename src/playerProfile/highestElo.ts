@@ -72,7 +72,7 @@ function removeHighestEloElement() {
   elements.forEach((element) => element.remove());
 }
 
-export function initialize(enabled: boolean): void {
+export function initializeHighestElo(enabled: boolean): void {
   if (!isProfilePage()) {
     return;
   }
@@ -88,8 +88,4 @@ export function initialize(enabled: boolean): void {
   }
 
   displayHighestElo(playerId);
-}
-
-export function updateSettings(enabled: boolean): void {
-  initialize(enabled);
 }

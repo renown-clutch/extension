@@ -167,7 +167,9 @@ async function fetchFriendsRanks(
   });
 }
 
-export async function initialize(settings: UserSettings): Promise<void> {
+export async function initializeFriendsList(
+  settings: UserSettings
+): Promise<void> {
   if (!isFriendsPage()) {
     return;
   }
@@ -189,8 +191,4 @@ export async function initialize(settings: UserSettings): Promise<void> {
   }
 
   renderFriendRanks(friendIds, ranks, settings.sortFriendsByRenownElo);
-}
-
-export async function updateSettings(settings: UserSettings): Promise<void> {
-  initialize(settings);
 }

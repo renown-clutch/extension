@@ -44,7 +44,6 @@ function createBanBadge(ban: Ban): HTMLDivElement {
   banBadge.style.backgroundColor = "transparent";
   banBadge.style.border = "1px solid var(--toastify-color-error)";
 
-  // Add tooltip with date information
   const issuedDate = new Date(ban.issued_on);
   const formattedIssuedDate = formatDate(issuedDate);
 
@@ -68,7 +67,6 @@ function createBanBadge(ban: Ban): HTMLDivElement {
     banBadge.appendChild(document.createTextNode("Banned for "));
     banBadge.appendChild(strong1);
   } else if (ban.expires_on) {
-    // Fallback to the old format if duration_days is not available
     const expiryDate = new Date(ban.expires_on);
     const formattedDate = formatDate(expiryDate);
 
@@ -104,7 +102,6 @@ function createNoBansBadge(): HTMLDivElement {
   banBadge.style.display = "flex";
   banBadge.style.alignItems = "center";
 
-  // Create badge-check SVG from Lucide
   const badgeCheckSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg"
@@ -120,7 +117,6 @@ function createNoBansBadge(): HTMLDivElement {
   badgeCheckSvg.style.verticalAlign = "middle";
   badgeCheckSvg.style.marginRight = "6px";
 
-  // Badge-check path
   const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path1.setAttribute(
     "d",
@@ -250,7 +246,7 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   });
 }
 
-export async function initialize(showBans: boolean): Promise<void> {
+export async function initializeProfileBans(showBans: boolean): Promise<void> {
   if (!isProfilePage()) {
     return;
   }

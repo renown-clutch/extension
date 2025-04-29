@@ -4,7 +4,6 @@ import {
 } from "../utils/observerUtils";
 import { getFaceitLevel } from "../utils/faceitUtils";
 
-// Keep track of processed elements and observer instances
 let processedTables = new Set();
 let processedPlayers = new Set();
 let currentObserver: MutationObserver | null = null;
@@ -15,21 +14,12 @@ let pendingRequests = new Set<string>(); // Track Steam IDs with pending request
 let processingInProgress = false; // Flag to prevent concurrent processing
 let ignoreObserverChanges = false; // Flag to prevent observer reacting to our own changes
 
-/**
- * Tracks mapping between Steam IDs and added Faceit elements
- */
-let faceitIconMap = new Map<string, HTMLElement>(); // Map steamId -> faceit icon element
+let faceitIconMap = new Map<string, HTMLElement>();
 
-/**
- * Checks if the extension context is still valid
- */
 function isExtensionContextValid(): boolean {
   return chrome.runtime && !!chrome.runtime.id;
 }
 
-// Path to Faceit icon
-
-// Get level icon path based on level
 function getLevelIconPath(level: number): string {
   try {
     if (!isExtensionContextValid()) {
@@ -57,37 +47,27 @@ function getFallbackIconPath(): string {
   }
 }
 
-/**
- * Cleans up any Faceit icons that have been added to the page
- */
 function cleanupFaceitIcons() {
-  // Remove all added elements
   addedFaceitElements.forEach((element) => {
     if (element && element.parentNode) {
       element.parentNode.removeChild(element);
     }
   });
 
-  // Also look for any elements with the faceit-icon class that might have been missed
   document.querySelectorAll(".faceit-icon").forEach((element) => {
     if (element && element.parentNode) {
       element.parentNode.removeChild(element);
     }
   });
 
-  // Reset tracking arrays and flags
   addedFaceitElements = [];
   faceitIconMap.clear();
   pendingRequests.clear();
   processingInProgress = false;
 }
 
-/**
- * Initializes the faceit ranks for match page feature
- */
-export function initialize(enabled: boolean) {
+export function initializeFaceitRanks(enabled: boolean) {
   try {
-    // Check if extension context is still valid before initializing
     if (!isExtensionContextValid()) {
       console.warn(
         "Extension context invalid, skipping faceit ranks initialization"
@@ -95,7 +75,6 @@ export function initialize(enabled: boolean) {
       return;
     }
 
-    // Ensure we're not in an inconsistent state
     if (currentObserver) {
       disconnectSafeObserver(currentObserver);
       currentObserver = null;
@@ -106,31 +85,24 @@ export function initialize(enabled: boolean) {
       teamPositionObserver = null;
     }
 
-    // Update feature state
     isFeatureEnabled = enabled;
 
-    // Reset processed tables and players
     processedTables = new Set();
     processedPlayers = new Set();
     pendingRequests = new Set();
     processingInProgress = false;
 
-    // If feature is disabled, remove any existing Faceit icons
     if (!enabled) {
       cleanupFaceitIcons();
       return;
     }
 
-    // Process any tables that already exist on the page
     processTeamStatsTables();
 
-    // Process any standalone player elements
     processPlayerElements();
 
-    // Create the observer with our utility function
     currentObserver = createSafeObserver(
       (mutations) => {
-        // Skip processing if feature has been disabled
         if (!isFeatureEnabled || processingInProgress) return;
 
         let shouldProcessTables = false;
@@ -180,39 +152,29 @@ export function initialize(enabled: boolean) {
   }
 }
 
-/**
- * Setup team position observer to detect player reordering and team side switches
- */
 function setupTeamPositionObserver() {
   try {
-    // Clean up any existing position observer
     if (teamPositionObserver) {
       disconnectSafeObserver(teamPositionObserver);
       teamPositionObserver = null;
     }
 
-    // Select player list containers instead of team stats tables
     const playerLists = document.querySelectorAll(".player-list");
     if (playerLists.length === 0) {
-      // If no containers found, retry after a short delay
       setTimeout(setupTeamPositionObserver, 200);
       return;
     }
 
     console.log("Found player lists:", playerLists.length);
 
-    // Setup observer for each player list container
     playerLists.forEach((container) => {
-      // Create observer that watches for changes to child nodes or attributes
       teamPositionObserver = createSafeObserver(
         (mutations) => {
-          // Skip processing if feature has been disabled or we're already processing
           if (!isFeatureEnabled || ignoreObserverChanges) return;
 
           let playerOrderChanged = false;
 
           for (const mutation of mutations) {
-            // Skip mutations that are caused by our own code
             if (
               mutation.target &&
               mutation.target instanceof HTMLElement &&
@@ -224,9 +186,7 @@ function setupTeamPositionObserver() {
               continue;
             }
 
-            // Check for changes to the player list children order
             if (mutation.type === "childList") {
-              // Check if the mutation is affecting a player element and not our injected elements
               const addedNodes = Array.from(mutation.addedNodes);
               const removedNodes = Array.from(mutation.removedNodes);
 
@@ -259,21 +219,15 @@ function setupTeamPositionObserver() {
           if (playerOrderChanged) {
             console.log("Player order changed, reprocessing icons");
 
-            // Set flag to ignore observer changes during processing
             ignoreObserverChanges = true;
 
-            // Instead of removing all icons and adding them back, we'll update
-            // or keep the existing ones in place to avoid flickering.
             setTimeout(() => {
               try {
-                // Reset processed players set but don't clean up icons
                 processedPlayers = new Set();
 
-                // Reprocess without removing existing icons
                 processTeamStatsTables();
                 processPlayerElements();
 
-                // Now handle any orphaned icons (players that no longer exist)
                 const currentPlayerIds = new Set<string>();
                 document.querySelectorAll("a.player").forEach((player) => {
                   const href = player.getAttribute("href");
@@ -283,7 +237,6 @@ function setupTeamPositionObserver() {
                   }
                 });
 
-                // Remove icons for players that are no longer present
                 for (const [steamId, element] of faceitIconMap.entries()) {
                   if (!currentPlayerIds.has(steamId) && element.parentNode) {
                     element.parentNode.removeChild(element);
@@ -295,7 +248,6 @@ function setupTeamPositionObserver() {
                   }
                 }
               } finally {
-                // Always make sure to reset the ignore flag
                 setTimeout(() => {
                   ignoreObserverChanges = false;
                 }, 100);
@@ -305,26 +257,23 @@ function setupTeamPositionObserver() {
         },
         () => container,
         {
-          childList: true, // Watch for added/removed nodes
-          subtree: true, // Watch children
-          attributes: true, // Watch for attribute changes
+          childList: true,
+          subtree: true,
+          attributes: true,
         }
       );
     });
 
-    // Also observe the parent containers as they might be replaced entirely
     const teamPlayerContainers = document.querySelectorAll(
       ".team1-players, .team2-players"
     );
     teamPlayerContainers.forEach((container) => {
       createSafeObserver(
         (mutations) => {
-          // Skip processing if feature has been disabled or we're already processing
           if (!isFeatureEnabled || ignoreObserverChanges) return;
 
           for (const mutation of mutations) {
             if (mutation.type === "childList") {
-              // Check if this is a significant change to the team container
               const addedNodes = Array.from(mutation.addedNodes);
               const hasPlayerList = addedNodes.some(
                 (node) =>
@@ -337,7 +286,6 @@ function setupTeamPositionObserver() {
                 console.log(
                   "Team player container changed, setting up observers again"
                 );
-                // The entire player list has been replaced, setup observers again
                 setTimeout(() => {
                   ignoreObserverChanges = true;
                   try {
@@ -362,9 +310,6 @@ function setupTeamPositionObserver() {
   }
 }
 
-/**
- * Process player elements that appear on match pages
- */
 function processPlayerElements() {
   const playerElements = document.querySelectorAll("a.player");
   if (playerElements.length === 0) {
@@ -1035,7 +980,7 @@ function addFaceitIconToPlayerRow(playerRow: HTMLElement, faceitInfo: any) {
 /**
  * Updates the faceit ranks feature settings
  */
-export function updateSettings(enabled: boolean) {
+export function updateFaceitRanksSettings(enabled: boolean) {
   try {
     // Check if extension context is still valid before updating settings
     if (!isExtensionContextValid()) {
@@ -1047,7 +992,7 @@ export function updateSettings(enabled: boolean) {
 
     // Only reinitialize if the state is actually changing
     if (isFeatureEnabled !== enabled) {
-      initialize(enabled);
+      initializeFaceitRanks(enabled);
     } else {
       // If already enabled, just refresh the observers
       if (enabled) {

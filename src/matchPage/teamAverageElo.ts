@@ -18,7 +18,10 @@ function isExtensionContextValid(): boolean {
   return chrome.runtime && !!chrome.runtime.id;
 }
 
-export async function initialize(enabled: boolean, faceitEnabled = false) {
+export async function initializeTeamAverageElo(
+  enabled: boolean,
+  faceitEnabled = false
+) {
   try {
     // Check if extension context is still valid before initializing
     if (!isExtensionContextValid()) {
@@ -600,7 +603,10 @@ function processTeamStatTables(
   updateTeamHeader(team2Header, team2Elo, team2FaceitElo);
 }
 
-export function updateSettings(enabled: boolean, faceitEnabled = false) {
+export function updateTeamAverageEloSettings(
+  enabled: boolean,
+  faceitEnabled = false
+) {
   try {
     // Check if extension context is still valid before updating settings
     if (!isExtensionContextValid()) {
@@ -615,7 +621,7 @@ export function updateSettings(enabled: boolean, faceitEnabled = false) {
 
     // Only reinitialize if at least one feature is enabled
     if (enabled) {
-      initialize(enabled, faceitEnabled);
+      initializeTeamAverageElo(enabled, faceitEnabled);
     }
   } catch (error: unknown) {
     if (

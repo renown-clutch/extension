@@ -24,7 +24,10 @@ function isExtensionContextValid(): boolean {
 /**
  * Initialize the team average ELO feature for live matches
  */
-export async function initialize(enabled: boolean, faceitEnabled = false) {
+export async function initializeTeamAverageEloLive(
+  enabled: boolean,
+  faceitEnabled = false
+) {
   try {
     // Check if extension context is still valid before initializing
     if (!isExtensionContextValid()) {
@@ -543,7 +546,10 @@ function updateTeamHeader(
 /**
  * Updates the team average ELO feature settings
  */
-export function updateSettings(enabled: boolean, faceitEnabled = false) {
+export function updateTeamAverageEloLiveSettings(
+  enabled: boolean,
+  faceitEnabled = false
+) {
   try {
     // Check if extension context is still valid before updating settings
     if (!isExtensionContextValid()) {
@@ -576,7 +582,7 @@ export function updateSettings(enabled: boolean, faceitEnabled = false) {
     if (enabled) {
       processedTeams.clear();
       // Reinitialize if feature is enabled
-      initialize(enabled, faceitEnabled);
+      initializeTeamAverageEloLive(enabled, faceitEnabled);
     }
   } catch (error: unknown) {
     if (

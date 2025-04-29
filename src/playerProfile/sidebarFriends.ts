@@ -152,15 +152,11 @@ function injectCollapseCSS(): void {
   document.head.appendChild(style);
 }
 
-export function initialize(settings?: UserSettings): void {
+export function initializeSidebarFriends(settings?: UserSettings): void {
   if (!settings?.showSidebarFriendRanks) {
     removeRankBadges();
     return;
   }
 
   processSidebarFriends(settings.showSidebarFriendRanks);
-}
-
-export function updateSettings(settings: UserSettings): void {
-  initialize(settings);
 }

@@ -51,15 +51,11 @@ function removeLinkFromNavbar(): void {
   });
 }
 
-export function initialize(enabled: boolean): void {
+export function initializeExtensionButton(enabled: boolean): void {
   if (!enabled) {
     removeLinkFromNavbar();
     return;
   }
 
   addLinkToNavbar();
-}
-
-export function updateSettings(enabled: boolean): void {
-  initialize(enabled);
 }
