@@ -205,15 +205,11 @@ function observeUrlChanges() {
   observer.observe(document, { subtree: true, childList: true });
 }
 
-observeUrlChanges();
-
 async function initialize() {
   if (!shouldBeInjected()) {
     removeAllThemeStyles();
     return;
   }
-
-  initTempStyling();
 
   try {
     const freshSettings = await loadFromBrowserStorage();
@@ -247,8 +243,6 @@ async function initialize() {
     console.error("Error during content script initialization:", error);
   }
 }
-
-initialize();
 
 browserAPI.runtime.onMessage.addListener(
   (
@@ -286,3 +280,11 @@ browserAPI.runtime.onMessage.addListener(
     }
   }
 );
+
+if (shouldBeInjected()) {
+  initTempStyling();
+}
+
+observeUrlChanges();
+
+initialize();

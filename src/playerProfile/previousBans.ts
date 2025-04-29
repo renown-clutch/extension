@@ -209,6 +209,13 @@ function removeBanElements() {
 }
 
 async function renderBanBadges(bans: Ban[]): Promise<void> {
+  const existingClutchBanBadge = document.querySelector(
+    ".clutch-ban-history-header"
+  );
+  if (existingClutchBanBadge) {
+    return;
+  }
+
   const container = await waitForElement(".profile-banner .container");
 
   let existingBanBadge = container.querySelector(
@@ -216,7 +223,7 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   );
 
   const headerDiv = document.createElement("div");
-  headerDiv.className = "text";
+  headerDiv.className = "text clutch-ban-history-header";
   headerDiv.setAttribute("data-clutch-extension", "ban-element");
   headerDiv.style.marginBottom = "8px";
   headerDiv.style.marginTop = "16px";

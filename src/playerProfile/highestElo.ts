@@ -33,6 +33,13 @@ async function fetchHighestElo(steamId: string): Promise<number | null> {
 }
 
 async function displayHighestElo(playerId: string) {
+  const existingHighestEloElement = document.querySelector(
+    '[data-clutch-extension="highest-elo-element"]'
+  );
+  if (existingHighestEloElement) {
+    return;
+  }
+
   await waitForElement(".profile-banner .container");
 
   const rankBadgeElement = await waitForElement(".profile-banner .name-elo");
