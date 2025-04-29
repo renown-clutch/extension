@@ -34,12 +34,26 @@ function createButton({
   button.style.color = "#000";
   button.style.backgroundColor = bgColor;
   button.setAttribute("data-clutch-extension", "true");
+
+  // Disable button if href is empty
+  if (!href) {
+    button.style.pointerEvents = "none";
+    button.style.opacity = "0.5";
+    button.style.cursor = "not-allowed";
+  }
+
   button.addEventListener("mouseover", () => {
-    button.style.backgroundColor =
-      bgColor === "#292c34" ? "#333640" : "#ffb74d";
+    if (href) {
+      // Only change color if href exists
+      button.style.backgroundColor =
+        bgColor === "#292c34" ? "#333640" : "#ffb74d";
+    }
   });
   button.addEventListener("mouseout", () => {
-    button.style.backgroundColor = bgColor;
+    if (href) {
+      // Only change color if href exists
+      button.style.backgroundColor = bgColor;
+    }
   });
   const img = document.createElement("img");
   img.src = getExtensionUrl(iconPath);
@@ -72,7 +86,7 @@ async function appendButtonsToDom(settings: UserSettings) {
 
     faceitButton = createButton({
       className: "clutch-faceit-button",
-      href: faceitData.url || "#",
+      href: faceitData.url || "",
       bgColor: "#141616",
       iconPath: faceitIcon,
     });

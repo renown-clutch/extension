@@ -229,6 +229,13 @@ async function waitForProfileContainer(): Promise<Element> {
 }
 
 async function renderDropsUI(drops: Drop[]): Promise<void> {
+  const existingDropsContainer = document.querySelector(
+    ".clutch-skin-drops-container"
+  );
+  if (existingDropsContainer) {
+    return;
+  }
+
   if (!drops || drops.length === 0) return;
 
   removeExistingDropsContainer();

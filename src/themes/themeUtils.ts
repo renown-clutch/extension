@@ -1,11 +1,9 @@
 import { createHeadObserver } from "../utils/observerUtils";
 import browserAPI from "../lib/browserAPI";
 
-// Constants for theme storage
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
 const TEMP_STYLE_CACHE_KEY = "clutch-temp-styles-cache";
 
-// Paths for the theme files
 const DARK_SHEET_PATH = browserAPI.runtime.getURL("themes/DarkSheet.css");
 const PINK_SHEET_PATH = browserAPI.runtime.getURL("themes/PinkSheet.css");
 const PURPLE_SHEET_PATH = browserAPI.runtime.getURL("themes/PurpleSheet.css");
@@ -14,7 +12,6 @@ const DARK_GRAY_SHEET_PATH = browserAPI.runtime.getURL(
   "themes/DarkGraySheet.css"
 );
 
-// Fallback temp styles in case we can't load the CSS immediately
 const tempThemeStyles: Record<string, string> = {
   dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
   pink: "html, body { background-color: #440c21 !important; color: #fff !important; transition: none !important; }",
@@ -26,7 +23,6 @@ const tempThemeStyles: Record<string, string> = {
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
 };
 
-// Map themes to their file paths
 const themePathMap: Record<string, string> = {
   dark: DARK_SHEET_PATH,
   pink: PINK_SHEET_PATH,
@@ -35,19 +31,16 @@ const themePathMap: Record<string, string> = {
   darkgray: DARK_GRAY_SHEET_PATH,
 };
 
-// Add temporary style element to prevent flash
 const tempStyleElement = document.createElement("style");
 tempStyleElement.id = "clutch-theme-temp";
-tempStyleElement.textContent = tempThemeStyles.dark; // Default temp style
+tempStyleElement.textContent = tempThemeStyles.dark;
 
 const styleElement = document.createElement("style");
 styleElement.id = "clutch-theme";
 
 let isThemeInjected = false;
 let isTempThemeInjected = false;
-let currentTheme: string | null = null;
 
-// Cache for stylesheets
 const stylesheetCache: Record<string, string> = {};
 
 // Try to load cached temp styles from localStorage
@@ -278,7 +271,4 @@ export function removeAllThemeStyles(): void {
   } catch (error) {
     console.error("Failed to remove theme from localStorage:", error);
   }
-
-  // Reset current theme
-  currentTheme = null;
 }
