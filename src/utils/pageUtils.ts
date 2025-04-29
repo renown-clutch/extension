@@ -7,6 +7,7 @@ export type PageType =
   | { type: "playMatch" }
   | { type: "banlist" }
   | { type: "drops" }
+  | { type: "feedback" }
   | { type: "play" }
   | { type: "unknown" };
 
@@ -36,6 +37,10 @@ export function getCurrentPage(): PageType {
 
   if (path === "/drops") {
     return { type: "drops" };
+  }
+
+  if (path.startsWith("/feedback")) {
+    return { type: "feedback" };
   }
 
   if (path.startsWith("/profile/settings")) {

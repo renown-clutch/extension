@@ -7,6 +7,7 @@ import {
   initTempStyling,
   saveThemeToLocalStorage,
   initializeTheme,
+  removeAllThemeStyles,
 } from "./themes/themeUtils";
 import { initializeProfileButtons } from "./playerProfile/profileButtons";
 import { initializeProfileBans } from "./playerProfile/previousBans";
@@ -47,8 +48,6 @@ const LS_KEY = "userSettings";
 
 let lastUrl = window.location.href;
 
-initTempStyling();
-
 declare global {
   interface Window {
     __NEXT_DATA__?: any;
@@ -64,7 +63,6 @@ function waitForPageReady(): Promise<void> {
         return;
       }
       if (document.readyState === "complete") {
-        console.log("DOM is fully loaded and ready");
         resolve();
         return;
       }
@@ -74,7 +72,33 @@ function waitForPageReady(): Promise<void> {
   });
 }
 
+function shouldBeInjected(): boolean {
+  const currentPage = getCurrentPage();
+
+  if (currentPage.type === "admin") {
+    console.log("Admin page, skipping initialization");
+    return false;
+  }
+
+  if (currentPage.type === "home") {
+    console.log("Home page, skipping initialization");
+    return false;
+  }
+
+  if (currentPage.type === "feedback") {
+    console.log("Feedback page, skipping initialization");
+    return false;
+  }
+
+  return true;
+}
+
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
+  if (!shouldBeInjected()) {
+    removeAllThemeStyles();
+    return;
+  }
+
   if (changedParts.selectedTheme && changedParts.selectedTheme !== "default") {
     await initializeTheme(changedParts.selectedTheme);
   }
@@ -173,9 +197,8 @@ function observeUrlChanges() {
   const observer = new MutationObserver(() => {
     const currentUrl = window.location.href;
     if (currentUrl !== lastUrl) {
-      console.log("URL changed from:", lastUrl);
-      console.log("URL changed to:", currentUrl);
       lastUrl = currentUrl;
+      initialize();
     }
   });
 
@@ -185,17 +208,12 @@ function observeUrlChanges() {
 observeUrlChanges();
 
 async function initialize() {
-  const currentPage = getCurrentPage();
-
-  if (currentPage.type === "admin") {
-    console.log("Admin page, skipping initialization");
+  if (!shouldBeInjected()) {
+    removeAllThemeStyles();
     return;
   }
 
-  if (currentPage.type === "home") {
-    console.log("Home page, skipping initialization");
-    return;
-  }
+  initTempStyling();
 
   try {
     const freshSettings = await loadFromBrowserStorage();
@@ -262,7 +280,6 @@ browserAPI.runtime.onMessage.addListener(
       }
     } else if (message.type === "forceReload") {
       sendResponse({ status: "reloading" });
-
       window.location.reload();
     } else {
       sendResponse({ status: "unknown" });

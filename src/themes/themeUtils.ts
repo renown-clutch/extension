@@ -257,3 +257,28 @@ async function loadAndApplyTheme(theme: string): Promise<void> {
     throw error;
   }
 }
+
+// Remove all theme styles and revert to original look
+export function removeAllThemeStyles(): void {
+  // Remove temporary styling
+  if (isTempThemeInjected && tempStyleElement.parentNode) {
+    tempStyleElement.parentNode.removeChild(tempStyleElement);
+    isTempThemeInjected = false;
+  }
+
+  // Remove permanent styling
+  if (isThemeInjected && styleElement.parentNode) {
+    styleElement.parentNode.removeChild(styleElement);
+    isThemeInjected = false;
+  }
+
+  // Clear theme from localStorage
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_THEME_KEY);
+  } catch (error) {
+    console.error("Failed to remove theme from localStorage:", error);
+  }
+
+  // Reset current theme
+  currentTheme = null;
+}
