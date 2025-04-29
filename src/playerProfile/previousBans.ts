@@ -253,12 +253,7 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
 }
 
 export async function initialize(showBans: boolean): Promise<void> {
-  if (!isProfilePage()) {
-    return;
-  }
-
-  if (!showBans) {
-    removeBanElements();
+  if (!showBans || !isProfilePage()) {
     return;
   }
 

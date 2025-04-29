@@ -1,29 +1,19 @@
 import { isProfilePage, waitForElement } from "../utils/profileUtils";
 import { type UserSettings } from "../lib/types";
 import { createSafeObserver } from "../utils/observerUtils";
-import {
-  getRankTier,
-  formatElo,
-  createRankBadgeElement,
-} from "../utils/rankBadgeUtils";
+import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
-let showRanks = true; // Default to true
-let sortFriendsByRenownElo = false; // Default to false
-let isProcessing = false; // Flag to prevent multiple concurrent processes
-let lastProcessedUrl = ""; // Track the last processed URL
-let debounceTimer: number | null = null; // For debouncing
+let showRanks = true;
+let sortFriendsByRenownElo = false;
+let isProcessing = false;
+let lastProcessedUrl = "";
+let debounceTimer: number | null = null;
 
-/**
- * Checks if the current page is a profile friends page
- */
 function isFriendsPage(): boolean {
   return FRIENDS_PAGE_REGEX.test(window.location.pathname);
 }
 
-/**
- * Applies CSS styling to ensure friend names are truncated and badges are positioned consistently
- */
 function applyFriendListStyling(): void {
   // Check if the style is already added
   if (document.getElementById("clutch-friends-list-style")) return;
@@ -64,9 +54,6 @@ function applyFriendListStyling(): void {
   document.head.appendChild(styleEl);
 }
 
-/**
- * Removes rank badges from friends in the list
- */
 function removeRankBadges(): void {
   const tooltipWrappers = document.querySelectorAll(
     ".profile-friend-list .tooltip-wrapper"
@@ -76,9 +63,6 @@ function removeRankBadges(): void {
   });
 }
 
-/**
- * Renders rank badges for friends in the list
- */
 function renderFriendRanks(
   friendIds: string[],
   ranks: Record<string, number | null>
@@ -155,9 +139,6 @@ function renderFriendRanks(
   });
 }
 
-/**
- * Extracts all friend IDs from the friends list on the profile page
- */
 async function extractFriendIds(): Promise<string[]> {
   try {
     // Wait for the friend list container to load
@@ -185,9 +166,6 @@ async function extractFriendIds(): Promise<string[]> {
   }
 }
 
-/**
- * Fetches ranks for a list of steam IDs
- */
 async function fetchFriendsRanks(
   steamIds: string[]
 ): Promise<Record<string, number | null>> {
@@ -213,11 +191,7 @@ async function fetchFriendsRanks(
   }
 }
 
-/**
- * Creates an observer to detect when we navigate to a friends page
- */
 function observeFriendsPageNavigation(): void {
-  // Listen for the clutchFriendsExtracted event to render ranks
   document.addEventListener("clutchFriendsExtracted", (event: Event) => {
     const { friendIds, showRanks, ranks } = (event as CustomEvent).detail;
 
@@ -230,12 +204,9 @@ function observeFriendsPageNavigation(): void {
     }
   });
 
-  // Function to check URL and extract friends if we're on a friends page
   const checkAndExtractFriends = async () => {
-    // Get current URL to avoid processing the same page multiple times
     const currentUrl = window.location.pathname;
 
-    // If we're already processing or have processed this URL, skip
     if (isProcessing || currentUrl === lastProcessedUrl) {
       return;
     }
@@ -246,7 +217,6 @@ function observeFriendsPageNavigation(): void {
 
       const friendIds = await extractFriendIds();
 
-      // Only fetch ranks if we should show them
       let ranks = {};
       if (showRanks && friendIds.length > 0) {
         try {
@@ -256,7 +226,6 @@ function observeFriendsPageNavigation(): void {
         }
       }
 
-      // Dispatch custom event with the friend IDs and settings
       const event = new CustomEvent("clutchFriendsExtracted", {
         detail: {
           friendIds,
@@ -266,12 +235,10 @@ function observeFriendsPageNavigation(): void {
       });
       document.dispatchEvent(event);
 
-      // Reset processing flag
       isProcessing = false;
     }
   };
 
-  // Debounced version of the check function
   const debouncedCheckAndExtract = () => {
     if (debounceTimer !== null) {
       clearTimeout(debounceTimer);
@@ -283,31 +250,25 @@ function observeFriendsPageNavigation(): void {
     ) as unknown as number;
   };
 
-  // Set up listeners for URL changes
   window.addEventListener("popstate", () => {
-    // Reset lastProcessedUrl on navigation
     lastProcessedUrl = "";
     debouncedCheckAndExtract();
   });
 
-  // Check on navigation changes
   if ("navigation" in window && window.navigation) {
     (window.navigation as any).addEventListener("navigatesuccess", () => {
-      // Reset lastProcessedUrl on navigation
       lastProcessedUrl = "";
       debouncedCheckAndExtract();
     });
   }
 
-  // Set up MutationObserver using the utility function
   createSafeObserver(
     (mutations) => {
-      if (isProcessing) return; // Skip if we're already processing
+      if (isProcessing) return;
 
       let shouldCheck = false;
       for (const mutation of mutations) {
         if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-          // Check if any significant elements were added that might indicate page loaded
           for (const node of mutation.addedNodes) {
             if (
               node.nodeType === Node.ELEMENT_NODE &&
@@ -329,14 +290,10 @@ function observeFriendsPageNavigation(): void {
     },
     () => document.body,
     { childList: true, subtree: true },
-    // Initial check after successful setup
     checkAndExtractFriends
   );
 }
 
-/**
- * Updates the module settings
- */
 export function updateSettings(settings: UserSettings): void {
   const previousShowRanks = showRanks;
   showRanks = settings.showFriendListRanks;
@@ -375,11 +332,11 @@ export function updateSettings(settings: UserSettings): void {
   }
 }
 
-/**
- * Initializes the friends list feature
- */
 export function initialize(settings?: UserSettings): void {
-  // Update settings if provided
+  if (!settings || !isProfilePage()) {
+    return;
+  }
+
   if (settings) {
     showRanks = settings.showFriendListRanks;
     sortFriendsByRenownElo = settings.sortFriendsByRenownElo;

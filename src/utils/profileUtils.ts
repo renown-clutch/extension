@@ -19,7 +19,6 @@ export function createProfileChangeHandler(
 
   return () => {
     const currentFullUrl = window.location.href;
-    const urlChanged = currentFullUrl !== lastFullUrl;
     const currentProfileId = getPlayerIdFromUrl();
 
     if (currentProfileId !== lastProfileId) {
@@ -35,7 +34,6 @@ export function observeProfileChanges(
 ): void {
   const handleUrlChange = createProfileChangeHandler(callback);
 
-  // Modern Navigation API (Chrome, Edge)
   if (
     "navigation" in window &&
     window.navigation &&
@@ -52,12 +50,6 @@ export function observeProfileChanges(
     );
   }
 
-  // Always add these event listeners regardless of Navigation API support
-  window.addEventListener("popstate", handleUrlChange);
-  window.addEventListener("hashchange", handleUrlChange);
-  document.addEventListener("visibilitychange", handleUrlChange);
-
-  // Use our utility function to create the observer
   createSafeObserver(
     () => handleUrlChange(),
     () => document.body,
@@ -65,7 +57,6 @@ export function observeProfileChanges(
   );
 }
 
-// Helper for UI elements to wait for an element to appear in the DOM
 export function waitForElement(
   selector: string,
   options?: {
@@ -91,7 +82,6 @@ export function waitForElement(
         if (!checkStability) {
           resolve(element);
         } else {
-          // Initialize stability checking with a safer approach
           let lastChildCount = element.childNodes.length;
           let lastChildrenHash = getElementChildrenHash(element);
           let stabilityCounter = 0;

@@ -257,7 +257,6 @@ async function renderDropsUI(drops: Drop[]): Promise<void> {
 
 export async function initialize(showDrops: boolean): Promise<void> {
   if (!showDrops || !isProfilePage()) {
-    removeExistingDropsContainer();
     return;
   }
 

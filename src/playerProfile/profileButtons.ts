@@ -260,10 +260,6 @@ export async function initialize(profileButtons: {
   faceit?: boolean;
 }): Promise<void> {
   try {
-    // Clean up previous buttons
-    removeButtons();
-
-    // If we're not on a profile page or no buttons enabled, we're done
     if (
       !isProfilePage() ||
       (!profileButtons.csstats && !profileButtons.faceit)

@@ -94,12 +94,7 @@ function removeHighestEloElement() {
  * Initialize the highest ELO feature
  */
 export function initialize(enabled: boolean): void {
-  if (!isProfilePage()) {
-    return;
-  }
-
-  if (!enabled) {
-    removeHighestEloElement();
+  if (!enabled || !isProfilePage()) {
     return;
   }
 

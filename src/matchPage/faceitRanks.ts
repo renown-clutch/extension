@@ -371,6 +371,8 @@ function processPlayerElements() {
     return;
   }
 
+  console.log("Processing player elements");
+
   let newPlayersFound = false;
   let steamIds: string[] = [];
   let playerElems: Map<string, HTMLElement> = new Map();
@@ -380,22 +382,21 @@ function processPlayerElements() {
     if (href && href.startsWith("/profile/")) {
       const steamId = href.replace("/profile/", "");
 
-      // Skip already processed players that have icons
+      // Skip if we've already processed this player and they have a valid icon
       const existingIcon = player.querySelector(".faceit-icon");
-
-      // Always include players with existing icons for updates
-      // or ones we haven't processed yet
-      if (!processedPlayers.has(player) || existingIcon) {
-        newPlayersFound = true;
-
-        // Mark as processed
-        if (!processedPlayers.has(player)) {
-          processedPlayers.add(player);
-        }
-
-        steamIds.push(steamId);
-        playerElems.set(steamId, player as HTMLElement);
+      if (processedPlayers.has(player) && existingIcon) {
+        return;
       }
+
+      newPlayersFound = true;
+
+      // Only mark as processed if we're actually going to process it
+      if (!processedPlayers.has(player)) {
+        processedPlayers.add(player);
+      }
+
+      steamIds.push(steamId);
+      playerElems.set(steamId, player as HTMLElement);
     }
   });
 

@@ -12,6 +12,7 @@ let isFeatureEnabled = false;
 let isFaceitFeatureEnabled = false;
 let processedTeams = new Set<HTMLElement>();
 let addedBadges: HTMLElement[] = [];
+let faceitRetryTimerId: number | null = null;
 
 /**
  * Checks if the extension context is still valid
@@ -83,6 +84,7 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
         if (!isFeatureEnabled) return;
 
         let shouldProcessTeams = false;
+        let shouldUpdatePositions = false;
 
         for (const mutation of mutations) {
           if (mutation.type === "childList") {
@@ -104,6 +106,23 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
                 break;
               }
             }
+
+            // Check for changes in team header positions
+            const matchScore = document.querySelector(".match-score");
+            if (matchScore) {
+              const team1 = matchScore.querySelector(".team1");
+              const team2 = matchScore.querySelector(".team2");
+
+              if (team1 && team2) {
+                // Check if team1 is now after team2 (position switch)
+                const team1Rect = team1.getBoundingClientRect();
+                const team2Rect = team2.getBoundingClientRect();
+
+                if (team1Rect.top > team2Rect.top) {
+                  shouldUpdatePositions = true;
+                }
+              }
+            }
           }
         }
 
@@ -122,6 +141,42 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
             );
           }
         }
+
+        if (shouldUpdatePositions) {
+          const matchScore = document.querySelector(".match-score");
+          if (matchScore) {
+            const team1 = matchScore.querySelector(".team1");
+            const team2 = matchScore.querySelector(".team2");
+
+            if (team1 && team2) {
+              // Get current ELO values from existing badges
+              const team1Badge = team1.querySelector(
+                '[data-clutch-extension="team-average-elo"]'
+              );
+              const team2Badge = team2.querySelector(
+                '[data-clutch-extension="team-average-elo"]'
+              );
+
+              if (team1Badge && team2Badge) {
+                // Remove existing badges
+                team1Badge.remove();
+                team2Badge.remove();
+
+                // Get team containers to recalculate ELO
+                const team1Players = document.querySelector(".team1-players");
+                const team2Players = document.querySelector(".team2-players");
+
+                if (team1Players && team2Players) {
+                  // Reprocess with updated positions
+                  processTeamContainers(
+                    team1Players as HTMLElement,
+                    team2Players as HTMLElement
+                  );
+                }
+              }
+            }
+          }
+        }
       },
       () => document.body,
       { childList: true, subtree: true }
@@ -136,10 +191,17 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
       processedTeams.add(team1Players as HTMLElement);
       processedTeams.add(team2Players as HTMLElement);
 
-      processTeamContainers(
-        team1Players as HTMLElement,
-        team2Players as HTMLElement
-      );
+      // Use setTimeout to ensure Faceit elements have time to load
+      setTimeout(() => {
+        // Only process if the feature is still enabled
+        if (isFeatureEnabled) {
+          console.log("[Clutch] Processing team containers after delay");
+          processTeamContainers(
+            team1Players as HTMLElement,
+            team2Players as HTMLElement
+          );
+        }
+      }, 500);
     }
   } catch (error: unknown) {
     if (
@@ -216,6 +278,62 @@ function processTeamContainers(
   // Update team headers with correct placement
   updateTeamHeader(team1 as HTMLElement, team1Elo, team1FaceitElo, "first");
   updateTeamHeader(team2 as HTMLElement, team2Elo, team2FaceitElo, "last");
+
+  // If Faceit is enabled but no Faceit ELO was found, start a retry mechanism
+  if (isFaceitFeatureEnabled && (!team1FaceitElo || !team2FaceitElo)) {
+    startFaceitRetryTimer(team1Container, team2Container);
+  }
+}
+
+/**
+ * Start a timer to retry loading Faceit ELO data
+ */
+function startFaceitRetryTimer(
+  team1Container: HTMLElement,
+  team2Container: HTMLElement
+) {
+  // Clear any existing timer
+  if (faceitRetryTimerId !== null) {
+    window.clearTimeout(faceitRetryTimerId);
+    faceitRetryTimerId = null;
+  }
+
+  // Set up our retry attempts - check every second for up to 5 seconds
+  let attempts = 0;
+  const maxAttempts = 5;
+  const intervalMs = 1000;
+
+  function retryFaceitElo() {
+    attempts++;
+    console.log(`[Clutch] Retry attempt ${attempts} for Faceit ELO data`);
+
+    // Check if we found at least one faceit icon in either team
+    const team1FaceitIcons = team1Container.querySelectorAll(".faceit-icon");
+    const team2FaceitIcons = team2Container.querySelectorAll(".faceit-icon");
+    const totalFaceitIcons = team1FaceitIcons.length + team2FaceitIcons.length;
+
+    console.log(`[Clutch] Found ${totalFaceitIcons} Faceit icons during retry`);
+
+    if (totalFaceitIcons > 0 || attempts >= maxAttempts) {
+      // Reprocess the team containers now that Faceit icons might be available
+      if (isFeatureEnabled && isFaceitFeatureEnabled) {
+        console.log(
+          "[Clutch] Reprocessing team containers after Faceit data became available"
+        );
+        // Reprocess the team containers
+        processTeamContainers(team1Container, team2Container);
+      }
+
+      // Clear the timer as we're done retrying
+      faceitRetryTimerId = null;
+    } else {
+      // Try again after the interval
+      faceitRetryTimerId = window.setTimeout(retryFaceitElo, intervalMs);
+    }
+  }
+
+  // Start the retry process
+  faceitRetryTimerId = window.setTimeout(retryFaceitElo, intervalMs);
 }
 
 /**
@@ -315,36 +433,87 @@ function calculateTeamAverageFaceitElo(container: HTMLElement): number | null {
   try {
     // Find all faceit icons in the player elements
     const faceitIcons = container.querySelectorAll(".faceit-icon");
+    console.log(
+      `[Clutch Debug] Found ${faceitIcons.length} faceit icons in container`
+    );
+
     let eloValues: number[] = [];
 
-    faceitIcons.forEach((icon) => {
+    faceitIcons.forEach((icon, index) => {
       if (icon instanceof HTMLElement) {
-        // Try to get from tooltip text
-        const tooltipElement = icon.querySelector(".clutch-tooltip");
-        if (tooltipElement && tooltipElement.textContent) {
-          const match = tooltipElement.textContent.match(/ELO: (\d+)/);
+        console.log(`[Clutch Debug] Processing faceit icon ${index + 1}`);
+
+        let foundElo = false;
+
+        // First, try to get ELO from the title attribute directly on the faceit-icon element
+        const titleAttribute = icon.getAttribute("title");
+        if (titleAttribute) {
+          console.log(
+            `[Clutch Debug] Found title attribute: "${titleAttribute}"`
+          );
+          const match = titleAttribute.match(/ELO: (\d+)/);
           if (match && match[1]) {
             const eloValue = parseInt(match[1], 10);
             if (!isNaN(eloValue)) {
               eloValues.push(eloValue);
+              foundElo = true;
+              console.log(
+                `[Clutch Debug] Extracted Faceit ELO from title: ${eloValue}`
+              );
             }
           }
         }
 
-        // If not found in tooltip, try from img alt attribute
-        if (eloValues.length === 0) {
+        // If not found in title, try to get from tooltip text
+        if (!foundElo) {
+          const tooltipElement = icon.querySelector(".clutch-tooltip");
+          if (tooltipElement && tooltipElement.textContent) {
+            console.log(
+              `[Clutch Debug] Found tooltip: "${tooltipElement.textContent}"`
+            );
+            const match = tooltipElement.textContent.match(/ELO: (\d+)/);
+            if (match && match[1]) {
+              const eloValue = parseInt(match[1], 10);
+              if (!isNaN(eloValue)) {
+                eloValues.push(eloValue);
+                foundElo = true;
+                console.log(`[Clutch Debug] Extracted Faceit ELO: ${eloValue}`);
+              }
+            }
+          } else {
+            console.log(
+              `[Clutch Debug] No tooltip found for icon ${index + 1}`
+            );
+          }
+        }
+
+        // If still not found, try from img alt attribute
+        if (!foundElo) {
           const imgElement = icon.querySelector("img");
           if (imgElement) {
             const altText = imgElement.getAttribute("alt");
             if (altText) {
+              console.log(`[Clutch Debug] Found img alt: "${altText}"`);
               const match = altText.match(/ELO: (\d+)/);
               if (match && match[1]) {
                 const eloValue = parseInt(match[1], 10);
                 if (!isNaN(eloValue)) {
                   eloValues.push(eloValue);
+                  foundElo = true;
+                  console.log(
+                    `[Clutch Debug] Extracted Faceit ELO from alt: ${eloValue}`
+                  );
                 }
               }
+            } else {
+              console.log(
+                `[Clutch Debug] No alt text found for icon ${index + 1}`
+              );
             }
+          } else {
+            console.log(
+              `[Clutch Debug] No img element found for icon ${index + 1}`
+            );
           }
         }
       }
@@ -353,9 +522,14 @@ function calculateTeamAverageFaceitElo(container: HTMLElement): number | null {
     // Calculate average
     if (eloValues.length > 0) {
       const sum = eloValues.reduce((total, elo) => total + elo, 0);
-      return Math.round(sum / eloValues.length);
+      const average = Math.round(sum / eloValues.length);
+      console.log(
+        `[Clutch Debug] Calculated average Faceit ELO: ${average} from ${eloValues.length} values`
+      );
+      return average;
     }
 
+    console.log("[Clutch Debug] No Faceit ELO values found, returning null");
     return null;
   } catch (error) {
     console.error("[Clutch] Error calculating team average Faceit ELO:", error);
@@ -442,11 +616,29 @@ export function updateSettings(enabled: boolean, faceitEnabled = false) {
       return;
     }
 
+    // Cancel any active retry timer
+    if (faceitRetryTimerId !== null) {
+      window.clearTimeout(faceitRetryTimerId);
+      faceitRetryTimerId = null;
+    }
+
     // Always clean up existing badges to prevent duplication when settings change
     cleanupBadges();
 
-    // Only reinitialize if at least one feature is enabled
+    // Ensure we're not in an inconsistent state
+    if (currentObserver) {
+      disconnectSafeObserver(currentObserver);
+      currentObserver = null;
+    }
+
+    // Update feature state
+    isFeatureEnabled = enabled;
+    isFaceitFeatureEnabled = faceitEnabled;
+
+    // Clear processed teams only if re-enabling
     if (enabled) {
+      processedTeams.clear();
+      // Reinitialize if feature is enabled
       initialize(enabled, faceitEnabled);
     }
   } catch (error: unknown) {
