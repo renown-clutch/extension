@@ -70,7 +70,7 @@
       </a>
     </div>
     <div>
-      <p class="capitalize text-slate-400 text-xs">Version 1.0.3</p>
+      <p class="capitalize text-slate-400 text-xs">Version 1.0.4</p>
     </div>
   </footer>
 </main>

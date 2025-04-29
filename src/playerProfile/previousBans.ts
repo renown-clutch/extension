@@ -219,7 +219,6 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
     ".ban-badge:not([data-clutch-extension='ban-element'])"
   );
 
-  // Add ban history header in all cases
   const headerDiv = document.createElement("div");
   headerDiv.className = "text";
   headerDiv.setAttribute("data-clutch-extension", "ban-element");
@@ -229,7 +228,6 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   headerDiv.textContent = "Ban History";
   container.appendChild(headerDiv);
 
-  // If there's an existing ban badge and no additional bans to show
   if (existingBanBadge && (!bans || bans.length <= 1)) {
     const noOtherBansBadge = createNoOtherBansBadge();
     container.appendChild(noOtherBansBadge);
@@ -253,7 +251,11 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
 }
 
 export async function initialize(showBans: boolean): Promise<void> {
-  if (!showBans || !isProfilePage()) {
+  if (!isProfilePage()) {
+    return;
+  }
+  if (!showBans) {
+    removeBanElements();
     return;
   }
 

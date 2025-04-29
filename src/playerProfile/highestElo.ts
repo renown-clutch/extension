@@ -2,11 +2,6 @@ import { getPlayerIdFromUrl, waitForElement } from "../utils/profileUtils";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 import { isProfilePage } from "../utils/profileUtils";
 
-let highestEloElement: HTMLDivElement | null = null;
-
-/**
- * Fetch the highest ELO for a player
- */
 async function fetchHighestElo(steamId: string): Promise<number | null> {
   return new Promise((resolve) => {
     try {
@@ -37,15 +32,9 @@ async function fetchHighestElo(steamId: string): Promise<number | null> {
   });
 }
 
-/**
- * Create and display the highest ELO element
- */
 async function displayHighestElo(playerId: string) {
-  removeHighestEloElement();
-
   await waitForElement(".profile-banner .container");
 
-  // Find the rank-badge element
   const rankBadgeElement = await waitForElement(".profile-banner .name-elo");
 
   if (!rankBadgeElement) {
@@ -53,7 +42,6 @@ async function displayHighestElo(playerId: string) {
     return;
   }
 
-  // Fetch highest ELO data
   const highestElo = await fetchHighestElo(playerId);
   if (!highestElo) {
     console.log("No highest ELO data available for this player");
@@ -74,31 +62,25 @@ async function displayHighestElo(playerId: string) {
   wrapper.appendChild(peakEloLabel);
   wrapper.appendChild(peakEloBadge);
 
-  highestEloElement = wrapper;
-
   rankBadgeElement.appendChild(wrapper);
 }
 
-/**
- * Remove the highest ELO element from the DOM
- */
 function removeHighestEloElement() {
   const elements = document.querySelectorAll(
     '[data-clutch-extension="highest-elo-element"]'
   );
   elements.forEach((element) => element.remove());
-  highestEloElement = null;
 }
 
-/**
- * Initialize the highest ELO feature
- */
 export function initialize(enabled: boolean): void {
-  if (!enabled || !isProfilePage()) {
+  if (!isProfilePage()) {
+    return;
+  }
+  if (!enabled) {
+    removeHighestEloElement();
     return;
   }
 
-  // Get current player ID
   const playerId = getPlayerIdFromUrl();
   if (!playerId) {
     console.warn("Could not determine player ID from URL");

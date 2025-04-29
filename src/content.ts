@@ -36,7 +36,6 @@ import {
   initializeKeepAlive,
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
-import { observeProfileChanges } from "./utils/profileUtils";
 import {
   initialize as initializeFaceitRanks,
   updateSettings as updateFaceitRanksSettings,
@@ -50,56 +49,53 @@ import {
   updateSettings as updateTeamAverageEloLiveSettings,
 } from "./matchPage/teamAverageEloLive";
 import {
-  initializeExtensionButton,
-  updateExtensionButtonSettings,
+  initialize as initializeExtensionButton,
+  updateSettings as updateExtensionButtonSettings,
 } from "./navbar/extensionButton";
-import { getCurrentPage, type PageType } from "./utils/pageUtils";
+import { getCurrentPage } from "./utils/pageUtils";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
 
-let previousPage: PageType | null = null;
 let lastUrl = window.location.href;
 
 initTempStyling();
 
+declare global {
+  interface Window {
+    __NEXT_DATA__?: any;
+  }
+}
+
 function waitForPageReady(): Promise<void> {
   return new Promise((resolve) => {
-    if (document.readyState === "complete") {
-      resolve();
-    } else {
-      window.addEventListener("load", () => {
+    const checkHydration = () => {
+      if (window.__NEXT_DATA__) {
+        console.log("Next.js hydration complete");
         resolve();
-      });
-    }
+        return;
+      }
+      if (document.readyState === "complete") {
+        console.log("DOM is fully loaded and ready");
+        resolve();
+        return;
+      }
+      setTimeout(checkHydration, 100);
+    };
+    checkHydration();
   });
 }
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
-  if (changedParts.selectedTheme) {
-    if (changedParts.selectedTheme !== "default") {
-      try {
-        await initializeTheme(changedParts.selectedTheme);
-      } catch (error) {
-        console.error("Error applying theme change:", error);
-      }
-    }
+  if (changedParts.selectedTheme && changedParts.selectedTheme !== "default") {
+    await initializeTheme(changedParts.selectedTheme);
   }
 
   if (
     changedParts.csstatsProfileButton !== undefined ||
     changedParts.faceitProfileButton !== undefined
   ) {
-    initializeProfileButtons({
-      csstats:
-        changedParts.csstatsProfileButton !== undefined
-          ? changedParts.csstatsProfileButton
-          : userSettings.csstatsProfileButton,
-      faceit:
-        changedParts.faceitProfileButton !== undefined
-          ? changedParts.faceitProfileButton
-          : userSettings.faceitProfileButton,
-    });
+    initializeProfileButtons(userSettings);
   }
 
   if (changedParts.showBans !== undefined) {
@@ -125,16 +121,17 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     updateSidebarFriendsSettings(userSettings);
   }
 
-  if (changedParts.autoAccept) {
-    updateMatchFoundAutoAcceptSettings(userSettings);
-    updateAutoAcceptPartyInviteSettings(userSettings);
-  }
-
-  if (changedParts.matchAutoAcceptDelay !== undefined) {
+  if (
+    changedParts.autoAccept?.match ||
+    changedParts.matchAutoAcceptDelay !== undefined
+  ) {
     updateMatchFoundAutoAcceptSettings(userSettings);
   }
 
-  if (changedParts.partyAutoAcceptDelay !== undefined) {
+  if (
+    changedParts.autoAccept?.party ||
+    changedParts.partyAutoAcceptDelay !== undefined
+  ) {
     updateAutoAcceptPartyInviteSettings(userSettings);
   }
 
@@ -144,12 +141,17 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
   if (changedParts.showFaceitRanksOnMatchPage !== undefined) {
     updateFaceitRanksSettings(userSettings.showFaceitRanksOnMatchPage);
+    updateTeamAverageEloSettings(
+      userSettings.showTeamAverageElo,
+      userSettings.showFaceitRanksOnMatchPage
+    );
+    updateTeamAverageEloLiveSettings(
+      userSettings.showTeamAverageElo,
+      userSettings.showFaceitRanksOnMatchPage
+    );
   }
 
-  if (
-    changedParts.showTeamAverageElo !== undefined ||
-    changedParts.showFaceitRanksOnMatchPage !== undefined
-  ) {
+  if (changedParts.showTeamAverageElo !== undefined) {
     updateTeamAverageEloSettings(
       userSettings.showTeamAverageElo,
       userSettings.showFaceitRanksOnMatchPage
@@ -215,10 +217,7 @@ async function initialize() {
 
     await waitForPageReady();
 
-    initializeProfileButtons({
-      csstats: userSettings.csstatsProfileButton,
-      faceit: userSettings.faceitProfileButton,
-    });
+    initializeProfileButtons(userSettings);
     initializeSkinDrops(userSettings.showSkinDrops);
     initializeFriendsList(userSettings);
     initializeProfileBans(userSettings.showBans);

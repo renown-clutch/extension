@@ -2,15 +2,10 @@ import {
   createSafeObserver,
   disconnectSafeObserver,
 } from "../utils/observerUtils";
-import {
-  createRankBadgeElement,
-  getRankTier,
-  getRankIconPath,
-} from "../utils/rankBadgeUtils";
-import { createFaceitBadgeElement, getFaceitLevel } from "../utils/faceitUtils";
+import { createRankBadgeElement } from "../utils/rankBadgeUtils";
+import { createFaceitBadgeElement } from "../utils/faceitUtils";
 import { waitForElement } from "../utils/profileUtils";
 
-// Keep track of observer and state
 let currentObserver: MutationObserver | null = null;
 let matchScoreObserver: MutationObserver | null = null;
 let isFeatureEnabled = false;
@@ -19,16 +14,10 @@ let processedTeams = new Set<HTMLElement>();
 let processedMatchHeaders = new Set<HTMLElement>();
 let addedBadges: HTMLElement[] = [];
 
-/**
- * Checks if the extension context is still valid
- */
 function isExtensionContextValid(): boolean {
   return chrome.runtime && !!chrome.runtime.id;
 }
 
-/**
- * Initialize the team average ELO feature for regular matches
- */
 export async function initialize(enabled: boolean, faceitEnabled = false) {
   try {
     // Check if extension context is still valid before initializing
@@ -38,13 +27,6 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
       );
       return;
     }
-
-    console.log(
-      "Initializing team average ELO for regular matches with enabled:",
-      enabled,
-      "faceitEnabled:",
-      faceitEnabled
-    );
 
     // Always clean up existing badges when initializing
     cleanupBadges();
@@ -78,13 +60,9 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
       // Check if we have exactly 2 team-stats-table elements
       const teamTables = document.querySelectorAll(".team-stats-table");
       if (teamTables.length !== 2) {
-        console.log(
-          "Not a regular match page with 2 team tables, feature disabled for this page"
-        );
         return;
       }
     } catch (error) {
-      console.log("Container element not found or other error:", error);
       return;
     }
 
@@ -134,7 +112,6 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
         if (shouldProcessTables) {
           // Find all team tables and process each one
           const teamTables = document.querySelectorAll(".team-stats-table");
-          console.log("Found team tables:", teamTables.length);
           teamTables.forEach((table) => {
             if (!processedTeams.has(table as HTMLElement)) {
               processTeamTable(table as HTMLElement);
@@ -143,30 +120,13 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
             }
           });
         }
-
-        // if (shouldProcessMatchHeader) {
-        //   // Process match score header
-        //   const matchScoreWrappers = document.querySelectorAll(
-        //     ".match-score-wrapper"
-        //   );
-        //   console.log("Found match score wrappers:", matchScoreWrappers.length);
-        //   matchScoreWrappers.forEach((wrapper) => {
-        //     if (!processedMatchHeaders.has(wrapper as HTMLElement)) {
-        //       processMatchHeader(wrapper as HTMLElement);
-        //     }
-        //   });
-        // }
       },
       () => document.body,
       { childList: true, subtree: true }
     );
 
-    // Immediately check for existing elements
-    console.log("Checking for existing elements");
-
-    // Process any existing team tables
     const teamTables = document.querySelectorAll(".team-stats-table");
-    console.log("Found existing team tables:", teamTables.length);
+
     teamTables.forEach((table) => {
       if (!processedTeams.has(table as HTMLElement)) {
         processTeamTable(table as HTMLElement);
@@ -179,28 +139,19 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
     const matchScoreWrappers = document.querySelectorAll(
       ".match-score-wrapper"
     );
-    console.log(
-      "Found existing match score wrappers:",
-      matchScoreWrappers.length
-    );
+
     matchScoreWrappers.forEach((wrapper) => {
       processMatchHeader(wrapper as HTMLElement);
     });
 
     // If nothing was found immediately, try again with a delay
     if (teamTables.length === 0 || matchScoreWrappers.length === 0) {
-      console.log("No elements found immediately, trying with delay");
       setTimeout(() => {
         const delayedTeamTables =
           document.querySelectorAll(".team-stats-table");
         const delayedMatchScoreWrappers = document.querySelectorAll(
           ".match-score-wrapper"
         );
-
-        console.log("Delayed search found:", {
-          tables: delayedTeamTables.length,
-          wrappers: delayedMatchScoreWrappers.length,
-        });
 
         delayedTeamTables.forEach((table) => {
           if (!processedTeams.has(table as HTMLElement)) {
@@ -229,9 +180,6 @@ export async function initialize(enabled: boolean, faceitEnabled = false) {
   }
 }
 
-/**
- * Clean up any badges that have been added to the page
- */
 function cleanupBadges() {
   addedBadges.forEach((badge) => {
     if (badge && badge.parentNode) {
@@ -252,9 +200,6 @@ function cleanupBadges() {
   });
 }
 
-/**
- * Process a single team table and add average ELO badges
- */
 async function processTeamTable(table: HTMLElement) {
   try {
     // Mark as processed to avoid duplicate processing
@@ -287,7 +232,6 @@ async function processTeamTable(table: HTMLElement) {
         '[data-clutch-extension="team-average-elo-element"]'
       )
     ) {
-      console.log("[Clutch] Table already has badges, skipping");
       return;
     }
 
@@ -364,9 +308,6 @@ async function processTeamTable(table: HTMLElement) {
   }
 }
 
-/**
- * Calculate the average Renown ELO for a team
- */
 function calculateTeamAverageElo(container: HTMLElement): number | null {
   try {
     // Find all rank badges in the player elements
@@ -454,9 +395,6 @@ function calculateTeamAverageElo(container: HTMLElement): number | null {
   }
 }
 
-/**
- * Calculate the average Faceit ELO for a team
- */
 function calculateTeamAverageFaceitElo(container: HTMLElement): number | null {
   try {
     // Find all faceit icons in the player elements
@@ -509,15 +447,11 @@ function calculateTeamAverageFaceitElo(container: HTMLElement): number | null {
   }
 }
 
-/**
- * Process the match header and update with average ELO information
- */
 function processMatchHeader(wrapper?: HTMLElement) {
   try {
     // Find the match header panel
     const matchHeader = document.querySelector(".match-header");
     if (!matchHeader) {
-      console.log("[Clutch] No match header found.");
       return;
     }
 
@@ -544,7 +478,6 @@ function processMatchHeader(wrapper?: HTMLElement) {
       // Fallback to looking for player elements
       const playerElements = document.querySelectorAll(".player");
       if (playerElements.length === 0) {
-        console.log("[Clutch] No player elements found in match header.");
         return;
       }
 
@@ -556,7 +489,6 @@ function processMatchHeader(wrapper?: HTMLElement) {
         processTeamContainers(teamContainer1, teamContainer2);
         return;
       } else {
-        console.log("[Clutch] Couldn't identify team containers.");
         return;
       }
     }
@@ -571,9 +503,6 @@ function processMatchHeader(wrapper?: HTMLElement) {
   }
 }
 
-/**
- * Find team container for the specified team index
- */
 function findTeamContainer(
   playerElements: NodeListOf<Element>,
   teamIndex: number
@@ -632,9 +561,6 @@ function findTeamContainer(
   return null;
 }
 
-/**
- * Process team containers and add ELO information
- */
 function processTeamContainers(
   team1Container: HTMLElement,
   team2Container: HTMLElement
@@ -650,9 +576,6 @@ function processTeamContainers(
   updateTeamHeader(team2Header as HTMLElement, team2Elo);
 }
 
-/**
- * Process team stat tables and add ELO information
- */
 function processTeamStatTables(
   team1StatsTable: HTMLElement,
   team2StatsTable: HTMLElement
@@ -667,7 +590,6 @@ function processTeamStatTables(
   // Get team headers
   const teamHeaders = document.querySelectorAll(".team-info");
   if (teamHeaders.length !== 2) {
-    console.log("[Clutch] Couldn't find team headers.");
     return;
   }
 
@@ -678,9 +600,6 @@ function processTeamStatTables(
   updateTeamHeader(team2Header, team2Elo, team2FaceitElo);
 }
 
-/**
- * Updates the team average ELO feature settings
- */
 export function updateSettings(enabled: boolean, faceitEnabled = false) {
   try {
     // Check if extension context is still valid before updating settings
@@ -712,9 +631,6 @@ export function updateSettings(enabled: boolean, faceitEnabled = false) {
   }
 }
 
-/**
- * Update a team header with ELO information
- */
 function updateTeamHeader(
   header: HTMLElement,
   renownElo: number | null,
@@ -723,7 +639,6 @@ function updateTeamHeader(
   try {
     // Check if we have ELO values to display
     if (!renownElo && !faceitElo) {
-      console.log("[Clutch] No ELO values available for team header");
       return;
     }
 
@@ -766,47 +681,7 @@ function updateTeamHeader(
       // Fallback: append to header
       header.appendChild(badgesContainer);
     }
-
-    console.log(
-      `[Clutch] Added ELO badges to team header: Renown ${renownElo}, Faceit ${faceitElo}`
-    );
   } catch (error) {
     console.error("[Clutch] Error updating team header:", error);
   }
-}
-
-/**
- * Get Faceit level based on ELO - using the imported utility
- */
-function getFaceitLevelForElo(elo: number): number {
-  return getFaceitLevel(elo) || 0;
-}
-
-/**
- * Get Faceit level image URL
- */
-function getFaceitImageUrl(level: number): string {
-  try {
-    if (!chrome.runtime || !chrome.runtime.id) {
-      console.warn(
-        "[Clutch] Extension context invalid when getting Faceit icon path"
-      );
-      return "";
-    }
-    return chrome.runtime.getURL(`static/faceitlevels/lvl${level}.svg`);
-  } catch (error) {
-    console.warn("[Clutch] Error getting Faceit icon path:", error);
-    return "";
-  }
-}
-
-/**
- * Get rank data for a given ELO - for backwards compatibility
- */
-function getRankForElo(elo: number): { name: string; imageUrl: string } {
-  const rankTier = getRankTier(elo);
-  const name = rankTier.charAt(0).toUpperCase() + rankTier.slice(1);
-  const imageUrl = getRankIconPath(rankTier);
-
-  return { name, imageUrl };
 }

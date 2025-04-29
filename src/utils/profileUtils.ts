@@ -73,7 +73,7 @@ export function waitForElement(
     stabilityThreshold = 2,
   } = options || {};
 
-  const stabilityPollInterval = 10;
+  const stabilityPollInterval = 50;
 
   return new Promise((resolve, reject) => {
     const tryFind = () => {
