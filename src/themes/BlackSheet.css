@@ -21,6 +21,37 @@
   background-color: var(--slate-900);
 }
 
+.avatar.premium .wrap img {
+  background-image: linear-gradient(180deg, #fbbf24, #fbbf24), linear-gradient(180deg, #fbbf24, #c7900082 37%, #f59e0b 75%, #fbbf24);
+}
+
+.modal .modal-content {
+ 
+  border: 2px solid var(--slate-900);
+  
+}
+
+.rate-teammates .modal-content .player-list-wrapper .player-list .player {
+  
+  background: var(--slate-950);
+  border: 1px solid var(--slate-800);
+ 
+}
+
+.rate-teammates .modal-content .player-list-wrapper .player-list .player .rating-options .in-party {
+  
+  color: var(--slate-600);
+}
+
+.page.leaderboard .data .visitor-placement-row .separator .line {
+  border: 1px solid var(--slate-900);
+}
+
+.page.leaderboard .data {
+  border-top: 1px solid var(--slate-900);
+
+}
+
 .game-info-wrapper .card .value .map-icons .map-wrapper .bonus-map {
     
   border: 1px solid var(--slate-800);
@@ -2707,15 +2738,15 @@ input.iti__tel-input {
   
   .custom-selector .custom-select__control {
     background-color: var(--slate-950);
-    border-color: #3c2c2c;
+    border-color: var(--slate-900);
   }
   
   .custom-selector .custom-select__control:hover {
-    border-color: #3c2c2c;
+    border-color: var(--slate-900);
   }
   
   .custom-selector .custom-select__control--is-focused,.custom-selector .custom-select__control--is-focused:hover {
-    border-color: #716464;
+    border-color: var(--slate-800);
   }
   
   .custom-selector .custom-select__single-value {
@@ -2727,11 +2758,12 @@ input.iti__tel-input {
   }
   
   .custom-selector .custom-select__option--is-focused,.custom-selector .custom-select__option:hover {
-    background-color: #382829;
+    background-color: var(--slate-800);
   }
   
   .custom-selector .custom-select__menu {
     background-color: var(--slate-950);
+    border-color: var(--slate-900);
   }
   
   .custom-selector .custom-select__dropdown-indicator,.custom-selector .custom-select__dropdown-indicator:hover {
