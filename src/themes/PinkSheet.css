@@ -26,6 +26,12 @@
  
 }
 
+.profile-banner .layout .wrapper .avatar-wrapper {
+
+  background-color: var(--slate-900);
+
+}
+
 .match-veto .voting-options .voting-card:hover .overlay {
   background: var(--slate-700-80);
 }
@@ -173,11 +179,7 @@ input.iti__tel-input {
   background: var(--linear-gradient-90);
 }
 
-.profile-banner .layout .wrapper .avatar {
-  
-  background-color: var(--slate-900);
-  
-}
+
 
 .tooltip-wrapper .tooltip {
   background-color: var(--slate-700);
@@ -1339,9 +1341,7 @@ input.iti__tel-input {
     background: linear-gradient(180deg, var(--slate-700), var(--slate-900));
    
 
-  .profile-banner .layout .wrapper .avatar {
-    background-color: var(--slate-900);
-  }
+  
   
   .profile-banner .layout .wrapper .flag {
     background-color: var(--slate-900);
