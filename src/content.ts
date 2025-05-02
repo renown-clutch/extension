@@ -28,10 +28,7 @@ import {
   initializeKeepAlive,
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
-import {
-  initializeFaceitRanks,
-  updateFaceitRanksSettings,
-} from "./matchPage/faceitRanks";
+import { initializeFaceitRanks } from "./matchPage/faceitRanks";
 import {
   initializeTeamAverageElo,
   updateTeamAverageEloSettings,
@@ -152,7 +149,7 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 
   if (changedParts.showFaceitRanksOnMatchPage !== undefined) {
-    updateFaceitRanksSettings(userSettings.showFaceitRanksOnMatchPage);
+    initializeFaceitRanks(userSettings);
     updateTeamAverageEloSettings(
       userSettings.showTeamAverageElo,
       userSettings.showFaceitRanksOnMatchPage
@@ -198,14 +195,15 @@ function observeUrlChanges() {
     const currentUrl = window.location.href;
     if (currentUrl !== lastUrl) {
       lastUrl = currentUrl;
-      initialize();
+      initialize(currentUrl);
     }
   });
 
   observer.observe(document, { subtree: true, childList: true });
 }
 
-async function initialize() {
+async function initialize(currentUrl: string) {
+  console.log("Initializing with URL:", currentUrl);
   if (!shouldBeInjected()) {
     removeAllThemeStyles();
     return;
@@ -229,7 +227,7 @@ async function initialize() {
     initializeKeepAlive(userSettings);
 
     initializeSidebarFriends(userSettings);
-    initializeFaceitRanks(userSettings.showFaceitRanksOnMatchPage);
+    initializeFaceitRanks(userSettings);
     initializeTeamAverageElo(
       userSettings.showTeamAverageElo,
       userSettings.showFaceitRanksOnMatchPage
@@ -287,4 +285,4 @@ if (shouldBeInjected()) {
 
 observeUrlChanges();
 
-initialize();
+initialize(window.location.href);

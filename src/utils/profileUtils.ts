@@ -66,41 +66,78 @@ export function waitForElement(
     stabilityThreshold?: number;
   }
 ): Promise<Element> {
+  return waitForElements(selector, {
+    ...options,
+    single: true,
+  }) as Promise<Element>;
+}
+
+export function waitForElements(
+  selector: string,
+  options?: {
+    checkStability?: boolean;
+    stabilityTimeout?: number;
+    pollInterval?: number;
+    stabilityThreshold?: number;
+    single?: boolean;
+  }
+): Promise<Element | NodeListOf<Element>> {
   const {
     checkStability = true,
     stabilityTimeout = 1000,
     pollInterval = 250,
     stabilityThreshold = 2,
+    single = false,
   } = options || {};
 
   const stabilityPollInterval = 50;
 
   return new Promise((resolve, reject) => {
     const tryFind = () => {
-      const element = document.querySelector(selector);
-      if (element) {
+      const elements = single
+        ? document.querySelector(selector)
+        : document.querySelectorAll(selector);
+      if (
+        elements &&
+        (single ? true : (elements as NodeListOf<Element>).length > 0)
+      ) {
         if (!checkStability) {
-          resolve(element);
+          resolve(elements);
         } else {
-          let lastChildCount = element.childNodes.length;
-          let lastChildrenHash = getElementChildrenHash(element);
+          let lastChildCount = single
+            ? (elements as Element).childNodes.length
+            : (elements as NodeListOf<Element>)[0].childNodes.length;
+          let lastChildrenHash = single
+            ? getElementChildrenHash(elements as Element)
+            : getElementChildrenHash((elements as NodeListOf<Element>)[0]);
           let stabilityCounter = 0;
           let startTime = Date.now();
 
           const checkStability = () => {
             if (Date.now() - startTime > stabilityTimeout) {
-              resolve(element);
+              resolve(elements);
               return;
             }
 
-            const currentElement = document.querySelector(selector);
-            if (!currentElement) {
+            const currentElements = single
+              ? document.querySelector(selector)
+              : document.querySelectorAll(selector);
+            if (
+              !currentElements ||
+              (!single && (currentElements as NodeListOf<Element>).length === 0)
+            ) {
               setTimeout(checkStability, stabilityPollInterval);
               return;
             }
 
-            const currentChildCount = currentElement.childNodes.length;
-            const currentChildrenHash = getElementChildrenHash(currentElement);
+            const currentChildCount = single
+              ? (currentElements as Element).childNodes.length
+              : (currentElements as NodeListOf<Element>)[0].childNodes.length;
+            const currentChildrenHash = single
+              ? getElementChildrenHash(currentElements as Element)
+              : getElementChildrenHash(
+                  (currentElements as NodeListOf<Element>)[0]
+                );
 
             if (
               currentChildCount === lastChildCount &&
@@ -109,7 +146,7 @@ export function waitForElement(
               stabilityCounter++;
 
               if (stabilityCounter >= stabilityThreshold) {
-                resolve(currentElement);
+                resolve(currentElements);
                 return;
               }
             } else {
