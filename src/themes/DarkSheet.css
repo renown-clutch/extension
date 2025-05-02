@@ -25,6 +25,24 @@
   border: 1px solid var(--slate-800);
   background-color: var(--slate-900);
   
+}.navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
+  background-color: var(--slate-900);
+}
+
+.page.leaderboard .data .visitor-placement-row .separator .line {
+  border: 1px solid var(--slate-900);
+}
+
+.page.leaderboard .data {
+  border-top: 1px solid var(--slate-900);
+
+}
+
+.game-info-wrapper .card .value .map-icons .map-wrapper .bonus-map {
+    
+  border: 1px solid var(--slate-800);
+  background-color: var(--slate-900);
+  
 }
 
 .profile-banner .layout .wrapper .avatar-wrapper {
@@ -185,7 +203,6 @@ input.iti__tel-input {
  
   background: var(--linear-gradient-90);
 }
-
 
 
 .tooltip-wrapper .tooltip {
@@ -1348,6 +1365,7 @@ input.iti__tel-input {
     background: linear-gradient(180deg, var(--slate-700), var(--slate-900));
    
 
+  
   
   .profile-banner .layout .wrapper .flag {
     background-color: var(--slate-900);
@@ -2706,15 +2724,15 @@ input.iti__tel-input {
   
   .custom-selector .custom-select__control {
     background-color: var(--slate-950);
-    border-color: #3c2c2c;
+    border-color: var(--slate-900);
   }
   
   .custom-selector .custom-select__control:hover {
-    border-color: #3c2c2c;
+    border-color: var(--slate-900);
   }
   
   .custom-selector .custom-select__control--is-focused,.custom-selector .custom-select__control--is-focused:hover {
-    border-color: #716464;
+    border-color: var(--slate-800);
   }
   
   .custom-selector .custom-select__single-value {
@@ -2726,11 +2744,12 @@ input.iti__tel-input {
   }
   
   .custom-selector .custom-select__option--is-focused,.custom-selector .custom-select__option:hover {
-    background-color: #382829;
+    background-color: var(--slate-800);
   }
   
   .custom-selector .custom-select__menu {
     background-color: var(--slate-950);
+    border-color: var(--slate-900);
   }
   
   .custom-selector .custom-select__dropdown-indicator,.custom-selector .custom-select__dropdown-indicator:hover {
