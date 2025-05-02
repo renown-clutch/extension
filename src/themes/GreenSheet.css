@@ -27,6 +27,13 @@
  
 }
 
+.game-info-wrapper .card .value .map-icons .map-wrapper .bonus-map {
+    
+  border: 1px solid var(--slate-800);
+  background-color: var(--slate-900);
+  
+}
+
 .profile-banner .layout .wrapper .avatar-wrapper {
 
   background-color: var(--slate-900);
