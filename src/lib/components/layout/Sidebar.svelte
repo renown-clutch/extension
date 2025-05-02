@@ -72,7 +72,7 @@
           <figure>
             <svg
               id="Discord-Logo"
-              class="w-5 fill-slate-300 group-hover:fill-slate-100 transition-colors"
+              class="w-4 fill-slate-300 group-hover:fill-slate-100 transition-colors"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 126.644 96"
               ><defs></defs><path
