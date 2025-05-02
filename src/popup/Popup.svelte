@@ -15,14 +15,12 @@
   let userSettings: UserSettings = $state<UserSettings>(defaultUserSettings);
   let previousSettings: UserSettings = { ...defaultUserSettings };
 
-  // Helper function to strip proxies by converting to and from JSON
   function stripProxies(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
   }
 
   function sendSettingsToContentScript(changedParts?: Partial<UserSettings>) {
     try {
-      // Make sure to strip any proxies before sending
       const settingsToSend = stripProxies(userSettings);
       const changedPartsToSend = changedParts
         ? stripProxies(changedParts)
@@ -162,25 +160,21 @@
     try {
       let settings;
 
-      // Try the direct Firefox API first if available
       if (typeof browser !== "undefined" && browser.storage) {
         const result = await browser.storage.local.get("userSettings");
         settings = result.userSettings;
       } else {
-        // Fall back to Chrome or wrapper
         const result = (await browserAPI.storage.local.get("userSettings")) as {
           userSettings?: UserSettings;
         };
         settings = result.userSettings;
       }
 
-      // Use untrack to prevent this state update from triggering the effect
       untrack(() => {
         if (settings) {
           userSettings = settings;
           previousSettings = { ...settings };
 
-          // Ensure all default settings are present
           Object.keys(defaultUserSettings).forEach((key) => {
             if (!(key in userSettings)) {
               (userSettings as any)[key] = (defaultUserSettings as any)[key];
@@ -192,7 +186,6 @@
         }
       });
 
-      // Log for debugging
       console.log("Loaded settings:", userSettings);
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -200,20 +193,16 @@
   });
 
   $effect(() => {
-    // Ensure storage interactions work in Firefox
     try {
-      // Strip proxies before storing
       const settingsToStore = stripProxies(userSettings);
 
       if (typeof browser !== "undefined" && browser.storage) {
-        // Firefox: Use the direct API
         browser.storage.local
           .set({ userSettings: settingsToStore })
           .catch((error) => {
             console.error("Error saving settings to Firefox storage:", error);
           });
       } else {
-        // Chrome: Use our wrapper
         browserAPI.storage.local.set({ userSettings: settingsToStore });
       }
 
