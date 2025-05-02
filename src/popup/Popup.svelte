@@ -4,6 +4,7 @@
   import SoundTab from "./tabs/Sound.svelte";
   import ThemeTab from "./tabs/Theme.svelte";
   import ProfilesTab from "./tabs/Profiles.svelte";
+  import FriendsTab from "./tabs/Friends.svelte";
   import AutoAcceptTab from "./tabs/AutoAccept.svelte";
   import SettingsTab from "./tabs/Settings.svelte";
   import MatchTab from "./tabs/Match.svelte";
@@ -219,7 +220,7 @@
 </script>
 
 <main class="w-[600px] bg-slate-950">
-  <div class="flex h-[440px]">
+  <div class="flex h-[480px]">
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
     <div class="flex-1 p-8 overflow-y-auto">
