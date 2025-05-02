@@ -9,6 +9,7 @@ export type TabName =
 export type Theme =
   | "default"
   | "darkgray"
+  | "black"
   | "dark"
   | "pink"
   | "purple"

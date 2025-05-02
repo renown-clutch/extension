@@ -7,6 +7,7 @@
     { label: "Default", value: "default" },
     { label: "Dark", value: "dark" },
     { label: "Dark Gray", value: "darkgray" },
+    { label: "Black", value: "black" },
     { label: "Pink", value: "pink" },
     { label: "Purple", value: "purple" },
     { label: "Green", value: "green" },

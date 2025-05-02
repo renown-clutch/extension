@@ -11,6 +11,7 @@ const GREEN_SHEET_PATH = browserAPI.runtime.getURL("themes/GreenSheet.css");
 const DARK_GRAY_SHEET_PATH = browserAPI.runtime.getURL(
   "themes/DarkGraySheet.css"
 );
+const BLACK_SHEET_PATH = browserAPI.runtime.getURL("themes/BlackSheet.css");
 
 const tempThemeStyles: Record<string, string> = {
   dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
@@ -21,6 +22,8 @@ const tempThemeStyles: Record<string, string> = {
     "html, body { background-color: #0a2613 !important; color: #fff !important; transition: none !important; }",
   darkgray:
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
+  black:
+    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
 };
 
 const themePathMap: Record<string, string> = {
@@ -29,6 +32,7 @@ const themePathMap: Record<string, string> = {
   purple: PURPLE_SHEET_PATH,
   green: GREEN_SHEET_PATH,
   darkgray: DARK_GRAY_SHEET_PATH,
+  black: BLACK_SHEET_PATH,
 };
 
 const tempStyleElement = document.createElement("style");
@@ -178,6 +182,7 @@ export async function initializeTheme(theme: string): Promise<void> {
     theme !== "pink" &&
     theme !== "purple" &&
     theme !== "green" &&
+    theme !== "black" &&
     theme !== "darkgray"
   ) {
     return;
