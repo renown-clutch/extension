@@ -1,6 +1,8 @@
 import { type UserSettings } from "../lib/types";
 import { getRankTier, createRankBadgeElement } from "../utils/rankBadgeUtils";
 
+let friendsObserver: MutationObserver | null = null;
+
 function removeRankBadges(): void {
   const tooltipWrappers = document.querySelectorAll(
     ".sidebar-content .friends .profile-link .tooltip-wrapper"
@@ -157,11 +159,42 @@ function injectCollapseCSS(): void {
   document.head.appendChild(style);
 }
 
+function setupFriendsObserver(settings: UserSettings): void {
+  if (friendsObserver) {
+    friendsObserver.disconnect();
+    friendsObserver = null;
+  }
+
+  if (!settings.showSidebarFriendRanks) return;
+
+  const friendsContainer = document.querySelector(".sidebar-content .friends");
+  if (!friendsContainer) return;
+
+  friendsObserver = new MutationObserver((mutations) => {
+    const playFriendList = document.querySelector(".play-friend-list");
+    if (!playFriendList) return;
+
+    processSidebarFriends(settings.showSidebarFriendRanks);
+  });
+
+  friendsObserver.observe(friendsContainer, {
+    childList: true,
+    subtree: true,
+  });
+}
+
 export function initializeSidebarFriends(settings?: UserSettings): void {
-  if (!settings?.showSidebarFriendRanks) {
+  if (!settings) return;
+
+  if (!settings.showSidebarFriendRanks) {
+    if (friendsObserver) {
+      friendsObserver.disconnect();
+      friendsObserver = null;
+    }
     removeRankBadges();
     return;
   }
 
   processSidebarFriends(settings.showSidebarFriendRanks);
+  setupFriendsObserver(settings);
 }
