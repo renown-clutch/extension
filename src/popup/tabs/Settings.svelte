@@ -10,16 +10,13 @@
   let keepAliveSwitchId = "keep-alive-switch";
   let extensionButtonSwitchId = "extension-button-switch";
 
-  // Check if we're running in Firefox
   let isFirefox = $state(false);
   let navbarFeatureDisabled = $state(false);
 
   onMount(() => {
-    // Detect Firefox
     isFirefox = typeof browser !== "undefined";
     navbarFeatureDisabled = isFirefox;
 
-    // If we're in Firefox, ensure the button is disabled and unchecked
     if (isFirefox) {
       showExtensionNavbarButton = false;
     }
