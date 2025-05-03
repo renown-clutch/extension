@@ -1,14 +1,6 @@
-import { createSafeObserver } from "../utils/observerUtils";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 import { createFaceitBadgeElement } from "../utils/faceitUtils";
-import { waitForElement } from "../utils/profileUtils";
 import type { UserSettings } from "$lib/types";
-import { isLiveMatch } from "../utils/pageUtils";
-
-interface PlayerData {
-  element: HTMLElement;
-  steamId: string;
-}
 
 interface FaceitData {
   [steamId: string]: {
@@ -17,13 +9,18 @@ interface FaceitData {
   };
 }
 
+let teamScoreObserver: MutationObserver | null = null;
+
 export async function initializeTeamAverageEloLive(
   userSettings: UserSettings,
-  players: PlayerData[],
   faceitData: FaceitData
 ) {
   if (!userSettings.showTeamAverageElo) {
     await cleanupBadges();
+    if (teamScoreObserver) {
+      teamScoreObserver.disconnect();
+      teamScoreObserver = null;
+    }
     return;
   }
 
@@ -40,6 +37,69 @@ export async function initializeTeamAverageEloLive(
     faceitData,
     userSettings
   );
+
+  setupTeamScoreObserver(faceitData, userSettings);
+}
+
+function setupTeamScoreObserver(
+  faceitData: FaceitData,
+  userSettings: UserSettings
+) {
+  if (teamScoreObserver) {
+    teamScoreObserver.disconnect();
+    teamScoreObserver = null;
+  }
+
+  const team1Content = document.querySelector(".match-score .team1 .content");
+  const team2Content = document.querySelector(".match-score .team2 .content");
+  const scoreElement = document.querySelector(".match-score .middle .score");
+
+  if (!team1Content && !team2Content && !scoreElement) {
+    return;
+  }
+
+  let updateTimeout: number | null = null;
+
+  const observerCallback = (mutations: MutationRecord[]) => {
+    if (updateTimeout) {
+      clearTimeout(updateTimeout);
+    }
+
+    updateTimeout = setTimeout(() => {
+      const team1Container = document.querySelector(".team1-players");
+      const team2Container = document.querySelector(".team2-players");
+
+      if (team1Container && team2Container) {
+        processTeamContainers(
+          team1Container as HTMLElement,
+          team2Container as HTMLElement,
+          faceitData,
+          userSettings
+        );
+      }
+      updateTimeout = null;
+    }, 50);
+  };
+
+  teamScoreObserver = new MutationObserver(observerCallback);
+
+  const observerOptions = {
+    childList: true,
+    characterData: true,
+    subtree: true,
+  };
+
+  if (team1Content) {
+    teamScoreObserver.observe(team1Content, observerOptions);
+  }
+
+  if (team2Content) {
+    teamScoreObserver.observe(team2Content, observerOptions);
+  }
+
+  if (scoreElement) {
+    teamScoreObserver.observe(scoreElement, observerOptions);
+  }
 }
 
 async function cleanupBadges() {

@@ -96,5 +96,5 @@ export async function initializeLiveMatchPage(
 
   await initializeLiveFaceitRanks(userSettings, players, faceitData);
 
-  await initializeTeamAverageEloLive(userSettings, players, faceitData);
+  await initializeTeamAverageEloLive(userSettings, faceitData);
 }

@@ -32,6 +32,17 @@ async function updateVersions() {
     const manifestPath = path.join(__dirname, 'public/manifest.json');
     const manifestData = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     manifestData.version = version;
+    
+    // Remove file://*/* from content_scripts matches
+    manifestData.content_scripts[0].matches = manifestData.content_scripts[0].matches.filter(
+      match => match !== 'file://*/*'
+    );
+    
+    // Remove file://*/* from web_accessible_resources matches
+    manifestData.web_accessible_resources[0].matches = manifestData.web_accessible_resources[0].matches.filter(
+      match => match !== 'file://*/*'
+    );
+    
     fs.writeFileSync(manifestPath, JSON.stringify(manifestData, null, 2));
     console.log(`✅ Updated version in manifest.json to ${version}`);
 

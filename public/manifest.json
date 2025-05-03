@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Clutch | Renown.gg extension",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Enhance your Renown.gg experience with player stats, lobby insights, and UI improvements.",
   "icons": {
     "16": "static/icon16.png",
@@ -24,43 +24,24 @@
       "strict_min_version": "109.0"
     }
   },
-  "permissions": [
-    "storage",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "https://api.clutch.lorem.sh/*"
-  ],
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://api.clutch.lorem.sh/*"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "matches": [
-        "*://*.renown.gg/*",
-        "*://renown.gg/*",
-        "file://*/*"
-      ],
-      "js": [
-        "content.js"
-      ],
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*", "file://*/*"],
+      "js": ["content.js"],
       "type": "module",
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "static/*.svg",
-        "static/*.png",
-        "themes/*.css"
-      ],
-      "matches": [
-        "*://*.renown.gg/*",
-        "*://renown.gg/*",
-        "file://*/*"
-      ]
+      "resources": ["static/*.svg", "static/*.png", "themes/*.css"],
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*", "file://*/*"]
     }
   ]
 }
