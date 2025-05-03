@@ -4,6 +4,7 @@ import {
   getPlayerIdFromUrl,
   waitForElement,
 } from "../utils/profileUtils";
+import { createTooltipElement, addTooltip } from "../utils/faceitUtils";
 
 interface Ban {
   category: string;
@@ -35,9 +36,14 @@ async function fetchUserBans(steamId: string): Promise<Ban[]> {
 }
 
 function createBanBadge(ban: Ban): HTMLDivElement {
+  const tooltipWrapper = document.createElement("div");
+  tooltipWrapper.className = "tooltip-wrapper";
+  tooltipWrapper.style.position = "relative";
+  tooltipWrapper.style.display = "inline-block";
+  tooltipWrapper.setAttribute("data-clutch-extension", "ban-element");
+
   const banBadge = document.createElement("div");
   banBadge.className = "ban-badge";
-  banBadge.setAttribute("data-clutch-extension", "ban-element");
   banBadge.style.padding = "8px 12px";
   banBadge.style.margin = "0 8px 0 0";
   banBadge.style.fontSize = "12px";
@@ -47,12 +53,13 @@ function createBanBadge(ban: Ban): HTMLDivElement {
   const issuedDate = new Date(ban.issued_on);
   const formattedIssuedDate = formatDate(issuedDate);
 
+  let tooltipText = "";
   if (ban.permanent) {
-    banBadge.title = `Issued on: ${formattedIssuedDate}`;
+    tooltipText = `Issued on: ${formattedIssuedDate}`;
   } else if (ban.expires_on) {
     const expiryDate = new Date(ban.expires_on);
     const formattedExpiryDate = formatDate(expiryDate);
-    banBadge.title = `${formattedIssuedDate} - ${formattedExpiryDate}`;
+    tooltipText = `${formattedIssuedDate} - ${formattedExpiryDate}`;
   }
 
   const strong1 = document.createElement("strong");
@@ -84,7 +91,13 @@ function createBanBadge(ban: Ban): HTMLDivElement {
     banBadge.appendChild(strong1);
   }
 
-  return banBadge;
+  tooltipWrapper.appendChild(banBadge);
+
+  if (tooltipText) {
+    addTooltip(tooltipWrapper, tooltipText);
+  }
+
+  return tooltipWrapper;
 }
 
 function createNoBansBadge(): HTMLDivElement {

@@ -60,7 +60,7 @@ function createFaceitImageElement(
   return imgContainer;
 }
 
-function createTooltipElement(text: string): HTMLElement {
+export function createTooltipElement(text: string): HTMLElement {
   const tooltip = document.createElement("div");
   tooltip.className = "clutch-tooltip";
   tooltip.textContent = text;
@@ -84,7 +84,7 @@ function createTooltipElement(text: string): HTMLElement {
   return tooltip;
 }
 
-function addTooltip(element: HTMLElement, text: string): void {
+export function addTooltip(element: HTMLElement, text: string): void {
   const tooltip = createTooltipElement(text);
   element.appendChild(tooltip);
 
