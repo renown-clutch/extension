@@ -194,7 +194,19 @@ function createSkinsContainer(drops: Drop[]): HTMLDivElement {
 
   const title = document.createElement("div");
   title.className = "title";
-  title.textContent = "Skin Drops";
+
+  // Calculate total price if there's more than 1 skin
+  if (drops.length > 1) {
+    const totalPrice = drops.reduce(
+      (sum, drop) => sum + (drop.buff_price || 0),
+      0
+    );
+    const formattedPrice = (totalPrice / 100).toFixed(2);
+    title.textContent = `Skin Drops (€${formattedPrice})`;
+  } else {
+    title.textContent = "Skin Drops";
+  }
+
   container.appendChild(title);
 
   const scroll = document.createElement("div");
