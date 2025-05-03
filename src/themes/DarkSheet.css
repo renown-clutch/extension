@@ -37,6 +37,11 @@
  
 }
 
+.dropped-skin-slim {
+  background: var(--slate-900-80);
+  
+}
+
 .rate-teammates .modal-content .player-list-wrapper .player-list .player .rating-options .in-party {
   
   color: var(--slate-600);

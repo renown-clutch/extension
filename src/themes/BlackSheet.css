@@ -17,6 +17,11 @@
   --footer: #1a1a1a; /* Very dark gray / near black */
 }
 
+.dropped-skin-slim {
+  background: var(--slate-900-80);
+  
+}
+
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
 }

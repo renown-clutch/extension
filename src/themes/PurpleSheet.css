@@ -41,6 +41,11 @@
   color: var(--slate-600);
 }
 
+.dropped-skin-slim {
+  background: var(--slate-900-80);
+  
+}
+
 .page.leaderboard .data .visitor-placement-row .separator .line {
   border: 1px solid var(--slate-900);
 }
