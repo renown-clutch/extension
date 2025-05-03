@@ -2,6 +2,7 @@
   import { DropdownSlider } from "$lib/components/ui/dropdown-slider/index.js";
   import { SoundTestButton } from "$lib/components/ui/sound-test-button";
   import type { MatchFoundSound } from "$lib/types";
+  import * as Alert from "$lib/components/ui/alert/index.js";
   let {
     matchFoundSound = $bindable("none") as MatchFoundSound,
     matchFoundVolume = $bindable(70),
@@ -18,6 +19,11 @@
 </script>
 
 <main class="flex flex-col gap-4">
+  <Alert.Root class="border bg-yellow-600">
+    <Alert.Description class="text-xs"
+      >This feature is unstable and should be used with caution.</Alert.Description
+    >
+  </Alert.Root>
   <DropdownSlider
     labelText="Match found"
     description="Play a custom sound when a match is found"
