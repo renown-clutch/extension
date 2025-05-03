@@ -15,13 +15,14 @@
   type SidebarItem = {
     name: string;
     icon: Icon;
+    isBeta?: boolean;
   };
 
   const sidebarItems: SidebarItem[] = [
     { name: "Theme", icon: Palette },
     { name: "Auto-accept", icon: CircleCheckBig },
     { name: "Match", icon: Swords },
-    { name: "Sounds", icon: Volume2 },
+    { name: "Sounds", icon: Volume2, isBeta: true },
     { name: "Profiles", icon: User },
     { name: "Friends", icon: Users },
     { name: "Settings", icon: Settings },
@@ -41,7 +42,7 @@
       draggable="false"
     />
     <ul class="flex flex-col font-sans text-base font-normal">
-      {#each sidebarItems as { name, icon: Icon }}
+      {#each sidebarItems as { name, icon: Icon, isBeta }}
         <li class="list-none">
           <div
             role="button"
@@ -56,7 +57,14 @@
             <div class="">
               <Icon class="w-4 h-4" />
             </div>
-            {name}
+            <div class="flex items-center gap-2">
+              {name}
+              {#if isBeta}
+                <span class="text-xs px-1.5 py-0.5 bg-slate-800 rounded"
+                  >BETA</span
+                >
+              {/if}
+            </div>
           </div>
         </li>
       {/each}
