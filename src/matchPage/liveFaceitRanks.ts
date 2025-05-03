@@ -13,7 +13,7 @@ interface PlayerData {
 
 const cleanupFaceitIcons = () => {
   document
-    .querySelectorAll("[data-clutch-extension='faceit-badge-match-page']")
+    .querySelectorAll("[data-clutch-extension='faceit-badge-live-match-page']")
     .forEach((element) => {
       element?.parentNode?.removeChild(element);
     });
@@ -39,16 +39,12 @@ const processPlayers = (
 
     const faceitInfo = faceitData[steamId];
 
-    if (!faceitInfo?.elo) {
-      return;
-    }
-
     const faceitBadge = createFaceitBadgeElement(
-      faceitInfo.elo,
+      faceitInfo.elo || null,
       badgeSize,
       false,
       "",
-      "",
+      "faceit-badge-live-match-page",
       faceitInfo.url
     );
 

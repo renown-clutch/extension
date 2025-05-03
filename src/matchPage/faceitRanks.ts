@@ -30,15 +30,14 @@ const processPlayers = (
     const badgeSize = 25;
 
     const faceitInfo = faceitData[steamId];
-    if (!faceitInfo?.elo) return;
 
     const faceitBadge = createFaceitBadgeElement(
-      faceitInfo.elo,
+      faceitInfo.elo || null,
       badgeSize,
       true,
       "",
-      "",
-      faceitInfo.url
+      "faceit-badge-match-page",
+      faceitInfo.url || ""
     );
 
     if (element.firstElementChild?.nextElementSibling) {

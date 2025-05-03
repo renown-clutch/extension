@@ -90,6 +90,7 @@ async function appendButtonsToDom(settings: UserSettings) {
       bgColor: "#141616",
       iconPath: faceitIcon,
     });
+    console.log(faceitButton);
   }
 
   const existingCsstatsButton = document.querySelector(
@@ -119,7 +120,6 @@ async function fetchFaceitData(
 ): Promise<{ url: string | null; elo: number | null }> {
   return new Promise((resolve) => {
     try {
-      // Use browserAPI with proper response handling
       browserAPI.runtime.sendMessage(
         { type: "get_faceit_info", steam_ids: [steamId] },
         (response) => {

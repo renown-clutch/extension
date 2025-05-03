@@ -35,9 +35,14 @@ function createFaceitImageElement(
     margin-right: 2px;
   `;
 
-  const iconPath = chrome.runtime.getURL(
-    `static/faceitlevels/lvl${faceitLevel}.svg`
-  );
+  let iconPath = "";
+  if (faceitLevel === 0) {
+    iconPath = chrome.runtime.getURL("static/faceitlevels/lvlx.svg");
+  } else {
+    iconPath = chrome.runtime.getURL(
+      `static/faceitlevels/lvl${faceitLevel}.svg`
+    );
+  }
 
   const img = document.createElement("img");
   img.alt = `Faceit level ${faceitLevel}`;
@@ -93,10 +98,10 @@ export function createFaceitBadgeElement(
   includeEloText: boolean = true,
   additionalStyles: string = "",
   customDataAttribute: string = "",
-  url?: string
+  url?: string | null
 ): HTMLElement {
   const faceitLevel = getFaceitLevel(elo);
-  const formattedElo = elo !== null ? elo.toString() : "";
+  const formattedElo = elo !== null ? elo.toString() : "0000";
 
   const tooltipWrapper = document.createElement("div");
   tooltipWrapper.className = "tooltip-wrapper";
@@ -108,12 +113,15 @@ export function createFaceitBadgeElement(
 
   if (!includeEloText) {
     const faceitIcon = createFaceitImageElement(faceitLevel, size);
-    const tooltipText = `Faceit Level: ${faceitLevel}${
-      formattedElo ? `, Elo: ${formattedElo}` : ""
-    }`;
+    const tooltipText =
+      elo === null
+        ? "No Faceit account found"
+        : `Faceit Level: ${faceitLevel}${
+            formattedElo ? `, Elo: ${formattedElo}` : ""
+          }`;
     addTooltip(faceitIcon, tooltipText);
     tooltipWrapper.appendChild(faceitIcon);
-    return url ? wrapInAnchor(tooltipWrapper, url) : tooltipWrapper;
+    return tooltipWrapper;
   }
 
   const faceitBadge = document.createElement("div");
@@ -129,7 +137,9 @@ export function createFaceitBadgeElement(
   `;
   faceitBadge.setAttribute(
     "aria-label",
-    `Faceit Level: ${faceitLevel}, Elo: ${formattedElo}`
+    elo === null
+      ? "No Faceit account found"
+      : `Faceit Level: ${faceitLevel}, Elo: ${formattedElo}`
   );
 
   faceitBadge.appendChild(createFaceitImageElement(faceitLevel, size));
@@ -142,8 +152,13 @@ export function createFaceitBadgeElement(
     faceitBadge.appendChild(span);
   }
 
-  tooltipWrapper.appendChild(faceitBadge);
-  return url ? wrapInAnchor(tooltipWrapper, url) : tooltipWrapper;
+  if (url) {
+    tooltipWrapper.appendChild(wrapInAnchor(faceitBadge, url));
+  } else {
+    tooltipWrapper.appendChild(faceitBadge);
+  }
+
+  return tooltipWrapper;
 }
 
 function wrapInAnchor(element: HTMLElement, url: string): HTMLElement {
@@ -151,7 +166,6 @@ function wrapInAnchor(element: HTMLElement, url: string): HTMLElement {
   link.href = url;
   link.target = "_blank";
   link.style.cursor = "pointer";
-  link.setAttribute("data-clutch-extension", "faceit-badge-match-page");
   link.appendChild(element);
   return link;
 }
