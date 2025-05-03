@@ -3,7 +3,6 @@
   import { defaultUserSettings } from "$lib/types";
   import { onMount } from "svelte";
   import SwitchSlider from "$lib/components/constants/switch-slider.svelte";
-  import browserAPI from "$lib/browserAPI";
 
   let {
     autoAccept = $bindable<UserSettings["autoAccept"]>(

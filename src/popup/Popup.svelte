@@ -240,7 +240,10 @@
           bind:showTeamAverageElo={userSettings.showTeamAverageElo}
         />
       {:else if userSettings.activeTab === "Sounds"}
-        <SoundTab />
+        <SoundTab
+          bind:matchFoundSound={userSettings.matchFoundSound}
+          bind:matchFoundVolume={userSettings.matchFoundVolume}
+        />
       {:else if userSettings.activeTab === "Profiles"}
         <ProfilesTab
           bind:csstatsProfileButton={userSettings.csstatsProfileButton}

@@ -16,6 +16,8 @@ export type Theme =
   | "purple"
   | "green";
 
+export type MatchFoundSound = "none" | "howl";
+
 export type UserSettings = {
   activeTab: TabName;
   selectedTheme: Theme | "";
@@ -32,14 +34,6 @@ export type UserSettings = {
   keepAlive: boolean;
   showBans: boolean;
   showSkinDrops: boolean;
-  sounds: {
-    matchFound: {
-      volume: number;
-    };
-    partyInvite: {
-      volume: number;
-    };
-  };
   showFriendListRanks: boolean;
   showFaceitRanksOnMatchPage: boolean;
   showTeamAverageElo: boolean;
@@ -47,6 +41,8 @@ export type UserSettings = {
   showSidebarFriendRanks: boolean;
   showExtensionNavbarButton: boolean;
   showHighestElo: boolean;
+  matchFoundSound: MatchFoundSound;
+  matchFoundVolume: number;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -65,14 +61,6 @@ export const defaultUserSettings: UserSettings = {
   keepAlive: true,
   showBans: true,
   showSkinDrops: true,
-  sounds: {
-    matchFound: {
-      volume: 70,
-    },
-    partyInvite: {
-      volume: 70,
-    },
-  },
   showFriendListRanks: true,
   showFaceitRanksOnMatchPage: true,
   showTeamAverageElo: true,
@@ -80,4 +68,6 @@ export const defaultUserSettings: UserSettings = {
   showSidebarFriendRanks: true,
   showExtensionNavbarButton: true,
   showHighestElo: true,
+  matchFoundSound: "none",
+  matchFoundVolume: 70,
 };

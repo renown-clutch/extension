@@ -5,17 +5,27 @@
   } from "bits-ui";
   import { cn } from "$lib/utils.js";
 
+  // Extended type to include custom properties
+  type ExtendedSliderProps =
+    WithoutChildrenOrChild<SliderPrimitive.RootProps> & {
+      unit?: string;
+    };
+
   let {
     ref = $bindable(null),
     value = $bindable(),
     orientation = "horizontal",
     class: className,
+    unit = "seconds",
     ...restProps
-  }: WithoutChildrenOrChild<SliderPrimitive.RootProps> = $props();
+  }: ExtendedSliderProps = $props();
 </script>
 
 <div class="flex flex-col items-center gap-2 w-full">
-  <h2 class="text-sm w-full text-left font-normal">{value} seconds</h2>
+  <h2 class="text-sm w-full text-left font-normal">
+    {value}
+    {unit}
+  </h2>
   <SliderPrimitive.Root
     bind:ref
     bind:value={value as never}

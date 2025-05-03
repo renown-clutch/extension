@@ -17,5 +17,5 @@
       "$lib/*": ["./src/lib/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/popup/*.svelte"]
+  "include": ["src/**/*.ts", "src/**/*.js", "src/popup/*.svelte", "src/lib/components/ui/dropdown-slider/index.ts"]
 }

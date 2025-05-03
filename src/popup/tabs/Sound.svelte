@@ -1,21 +1,32 @@
 <script lang="ts">
-  import Volume from "../../lib/components/constants/volumeSlider.svelte";
   import * as Alert from "../../lib/components/ui/alert/index.js";
+  import * as Select from "../../lib/components/ui/select/index.js";
+  import { Label } from "$lib/components/ui/label/index.js";
+  import { DropdownSlider } from "$lib/components/ui/dropdown-slider/index.js";
+  let {
+    matchFoundSound = $bindable("none"),
+    matchFoundVolume = $bindable(70),
+  } = $props();
+
+  let checked = $state(false);
+
+  const matchFoundSounds = [
+    { label: "None", value: "none" },
+    { label: "Howl", value: "howl" },
+  ];
 </script>
 
 <main class=" flex flex-col gap-4">
-  <Alert.Root class="bg-yellow-600">
-    <Alert.Title class="text-lg" >Sorry!</Alert.Title>
-    <Alert.Description class="text-xs"
-      >This feature is not available yet, but we are working on it!</Alert.Description
-    >
-  </Alert.Root>
-  <Volume
+  <DropdownSlider
     labelText="Match found"
-    descriptionText="Adjust the volume of the match found sound"
-    disabled={true}
+    description="Play a custom sound when a match is found"
+    sliderLabelText="Volume"
+    sliderDescription="Volume of the match found sound"
+    options={matchFoundSounds}
+    bind:selectedValue={matchFoundSound}
+    bind:sliderValue={matchFoundVolume}
+    disabled={matchFoundSound === "none"}
   />
-
 </main>
 
 <style></style>

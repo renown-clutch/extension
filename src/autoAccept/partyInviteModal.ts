@@ -10,10 +10,29 @@ const processedInvites = new Set<string>();
 let isProcessingInvite = false;
 let debounceTimer: number | null = null;
 let cleanupTimer: number | null = null;
+let howlSound: HTMLAudioElement | null = null;
+
+function initializeHowlSound() {
+  howlSound = new Audio(chrome.runtime.getURL("static/howl.mp3"));
+}
+
+function playHowlSound() {
+  if (!howlSound) {
+    initializeHowlSound();
+  }
+
+  if (howlSound) {
+    howlSound.currentTime = 0;
+    howlSound
+      .play()
+      .catch((err) => console.error("Error playing howl sound:", err));
+  }
+}
 
 export function initializeAutoAcceptPartyInvite(userSettings: UserSettings) {
   latestUserSettings = userSettings;
 
+  initializeHowlSound();
   cleanup();
   setupCleanupTimer();
 
@@ -83,6 +102,7 @@ function processInvite(modal: Element, modalId: string) {
   setTimeout(() => {
     if (document.body.contains(modal) && document.body.contains(acceptBtn)) {
       acceptBtn.click();
+      playHowlSound();
     }
     isProcessingInvite = false;
   }, delayMs + bufferMs);
