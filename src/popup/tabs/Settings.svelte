@@ -48,7 +48,7 @@
   <footer class="mt-auto pt-4 flex justify-between items-center">
     <div>
       <a
-        href="https://discord.gg/CjEa8nTB"
+        href="https://discord.gg/qqBXYjEfmW"
         target="_blank"
         rel="noopener noreferrer"
         class="flex items-center gap-2 text-slate-400 hover:text-slate-300 transition-colors group"
