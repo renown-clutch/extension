@@ -170,13 +170,12 @@ export function waitForElements(
 }
 
 function getElementChildrenHash(element: Element): string {
-  // Create a simple hash based on childNodes' nodeType, nodeName and textContent length
   let hash = "";
   for (let i = 0; i < element.childNodes.length; i++) {
     const node = element.childNodes[i];
     const nodeType = node.nodeType;
     const nodeName = node.nodeName;
-    // For text nodes, use the length of text content
+
     const contentInfo =
       nodeType === Node.TEXT_NODE
         ? node.textContent?.length || 0

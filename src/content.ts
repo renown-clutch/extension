@@ -28,17 +28,10 @@ import {
   initializeKeepAlive,
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
-import { initializeFaceitRanks } from "./matchPage/faceitRanks";
-import {
-  initializeTeamAverageElo,
-  updateTeamAverageEloSettings,
-} from "./matchPage/teamAverageElo";
-import {
-  initializeTeamAverageEloLive,
-  updateTeamAverageEloLiveSettings,
-} from "./matchPage/teamAverageEloLive";
 import { initializeExtensionButton } from "./navbar/extensionButton";
 import { getCurrentPage } from "./utils/pageUtils";
+import { initializeMatchPage } from "./matchPage/initializeMatchPage";
+import { initializeLiveMatchPage } from "./matchPage/intializeLiveMatchPage";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -148,27 +141,12 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     updateKeepAliveSettings(userSettings);
   }
 
-  if (changedParts.showFaceitRanksOnMatchPage !== undefined) {
-    initializeFaceitRanks(userSettings);
-    updateTeamAverageEloSettings(
-      userSettings.showTeamAverageElo,
-      userSettings.showFaceitRanksOnMatchPage
-    );
-    updateTeamAverageEloLiveSettings(
-      userSettings.showTeamAverageElo,
-      userSettings.showFaceitRanksOnMatchPage
-    );
-  }
-
-  if (changedParts.showTeamAverageElo !== undefined) {
-    updateTeamAverageEloSettings(
-      userSettings.showTeamAverageElo,
-      userSettings.showFaceitRanksOnMatchPage
-    );
-    updateTeamAverageEloLiveSettings(
-      userSettings.showTeamAverageElo,
-      userSettings.showFaceitRanksOnMatchPage
-    );
+  if (
+    changedParts.showFaceitRanksOnMatchPage !== undefined ||
+    changedParts.showTeamAverageElo !== undefined
+  ) {
+    initializeMatchPage(userSettings);
+    initializeLiveMatchPage(userSettings);
   }
 
   if (changedParts.showExtensionNavbarButton !== undefined) {
@@ -225,17 +203,9 @@ async function initialize(currentUrl: string) {
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
     initializeKeepAlive(userSettings);
-
     initializeSidebarFriends(userSettings);
-    initializeFaceitRanks(userSettings);
-    initializeTeamAverageElo(
-      userSettings.showTeamAverageElo,
-      userSettings.showFaceitRanksOnMatchPage
-    );
-    initializeTeamAverageEloLive(
-      userSettings.showTeamAverageElo,
-      userSettings.showFaceitRanksOnMatchPage
-    );
+    initializeMatchPage(userSettings);
+    initializeLiveMatchPage(userSettings);
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
   } catch (error: unknown) {
     console.error("Error during content script initialization:", error);

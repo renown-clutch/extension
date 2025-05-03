@@ -33,7 +33,8 @@ export function createFaceitBadgeElement(
   elo: number | null,
   size: number = 20,
   includeEloText: boolean = true,
-  additionalStyles: string = ""
+  additionalStyles: string = "",
+  customDataAttribute: string = ""
 ): HTMLElement {
   // Get Faceit level
   const faceitLevel = getFaceitLevel(elo);
@@ -45,6 +46,10 @@ export function createFaceitBadgeElement(
   const tooltipWrapper = document.createElement("div");
   tooltipWrapper.className = "tooltip-wrapper";
   tooltipWrapper.setAttribute("tabindex", "0");
+  tooltipWrapper.setAttribute(
+    "data-clutch-extension",
+    customDataAttribute || "faceit-badge-tooltip"
+  );
 
   // Create badge div with dark background
   const faceitBadge = document.createElement("div");

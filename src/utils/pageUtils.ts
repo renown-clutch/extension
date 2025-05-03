@@ -59,3 +59,14 @@ export function getCurrentPage(): PageType {
 
   return { type: "unknown" };
 }
+
+export function isLiveMatch(): boolean {
+  return (
+    getCurrentPage().type === "playMatch" ||
+    window.location.href.startsWith("file://")
+  );
+}
+
+export function isMatchPage(): boolean {
+  return getCurrentPage().type === "matchPage";
+}
