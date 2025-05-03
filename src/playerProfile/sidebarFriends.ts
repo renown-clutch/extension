@@ -11,18 +11,23 @@ function removeRankBadges(): void {
 }
 
 function renderFriendRanks(ranks: Record<string, number | null>): void {
-  const friendRows = document.querySelectorAll(
-    ".sidebar-content .friends .friend-row"
-  );
+  const playFriendList = document.querySelector(
+    ".play-friend-list"
+  ) as HTMLElement;
+  if (playFriendList) {
+    playFriendList.style.padding = "28px";
+  }
+  const friendRows = playFriendList.querySelectorAll(".friend-row");
 
   friendRows.forEach((row) => {
-    const profileLink = row.querySelector(".profile-link");
+    const profileLink = row.querySelector(".profile-link") as HTMLElement;
     if (!profileLink) return;
 
     if (profileLink.querySelector(".tooltip-wrapper")) return;
 
     const href = profileLink.getAttribute("href");
     if (!href) return;
+    profileLink.style.gap = "10px";
 
     const match = href.match(/\/profile\/(\d+)/);
     if (!match || !match[1]) return;
