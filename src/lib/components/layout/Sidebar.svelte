@@ -46,7 +46,7 @@
           <div
             role="button"
             tabindex="0"
-            class="flex items-center text-base gap-2 mb-2 p-2 hover:bg-slate-900 leading-tight transition-all rounded-md
+            class="flex items-center text-base gap-2 mb-1 p-2 hover:bg-slate-900 leading-tight transition-all rounded-md
              outline-none text-start {activeTab === name
               ? 'bg-slate-900 '
               : ''}"

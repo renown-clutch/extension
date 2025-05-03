@@ -22,6 +22,16 @@
   
 }
 
+.page.settings-layout .grid .membership-details .overview .payment .payment-details {
+  background-color: var(--slate-900-80);
+  
+}
+
+.page.settings-layout .grid .membership-details .overview .plan-features .tier-features {
+  background-color: var(--slate-900-80);
+  
+}
+
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
 }

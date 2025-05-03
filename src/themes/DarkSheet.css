@@ -37,6 +37,16 @@
  
 }
 
+.page.settings-layout .grid .membership-details .overview .payment .payment-details {
+  background-color: var(--slate-900-80);
+  
+}
+
+.page.settings-layout .grid .membership-details .overview .plan-features .tier-features {
+  background-color: var(--slate-900-80);
+  
+}
+
 .dropped-skin-slim {
   background: var(--slate-900-80);
   
