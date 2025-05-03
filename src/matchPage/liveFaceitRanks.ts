@@ -11,6 +11,8 @@ interface PlayerData {
   element: HTMLElement;
 }
 
+let observers: MutationObserver[] = [];
+
 const cleanupFaceitIcons = () => {
   document
     .querySelectorAll("[data-clutch-extension='faceit-badge-live-match-page']")
@@ -57,6 +59,38 @@ const processPlayers = (
   });
 };
 
+const setupPlayerListObservers = (
+  userSettings: UserSettings,
+  players: PlayerData[],
+  faceitData: Record<string, FaceitInfo>
+): void => {
+  observers.forEach((observer) => observer.disconnect());
+  observers = [];
+
+  const observerCallback = async () => {
+    initializeLiveFaceitRanks(userSettings, players, faceitData);
+  };
+
+  const observerConfig = {
+    childList: true,
+    characterData: true,
+    subtree: true,
+  };
+
+  players.forEach(({ element }) => {
+    const nameElement = element.querySelector(".player-info-wrapper .name");
+
+    if (nameElement) {
+      const observer = new MutationObserver((mutations) => {
+        observerCallback();
+      });
+
+      observer.observe(nameElement, observerConfig);
+      observers.push(observer);
+    }
+  });
+};
+
 export async function initializeLiveFaceitRanks(
   userSettings: UserSettings,
   players: PlayerData[],
@@ -64,8 +98,11 @@ export async function initializeLiveFaceitRanks(
 ): Promise<void> {
   if (!userSettings.showFaceitRanksOnMatchPage) {
     cleanupFaceitIcons();
+    observers.forEach((observer) => observer.disconnect());
+    observers = [];
     return;
   }
 
   processPlayers(players, faceitData);
+  setupPlayerListObservers(userSettings, players, faceitData);
 }

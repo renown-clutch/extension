@@ -58,27 +58,8 @@ function setupTeamScoreObserver(
     return;
   }
 
-  let updateTimeout: number | null = null;
-
   const observerCallback = (mutations: MutationRecord[]) => {
-    if (updateTimeout) {
-      clearTimeout(updateTimeout);
-    }
-
-    updateTimeout = setTimeout(() => {
-      const team1Container = document.querySelector(".team1-players");
-      const team2Container = document.querySelector(".team2-players");
-
-      if (team1Container && team2Container) {
-        processTeamContainers(
-          team1Container as HTMLElement,
-          team2Container as HTMLElement,
-          faceitData,
-          userSettings
-        );
-      }
-      updateTimeout = null;
-    }, 50);
+    initializeTeamAverageEloLive(userSettings, faceitData);
   };
 
   teamScoreObserver = new MutationObserver(observerCallback);
