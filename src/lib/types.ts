@@ -16,7 +16,22 @@ export type Theme =
   | "purple"
   | "green";
 
-export type MatchFoundSound = "none" | "howl";
+export type MatchFoundSound =
+  | "none"
+  | "howl"
+  | "rock"
+  | "trumpet"
+  | "ah_shit"
+  | "ok_letsgo";
+
+export const soundFileMap: Record<MatchFoundSound, string> = {
+  none: "",
+  howl: "howl.mp3",
+  rock: "rock.wav",
+  trumpet: "trumpet.mp3",
+  ah_shit: "ah_shit.mp3",
+  ok_letsgo: "ok_letsgo.mp3",
+};
 
 export type UserSettings = {
   activeTab: TabName;

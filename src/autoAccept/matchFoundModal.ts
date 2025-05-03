@@ -3,6 +3,7 @@ import {
   createSafeObserver,
   disconnectSafeObserver,
 } from "../utils/observerUtils";
+import { soundFileMap } from "../lib/types";
 
 let latestUserSettings: UserSettings | null = null;
 let observer: MutationObserver | null = null;
@@ -10,12 +11,49 @@ const processedMatches = new Set<string>();
 let isProcessingMatch = false;
 let debounceTimer: number | null = null;
 let cleanupTimer: number | null = null;
+let matchSound: HTMLAudioElement | null = null;
+
+function initializeMatchSound() {
+  if (!latestUserSettings || !latestUserSettings.matchFoundSound) return;
+
+  if (latestUserSettings.matchFoundSound !== "none") {
+    matchSound = new Audio(
+      chrome.runtime.getURL(
+        `static/sounds/${soundFileMap[latestUserSettings.matchFoundSound]}`
+      )
+    );
+  }
+}
+
+function playMatchSound() {
+  if (!latestUserSettings) return;
+
+  if (
+    latestUserSettings.matchFoundSound === "none" ||
+    latestUserSettings.matchFoundVolume === 0
+  ) {
+    return;
+  }
+
+  if (!matchSound) {
+    initializeMatchSound();
+  }
+
+  if (matchSound) {
+    matchSound.volume = latestUserSettings.matchFoundVolume / 100;
+    matchSound.currentTime = 0;
+    matchSound
+      .play()
+      .catch((err) => console.error("Error playing match found sound:", err));
+  }
+}
 
 export function initializeMatchFoundAutoAccept(userSettings: UserSettings) {
   latestUserSettings = userSettings;
 
   cleanup();
 
+  initializeMatchSound();
   setupCleanupTimer();
 
   observer = createSafeObserver(
@@ -48,13 +86,17 @@ function clearTimers() {
 }
 
 function handleDOMChanges() {
-  if (isProcessingMatch || !latestUserSettings?.autoAccept.match) return;
+  if (isProcessingMatch) return;
 
   const modal = findMatchFoundModal();
   if (!modal) return;
 
   const modalId = getModalId(modal);
   if (processedMatches.has(modalId)) return;
+
+  playMatchSound();
+
+  if (!latestUserSettings?.autoAccept.match) return;
 
   isProcessingMatch = true;
 
@@ -117,7 +159,7 @@ function findMatchFoundModal(): Element | null {
 }
 
 function checkForExistingMatchFound() {
-  if (!latestUserSettings?.autoAccept.match || isProcessingMatch) return;
+  if (isProcessingMatch) return;
 
   const modal = findMatchFoundModal();
   if (!modal) return;
@@ -128,12 +170,18 @@ function checkForExistingMatchFound() {
     return;
   }
 
+  playMatchSound();
+
+  if (!latestUserSettings?.autoAccept.match) return;
+
   isProcessingMatch = true;
   processMatch(modal, modalId);
 }
 
 export function updateMatchFoundAutoAcceptSettings(userSettings: UserSettings) {
   latestUserSettings = userSettings;
+
+  initializeMatchSound();
 
   if (userSettings.autoAccept.match && !isProcessingMatch) {
     checkForExistingMatchFound();

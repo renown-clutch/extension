@@ -123,14 +123,16 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   }
 
   if (
-    changedParts.autoAccept?.match ||
-    changedParts.matchAutoAcceptDelay !== undefined
+    changedParts.autoAccept?.match !== undefined ||
+    changedParts.matchAutoAcceptDelay !== undefined ||
+    changedParts.matchFoundSound !== undefined ||
+    changedParts.matchFoundVolume !== undefined
   ) {
     updateMatchFoundAutoAcceptSettings(userSettings);
   }
 
   if (
-    changedParts.autoAccept?.party ||
+    changedParts.autoAccept?.party !== undefined ||
     changedParts.partyAutoAcceptDelay !== undefined
   ) {
     updateAutoAcceptPartyInviteSettings(userSettings);

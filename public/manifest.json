@@ -44,7 +44,8 @@
         "static/*.svg",
         "static/*.png",
         "themes/*.css",
-        "static/*.mp3"
+        "static/*.mp3",
+        "static/*.wav"
       ],
       "matches": ["*://*.renown.gg/*", "*://renown.gg/*", "file://*/*"]
     }

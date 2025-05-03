@@ -3,6 +3,7 @@ import {
   createSafeObserver,
   disconnectSafeObserver,
 } from "../utils/observerUtils";
+// import { soundFileMap } from "../lib/types";
 
 let latestUserSettings: UserSettings | null = null;
 let observer: MutationObserver | null = null;
@@ -10,29 +11,47 @@ const processedInvites = new Set<string>();
 let isProcessingInvite = false;
 let debounceTimer: number | null = null;
 let cleanupTimer: number | null = null;
-let howlSound: HTMLAudioElement | null = null;
+// let partySound: HTMLAudioElement | null = null;
 
-function initializeHowlSound() {
-  howlSound = new Audio(chrome.runtime.getURL("static/howl.mp3"));
-}
+// function initializePartySound() {
+//   if (!latestUserSettings || !latestUserSettings.matchFoundSound) return;
 
-function playHowlSound() {
-  if (!howlSound) {
-    initializeHowlSound();
-  }
+//   if (latestUserSettings.matchFoundSound !== "none") {
+//     partySound = new Audio(
+//       chrome.runtime.getURL(
+//         `static/sounds/${soundFileMap[latestUserSettings.matchFoundSound]}`
+//       )
+//     );
+//   }
+// }
 
-  if (howlSound) {
-    howlSound.currentTime = 0;
-    howlSound
-      .play()
-      .catch((err) => console.error("Error playing howl sound:", err));
-  }
-}
+// function playPartySound() {
+//   if (!latestUserSettings) return;
+
+//   if (
+//     latestUserSettings.matchFoundSound === "none" ||
+//     latestUserSettings.matchFoundVolume === 0
+//   ) {
+//     return;
+//   }
+
+//   if (!partySound) {
+//     initializePartySound();
+//   }
+
+//   if (partySound) {
+//     partySound.volume = latestUserSettings.matchFoundVolume / 100;
+//     partySound.currentTime = 0;
+//     partySound
+//       .play()
+//       .catch((err) => console.error("Error playing party invite sound:", err));
+//   }
+// }
 
 export function initializeAutoAcceptPartyInvite(userSettings: UserSettings) {
   latestUserSettings = userSettings;
 
-  initializeHowlSound();
+  // initializePartySound();
   cleanup();
   setupCleanupTimer();
 
@@ -66,13 +85,17 @@ function clearTimers() {
 }
 
 function handleDOMChanges() {
-  if (isProcessingInvite || !latestUserSettings?.autoAccept.party) return;
+  if (isProcessingInvite) return;
 
   const modal = findPartyInviteModal();
   if (!modal) return;
 
   const modalId = getModalId(modal);
   if (processedInvites.has(modalId)) return;
+
+  // playPartySound();
+
+  if (!latestUserSettings?.autoAccept.party) return;
 
   isProcessingInvite = true;
 
@@ -102,7 +125,6 @@ function processInvite(modal: Element, modalId: string) {
   setTimeout(() => {
     if (document.body.contains(modal) && document.body.contains(acceptBtn)) {
       acceptBtn.click();
-      playHowlSound();
     }
     isProcessingInvite = false;
   }, delayMs + bufferMs);
@@ -146,7 +168,7 @@ function findPartyInviteModal(): Element | null {
 }
 
 function checkForExistingInvite() {
-  if (!latestUserSettings?.autoAccept.party || isProcessingInvite) return;
+  if (isProcessingInvite) return;
 
   const modal = findPartyInviteModal();
   if (!modal) return;
@@ -157,6 +179,10 @@ function checkForExistingInvite() {
     return;
   }
 
+  // playPartySound();
+
+  if (!latestUserSettings?.autoAccept.party) return;
+
   isProcessingInvite = true;
   processInvite(modal, modalId);
 }
@@ -165,6 +191,8 @@ export function updateAutoAcceptPartyInviteSettings(
   userSettings: UserSettings
 ) {
   latestUserSettings = userSettings;
+
+  // initializePartySound();
 
   if (userSettings.autoAccept.party && !isProcessingInvite) {
     checkForExistingInvite();

@@ -154,6 +154,14 @@
       changes.showHighestElo = userSettings.showHighestElo;
     }
 
+    if (previousSettings.matchFoundSound !== userSettings.matchFoundSound) {
+      changes.matchFoundSound = userSettings.matchFoundSound;
+    }
+
+    if (previousSettings.matchFoundVolume !== userSettings.matchFoundVolume) {
+      changes.matchFoundVolume = userSettings.matchFoundVolume;
+    }
+
     return changes;
   }
 
