@@ -30,16 +30,16 @@
 </script>
 
 <div
-  class="flex flex-col text-slate-200 border-2 border-slate-900 rounded-lg p-4"
+  class="flex flex-col text-slate-200 border-2 w-full border-slate-900 rounded-lg p-4"
 >
-  <div class="flex items-center justify-between">
+  <div class="flex flex-col gap-2">
     <div class="max-w-[24ch]">
       <h2 class="text-sm">{labelText}</h2>
       <DiscriptionToggle text={description} {warn} />
     </div>
     <div>
       <Select.Root type="single" bind:value={selectedValue}>
-        <Select.Trigger class="w-[180px]" {disabled}>
+        <Select.Trigger class="w-full" {disabled}>
           {triggerContent}
         </Select.Trigger>
         <Select.Content>
