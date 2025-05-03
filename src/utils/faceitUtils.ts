@@ -85,6 +85,11 @@ export function createTooltipElement(text: string): HTMLElement {
 }
 
 export function addTooltip(element: HTMLElement, text: string): void {
+  // Ensure the element has position relative for proper tooltip positioning
+  if (window.getComputedStyle(element).position === "static") {
+    element.style.position = "relative";
+  }
+
   const tooltip = createTooltipElement(text);
   element.appendChild(tooltip);
 
@@ -113,6 +118,7 @@ export function createFaceitBadgeElement(
 
   if (!includeEloText) {
     const faceitIcon = createFaceitImageElement(faceitLevel, size);
+    faceitIcon.classList.add("faceit-icon-container");
     const tooltipText =
       elo === null
         ? "No Faceit account found"

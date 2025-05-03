@@ -186,7 +186,9 @@ function calculateTeamAverageFaceitElo(
     return steamId ? faceitData[steamId]?.elo : null;
   });
 
-  const validEloValues = eloValues.filter((elo) => elo !== null) as number[];
+  const validEloValues = eloValues.filter(
+    (elo) => elo !== null && elo !== 0
+  ) as number[];
   if (validEloValues.length === 0) {
     return null;
   }
