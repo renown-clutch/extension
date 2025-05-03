@@ -17,7 +17,6 @@
     ),
   } = $props();
 
-  // Keep track of previous values to detect changes
   let previousMatch = defaultUserSettings.autoAccept.match;
   let previousParty = defaultUserSettings.autoAccept.party;
 
@@ -26,9 +25,7 @@
     previousParty = autoAccept.party;
   });
 
-  // Watch for changes and force reload if needed
   $effect(() => {
-    // Skip on initial load
     if (
       previousMatch === autoAccept.match &&
       previousParty === autoAccept.party

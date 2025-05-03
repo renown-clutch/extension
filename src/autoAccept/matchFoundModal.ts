@@ -6,29 +6,23 @@ import {
 
 let latestUserSettings: UserSettings | null = null;
 let observer: MutationObserver | null = null;
-// Track processed matches to prevent multiple clicks
 const processedMatches = new Set<string>();
-// Flag to indicate if we're currently processing a match
 let isProcessingMatch = false;
-// Timers
 let debounceTimer: number | null = null;
 let cleanupTimer: number | null = null;
 
 export function initializeMatchFoundAutoAccept(userSettings: UserSettings) {
   latestUserSettings = userSettings;
 
-  // Clean up existing resources
   cleanup();
 
-  // Set up a periodic cleanup of processedMatches
   setupCleanupTimer();
 
-  // Create the observer with our utility function
   observer = createSafeObserver(
     handleDOMChanges,
     () => document.body,
     { childList: true, subtree: true },
-    () => checkForExistingMatchFound() // Run checks after successful setup
+    () => checkForExistingMatchFound()
   );
 }
 
@@ -70,7 +64,7 @@ function handleDOMChanges() {
 
   debounceTimer = window.setTimeout(() => {
     processMatch(modal, modalId);
-  }, 100); // Small debounce delay
+  }, 100);
 }
 
 function processMatch(modal: Element, modalId: string) {
@@ -82,41 +76,33 @@ function processMatch(modal: Element, modalId: string) {
     return;
   }
 
-  // Mark this match as processed
   processedMatches.add(modalId);
 
-  // Use nullish coalescing instead of logical OR to handle 0 value properly
   const delay = latestUserSettings?.matchAutoAcceptDelay ?? 3;
   const delayMs = delay * 1000;
 
-  // Extra buffer only if there is a delay
   const bufferMs = delay > 0 ? 500 : 0;
 
   setTimeout(() => {
     if (document.body.contains(modal) && document.body.contains(acceptBtn)) {
       acceptBtn.click();
     }
-    // Reset the processing flag
     isProcessingMatch = false;
-  }, delayMs + bufferMs); // Buffer only added when delay > 0
+  }, delayMs + bufferMs);
 }
 
-// Set up a timer to periodically clean up the processedMatches set
 function setupCleanupTimer() {
   if (cleanupTimer) {
     clearTimeout(cleanupTimer);
   }
 
-  // Clean up processed matches every 30 seconds
   cleanupTimer = window.setTimeout(() => {
     processedMatches.clear();
-    // Set up the next cleanup
     setupCleanupTimer();
-  }, 30000); // 30 seconds
+  }, 30000);
 }
 
 function getModalId(modal: Element): string {
-  // Create a reliable ID based on the modal content plus a rough timestamp
   const timeComponent = Math.floor(Date.now() / 1000);
   return `match-${timeComponent}`;
 }
