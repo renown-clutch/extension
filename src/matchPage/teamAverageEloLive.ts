@@ -23,7 +23,7 @@ export async function initializeTeamAverageEloLive(
   faceitData: FaceitData
 ) {
   if (!userSettings.showTeamAverageElo) {
-    cleanupBadges();
+    await cleanupBadges();
     return;
   }
 
@@ -34,14 +34,15 @@ export async function initializeTeamAverageEloLive(
     return;
   }
 
-  processTeamContainers(
+  await processTeamContainers(
     team1Container as HTMLElement,
     team2Container as HTMLElement,
-    faceitData
+    faceitData,
+    userSettings
   );
 }
 
-function cleanupBadges() {
+async function cleanupBadges() {
   const elements = document.querySelectorAll(
     '[data-clutch-extension="team-average-elo-match-header"]'
   );
@@ -52,22 +53,23 @@ function cleanupBadges() {
   });
 }
 
-function processTeamContainers(
+async function processTeamContainers(
   team1Container: HTMLElement,
   team2Container: HTMLElement,
-  faceitData: FaceitData
+  faceitData: FaceitData,
+  userSettings: UserSettings
 ) {
+  await cleanupBadges();
+
   const team1Elo = calculateTeamAverageElo(team1Container);
   const team2Elo = calculateTeamAverageElo(team2Container);
 
-  const team1FaceitElo = calculateTeamAverageFaceitElo(
-    team1Container,
-    faceitData
-  );
-  const team2FaceitElo = calculateTeamAverageFaceitElo(
-    team2Container,
-    faceitData
-  );
+  let team1FaceitElo = null;
+  let team2FaceitElo = null;
+  if (userSettings.showFaceitRanksOnMatchPage) {
+    team1FaceitElo = calculateTeamAverageFaceitElo(team1Container, faceitData);
+    team2FaceitElo = calculateTeamAverageFaceitElo(team2Container, faceitData);
+  }
 
   const matchScore = document.querySelector(".match-score");
   if (!matchScore) {
@@ -81,8 +83,18 @@ function processTeamContainers(
     return;
   }
 
-  updateTeamHeader(team1 as HTMLElement, team1Elo, team1FaceitElo, "first");
-  updateTeamHeader(team2 as HTMLElement, team2Elo, team2FaceitElo, "last");
+  await updateTeamHeader(
+    team1 as HTMLElement,
+    team1Elo,
+    team1FaceitElo,
+    "first"
+  );
+  await updateTeamHeader(
+    team2 as HTMLElement,
+    team2Elo,
+    team2FaceitElo,
+    "last"
+  );
 }
 
 function calculateTeamAverageElo(container: HTMLElement): number | null {
@@ -144,7 +156,7 @@ function calculateTeamAverageFaceitElo(
   );
 }
 
-function updateTeamHeader(
+async function updateTeamHeader(
   header: HTMLElement,
   renownElo: number | null,
   faceitElo: number | null = null,
@@ -153,8 +165,6 @@ function updateTeamHeader(
   if (!renownElo && !faceitElo) {
     return;
   }
-
-  cleanupBadges();
 
   const badgesContainer = document.createElement("div");
   badgesContainer.style.cssText =

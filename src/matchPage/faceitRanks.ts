@@ -35,34 +35,19 @@ const processPlayers = (
     const faceitBadge = createFaceitBadgeElement(
       faceitInfo.elo,
       badgeSize,
-      true
+      true,
+      "",
+      "",
+      faceitInfo.url
     );
 
-    if (faceitInfo.url) {
-      const link = document.createElement("a");
-      link.href = faceitInfo.url;
-      link.target = "_blank";
-      link.style.cursor = "pointer";
-      link.setAttribute("data-clutch-extension", "faceit-badge-match-page");
-      link.appendChild(faceitBadge);
-
-      if (element.firstElementChild?.nextElementSibling) {
-        element.insertBefore(
-          link,
-          element.firstElementChild.nextElementSibling
-        );
-      } else {
-        element.appendChild(link);
-      }
+    if (element.firstElementChild?.nextElementSibling) {
+      element.insertBefore(
+        faceitBadge,
+        element.firstElementChild.nextElementSibling
+      );
     } else {
-      if (element.firstElementChild?.nextElementSibling) {
-        element.insertBefore(
-          faceitBadge,
-          element.firstElementChild.nextElementSibling
-        );
-      } else {
-        element.appendChild(faceitBadge);
-      }
+      element.appendChild(faceitBadge);
     }
   });
 };

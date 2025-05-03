@@ -1,9 +1,8 @@
 import type { UserSettings } from "$lib/types";
-import { waitForElement, waitForElements } from "../utils/profileUtils";
-// import { initializeFaceitRanks } from "./faceitRanks";
+import { waitForElement } from "../utils/profileUtils";
 import { initializeTeamAverageEloLive } from "./teamAverageEloLive";
 import { isLiveMatch } from "../utils/pageUtils";
-import { initializeFaceitRanks } from "./faceitRanks";
+import { initializeLiveFaceitRanks } from "./liveFaceitRanks";
 
 interface PlayerData {
   steamId: string;
@@ -72,7 +71,6 @@ async function getFaceitData(
 
 async function initializeLiveMatchPageData(): Promise<MatchPageData | null> {
   const players = await getLiveMatchPagePlayers();
-  console.log("Players", players);
   if (!players.length) {
     return null;
   }
@@ -96,7 +94,7 @@ export async function initializeLiveMatchPage(
 
   const { players, faceitData } = matchPageData;
 
-  //   await initializeFaceitRanks(userSettings, players, faceitData);
+  await initializeLiveFaceitRanks(userSettings, players, faceitData);
 
   await initializeTeamAverageEloLive(userSettings, players, faceitData);
 }
