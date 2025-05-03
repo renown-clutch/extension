@@ -69,7 +69,8 @@ function removeButton(className: string) {
 }
 
 async function appendButtonsToDom(settings: UserSettings) {
-  const linksDiv = document.querySelector(".profile-banner div.links");
+  const linksDiv = await waitForElement(".profile-banner div.links");
+
   if (!linksDiv) return;
 
   const playerId = getPlayerIdFromUrl();
@@ -90,7 +91,6 @@ async function appendButtonsToDom(settings: UserSettings) {
       bgColor: "#141616",
       iconPath: faceitIcon,
     });
-    console.log(faceitButton);
   }
 
   const existingCsstatsButton = document.querySelector(
@@ -157,5 +157,5 @@ export async function initializeProfileButtons(
     removeButton(".clutch-faceit-button");
   }
 
-  await appendButtonsToDom(settings);
+  appendButtonsToDom(settings);
 }

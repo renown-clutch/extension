@@ -48,7 +48,6 @@ function waitForPageReady(): Promise<void> {
   return new Promise((resolve) => {
     const checkHydration = () => {
       if (window.__NEXT_DATA__) {
-        console.log("Next.js hydration complete");
         resolve();
         return;
       }
@@ -181,7 +180,6 @@ function observeUrlChanges() {
 }
 
 async function initialize(currentUrl: string) {
-  console.log("Initializing with URL:", currentUrl);
   if (!shouldBeInjected()) {
     removeAllThemeStyles();
     return;
