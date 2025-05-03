@@ -133,11 +133,11 @@ function createDroppedSkinElement(drop: Drop): HTMLDivElement {
   priceSvg.appendChild(pricePath);
   priceDiv.appendChild(priceSvg);
 
-  priceDiv.appendChild(
-    document.createTextNode(
-      `€${drop.buff_price ? Math.round(drop.buff_price / 100) : "?"}`
-    )
-  );
+  const priceText = drop.buff_price
+    ? `€${(drop.buff_price / 100).toFixed(2)}`
+    : "?";
+
+  priceDiv.appendChild(document.createTextNode(priceText));
   topDiv.appendChild(priceDiv);
 
   droppedSkin.appendChild(topDiv);
