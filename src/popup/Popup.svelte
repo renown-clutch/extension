@@ -247,9 +247,6 @@
           bind:faceitProfileButton={userSettings.faceitProfileButton}
           bind:showBans={userSettings.showBans}
           bind:showSkinDrops={userSettings.showSkinDrops}
-          bind:showFriendListRanks={userSettings.showFriendListRanks}
-          bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
-          bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
           bind:showHighestElo={userSettings.showHighestElo}
         />
       {:else if userSettings.activeTab === "Settings"}
@@ -258,6 +255,12 @@
           bind:showExtensionNavbarButton={
             userSettings.showExtensionNavbarButton
           }
+        />
+      {:else if userSettings.activeTab === "Friends"}
+        <FriendsTab
+          bind:showFriendListRanks={userSettings.showFriendListRanks}
+          bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
+          bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
         />
       {/if}
     </div>

@@ -4,7 +4,8 @@ export type TabName =
   | "Match"
   | "Sounds"
   | "Profiles"
-  | "Settings";
+  | "Settings"
+  | "Friends";
 
 export type Theme =
   | "default"
