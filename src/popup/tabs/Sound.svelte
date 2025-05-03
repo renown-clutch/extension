@@ -35,7 +35,7 @@
     disabled={matchFoundSound === "none"}
   />
 
-  <div class="flex justify-end mt-2">
+  <div class="flex justify-end">
     <SoundTestButton
       sound={matchFoundSound}
       volume={matchFoundVolume}
