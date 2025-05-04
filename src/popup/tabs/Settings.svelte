@@ -42,7 +42,7 @@
     />
   </div>
 
-  <footer class="mt-auto pt-4 flex justify-between items-center">
+  <footer class="mt-auto ml-auto pt-4">
     <div>
       <p class="capitalize text-slate-400 text-xs">Version 1.0.5</p>
     </div>

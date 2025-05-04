@@ -14,7 +14,7 @@
 <div
   class="flex items-center justify-between text-slate-200 border-2 border-slate-900 rounded-lg p-4"
 >
-  <div class="max-w-[24ch]">
+  <div class="max-w-[80%]">
     <h2 class="text-sm">{labelText}</h2>
     <DiscriptionToggle text={descriptionText} {warn} />
   </div>
