@@ -1,5 +1,6 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
+  import MapVeto from "$lib/components/constants/map-veto.svelte";
 
   let {
     showFaceitRanksOnMatchPage = $bindable(false),
@@ -19,4 +20,6 @@
     descriptionText="Show team average ELO next to team name"
     bind:checked={showTeamAverageElo}
   />
+
+  <MapVeto />
 </main>
