@@ -54,9 +54,11 @@
   }
 </script>
 
-<div class="flex border-2 border-slate-900 rounded-lg flex-col gap-2 w-full">
+<div
+  class="flex border-2 p-4 border-slate-900 rounded-lg flex-col gap-6 w-full"
+>
   <div
-    class="p-3 transition-colors duration-200 w-full"
+    class=" transition-colors duration-200 w-full"
     class:border-slate-500={isDraggingOver === "container1"}
     use:droppable={{
       container: "container1",
@@ -110,7 +112,7 @@
   </div>
 
   <div
-    class="p-3 rounded-lg transition-colors duration-200 w-full"
+    class=" rounded-lg transition-colors duration-200 w-full"
     class:border-slate-500={isDraggingOver === "container2"}
     use:droppable={{
       container: "container2",
