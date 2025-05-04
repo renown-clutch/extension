@@ -73,7 +73,7 @@
     <div class="flex flex-col gap-2 w-full">
       {#each container1 as item, index}
         <div
-          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-sm text-slate-300 group w-full"
+          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-xs text-slate-300 group w-full"
           use:draggable={{ container: "container1", dragData: item }}
         >
           <div class="flex items-center gap-2">
@@ -127,7 +127,7 @@
     <div class="grid grid-cols-2 gap-2 w-full">
       {#each container2 as item}
         <div
-          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-sm text-slate-300 w-full"
+          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-xs text-slate-300 w-full"
         >
           <span>{item.name}</span>
           <button
