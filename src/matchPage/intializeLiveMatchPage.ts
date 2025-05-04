@@ -9,12 +9,7 @@ interface PlayerData {
   element: HTMLElement;
 }
 
-interface MatchPageData {
-  players: PlayerData[];
-  faceitData: Record<string, { elo?: number; url?: string }>;
-}
-
-async function getLiveMatchPagePlayers(): Promise<PlayerData[]> {
+export async function getLiveMatchPagePlayers(): Promise<PlayerData[]> {
   const pageContainer = await waitForElement(".page");
   const team1Container = pageContainer.querySelector(".team1-players");
   const team2Container = pageContainer.querySelector(".team2-players");
@@ -69,14 +64,17 @@ async function getFaceitData(
   }
 }
 
-async function initializeLiveMatchPageData(): Promise<MatchPageData | null> {
+async function initializeLiveMatchPageData(): Promise<Record<
+  string,
+  { elo?: number; url?: string }
+> | null> {
   const players = await getLiveMatchPagePlayers();
   if (!players.length) {
     return null;
   }
 
   const faceitData = await getFaceitData(players.map((p) => p.steamId));
-  return { players, faceitData };
+  return faceitData;
 }
 
 export async function initializeLiveMatchPage(
@@ -92,9 +90,9 @@ export async function initializeLiveMatchPage(
     return;
   }
 
-  const { players, faceitData } = matchPageData;
+  const faceitData = matchPageData;
 
-  await initializeLiveFaceitRanks(userSettings, players, faceitData);
+  await initializeLiveFaceitRanks(userSettings, faceitData);
 
   await initializeTeamAverageEloLive(userSettings, faceitData);
 }
