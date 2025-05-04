@@ -54,10 +54,10 @@
   }
 </script>
 
-<div class="flex flex-col gap-4 p-4">
+<div class="flex flex-col gap-4 w-full">
   <div
-    class="p-3 bg-slate-800 rounded-lg transition-colors duration-200"
-    class:bg-slate-700={isDraggingOver === "container1"}
+    class="p-3 border-2 border-slate-900 rounded-lg transition-colors duration-200 w-full"
+    class:border-slate-500={isDraggingOver === "container1"}
     use:droppable={{
       container: "container1",
       callbacks: {
@@ -67,17 +67,17 @@
       },
     }}
   >
-    <h3 class="text-sm font-medium text-slate-300 mb-2">Active Maps</h3>
-    <div class="space-y-1">
-      {#each container1 as item}
+    <h3 class="text-sm font-medium text-slate-300 mb-2">Map Veto</h3>
+    <div class="flex flex-col gap-2 w-full">
+      {#each container1 as item, index}
         <div
-          class="flex items-center justify-between px-2 py-1 bg-slate-900 rounded text-sm text-slate-300 group"
-          use:draggable={{
-            container: "container1",
-            dragData: item,
-          }}
+          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-sm text-slate-300 group w-full"
+          use:draggable={{ container: "container1", dragData: item }}
         >
-          <span>{item.name}</span>
+          <div class="flex items-center gap-2">
+            <span class="text-slate-500 w-4">{index + 1}.</span>
+            <span>{item.name}</span>
+          </div>
           <div class="flex items-center gap-2">
             <button
               class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
@@ -110,8 +110,8 @@
   </div>
 
   <div
-    class="p-3 bg-slate-800 rounded-lg transition-colors duration-200"
-    class:bg-slate-700={isDraggingOver === "container2"}
+    class="p-3 border-2 border-slate-900 rounded-lg transition-colors duration-200 w-full"
+    class:border-slate-500={isDraggingOver === "container2"}
     use:droppable={{
       container: "container2",
       callbacks: {
@@ -122,10 +122,10 @@
     }}
   >
     <h3 class="text-sm font-medium text-slate-300 mb-2">Available Maps</h3>
-    <div class="flex flex-wrap gap-2">
+    <div class="grid grid-cols-2 gap-2 w-full">
       {#each container2 as item}
         <div
-          class="flex items-center gap-2 px-2 py-1 bg-slate-900 rounded text-sm text-slate-300"
+          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-sm text-slate-300 w-full"
         >
           <span>{item.name}</span>
           <button
