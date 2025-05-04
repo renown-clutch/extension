@@ -49,7 +49,6 @@ function cleanupBadges() {
     '[data-clutch-extension="team-average-elo-element"]'
   );
   elements.forEach((element) => {
-    console.log("Removing team average elo element", element);
     if (element.parentNode) {
       element.parentNode.removeChild(element);
     }

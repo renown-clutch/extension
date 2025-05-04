@@ -235,8 +235,6 @@ export async function initializeLiveFaceitRanks(
   players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
 ): Promise<void> {
-  console.log("initializeLiveFaceitRanks called");
-
   if (!userSettings.showFaceitRanksOnMatchPage) {
     cleanupFaceitIcons();
     observers.forEach((observer) => observer.disconnect());
@@ -244,7 +242,6 @@ export async function initializeLiveFaceitRanks(
     return;
   }
 
-  // Add CSS to ensure tooltips work properly on both teams
   if (!document.getElementById("clutch-faceit-live-tooltip-styles")) {
     const style = document.createElement("style");
     style.id = "clutch-faceit-live-tooltip-styles";
