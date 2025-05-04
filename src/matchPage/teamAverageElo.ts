@@ -49,7 +49,6 @@ function cleanupBadges() {
     '[data-clutch-extension="team-average-elo-element"]'
   );
   elements.forEach((element) => {
-    console.log("Removing team average elo element", element);
     if (element.parentNode) {
       element.parentNode.removeChild(element);
     }
@@ -84,7 +83,9 @@ function calculateTeamAverageFaceitElo(
 ): number | null {
   const eloValues = players
     .map((player) => faceitData[player.steamId]?.elo)
-    .filter((elo): elo is number => elo !== undefined);
+    .filter(
+      (elo): elo is number => elo !== undefined && elo !== null && elo !== 0
+    );
 
   if (eloValues.length > 0) {
     const sum = eloValues.reduce((total, elo) => total + elo, 0);

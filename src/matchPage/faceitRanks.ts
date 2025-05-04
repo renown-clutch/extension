@@ -15,7 +15,6 @@ const cleanupFaceitIcons = () => {
   document
     .querySelectorAll("[data-clutch-extension='faceit-badge-match-page']")
     .forEach((element) => {
-      console.log("Removing faceit badge match page", element);
       element?.parentNode?.removeChild(element);
     });
 };

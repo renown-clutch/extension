@@ -73,21 +73,160 @@ const setupPlayerListObservers = (
 
   const observerConfig = {
     childList: true,
-    characterData: true,
     subtree: true,
+    attributes: true,
+    attributeOldValue: true,
+    characterData: true,
   };
 
-  players.forEach(({ element }) => {
-    const nameElement = element.querySelector(".player-info-wrapper .name");
+  // Find the player-list container
+  const playerList = document.querySelector(".player-list");
+  if (playerList) {
+    const observer = new MutationObserver((mutations) => {
+      // Filter out mutations that only affect our extension elements
+      const relevantMutation = mutations.some((mutation) => {
+        // Skip mutations on our extension elements or tooltips
+        if (
+          mutation.target instanceof Element &&
+          (mutation.target.hasAttribute("data-clutch-extension") ||
+            mutation.target.classList.contains("clutch-tooltip"))
+        ) {
+          return false;
+        }
 
-    if (nameElement) {
-      const observer = new MutationObserver((mutations) => {
-        observerCallback();
+        // Skip opacity style changes (tooltip showing/hiding)
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "style" &&
+          mutation.target instanceof HTMLElement &&
+          mutation.oldValue !== null &&
+          mutation.target.style.opacity !== mutation.oldValue &&
+          (mutation.target.classList.contains("clutch-tooltip") ||
+            mutation.target.closest("[data-clutch-extension]"))
+        ) {
+          return false;
+        }
+
+        // Check for player attribute changes (position changes)
+        if (
+          mutation.type === "attributes" &&
+          mutation.target instanceof Element &&
+          mutation.target.classList.contains("player")
+        ) {
+          return true;
+        }
+
+        // Skip if the mutation only affects our extension elements
+        if (mutation.type === "childList") {
+          const addedNodesRelevant = Array.from(mutation.addedNodes).some(
+            (node) =>
+              node instanceof Element &&
+              !node.hasAttribute("data-clutch-extension") &&
+              !node.classList.contains("clutch-tooltip")
+          );
+          const removedNodesRelevant = Array.from(mutation.removedNodes).some(
+            (node) =>
+              node instanceof Element &&
+              !node.hasAttribute("data-clutch-extension") &&
+              !node.classList.contains("clutch-tooltip")
+          );
+          return addedNodesRelevant || removedNodesRelevant;
+        }
+
+        return true;
       });
 
-      observer.observe(nameElement, observerConfig);
-      observers.push(observer);
-    }
+      if (relevantMutation) {
+        observerCallback();
+      }
+    });
+
+    observer.observe(playerList, observerConfig);
+    observers.push(observer);
+  }
+
+  setupTeamContainerObservers(userSettings, players, faceitData);
+};
+
+const setupTeamContainerObservers = (
+  userSettings: UserSettings,
+  players: PlayerData[],
+  faceitData: Record<string, FaceitInfo>
+): void => {
+  const observerCallback = async () => {
+    initializeLiveFaceitRanks(userSettings, players, faceitData);
+  };
+
+  // Watch team player containers for changes
+  const teamPlayerContainers = document.querySelectorAll(
+    ".team1-players, .team2-players"
+  );
+
+  if (teamPlayerContainers.length === 0) {
+    return;
+  }
+
+  teamPlayerContainers.forEach((container) => {
+    const observer = new MutationObserver((mutations) => {
+      const relevantMutation = mutations.some((mutation) => {
+        // Skip mutations on tooltip elements
+        if (
+          mutation.target instanceof Element &&
+          (mutation.target.classList.contains("clutch-tooltip") ||
+            mutation.target.closest(".clutch-tooltip"))
+        ) {
+          return false;
+        }
+
+        // Skip style changes on tooltip elements (opacity changes)
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "style" &&
+          mutation.target instanceof HTMLElement &&
+          mutation.oldValue !== null &&
+          (mutation.target.classList.contains("clutch-tooltip") ||
+            mutation.target.closest("[data-clutch-extension]"))
+        ) {
+          return false;
+        }
+
+        // Only care about childList changes in team containers
+        if (mutation.type === "childList") {
+          const addedNodes = Array.from(mutation.addedNodes);
+          // Filter out tooltip elements
+          const filteredAddedNodes = addedNodes.filter(
+            (node) =>
+              !(
+                node instanceof Element &&
+                (node.classList.contains("clutch-tooltip") ||
+                  node.hasAttribute("data-clutch-extension"))
+              )
+          );
+
+          // Check if a player-list was added
+          const hasPlayerList = filteredAddedNodes.some(
+            (node) =>
+              node instanceof Element &&
+              (node.classList.contains("player-list") ||
+                node.querySelector(".player-list"))
+          );
+
+          return hasPlayerList;
+        }
+        return false;
+      });
+
+      if (relevantMutation) {
+        observerCallback();
+      }
+    });
+
+    observer.observe(container, {
+      childList: true,
+      attributes: true,
+      subtree: true,
+    });
+    observers.push(observer);
   });
 };
 
@@ -101,6 +240,37 @@ export async function initializeLiveFaceitRanks(
     observers.forEach((observer) => observer.disconnect());
     observers = [];
     return;
+  }
+
+  if (!document.getElementById("clutch-faceit-live-tooltip-styles")) {
+    const style = document.createElement("style");
+    style.id = "clutch-faceit-live-tooltip-styles";
+    style.textContent = `
+      /* Ensure tooltip containers have proper positioning */
+      .team1-players .player .avatar-wrapper + [data-clutch-extension="faceit-badge-live-match-page"],
+      .team2-players .player .avatar-wrapper + [data-clutch-extension="faceit-badge-live-match-page"] {
+        position: relative !important;
+        z-index: 10;
+      }
+      
+      /* Ensure image containers inside faceit badges have positioning context for tooltips */
+      [data-clutch-extension="faceit-badge-live-match-page"] > div,
+      .faceit-icon-container {
+        position: relative !important;
+      }
+      
+      /* Make sure tooltips appear above other elements */
+      .clutch-tooltip {
+        z-index: 100 !important;
+      }
+      
+      /* Fix tooltip positioning specifically for team1 players if needed */
+      .team1-players .player .avatar-wrapper + [data-clutch-extension="faceit-badge-live-match-page"] .clutch-tooltip {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   processPlayers(players, faceitData);
