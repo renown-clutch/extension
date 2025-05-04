@@ -37,6 +37,7 @@
     "vite": "^6.2.0"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.3"
+    "@tailwindcss/vite": "^4.1.3",
+    "@thisux/sveltednd": "^0.0.20"
   }
 }

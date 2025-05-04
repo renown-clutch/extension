@@ -1,5 +1,6 @@
 <script lang="ts">
   import SwitchComponent from "$lib/components/constants/switch.svelte";
+  import MapVeto from "$lib/components/constants/map-veto.svelte";
 
   let {
     showFaceitRanksOnMatchPage = $bindable(false),
@@ -8,6 +9,7 @@
 </script>
 
 <main class="flex flex-col gap-4">
+  <h2 class="text-lg">Ranks & Elo</h2>
   <SwitchComponent
     labelText="Faceit Ranks"
     descriptionText="Show Faceit ranks on match page"
@@ -19,4 +21,10 @@
     descriptionText="Show team average ELO next to team name"
     bind:checked={showTeamAverageElo}
   />
+  <h2 class="text-lg">Auto Ban Maps</h2>
+  <SwitchComponent
+    labelText="Auto Ban"
+    descriptionText="Automatically ban maps based on your picks"
+  />
+  <MapVeto />
 </main>
