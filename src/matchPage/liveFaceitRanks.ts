@@ -1,5 +1,6 @@
 import { createFaceitBadgeElement } from "../utils/faceitUtils";
 import type { UserSettings } from "$lib/types";
+import { getLiveMatchPagePlayers } from "./intializeLiveMatchPage";
 
 interface FaceitInfo {
   elo?: number;
@@ -27,7 +28,6 @@ const cleanupFaceitIcons = () => {
     element?.parentNode?.removeChild(element);
   });
 
-  // Clear internal tracking maps
   processedPlayers.clear();
   faceitIconMap.clear();
 };
@@ -36,7 +36,6 @@ const processPlayers = (
   players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
 ): void => {
-  // Don't clean up icons when just updating existing ones
   if (!ignoreObserverChanges) {
     cleanupFaceitIcons();
   }
@@ -51,16 +50,13 @@ const processPlayers = (
 
     const faceitInfo = faceitData[steamId];
 
-    // Check if we already have an icon for this player
     const existingBadge = element.querySelector(
       "[data-clutch-extension='faceit-badge-live-match-page']"
     );
     if (existingBadge) {
-      // If we're just updating icons, don't recreate them
       if (ignoreObserverChanges) {
         return;
       }
-      // Remove the existing badge if we're doing a full refresh
       existingBadge.parentNode?.removeChild(existingBadge);
     }
 
@@ -80,7 +76,6 @@ const processPlayers = (
 
     avatarWrapper.insertAdjacentElement("afterend", faceitBadge);
 
-    // Track the player element and faceit icon
     processedPlayers.add(element);
     if (steamId) {
       faceitIconMap.set(steamId, faceitBadge);
@@ -90,16 +85,13 @@ const processPlayers = (
 
 const setupPlayerListObservers = (
   userSettings: UserSettings,
-  players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
 ): void => {
   observers.forEach((observer) => observer.disconnect());
   observers = [];
 
   const observerCallback = async (mutations: MutationRecord[]) => {
-    // Filter out mutations that only affect our extension elements
     const relevantMutation = mutations.some((mutation) => {
-      // Skip mutations on our extension elements or tooltips
       if (
         mutation.target instanceof Element &&
         (mutation.target.hasAttribute("data-clutch-extension") ||
@@ -108,7 +100,6 @@ const setupPlayerListObservers = (
         return false;
       }
 
-      // Skip opacity style changes (tooltip showing/hiding)
       if (
         mutation.type === "attributes" &&
         mutation.attributeName === "style" &&
@@ -121,7 +112,6 @@ const setupPlayerListObservers = (
         return false;
       }
 
-      // Check for player attribute changes (position changes)
       if (
         mutation.type === "attributes" &&
         mutation.target instanceof Element &&
@@ -130,7 +120,6 @@ const setupPlayerListObservers = (
         return true;
       }
 
-      // Skip if the mutation only affects our extension elements
       if (mutation.type === "childList") {
         const addedNodesRelevant = Array.from(mutation.addedNodes).some(
           (node) =>
@@ -151,7 +140,6 @@ const setupPlayerListObservers = (
     });
 
     if (relevantMutation && !ignoreObserverChanges) {
-      // Check if players have been reordered and update accordingly
       const currentPlayers = Array.from(
         document.querySelectorAll(".player")
       ).filter((p) => !processedPlayers.has(p as HTMLElement));
@@ -160,14 +148,11 @@ const setupPlayerListObservers = (
         console.log(
           "Player order changed or new players detected, updating Faceit icons"
         );
-        // Set flag to prevent reprocessing during our updates
         ignoreObserverChanges = true;
 
         try {
-          // Update with existing data
-          initializeLiveFaceitRanks(userSettings, players, faceitData);
+          initializeLiveFaceitRanks(userSettings, faceitData);
         } finally {
-          // Reset flag after updates are done
           setTimeout(() => {
             ignoreObserverChanges = false;
           }, 100);
@@ -184,7 +169,6 @@ const setupPlayerListObservers = (
     characterData: true,
   };
 
-  // Find the player-list container
   const playerList = document.querySelector(".player-list");
   if (playerList) {
     const observer = new MutationObserver(observerCallback);
@@ -192,15 +176,13 @@ const setupPlayerListObservers = (
     observers.push(observer);
   }
 
-  setupTeamContainerObservers(userSettings, players, faceitData);
+  setupTeamContainerObservers(userSettings, faceitData);
 };
 
 const setupTeamContainerObservers = (
   userSettings: UserSettings,
-  players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
 ): void => {
-  // Watch team player containers for changes
   const teamPlayerContainers = document.querySelectorAll(
     ".team1-players, .team2-players"
   );
@@ -214,7 +196,6 @@ const setupTeamContainerObservers = (
       if (ignoreObserverChanges) return;
 
       const relevantMutation = mutations.some((mutation) => {
-        // Skip mutations on tooltip elements
         if (
           mutation.target instanceof Element &&
           (mutation.target.classList.contains("clutch-tooltip") ||
@@ -225,10 +206,8 @@ const setupTeamContainerObservers = (
           return false;
         }
 
-        // Only care about childList changes in team containers
         if (mutation.type === "childList") {
           const addedNodes = Array.from(mutation.addedNodes);
-          // Filter out tooltip elements
           const filteredAddedNodes = addedNodes.filter(
             (node) =>
               !(
@@ -238,7 +217,6 @@ const setupTeamContainerObservers = (
               )
           );
 
-          // Check if a player-list was added
           const hasPlayerList = filteredAddedNodes.some(
             (node) =>
               node instanceof Element &&
@@ -246,7 +224,6 @@ const setupTeamContainerObservers = (
                 node.querySelector(".player-list"))
           );
 
-          // Check if players were added or removed
           const hasPlayerChanges = filteredAddedNodes.some(
             (node) =>
               node instanceof Element &&
@@ -257,7 +234,6 @@ const setupTeamContainerObservers = (
           return hasPlayerList || hasPlayerChanges;
         }
 
-        // Check for player position changes
         if (
           mutation.type === "attributes" &&
           mutation.target instanceof Element &&
@@ -272,15 +248,13 @@ const setupTeamContainerObservers = (
       if (relevantMutation) {
         console.log("Team container changed, updating Faceit icons");
 
-        // Set flag to prevent reprocessing during our updates
         ignoreObserverChanges = true;
 
         try {
           setTimeout(() => {
-            initializeLiveFaceitRanks(userSettings, players, faceitData);
+            initializeLiveFaceitRanks(userSettings, faceitData);
           }, 50);
         } finally {
-          // Reset flag after updates are done
           setTimeout(() => {
             ignoreObserverChanges = false;
           }, 100);
@@ -296,14 +270,12 @@ const setupTeamContainerObservers = (
     observers.push(observer);
   });
 
-  // Also observe player reordering at a higher level
   const matchContent = document.querySelector(".match-content");
   if (matchContent) {
     const observer = new MutationObserver((mutations) => {
       if (ignoreObserverChanges) return;
 
       const relevantMutation = mutations.some((mutation) => {
-        // Check if match content or player lists have changed
         if (mutation.type === "childList") {
           const nodeChangesRelevant = [
             ...Array.from(mutation.addedNodes),
@@ -325,15 +297,13 @@ const setupTeamContainerObservers = (
       if (relevantMutation) {
         console.log("Match content changed, updating Faceit icons");
 
-        // Set flag to prevent reprocessing during our updates
         ignoreObserverChanges = true;
 
         try {
           setTimeout(() => {
-            initializeLiveFaceitRanks(userSettings, players, faceitData);
+            initializeLiveFaceitRanks(userSettings, faceitData);
           }, 50);
         } finally {
-          // Reset flag after updates are done
           setTimeout(() => {
             ignoreObserverChanges = false;
           }, 100);
@@ -351,7 +321,6 @@ const setupTeamContainerObservers = (
 
 export async function initializeLiveFaceitRanks(
   userSettings: UserSettings,
-  players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
 ): Promise<void> {
   if (!userSettings.showFaceitRanksOnMatchPage) {
@@ -392,6 +361,7 @@ export async function initializeLiveFaceitRanks(
     document.head.appendChild(style);
   }
 
+  const players = await getLiveMatchPagePlayers();
   processPlayers(players, faceitData);
-  setupPlayerListObservers(userSettings, players, faceitData);
+  setupPlayerListObservers(userSettings, faceitData);
 }
