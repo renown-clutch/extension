@@ -1,6 +1,5 @@
 import { createFaceitBadgeElement } from "../utils/faceitUtils";
 import type { UserSettings } from "$lib/types";
-import { getLiveMatchPagePlayers } from "./intializeLiveMatchPage";
 
 interface FaceitInfo {
   elo?: number;
@@ -13,6 +12,9 @@ interface PlayerData {
 }
 
 let observers: MutationObserver[] = [];
+let processedPlayers = new Set<HTMLElement>();
+let faceitIconMap = new Map<string, HTMLElement>();
+let ignoreObserverChanges = false;
 
 const cleanupFaceitIcons = () => {
   document
@@ -24,13 +26,20 @@ const cleanupFaceitIcons = () => {
   document.querySelectorAll(".faceit-icon").forEach((element) => {
     element?.parentNode?.removeChild(element);
   });
+
+  // Clear internal tracking maps
+  processedPlayers.clear();
+  faceitIconMap.clear();
 };
 
 const processPlayers = (
   players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
 ): void => {
-  cleanupFaceitIcons();
+  // Don't clean up icons when just updating existing ones
+  if (!ignoreObserverChanges) {
+    cleanupFaceitIcons();
+  }
 
   players.forEach(({ element, steamId }) => {
     const badgeSize = 30;
@@ -42,33 +51,129 @@ const processPlayers = (
 
     const faceitInfo = faceitData[steamId];
 
+    // Check if we already have an icon for this player
+    const existingBadge = element.querySelector(
+      "[data-clutch-extension='faceit-badge-live-match-page']"
+    );
+    if (existingBadge) {
+      // If we're just updating icons, don't recreate them
+      if (ignoreObserverChanges) {
+        return;
+      }
+      // Remove the existing badge if we're doing a full refresh
+      existingBadge.parentNode?.removeChild(existingBadge);
+    }
+
     const faceitBadge = createFaceitBadgeElement(
-      faceitInfo.elo || null,
+      faceitInfo?.elo || null,
       badgeSize,
       false,
       "",
       "faceit-badge-live-match-page",
-      faceitInfo.url
+      faceitInfo?.url
     );
 
-    const nameElement = element.querySelector(".name");
-    if (!nameElement) {
+    const avatarWrapper = element.querySelector(".avatar-wrapper");
+    if (!avatarWrapper) {
       return;
     }
 
-    nameElement.insertAdjacentElement("afterbegin", faceitBadge);
+    avatarWrapper.insertAdjacentElement("afterend", faceitBadge);
+
+    // Track the player element and faceit icon
+    processedPlayers.add(element);
+    if (steamId) {
+      faceitIconMap.set(steamId, faceitBadge);
+    }
   });
 };
 
-const setupPlayerListObservers = async (
+const setupPlayerListObservers = (
   userSettings: UserSettings,
+  players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
-): Promise<void> => {
+): void => {
   observers.forEach((observer) => observer.disconnect());
   observers = [];
 
-  const observerCallback = async () => {
-    initializeLiveFaceitRanks(userSettings, faceitData);
+  const observerCallback = async (mutations: MutationRecord[]) => {
+    // Filter out mutations that only affect our extension elements
+    const relevantMutation = mutations.some((mutation) => {
+      // Skip mutations on our extension elements or tooltips
+      if (
+        mutation.target instanceof Element &&
+        (mutation.target.hasAttribute("data-clutch-extension") ||
+          mutation.target.classList.contains("clutch-tooltip"))
+      ) {
+        return false;
+      }
+
+      // Skip opacity style changes (tooltip showing/hiding)
+      if (
+        mutation.type === "attributes" &&
+        mutation.attributeName === "style" &&
+        mutation.target instanceof HTMLElement &&
+        mutation.oldValue !== null &&
+        mutation.target.style.opacity !== mutation.oldValue &&
+        (mutation.target.classList.contains("clutch-tooltip") ||
+          mutation.target.closest("[data-clutch-extension]"))
+      ) {
+        return false;
+      }
+
+      // Check for player attribute changes (position changes)
+      if (
+        mutation.type === "attributes" &&
+        mutation.target instanceof Element &&
+        mutation.target.classList.contains("player")
+      ) {
+        return true;
+      }
+
+      // Skip if the mutation only affects our extension elements
+      if (mutation.type === "childList") {
+        const addedNodesRelevant = Array.from(mutation.addedNodes).some(
+          (node) =>
+            node instanceof Element &&
+            !node.hasAttribute("data-clutch-extension") &&
+            !node.classList.contains("clutch-tooltip")
+        );
+        const removedNodesRelevant = Array.from(mutation.removedNodes).some(
+          (node) =>
+            node instanceof Element &&
+            !node.hasAttribute("data-clutch-extension") &&
+            !node.classList.contains("clutch-tooltip")
+        );
+        return addedNodesRelevant || removedNodesRelevant;
+      }
+
+      return true;
+    });
+
+    if (relevantMutation && !ignoreObserverChanges) {
+      // Check if players have been reordered and update accordingly
+      const currentPlayers = Array.from(
+        document.querySelectorAll(".player")
+      ).filter((p) => !processedPlayers.has(p as HTMLElement));
+
+      if (currentPlayers.length > 0) {
+        console.log(
+          "Player order changed or new players detected, updating Faceit icons"
+        );
+        // Set flag to prevent reprocessing during our updates
+        ignoreObserverChanges = true;
+
+        try {
+          // Update with existing data
+          initializeLiveFaceitRanks(userSettings, players, faceitData);
+        } finally {
+          // Reset flag after updates are done
+          setTimeout(() => {
+            ignoreObserverChanges = false;
+          }, 100);
+        }
+      }
+    }
   };
 
   const observerConfig = {
@@ -79,77 +184,22 @@ const setupPlayerListObservers = async (
     characterData: true,
   };
 
+  // Find the player-list container
   const playerList = document.querySelector(".player-list");
   if (playerList) {
-    const observer = new MutationObserver((mutations) => {
-      const relevantMutation = mutations.some((mutation) => {
-        if (
-          mutation.target instanceof Element &&
-          (mutation.target.hasAttribute("data-clutch-extension") ||
-            mutation.target.classList.contains("clutch-tooltip"))
-        ) {
-          return false;
-        }
-
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "style" &&
-          mutation.target instanceof HTMLElement &&
-          mutation.oldValue !== null &&
-          mutation.target.style.opacity !== mutation.oldValue &&
-          (mutation.target.classList.contains("clutch-tooltip") ||
-            mutation.target.closest("[data-clutch-extension]"))
-        ) {
-          return false;
-        }
-
-        if (
-          mutation.type === "attributes" &&
-          mutation.target instanceof Element &&
-          mutation.target.classList.contains("player")
-        ) {
-          return true;
-        }
-
-        if (mutation.type === "childList") {
-          const addedNodesRelevant = Array.from(mutation.addedNodes).some(
-            (node) =>
-              node instanceof Element &&
-              !node.hasAttribute("data-clutch-extension") &&
-              !node.classList.contains("clutch-tooltip")
-          );
-          const removedNodesRelevant = Array.from(mutation.removedNodes).some(
-            (node) =>
-              node instanceof Element &&
-              !node.hasAttribute("data-clutch-extension") &&
-              !node.classList.contains("clutch-tooltip")
-          );
-          return addedNodesRelevant || removedNodesRelevant;
-        }
-
-        return true;
-      });
-
-      if (relevantMutation) {
-        observerCallback();
-      }
-    });
-
+    const observer = new MutationObserver(observerCallback);
     observer.observe(playerList, observerConfig);
     observers.push(observer);
   }
 
-  setupTeamContainerObservers(userSettings, faceitData);
+  setupTeamContainerObservers(userSettings, players, faceitData);
 };
 
-const setupTeamContainerObservers = async (
+const setupTeamContainerObservers = (
   userSettings: UserSettings,
+  players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
-): Promise<void> => {
-  const observerCallback = async () => {
-    initializeLiveFaceitRanks(userSettings, faceitData);
-  };
-
+): void => {
   // Watch team player containers for changes
   const teamPlayerContainers = document.querySelectorAll(
     ".team1-players, .team2-players"
@@ -161,23 +211,15 @@ const setupTeamContainerObservers = async (
 
   teamPlayerContainers.forEach((container) => {
     const observer = new MutationObserver((mutations) => {
+      if (ignoreObserverChanges) return;
+
       const relevantMutation = mutations.some((mutation) => {
         // Skip mutations on tooltip elements
         if (
           mutation.target instanceof Element &&
           (mutation.target.classList.contains("clutch-tooltip") ||
-            mutation.target.closest(".clutch-tooltip"))
-        ) {
-          return false;
-        }
-
-        // Skip style changes on tooltip elements (opacity changes)
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "style" &&
-          mutation.target instanceof HTMLElement &&
-          mutation.oldValue !== null &&
-          (mutation.target.classList.contains("clutch-tooltip") ||
+            mutation.target.closest(".clutch-tooltip") ||
+            mutation.target.hasAttribute("data-clutch-extension") ||
             mutation.target.closest("[data-clutch-extension]"))
         ) {
           return false;
@@ -204,13 +246,45 @@ const setupTeamContainerObservers = async (
                 node.querySelector(".player-list"))
           );
 
-          return hasPlayerList;
+          // Check if players were added or removed
+          const hasPlayerChanges = filteredAddedNodes.some(
+            (node) =>
+              node instanceof Element &&
+              (node.classList.contains("player") ||
+                node.querySelector(".player"))
+          );
+
+          return hasPlayerList || hasPlayerChanges;
         }
+
+        // Check for player position changes
+        if (
+          mutation.type === "attributes" &&
+          mutation.target instanceof Element &&
+          mutation.target.classList.contains("player")
+        ) {
+          return true;
+        }
+
         return false;
       });
 
       if (relevantMutation) {
-        observerCallback();
+        console.log("Team container changed, updating Faceit icons");
+
+        // Set flag to prevent reprocessing during our updates
+        ignoreObserverChanges = true;
+
+        try {
+          setTimeout(() => {
+            initializeLiveFaceitRanks(userSettings, players, faceitData);
+          }, 50);
+        } finally {
+          // Reset flag after updates are done
+          setTimeout(() => {
+            ignoreObserverChanges = false;
+          }, 100);
+        }
       }
     });
 
@@ -221,10 +295,63 @@ const setupTeamContainerObservers = async (
     });
     observers.push(observer);
   });
+
+  // Also observe player reordering at a higher level
+  const matchContent = document.querySelector(".match-content");
+  if (matchContent) {
+    const observer = new MutationObserver((mutations) => {
+      if (ignoreObserverChanges) return;
+
+      const relevantMutation = mutations.some((mutation) => {
+        // Check if match content or player lists have changed
+        if (mutation.type === "childList") {
+          const nodeChangesRelevant = [
+            ...Array.from(mutation.addedNodes),
+            ...Array.from(mutation.removedNodes),
+          ].some(
+            (node) =>
+              node instanceof Element &&
+              (node.classList.contains("player-list") ||
+                node.querySelector(".player-list") ||
+                node.classList.contains("player") ||
+                node.querySelector(".player"))
+          );
+
+          return nodeChangesRelevant;
+        }
+        return false;
+      });
+
+      if (relevantMutation) {
+        console.log("Match content changed, updating Faceit icons");
+
+        // Set flag to prevent reprocessing during our updates
+        ignoreObserverChanges = true;
+
+        try {
+          setTimeout(() => {
+            initializeLiveFaceitRanks(userSettings, players, faceitData);
+          }, 50);
+        } finally {
+          // Reset flag after updates are done
+          setTimeout(() => {
+            ignoreObserverChanges = false;
+          }, 100);
+        }
+      }
+    });
+
+    observer.observe(matchContent, {
+      childList: true,
+      subtree: true,
+    });
+    observers.push(observer);
+  }
 };
 
 export async function initializeLiveFaceitRanks(
   userSettings: UserSettings,
+  players: PlayerData[],
   faceitData: Record<string, FaceitInfo>
 ): Promise<void> {
   if (!userSettings.showFaceitRanksOnMatchPage) {
@@ -265,8 +392,6 @@ export async function initializeLiveFaceitRanks(
     document.head.appendChild(style);
   }
 
-  const players = await getLiveMatchPagePlayers();
-
   processPlayers(players, faceitData);
-  setupPlayerListObservers(userSettings, faceitData);
+  setupPlayerListObservers(userSettings, players, faceitData);
 }

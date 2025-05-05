@@ -24,11 +24,9 @@
     const { sourceContainer, targetContainer, draggedItem } = state;
 
     if (sourceContainer === "container1" && targetContainer === "container2") {
-      // Move from container1 to container2
       container1 = container1.filter((i) => i.id !== draggedItem.id);
       container2 = [...container2, draggedItem];
     } else if (sourceContainer === "container1") {
-      // Reorder within container1
       container1 = container1.filter((i) => i.id !== draggedItem.id);
       container1 = [...container1, draggedItem];
     }
@@ -83,7 +81,8 @@
           <div class="flex items-center gap-2">
             <button
               class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-              on:click={() => moveToContainer2(item)}
+              onclick={() => moveToContainer2(item)}
+              aria-label="Move to available maps"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -132,7 +131,8 @@
           <span>{item.name}</span>
           <button
             class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-300 transition-colors"
-            on:click={() => moveToContainer1(item)}
+            onclick={() => moveToContainer1(item)}
+            aria-label="Move to map veto"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

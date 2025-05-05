@@ -74,11 +74,6 @@ function shouldBeInjected(): boolean {
     return false;
   }
 
-  if (currentPage.type === "feedback") {
-    console.log("Feedback page, skipping initialization");
-    return false;
-  }
-
   return true;
 }
 
