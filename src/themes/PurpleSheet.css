@@ -1058,9 +1058,7 @@ input.iti__tel-input {
     background-color: var(--slate-900);
   }
   
-  .confirm-match-modal .modal-content {
-    background-color: #111827;
-  }
+  
   
   .confirm-match-modal .modal-content .title {
     color: #fff;
