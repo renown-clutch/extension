@@ -68,6 +68,30 @@ async function updateVersions() {
     await execAsync('npm run build');
     console.log('✅ Chrome build completed');
 
+    // Modify the manifest.json in the dist directory to remove type: module
+    const distManifestPath = path.join(__dirname, 'dist/manifest.json');
+    const distManifestData = JSON.parse(fs.readFileSync(distManifestPath, 'utf8'));
+    
+    // Remove type: module from background
+    if (distManifestData.background && distManifestData.background.type === 'module') {
+      delete distManifestData.background.type;
+      console.log('✅ Removed type: module from background in dist manifest');
+    }
+    
+    // Remove type: module from content_scripts
+    if (distManifestData.content_scripts && distManifestData.content_scripts.length > 0) {
+      distManifestData.content_scripts.forEach(script => {
+        if (script.type === 'module') {
+          delete script.type;
+        }
+      });
+      console.log('✅ Removed type: module from content_scripts in dist manifest');
+    }
+    
+    // Write the modified manifest back to dist
+    fs.writeFileSync(distManifestPath, JSON.stringify(distManifestData, null, 2));
+    console.log('✅ Updated manifest.json in dist directory for Chrome compatibility');
+
     // Create zip file
     const zipFilename = `clutch_extension_chrome_${versionForFilename}.zip`;
     const output = fs.createWriteStream(path.join(exportDir, zipFilename));
