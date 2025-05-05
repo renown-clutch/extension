@@ -21,10 +21,10 @@
     descriptionText="Show team average ELO next to team name"
     bind:checked={showTeamAverageElo}
   />
-  <h2 class="text-lg">Auto Ban Maps</h2>
+  <!-- <h2 class="text-lg">Auto Ban Maps</h2>
   <SwitchComponent
     labelText="Auto Ban"
     descriptionText="Automatically ban maps based on your picks"
   />
-  <MapVeto />
+  <MapVeto /> -->
 </main>
