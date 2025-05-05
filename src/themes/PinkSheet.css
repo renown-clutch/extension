@@ -7,7 +7,7 @@
   --slate-700-80: #b42463db;  /* Medium pink */
   --slate-600: #e02e7d;  /* Lighter pink */
   --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
-  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
+  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-700) 300px);
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
   --linear-gradient-90-2: linear-gradient(90deg, var(--slate-900), var(--slate-800));;
   --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47,) 0 0),conic-gradient(from var(--angle) at 50% 50%,rgb(255, 85, 0) 0deg,rgba(255, 85, 0, 0) 1turn); /* FACEIT Orange accent */
@@ -17,6 +17,11 @@
 }
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
+}
+
+.match-veto .voting-options .voting-card.banned .overlay {
+  background: var(--slate-900-80);
+
 }
 
 .avatar.premium .wrap img {

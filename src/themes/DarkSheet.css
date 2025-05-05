@@ -6,7 +6,7 @@
   --slate-700: #314158;
   --slate-700-80: #314158db;
   --slate-600: #45556c;
-  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
+  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-700) 300px);
   --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
   --linear-gradient-90-2: linear-gradient(90deg, var(--slate-900), var(--slate-800));;
@@ -14,6 +14,11 @@
   --scrollbar-bg: rgba(5, 11, 38, 0.797);
   --scrollbar-color: #1d293d;
   --footer: #00030a;
+}
+
+.match-veto .voting-options .voting-card.banned .overlay {
+  background: var(--slate-900-80);
+
 }
 
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {

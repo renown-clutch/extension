@@ -6,7 +6,7 @@
   --slate-700: #245434;
   --slate-700-80: #245434db;
   --slate-600: #306842;
-  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
+  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-700) 300px);
   --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
 
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
@@ -18,6 +18,11 @@
 }
 .navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
   background-color: var(--slate-900);
+}
+
+.match-veto .voting-options .voting-card.banned .overlay {
+  background: var(--slate-900-80);
+
 }
 
 .avatar.premium .wrap img {

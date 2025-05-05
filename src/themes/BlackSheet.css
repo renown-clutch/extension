@@ -6,7 +6,7 @@
   --slate-700: #404040;  /* Medium gray */
   --slate-700-80: #404040db;  /* Medium gray with opacity */
   --slate-600: #525252;  /* Lighter gray */
-  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
+  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-700) 300px);
   --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
 
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
@@ -20,6 +20,11 @@
 .dropped-skin-slim {
   background: var(--slate-900-80);
   
+}
+
+.match-veto .voting-options .voting-card.banned .overlay {
+  background: var(--slate-900-80);
+
 }
 
 .page.settings-layout .grid .membership-details .overview .payment .payment-details {
