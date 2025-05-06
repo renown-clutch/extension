@@ -164,7 +164,6 @@ function createNoOtherBansBadge(): HTMLDivElement {
   banBadge.style.alignItems = "center";
   banBadge.style.whiteSpace = "nowrap";
 
-  // Create search-x SVG from Lucide
   const searchXSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "svg"
@@ -180,7 +179,6 @@ function createNoOtherBansBadge(): HTMLDivElement {
   searchXSvg.style.verticalAlign = "middle";
   searchXSvg.style.marginRight = "4px";
 
-  // Search-x paths
   const circle = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "circle"
@@ -245,7 +243,6 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   container.appendChild(headerDiv);
 
   if (existingBanBadge) {
-    // Parse existing ban badge information
     const strongElement = existingBanBadge.querySelector("strong");
     const categoryAndSeverity = strongElement?.textContent?.split(" - ") || [];
     const existingBanCategory = categoryAndSeverity[0] || "";
@@ -285,11 +282,7 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
     });
 
     if (duplicateBan) {
-      console.log("[Clutch] Duplicate ban found:", duplicateBan);
-
-      // Remove the duplicate ban from the list to avoid showing it twice
       bans = bans.filter((ban) => {
-        // For permanent bans
         if (isPermanent && ban.permanent) {
           return !(
             ban.category === existingBanCategory &&
@@ -297,7 +290,6 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
           );
         }
 
-        // For temporary bans with expiry date
         if (!isPermanent && existingBanUntil && ban.expires_on) {
           const existingBanDate = new Date(existingBanUntil);
           const apiBanDate = new Date(ban.expires_on);
