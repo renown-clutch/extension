@@ -7,6 +7,7 @@ import { getFaceitLevelIcon } from "../utils/faceitUtils";
 import browserAPI from "../lib/browserAPI";
 import { type UserSettings } from "../lib/types";
 import { getExtensionUrl } from "../utils/staticUtils";
+import { is404Page } from "../utils/pageUtils";
 
 function createButton({
   className,
@@ -155,6 +156,10 @@ export async function initializeProfileButtons(
   }
   if (!settings.faceitProfileButton) {
     removeButton(".clutch-faceit-button");
+  }
+
+  if (is404Page()) {
+    return;
   }
 
   appendButtonsToDom(settings);

@@ -1,6 +1,7 @@
 import { getPlayerIdFromUrl, waitForElement } from "../utils/profileUtils";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 import { isProfilePage } from "../utils/profileUtils";
+import { is404Page } from "../utils/pageUtils";
 
 async function fetchHighestElo(steamId: string): Promise<number | null> {
   return new Promise((resolve) => {
@@ -85,6 +86,10 @@ export function initializeHighestElo(enabled: boolean): void {
   }
   if (!enabled) {
     removeHighestEloElement();
+    return;
+  }
+
+  if (is404Page()) {
     return;
   }
 

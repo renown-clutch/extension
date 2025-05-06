@@ -4,7 +4,8 @@ import {
   getPlayerIdFromUrl,
   waitForElement,
 } from "../utils/profileUtils";
-import { createTooltipElement, addTooltip } from "../utils/faceitUtils";
+import { addTooltip } from "../utils/faceitUtils";
+import { is404Page } from "../utils/pageUtils";
 
 interface Ban {
   category: string;
@@ -327,8 +328,13 @@ export async function initializeProfileBans(showBans: boolean): Promise<void> {
   if (!isProfilePage()) {
     return;
   }
+
   if (!showBans) {
     removeBanElements();
+    return;
+  }
+
+  if (is404Page()) {
     return;
   }
 

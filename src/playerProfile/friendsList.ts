@@ -1,7 +1,6 @@
-import { isProfilePage } from "../utils/profileUtils";
 import { type UserSettings } from "../lib/types";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
-import { waitForElement } from "../utils/profileUtils";
+import { is404Page } from "../utils/pageUtils";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
 
@@ -178,6 +177,10 @@ export async function initializeFriendsList(
     removeRankBadges();
     return;
   }
+
+  if (is404Page()) {
+    return;
+  } 
 
   const friendIds = await extractFriendIds();
   if (friendIds.length === 0) return;

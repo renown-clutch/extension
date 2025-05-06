@@ -1,3 +1,4 @@
+import { is404Page } from "../utils/pageUtils";
 import {
   isProfilePage,
   getPlayerIdFromUrl,
@@ -264,6 +265,10 @@ export async function initializeSkinDrops(showDrops: boolean): Promise<void> {
   }
   if (!showDrops) {
     removeExistingDropsContainer();
+    return;
+  }
+
+  if (is404Page()) {
     return;
   }
 

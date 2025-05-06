@@ -70,3 +70,8 @@ export function isLiveMatch(): boolean {
 export function isMatchPage(): boolean {
   return getCurrentPage().type === "matchPage";
 }
+
+export function is404Page(): boolean {
+  const notFoundPage = document.querySelector(".page.not-found");
+  return notFoundPage !== null;
+}
