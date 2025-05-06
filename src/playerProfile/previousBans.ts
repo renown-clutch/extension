@@ -244,20 +244,85 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   headerDiv.textContent = "Ban History";
   container.appendChild(headerDiv);
 
-  if (existingBanBadge && (!bans || bans.length <= 1)) {
-    const noOtherBansBadge = createNoOtherBansBadge();
-    container.appendChild(noOtherBansBadge);
-    return;
+  if (existingBanBadge) {
+    // Parse existing ban badge information
+    const strongElement = existingBanBadge.querySelector("strong");
+    const categoryAndSeverity = strongElement?.textContent?.split(" - ") || [];
+    const existingBanCategory = categoryAndSeverity[0] || "";
+    const existingBanSeverity = categoryAndSeverity[1] || "";
+
+    const isPermanent =
+      existingBanBadge.textContent?.includes("permanently") || false;
+
+    const secondStrong = existingBanBadge.querySelector("strong:nth-child(2)");
+    const existingBanUntil = secondStrong?.textContent || null;
+
+    const duplicateBan = bans.find((ban) => {
+      if (isPermanent && ban.permanent) {
+        return (
+          ban.category === existingBanCategory &&
+          ban.severity === existingBanSeverity
+        );
+      }
+
+      if (!isPermanent && existingBanUntil && ban.expires_on) {
+        const existingBanDate = new Date(existingBanUntil);
+        const apiBanDate = new Date(ban.expires_on);
+
+        const sameDateExpiry =
+          existingBanDate.getDate() === apiBanDate.getDate() &&
+          existingBanDate.getMonth() === apiBanDate.getMonth() &&
+          existingBanDate.getFullYear() === apiBanDate.getFullYear();
+
+        return (
+          ban.category === existingBanCategory &&
+          ban.severity === existingBanSeverity &&
+          sameDateExpiry
+        );
+      }
+
+      return false;
+    });
+
+    if (duplicateBan) {
+      console.log("[Clutch] Duplicate ban found:", duplicateBan);
+
+      // Remove the duplicate ban from the list to avoid showing it twice
+      bans = bans.filter((ban) => {
+        // For permanent bans
+        if (isPermanent && ban.permanent) {
+          return !(
+            ban.category === existingBanCategory &&
+            ban.severity === existingBanSeverity
+          );
+        }
+
+        // For temporary bans with expiry date
+        if (!isPermanent && existingBanUntil && ban.expires_on) {
+          const existingBanDate = new Date(existingBanUntil);
+          const apiBanDate = new Date(ban.expires_on);
+
+          const sameDateExpiry =
+            existingBanDate.getDate() === apiBanDate.getDate() &&
+            existingBanDate.getMonth() === apiBanDate.getMonth() &&
+            existingBanDate.getFullYear() === apiBanDate.getFullYear();
+
+          return !(
+            ban.category === existingBanCategory &&
+            ban.severity === existingBanSeverity &&
+            sameDateExpiry
+          );
+        }
+
+        return true;
+      });
+    }
   }
 
   if (!bans || bans.length === 0) {
     const noBansBadge = createNoBansBadge();
     container.appendChild(noBansBadge);
     return;
-  }
-
-  if (existingBanBadge) {
-    bans = bans.slice(1);
   }
 
   bans.forEach((ban) => {
