@@ -68,6 +68,43 @@ browserAPI.runtime.onMessage.addListener(
           sendResponse({});
         });
       return true; // Indicates async response
+    } else if (message.type === "fetchTeamsMapStats") {
+      const team1SteamIds = message.team1SteamIds;
+      const team2SteamIds = message.team2SteamIds;
+
+      fetch(`${API_BASE_URL}/get_teams_map_stats`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          team1_steam_ids: team1SteamIds,
+          team2_steam_ids: team2SteamIds,
+        }),
+      })
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          }
+          return safeJsonParse(response);
+        })
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error: unknown) => {
+          console.error("Error fetching team map stats in background:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: errorMessage,
+          });
+        });
+
+      return true;
     } else if (message.type === "fetchUserBans") {
       const steamId = message.steamId;
 

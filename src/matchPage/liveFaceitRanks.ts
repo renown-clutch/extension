@@ -1,6 +1,7 @@
 import { createFaceitBadgeElement } from "../utils/faceitUtils";
 import type { UserSettings } from "$lib/types";
 import { getLiveMatchPagePlayers } from "./intializeLiveMatchPage";
+import browserAPI from "../lib/browserAPI";
 
 interface FaceitInfo {
   elo?: number;
@@ -16,6 +17,7 @@ let observers: MutationObserver[] = [];
 let processedPlayers = new Set<HTMLElement>();
 let faceitIconMap = new Map<string, HTMLElement>();
 let ignoreObserverChanges = false;
+let mapStatsData: any = null;
 
 const cleanupFaceitIcons = () => {
   document
@@ -319,6 +321,183 @@ const setupTeamContainerObservers = (
   }
 };
 
+async function fetchTeamMapStats(players: PlayerData[]): Promise<void> {
+  // Group players by team
+  const team1Players: string[] = [];
+  const team2Players: string[] = [];
+
+  const processedSteamIds = new Set<string>();
+
+  players.forEach(({ steamId, element }) => {
+    if (!steamId || processedSteamIds.has(steamId)) return;
+    processedSteamIds.add(steamId);
+
+    // Determine which team the player belongs to
+    if (element.closest(".team1-players")) {
+      team1Players.push(steamId);
+    } else if (element.closest(".team2-players")) {
+      team2Players.push(steamId);
+    }
+  });
+
+  // Only proceed if we have players in both teams
+  if (team1Players.length === 0 || team2Players.length === 0) {
+    console.log("Not enough players found to fetch team map stats");
+    return;
+  }
+
+  console.log("Fetching map stats for teams:", {
+    team1: team1Players,
+    team2: team2Players,
+  });
+
+  try {
+    const response = await browserAPI.runtime.sendMessage({
+      type: "fetchTeamsMapStats",
+      team1SteamIds: team1Players,
+      team2SteamIds: team2Players,
+    });
+
+    if (response.success) {
+      console.log("Team map stats retrieved:", response.data);
+      mapStatsData = response.data;
+      setupMapVetoObserver();
+      injectMapStats();
+    } else {
+      console.error("Failed to retrieve team map stats:", response.error);
+    }
+  } catch (error) {
+    console.error("Error fetching team map stats:", error);
+  }
+}
+
+function setupMapVetoObserver(): void {
+  // Create a mutation observer to watch for the map veto element
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLElement) {
+            const matchVeto = document.querySelector(".match-veto");
+            if (matchVeto) {
+              console.log("Map veto section detected");
+              injectMapStats();
+              observer.disconnect();
+              return;
+            }
+          }
+        }
+      }
+    });
+  });
+
+  // Start observing the document
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+function injectMapStats(): void {
+  if (!mapStatsData) {
+    console.log("No map stats data available for injection");
+    return;
+  }
+
+  const matchVeto = document.querySelector(".match-veto");
+  if (!matchVeto) {
+    console.log("Map veto section not found, will retry when it appears");
+    return;
+  }
+
+  const votingCards = matchVeto.querySelectorAll(
+    ".voting-options .voting-card"
+  );
+  if (votingCards.length === 0) {
+    console.log("No voting cards found in map veto section");
+    return;
+  }
+
+  console.log("Found voting cards, attempting to inject stats");
+
+  votingCards.forEach((card) => {
+    const mapNameElement = card.querySelector(".map-name");
+    if (!mapNameElement) return;
+
+    const mapName = mapNameElement.textContent?.trim();
+    if (!mapName) return;
+
+    // Find the map in the stats data (case insensitive match)
+    const mapKey = Object.keys(mapStatsData).find(
+      (key) => key.toLowerCase() === mapName.toLowerCase()
+    );
+
+    if (!mapKey) {
+      console.log(
+        `No stats found for map: ${mapName} (available maps: ${Object.keys(
+          mapStatsData
+        ).join(", ")})`
+      );
+      return;
+    }
+
+    const mapStats = mapStatsData[mapKey];
+
+    const team1Wins = mapStats.team1 || 0;
+    const team2Wins = mapStats.team2 || 0;
+
+    // Determine the comparison symbol based on win counts
+    let comparisonSymbol = "=";
+    if (team1Wins > team2Wins) {
+      comparisonSymbol = ">";
+    } else if (team1Wins < team2Wins) {
+      comparisonSymbol = "<";
+    }
+
+    // Check if we've already injected stats to avoid duplicates
+    if (!mapNameElement.textContent?.includes("|")) {
+      // Save the original map name
+      const originalMapName = mapNameElement.textContent;
+
+      // Clear the text content to replace with formatted elements
+      mapNameElement.textContent = "";
+
+      // Add the original map name back
+      mapNameElement.appendChild(
+        document.createTextNode(originalMapName + " | ")
+      );
+
+      // Create styled spans for the numbers and comparison
+      const team1Span = document.createElement("span");
+      const team2Span = document.createElement("span");
+      const comparisonSpan = document.createElement("span");
+
+      // Set the text content
+      team1Span.textContent = team1Wins.toString();
+      comparisonSpan.textContent = ` ${comparisonSymbol} `;
+      team2Span.textContent = team2Wins.toString();
+
+      // Apply colors based on comparison
+      if (team1Wins > team2Wins) {
+        team1Span.style.color = "#4CAF50"; // Green
+        team2Span.style.color = "#F44336"; // Red
+      } else if (team1Wins < team2Wins) {
+        team1Span.style.color = "#F44336"; // Red
+        team2Span.style.color = "#4CAF50"; // Green
+      }
+
+      // Add elements to the DOM
+      mapNameElement.appendChild(team1Span);
+      mapNameElement.appendChild(comparisonSpan);
+      mapNameElement.appendChild(team2Span);
+
+      console.log(
+        `Injected colored stats for ${originalMapName}: ${team1Wins} ${comparisonSymbol} ${team2Wins}`
+      );
+    }
+  });
+}
+
 export async function initializeLiveFaceitRanks(
   userSettings: UserSettings,
   faceitData: Record<string, FaceitInfo>
@@ -364,4 +543,7 @@ export async function initializeLiveFaceitRanks(
   const players = await getLiveMatchPagePlayers();
   processPlayers(players, faceitData);
   setupPlayerListObservers(userSettings, faceitData);
+
+  // Fetch team map stats
+  await fetchTeamMapStats(players);
 }
