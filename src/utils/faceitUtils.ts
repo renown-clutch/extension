@@ -137,7 +137,7 @@ export function createFaceitBadgeElement(
     align-items: center;
     background-color: var(--slate-700); 
     border-radius: 20px;
-    padding: 4px 10px 4px 8px;
+    padding: 2px 10px 2px 2px;
     
     ${additionalStyles}
   `;
