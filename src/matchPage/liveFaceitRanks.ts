@@ -435,6 +435,17 @@ function injectMapStats(): void {
     const team1Wins = mapStats.team1 || 0;
     const team2Wins = mapStats.team2 || 0;
 
+    // Add gradient border based on team stats
+    const cardElement = card as HTMLElement;
+    const gradientDirection = team1Wins > team2Wins ? "to right" : "to left";
+    const gradientColors = "#4bf903, #ff0d00";
+
+    cardElement.style.cssText = `
+      border: 2px solid transparent;
+      border-radius: 16px;
+      background: linear-gradient(${gradientDirection}, ${gradientColors}) border-box;
+    `;
+
     const statsWrapper = document.createElement("div");
     statsWrapper.style.cssText = `
       display: inline-flex;
@@ -448,7 +459,6 @@ function injectMapStats(): void {
       font-size: 12px;
       border-radius: 6px;
       margin-left: 16px;
-
     `;
 
     const team1Span = document.createElement("span");
