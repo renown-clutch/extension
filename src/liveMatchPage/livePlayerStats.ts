@@ -103,6 +103,7 @@ export async function initializeLivePlayerStats(
     } else {
       statsBlock.innerHTML = `
         <div class="clutch-stats-block-item">Matches: ${stats.total_matches}</div>
+        <div class="clutch-stats-block-item">Leetify: ${stats.avg_leetify_rating}</div>
         <div class="clutch-stats-block-item">Win Rate: ${stats.winrate}%</div>
         <div class="clutch-stats-block-item">Kills: ${stats.avg_kills}</div>
         <div class="clutch-stats-block-item">K/D: ${stats.avg_kd}</div>
