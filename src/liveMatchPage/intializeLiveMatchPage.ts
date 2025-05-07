@@ -4,6 +4,8 @@ import { initializeTeamAverageEloLive } from "./teamAverageEloLive";
 import { isLiveMatch } from "../utils/pageUtils";
 import { initializeLiveFaceitRanks } from "./liveFaceitRanks";
 import { initializeMapStats } from "./mapStats";
+import { initializeLivePlayerStats } from "./livePlayerStats";
+
 interface PlayerData {
   steamId: string;
   element: HTMLElement;
@@ -97,4 +99,6 @@ export async function initializeLiveMatchPage(
   await initializeTeamAverageEloLive(userSettings, faceitData);
 
   await initializeMapStats(userSettings);
+
+  await initializeLivePlayerStats(userSettings);
 }

@@ -67,7 +67,7 @@ browserAPI.runtime.onMessage.addListener(
           console.error("Error getting Faceit info:", error);
           sendResponse({});
         });
-      return true; // Indicates async response
+      return true;
     } else if (message.type === "fetchTeamsMapStats") {
       const team1SteamIds = message.team1SteamIds;
       const team2SteamIds = message.team2SteamIds;
@@ -222,9 +222,27 @@ browserAPI.runtime.onMessage.addListener(
 
       return true;
     } else if (message.action === "openPopup") {
-      // Handle popup opening
       openPopupWindow();
       sendResponse({ success: true });
+      return true;
+    } else if (message.type === "fetchPlayersStats") {
+      const steamIds = message.steamIds;
+      fetch("https://api.clutch.lorem.sh/get_players_stats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ steam_ids: steamIds }),
+      })
+        .then(async (response) => {
+          if (!response.ok)
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          return await response.json();
+        })
+        .then((data) => sendResponse({ success: true, data }))
+        .catch((error) => {
+          sendResponse({ success: false, error: String(error) });
+        });
       return true;
     }
   }

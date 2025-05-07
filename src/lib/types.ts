@@ -59,6 +59,7 @@ export type UserSettings = {
   matchFoundSound: MatchFoundSound;
   matchFoundVolume: number;
   showMapStats: boolean;
+  liveMatchPlayerStats: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -87,4 +88,5 @@ export const defaultUserSettings: UserSettings = {
   matchFoundSound: "none",
   matchFoundVolume: 70,
   showMapStats: true,
+  liveMatchPlayerStats: true,
 };

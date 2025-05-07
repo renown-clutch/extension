@@ -31,7 +31,7 @@ import {
 import { initializeExtensionButton } from "./navbar/extensionButton";
 import { getCurrentPage } from "./utils/pageUtils";
 import { initializeMatchPage } from "./matchPage/initializeMatchPage";
-import { initializeLiveMatchPage } from "./matchPage/intializeLiveMatchPage";
+import { initializeLiveMatchPage } from "./liveMatchPage/intializeLiveMatchPage";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";

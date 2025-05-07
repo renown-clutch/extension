@@ -6,6 +6,7 @@
     showFaceitRanksOnMatchPage = $bindable(false),
     showTeamAverageElo = $bindable(false),
     showMapStats = $bindable(false),
+    liveMatchPlayerStats = $bindable(false),
   } = $props();
 </script>
 
@@ -28,6 +29,13 @@
     labelText="Map Stats"
     descriptionText="Show map pick rates for each team"
     bind:checked={showMapStats}
+  />
+
+  <h2 class="text-lg">Player Stats</h2>
+  <SwitchComponent
+    labelText="Live Match Player Stats"
+    descriptionText="Show player stats on live match pages"
+    bind:checked={liveMatchPlayerStats}
   />
   <!-- <h2 class="text-lg">Auto Ban Maps</h2>
   <SwitchComponent
