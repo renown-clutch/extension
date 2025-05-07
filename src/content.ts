@@ -32,6 +32,7 @@ import { initializeExtensionButton } from "./navbar/extensionButton";
 import { getCurrentPage } from "./utils/pageUtils";
 import { initializeMatchPage } from "./matchPage/initializeMatchPage";
 import { initializeLiveMatchPage } from "./liveMatchPage/intializeLiveMatchPage";
+import { initializeLivePlayerStats } from "./liveMatchPage/livePlayerStats";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -148,6 +149,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
   if (changedParts.showExtensionNavbarButton !== undefined) {
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
+  }
+
+  if (changedParts.liveMatchPlayerStats !== undefined) {
+    initializeLivePlayerStats(userSettings);
   }
 }
 

@@ -166,6 +166,13 @@
       changes.showMapStats = userSettings.showMapStats;
     }
 
+    if (
+      previousSettings.liveMatchPlayerStats !==
+      userSettings.liveMatchPlayerStats
+    ) {
+      changes.liveMatchPlayerStats = userSettings.liveMatchPlayerStats;
+    }
+
     return changes;
   }
 
@@ -251,6 +258,7 @@
           }
           bind:showTeamAverageElo={userSettings.showTeamAverageElo}
           bind:showMapStats={userSettings.showMapStats}
+          bind:liveMatchPlayerStats={userSettings.liveMatchPlayerStats}
         />
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab

@@ -45,10 +45,20 @@ async function fetchPlayersStats(
   });
 }
 
+function removeExistingPlayerStats() {
+  const existingPlayerStats = document.querySelectorAll(
+    ".player-stats-clutch-wrapper"
+  );
+  existingPlayerStats.forEach((el) => el.remove());
+}
+
 export async function initializeLivePlayerStats(
   userSettings: UserSettings
 ): Promise<void> {
-  if (!userSettings.liveMatchPlayerStats) return;
+  if (!userSettings.liveMatchPlayerStats) {
+    removeExistingPlayerStats();
+    return;
+  }
 
   injectPlayerStatsCSS();
 
