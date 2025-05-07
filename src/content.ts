@@ -139,7 +139,8 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
   if (
     changedParts.showFaceitRanksOnMatchPage !== undefined ||
-    changedParts.showTeamAverageElo !== undefined
+    changedParts.showTeamAverageElo !== undefined ||
+    changedParts.showMapStats !== undefined
   ) {
     initializeMatchPage(userSettings);
     initializeLiveMatchPage(userSettings);

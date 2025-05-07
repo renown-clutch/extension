@@ -162,6 +162,10 @@
       changes.matchFoundVolume = userSettings.matchFoundVolume;
     }
 
+    if (previousSettings.showMapStats !== userSettings.showMapStats) {
+      changes.showMapStats = userSettings.showMapStats;
+    }
+
     return changes;
   }
 
@@ -246,6 +250,7 @@
             userSettings.showFaceitRanksOnMatchPage
           }
           bind:showTeamAverageElo={userSettings.showTeamAverageElo}
+          bind:showMapStats={userSettings.showMapStats}
         />
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab

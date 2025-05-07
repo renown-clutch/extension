@@ -5,6 +5,7 @@
   let {
     showFaceitRanksOnMatchPage = $bindable(false),
     showTeamAverageElo = $bindable(false),
+    showMapStats = $bindable(false),
   } = $props();
 </script>
 
@@ -20,6 +21,13 @@
     labelText="Team Average ELO"
     descriptionText="Show team average ELO next to team name"
     bind:checked={showTeamAverageElo}
+  />
+
+  <h2 class="text-lg">Map Stats</h2>
+  <SwitchComponent
+    labelText="Map Stats"
+    descriptionText="Show map pick rates for each team"
+    bind:checked={showMapStats}
   />
   <!-- <h2 class="text-lg">Auto Ban Maps</h2>
   <SwitchComponent
