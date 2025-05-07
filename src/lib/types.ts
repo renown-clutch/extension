@@ -58,6 +58,7 @@ export type UserSettings = {
   showHighestElo: boolean;
   matchFoundSound: MatchFoundSound;
   matchFoundVolume: number;
+  showMapStats: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -85,4 +86,5 @@ export const defaultUserSettings: UserSettings = {
   showHighestElo: true,
   matchFoundSound: "none",
   matchFoundVolume: 70,
+  showMapStats: true,
 };

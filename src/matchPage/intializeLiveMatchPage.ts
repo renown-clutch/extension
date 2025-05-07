@@ -3,7 +3,7 @@ import { waitForElement } from "../utils/profileUtils";
 import { initializeTeamAverageEloLive } from "./teamAverageEloLive";
 import { isLiveMatch } from "../utils/pageUtils";
 import { initializeLiveFaceitRanks } from "./liveFaceitRanks";
-
+import { initializeMapStats } from "./mapStats";
 interface PlayerData {
   steamId: string;
   element: HTMLElement;
@@ -95,4 +95,6 @@ export async function initializeLiveMatchPage(
   await initializeLiveFaceitRanks(userSettings, faceitData);
 
   await initializeTeamAverageEloLive(userSettings, faceitData);
+
+  await initializeMapStats(userSettings);
 }
