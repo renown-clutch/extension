@@ -322,7 +322,6 @@ const setupTeamContainerObservers = (
 };
 
 async function fetchTeamMapStats(players: PlayerData[]): Promise<void> {
-  // Group players by team
   const team1Players: string[] = [];
   const team2Players: string[] = [];
 
@@ -332,7 +331,6 @@ async function fetchTeamMapStats(players: PlayerData[]): Promise<void> {
     if (!steamId || processedSteamIds.has(steamId)) return;
     processedSteamIds.add(steamId);
 
-    // Determine which team the player belongs to
     if (element.closest(".team1-players")) {
       team1Players.push(steamId);
     } else if (element.closest(".team2-players")) {
@@ -340,7 +338,6 @@ async function fetchTeamMapStats(players: PlayerData[]): Promise<void> {
     }
   });
 
-  // Only proceed if we have players in both teams
   if (team1Players.length === 0 || team2Players.length === 0) {
     console.log("Not enough players found to fetch team map stats");
     return;
@@ -372,7 +369,6 @@ async function fetchTeamMapStats(players: PlayerData[]): Promise<void> {
 }
 
 function setupMapVetoObserver(): void {
-  // Create a mutation observer to watch for the map veto element
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
@@ -391,7 +387,6 @@ function setupMapVetoObserver(): void {
     });
   });
 
-  // Start observing the document
   observer.observe(document.body, {
     childList: true,
     subtree: true,
@@ -400,13 +395,11 @@ function setupMapVetoObserver(): void {
 
 function injectMapStats(): void {
   if (!mapStatsData) {
-    console.log("No map stats data available for injection");
     return;
   }
 
   const matchVeto = document.querySelector(".match-veto");
   if (!matchVeto) {
-    console.log("Map veto section not found, will retry when it appears");
     return;
   }
 
@@ -414,11 +407,8 @@ function injectMapStats(): void {
     ".voting-options .voting-card"
   );
   if (votingCards.length === 0) {
-    console.log("No voting cards found in map veto section");
     return;
   }
-
-  console.log("Found voting cards, attempting to inject stats");
 
   votingCards.forEach((card) => {
     const mapNameElement = card.querySelector(".map-name");
@@ -427,17 +417,16 @@ function injectMapStats(): void {
     const mapName = mapNameElement.textContent?.trim();
     if (!mapName) return;
 
-    // Find the map in the stats data (case insensitive match)
+    const existingStats = mapNameElement.querySelector("div");
+    if (existingStats) {
+      existingStats.remove();
+    }
+
     const mapKey = Object.keys(mapStatsData).find(
       (key) => key.toLowerCase() === mapName.toLowerCase()
     );
 
     if (!mapKey) {
-      console.log(
-        `No stats found for map: ${mapName} (available maps: ${Object.keys(
-          mapStatsData
-        ).join(", ")})`
-      );
       return;
     }
 
@@ -446,7 +435,6 @@ function injectMapStats(): void {
     const team1Wins = mapStats.team1 || 0;
     const team2Wins = mapStats.team2 || 0;
 
-    // Create a wrapper div for the stats
     const statsWrapper = document.createElement("div");
     statsWrapper.style.cssText = `
       display: inline-flex;
@@ -463,48 +451,26 @@ function injectMapStats(): void {
 
     `;
 
-    // Create styled spans for the numbers and comparison
     const team1Span = document.createElement("span");
     const team2Span = document.createElement("span");
     const comparisonSpan = document.createElement("span");
 
-    // Set the text content for numbers
     team1Span.textContent = team1Wins.toString();
     team2Span.textContent = team2Wins.toString();
 
-    // Style the comparison span
     comparisonSpan.style.cssText = `
       display: inline-flex;
       align-items: center;
     `;
 
-    // Create the icon using the helper function
-    const svg = createLucideIcon('swords', 12);
-    
-    // Add the SVG to the comparison span
+    const svg = createLucideIcon("swords", 12);
+
     comparisonSpan.appendChild(svg);
 
-    // Apply colors based on comparison
-    if (team1Wins > team2Wins) {
-      team1Span.style.color = "#fff"; // Green
-      team2Span.style.color = "#fff"; // Red
-      comparisonSpan.style.color = "#fff"; // Green
-    } else if (team1Wins < team2Wins) {
-      team1Span.style.color = "#fff"; // Red
-      team2Span.style.color = "#fff"; // Green
-      comparisonSpan.style.color = "#fff"; // Green
-    } else {
-      team1Span.style.color = "#fff"; // Yellow
-      team2Span.style.color = "#fff"; // Yellow
-      comparisonSpan.style.color = "#fff"; // Yellow
-    }
-
-    // Add all spans to the wrapper
     statsWrapper.appendChild(team1Span);
     statsWrapper.appendChild(comparisonSpan);
     statsWrapper.appendChild(team2Span);
 
-    // Add the wrapper to the map name element
     mapNameElement.appendChild(statsWrapper);
 
     console.log(
@@ -525,14 +491,12 @@ function createLucideIcon(iconName: string, size: number = 16): SVGElement {
   svg.setAttribute("stroke-linejoin", "round");
   svg.classList.add("lucide", `lucide-${iconName}`);
 
-  // You can store icon paths in an object for easy access
   const iconPaths: Record<string, string> = {
     swords: `<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/>`,
     arrow: `<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
-    // Add more icons here
   };
 
-  svg.innerHTML = iconPaths[iconName] || '';
+  svg.innerHTML = iconPaths[iconName] || "";
   return svg;
 }
 
@@ -582,6 +546,5 @@ export async function initializeLiveFaceitRanks(
   processPlayers(players, faceitData);
   setupPlayerListObservers(userSettings, faceitData);
 
-  // Fetch team map stats
   await fetchTeamMapStats(players);
 }
