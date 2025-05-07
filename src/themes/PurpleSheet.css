@@ -15,13 +15,56 @@
   --scrollbar-color: #3a006f;
   --footer: #0d0020;
 }
-.navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
-  background-color: var(--slate-900);
+
+
+.report-modal .gap-wrapper .reporting-player {
+  background-color: var(--slate-800);
 }
+
+.dropped-skin-slim {
+  background: var(--slate-900-80);
+  
+}
+
+.report-modal .gap-wrapper .reporting-player {
+  background-color: var(--slate-800);
+}
+
+.primary-button.dark {
+  background-color: var(--slate-800);
+ 
+}
+
+.report-modal .gap-wrapper .ban-options .option .radio-wrapper .radio {
+  
+  border: 1px solid var(--slate-700);
+  
+}
+
+.report-modal .gap-wrapper .ban-options .option.active, .report-modal .gap-wrapper .ban-options .option:hover {
+  background-color: var(--slate-800);
+}
+
+
+
 
 .match-veto .voting-options .voting-card.banned .overlay {
   background: var(--slate-900-80);
 
+}
+
+.page.settings-layout .grid .membership-details .overview .payment .payment-details {
+  background-color: var(--slate-900-80);
+  
+}
+
+.page.settings-layout .grid .membership-details .overview .plan-features .tier-features {
+  background-color: var(--slate-900-80);
+  
+}
+
+.navbar .container .content .actions .profile-menu.open .toggle, .navbar .container .content .actions .profile-menu:hover .toggle {
+  background-color: var(--slate-900);
 }
 
 .avatar.premium .wrap img {
@@ -44,21 +87,6 @@
 .rate-teammates .modal-content .player-list-wrapper .player-list .player .rating-options .in-party {
   
   color: var(--slate-600);
-}
-
-.page.settings-layout .grid .membership-details .overview .payment .payment-details {
-  background-color: var(--slate-900-80);
-  
-}
-
-.page.settings-layout .grid .membership-details .overview .plan-features .tier-features {
-  background-color: var(--slate-900-80);
-  
-}
-
-.dropped-skin-slim {
-  background: var(--slate-900-80);
-  
 }
 
 .page.leaderboard .data .visitor-placement-row .separator .line {
@@ -311,10 +339,7 @@ input.iti__tel-input {
     color: #382829;
   }
   
-  .primary-button.dark {
-    background-color: #382829;
-    color: #fff;
-  }
+ 
   
   .primary-button.darker {
     background-color: var(--slate-900);
@@ -341,7 +366,7 @@ input.iti__tel-input {
   }
   
   .primary-button:not(:disabled):hover.dark {
-    background-color: #473737;
+    background-color: var(--slate-700);
   }
   
   .primary-button:not(:disabled):hover.darker {
@@ -1063,7 +1088,7 @@ input.iti__tel-input {
     background-color: var(--slate-900);
   }
   
-  
+ 
   
   .confirm-match-modal .modal-content .title {
     color: #fff;
@@ -2085,9 +2110,7 @@ input.iti__tel-input {
     color: #ff5252;
   }
   
-  .report-modal .gap-wrapper .reporting-player {
-    background-color: rgba(255,82,82,.1);
-  }
+  
   
   .report-modal .gap-wrapper .reporting-player .left .nickname {
     color: #fff;
@@ -2129,9 +2152,7 @@ input.iti__tel-input {
     color: hsla(0,0%,100%,.8);
   }
   
-  .report-modal .gap-wrapper .ban-options .option.active,.report-modal .gap-wrapper .ban-options .option:hover {
-    background-color: #382829;
-  }
+  
   
   .report-modal .gap-wrapper .details .red {
     color: #ff5252;
@@ -2173,10 +2194,7 @@ input.iti__tel-input {
     background-color: rgba(0,0,0,0);
   }
   
-  .checkbox-wrapper input[type=checkbox]:checked+.custom-checkbox {
-    background-color: #ff9385;
-    color: #382829;
-  }
+  
   
   .page.welcome-flow a:not(.primary-button) {
     color: #ffa497;
