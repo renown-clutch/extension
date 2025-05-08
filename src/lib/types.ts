@@ -48,7 +48,6 @@ export type UserSettings = {
   partyAutoAcceptDelay: number;
   keepAlive: boolean;
   showBans: boolean;
-  showSkinDrops: boolean;
   showFriendListRanks: boolean;
   showFaceitRanksOnMatchPage: boolean;
   showTeamAverageElo: boolean;
@@ -59,7 +58,9 @@ export type UserSettings = {
   matchFoundSound: MatchFoundSound;
   matchFoundVolume: number;
   showMapStats: boolean;
+  showMapStatsColors: boolean;
   liveMatchPlayerStats: boolean;
+  showLiveMatchPlayerStreak: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -77,7 +78,6 @@ export const defaultUserSettings: UserSettings = {
   partyAutoAcceptDelay: 3,
   keepAlive: true,
   showBans: true,
-  showSkinDrops: false,
   showFriendListRanks: true,
   showFaceitRanksOnMatchPage: true,
   showTeamAverageElo: true,
@@ -88,5 +88,7 @@ export const defaultUserSettings: UserSettings = {
   matchFoundSound: "none",
   matchFoundVolume: 70,
   showMapStats: true,
+  showMapStatsColors: true,
   liveMatchPlayerStats: true,
+  showLiveMatchPlayerStreak: true,
 };

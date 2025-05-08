@@ -11,7 +11,6 @@ import {
 } from "./themes/themeUtils";
 import { initializeProfileButtons } from "./playerProfile/profileButtons";
 import { initializeProfileBans } from "./playerProfile/previousBans";
-import { initializeSkinDrops } from "./playerProfile/skinDrops";
 import { initializeFriendsList } from "./playerProfile/friendsList";
 import { initializeSidebarFriends } from "./playerProfile/sidebarFriends";
 import { initializeHighestElo } from "./playerProfile/highestElo";
@@ -100,10 +99,6 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     initializeProfileBans(changedParts.showBans);
   }
 
-  if (changedParts.showSkinDrops !== undefined) {
-    initializeSkinDrops(changedParts.showSkinDrops);
-  }
-
   if (changedParts.showHighestElo !== undefined) {
     initializeHighestElo(changedParts.showHighestElo);
   }
@@ -141,10 +136,16 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
   if (
     changedParts.showFaceitRanksOnMatchPage !== undefined ||
-    changedParts.showTeamAverageElo !== undefined ||
-    changedParts.showMapStats !== undefined
+    changedParts.showTeamAverageElo !== undefined
   ) {
     initializeMatchPage(userSettings);
+    initializeLiveMatchPage(userSettings);
+  }
+
+  if (
+    changedParts.showMapStats !== undefined ||
+    changedParts.showMapStatsColors !== undefined
+  ) {
     initializeLiveMatchPage(userSettings);
   }
 
@@ -152,7 +153,10 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
   }
 
-  if (changedParts.liveMatchPlayerStats !== undefined) {
+  if (
+    changedParts.liveMatchPlayerStats !== undefined ||
+    changedParts.showLiveMatchPlayerStreak !== undefined
+  ) {
     initializeLivePlayerStats(userSettings);
   }
 }
@@ -198,7 +202,6 @@ async function initialize(currentUrl: string) {
     await waitForPageReady();
 
     initializeProfileButtons(userSettings);
-    initializeSkinDrops(userSettings.showSkinDrops);
     initializeFriendsList(userSettings);
     initializeProfileBans(userSettings.showBans);
     initializeHighestElo(userSettings.showHighestElo);

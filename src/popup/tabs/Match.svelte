@@ -6,8 +6,15 @@
     showFaceitRanksOnMatchPage = $bindable(false),
     showTeamAverageElo = $bindable(false),
     showMapStats = $bindable(false),
+    showMapStatsColors = $bindable(false),
     liveMatchPlayerStats = $bindable(false),
+    showLiveMatchPlayerStreak = $bindable(false),
   } = $props();
+
+  let derivedColors = $derived(showMapStatsColors && showMapStats);
+  let derivedStreak = $derived(
+    showLiveMatchPlayerStreak && liveMatchPlayerStats
+  );
 </script>
 
 <main class="flex flex-col gap-4">
@@ -31,11 +38,25 @@
     bind:checked={showMapStats}
   />
 
-  <h2 class="text-lg">Player Stats</h2>
   <SwitchComponent
-    labelText="Live Match Player Stats"
+    labelText="Map Stats Colors"
+    descriptionText="Show colors on map stats"
+    bind:checked={showMapStatsColors}
+    disabled={!showMapStats}
+  />
+
+  <h2 class="text-lg">Live Match</h2>
+  <SwitchComponent
+    labelText="Player Stats"
     descriptionText="Show player stats on live match pages"
     bind:checked={liveMatchPlayerStats}
+  />
+
+  <SwitchComponent
+    labelText="Win/Loss Streak"
+    descriptionText="Show player Win/Loss streak on live match pages"
+    bind:checked={showLiveMatchPlayerStreak}
+    disabled={!liveMatchPlayerStats}
   />
   <!-- <h2 class="text-lg">Auto Ban Maps</h2>
   <SwitchComponent

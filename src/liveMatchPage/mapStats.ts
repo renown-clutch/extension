@@ -47,10 +47,13 @@ export async function initializeMapStats(
   }
 
   const players = await getLiveMatchPagePlayers();
-  await injectMapStats(players);
+  await injectMapStats(players, userSettings);
 }
 
-export async function injectMapStats(players: PlayerData[]): Promise<void> {
+export async function injectMapStats(
+  players: PlayerData[],
+  userSettings: UserSettings
+): Promise<void> {
   await determineUserTeam(players);
 
   const team1Players: string[] = [];
@@ -74,11 +77,6 @@ export async function injectMapStats(players: PlayerData[]): Promise<void> {
     return;
   }
 
-  console.log("Fetching map stats for teams:", {
-    team1: team1Players,
-    team2: team2Players,
-  });
-
   try {
     const response = await browserAPI.runtime.sendMessage({
       type: "fetchTeamsMapStats",
@@ -87,10 +85,9 @@ export async function injectMapStats(players: PlayerData[]): Promise<void> {
     });
 
     if (response.success) {
-      console.log("Team map stats retrieved:", response.data);
       mapStatsData = response.data;
       setupMapVetoObserver();
-      renderMapStats();
+      renderMapStats(userSettings);
     } else {
       console.error("Failed to retrieve team map stats:", response.error);
     }
@@ -168,7 +165,7 @@ function applyGradientStyle(
   `;
 }
 
-export function renderMapStats(): void {
+export function renderMapStats(userSettings: UserSettings): void {
   if (!mapStatsData) {
     return;
   }
@@ -192,11 +189,6 @@ export function renderMapStats(): void {
     const mapName = mapNameElement.textContent?.trim();
     if (!mapName) return;
 
-    const existingStats = mapNameElement.querySelector("div");
-    if (existingStats) {
-      existingStats.remove();
-    }
-
     const mapKey = Object.keys(mapStatsData).find(
       (key) => key.toLowerCase() === mapName.toLowerCase()
     );
@@ -210,9 +202,11 @@ export function renderMapStats(): void {
     const team1Wins = mapStats.team1 || 0;
     const team2Wins = mapStats.team2 || 0;
 
-    const cardElement = card as HTMLElement;
-    if (!cardElement.classList.contains("banned")) {
-      applyGradientStyle(cardElement, team1Wins, team2Wins);
+    if (userSettings.showMapStatsColors) {
+      const cardElement = card as HTMLElement;
+      if (!cardElement.classList.contains("banned")) {
+        applyGradientStyle(cardElement, team1Wins, team2Wins);
+      }
     }
 
     const statsWrapper = document.createElement("div");
@@ -261,9 +255,5 @@ export function renderMapStats(): void {
     statsWrapper.appendChild(team2Span);
 
     mapNameElement.appendChild(positionedWrapper);
-
-    console.log(
-      `Injected colored stats for ${mapName}: ${team1Wins} ${comparisonSpan.textContent} ${team2Wins}`
-    );
   });
 }

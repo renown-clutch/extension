@@ -6,7 +6,7 @@
     descriptionText = "Default Description",
     switchId = "default-switch",
     checked = $bindable(false),
-    disabled = false,
+    disabled = $bindable(false),
     warn = false,
   } = $props();
 </script>

@@ -5,7 +5,6 @@
     csstatsProfileButton = $bindable(false),
     faceitProfileButton = $bindable(false),
     showBans = $bindable(false),
-    showSkinDrops = $bindable(false),
     showHighestElo = $bindable(false),
   } = $props();
 </script>
@@ -33,11 +32,5 @@
     labelText="Ban History"
     descriptionText="Show previous bans of the player in the profile"
     bind:checked={showBans}
-  />
-  <h2 class="text-lg">Drops</h2>
-  <SwitchComponent
-    labelText="Skin Drops"
-    descriptionText="Show all skin drops that player has received"
-    bind:checked={showSkinDrops}
   />
 </main>

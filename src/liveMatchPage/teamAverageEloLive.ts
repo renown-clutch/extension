@@ -210,8 +210,9 @@ async function updateTeamHeader(
   }
 
   const badgesContainer = document.createElement("div");
-  badgesContainer.style.cssText =
-    "display: flex; align-items: center; margin: 4px 8px; gap: 8px;";
+  badgesContainer.style.cssText = `display: flex; align-items: center; margin: 4px 8px; gap: ${
+    placement === "last" ? "16px" : "8px"
+  };`;
   badgesContainer.setAttribute(
     "data-clutch-extension",
     "team-average-elo-match-header"

@@ -1,5 +1,6 @@
 import type { UserSettings } from "$lib/types";
 import { waitForElement } from "../utils/profileUtils";
+import { addTooltip } from "../utils/faceitUtils";
 
 function injectPlayerStatsCSS() {
   if (document.getElementById("clutch-player-stats-style")) return;
@@ -103,6 +104,57 @@ function removeExistingPlayerStats() {
   existingPlayerStats.forEach((el) => el.remove());
 }
 
+function updatePlayerStreakAndHeader(
+  playerLinks: Element[],
+  statsData: Record<string, any>
+) {
+  // Update K/D header to W/L
+  document.querySelectorAll(".player-list-header").forEach((header) => {
+    const kdHeader = Array.from(header.querySelectorAll("div")).find(
+      (div) => div.textContent?.trim() === "K/D"
+    );
+    if (kdHeader) kdHeader.textContent = "W/L";
+  });
+
+  // Update streak numbers
+  playerLinks.forEach((playerLink) => {
+    const href = playerLink.getAttribute("href");
+    if (!href?.includes("/profile/")) return;
+
+    const steamId = href.split("/profile/")[1];
+    const stats = statsData[steamId];
+
+    const existingKd = playerLink.querySelector(".kd") as HTMLElement;
+    if (existingKd) {
+      let formattedStreak = stats.current_streak;
+
+      if (stats.current_streak < -1) {
+        formattedStreak = stats.current_streak.toString().replace("-", "");
+        existingKd.style.color = "#ef4444";
+      } else if (stats.current_streak > 1) {
+        existingKd.style.color = "#22c55e";
+      } else {
+        formattedStreak = "-";
+      }
+      existingKd.textContent = formattedStreak;
+    }
+
+    addTooltip(
+      existingKd,
+      stats.current_streak < 0 ? "Loss Streak" : "Win Streak"
+    );
+  });
+}
+
+// function removeExistingStreakElements() {
+//   const existingStreakElements = document.querySelectorAll(".kd");
+//   existingStreakElements.forEach((el) => {
+//     const element = el as HTMLElement;
+//     element.textContent = "-";
+//     element.style.cssText = "";
+//   });
+// }
+
 export async function initializeLivePlayerStats(
   userSettings: UserSettings
 ): Promise<void> {
@@ -132,14 +184,11 @@ export async function initializeLivePlayerStats(
     .map((playerLink) => playerLink.getAttribute("href")?.split("/profile/")[1])
     .filter((id): id is string => id !== undefined);
 
-  document.querySelectorAll(".player-list-header").forEach((header) => {
-    const kdHeader = Array.from(header.querySelectorAll("div")).find(
-      (div) => div.textContent?.trim() === "K/D"
-    );
-    if (kdHeader) kdHeader.textContent = "W/L";
-  });
-
   const statsData = await fetchPlayersStats(steamIds);
+
+  if (userSettings.showLiveMatchPlayerStreak) {
+    updatePlayerStreakAndHeader(playerLinks, statsData);
+  }
 
   playerLinks.forEach((playerLink) => {
     const href = playerLink.getAttribute("href");
@@ -147,18 +196,6 @@ export async function initializeLivePlayerStats(
 
     const steamId = href.split("/profile/")[1];
     const stats = statsData[steamId];
-
-    const existingKd = playerLink.querySelector(".kd") as HTMLElement;
-    if (existingKd) {
-      let formattedStreak = stats.current_streak;
-      if (stats.current_streak < 0) {
-        formattedStreak = stats.current_streak.toString().replace("-", "");
-        existingKd.style.color = "#ef4444";
-      } else if (stats.current_streak > 0) {
-        existingKd.style.color = "#22c55e";
-      }
-      existingKd.textContent = formattedStreak;
-    }
 
     const statsWrapper = document.createElement("a");
     statsWrapper.className = "player-stats-clutch-wrapper";

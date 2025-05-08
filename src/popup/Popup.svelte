@@ -79,10 +79,6 @@
       changes.showBans = userSettings.showBans;
     }
 
-    if (previousSettings.showSkinDrops !== userSettings.showSkinDrops) {
-      changes.showSkinDrops = userSettings.showSkinDrops;
-    }
-
     if (
       JSON.stringify(previousSettings.autoAccept) !==
       JSON.stringify(userSettings.autoAccept)
@@ -167,10 +163,24 @@
     }
 
     if (
+      previousSettings.showMapStatsColors !== userSettings.showMapStatsColors
+    ) {
+      changes.showMapStatsColors = userSettings.showMapStatsColors;
+    }
+
+    if (
       previousSettings.liveMatchPlayerStats !==
       userSettings.liveMatchPlayerStats
     ) {
       changes.liveMatchPlayerStats = userSettings.liveMatchPlayerStats;
+    }
+
+    if (
+      previousSettings.showLiveMatchPlayerStreak !==
+      userSettings.showLiveMatchPlayerStreak
+    ) {
+      changes.showLiveMatchPlayerStreak =
+        userSettings.showLiveMatchPlayerStreak;
     }
 
     return changes;
@@ -258,7 +268,11 @@
           }
           bind:showTeamAverageElo={userSettings.showTeamAverageElo}
           bind:showMapStats={userSettings.showMapStats}
+          bind:showMapStatsColors={userSettings.showMapStatsColors}
           bind:liveMatchPlayerStats={userSettings.liveMatchPlayerStats}
+          bind:showLiveMatchPlayerStreak={
+            userSettings.showLiveMatchPlayerStreak
+          }
         />
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab
@@ -270,7 +284,6 @@
           bind:csstatsProfileButton={userSettings.csstatsProfileButton}
           bind:faceitProfileButton={userSettings.faceitProfileButton}
           bind:showBans={userSettings.showBans}
-          bind:showSkinDrops={userSettings.showSkinDrops}
           bind:showHighestElo={userSettings.showHighestElo}
         />
       {:else if userSettings.activeTab === "Settings"}

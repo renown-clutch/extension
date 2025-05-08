@@ -85,7 +85,6 @@ export function createTooltipElement(text: string): HTMLElement {
 }
 
 export function addTooltip(element: HTMLElement, text: string): void {
-  // Ensure the element has position relative for proper tooltip positioning
   if (window.getComputedStyle(element).position === "static") {
     element.style.position = "relative";
   }
