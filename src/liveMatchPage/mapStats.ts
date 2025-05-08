@@ -1,6 +1,7 @@
 import type { UserSettings } from "$lib/types";
 import browserAPI from "../lib/browserAPI";
 import { getLiveMatchPagePlayers } from "./intializeLiveMatchPage";
+import { getUserSteamId } from "../steamId/steamIdParser";
 
 interface PlayerData {
   steamId: string;
@@ -8,6 +9,7 @@ interface PlayerData {
 }
 
 let mapStatsData: any = null;
+let userTeam: "team1" | "team2" | null = null;
 
 function removeMapStats(): void {
   const mapStats = document.querySelectorAll(".clutch-map-stats-wrapper");
@@ -20,6 +22,20 @@ function removeMapStats(): void {
     const cardElement = card as HTMLElement;
     cardElement.style.cssText = "";
   });
+}
+
+async function determineUserTeam(players: PlayerData[]): Promise<void> {
+  const userSteamId = await getUserSteamId();
+  if (!userSteamId) return;
+
+  const userPlayer = players.find((player) => player.steamId === userSteamId);
+  if (!userPlayer) return;
+
+  if (userPlayer.element.closest(".team1-players")) {
+    userTeam = "team1";
+  } else if (userPlayer.element.closest(".team2-players")) {
+    userTeam = "team2";
+  }
 }
 
 export async function initializeMapStats(
@@ -35,6 +51,8 @@ export async function initializeMapStats(
 }
 
 export async function injectMapStats(players: PlayerData[]): Promise<void> {
+  await determineUserTeam(players);
+
   const team1Players: string[] = [];
   const team2Players: string[] = [];
 
@@ -128,6 +146,28 @@ function createLucideIcon(iconName: string, size: number = 16): SVGElement {
   return svg;
 }
 
+function applyGradientStyle(
+  element: HTMLElement,
+  team1Wins: number,
+  team2Wins: number
+): void {
+  const isUserTeamWinning =
+    userTeam === "team1" ? team1Wins > team2Wins : team2Wins > team1Wins;
+  const gradientColor = isUserTeamWinning ? "52, 207, 108" : "255, 82, 82";
+
+  element.style.cssText = `
+    border-top: 2px solid transparent;
+    border-radius: 16px;
+    background: 
+      linear-gradient(
+        to right,
+        rgba(${gradientColor}, 0) 0%,
+        rgba(${gradientColor}, 1) 50%,
+        rgba(${gradientColor}, 0) 100%
+      );
+  `;
+}
+
 export function renderMapStats(): void {
   if (!mapStatsData) {
     return;
@@ -171,14 +211,7 @@ export function renderMapStats(): void {
     const team2Wins = mapStats.team2 || 0;
 
     const cardElement = card as HTMLElement;
-    const gradientDirection = team1Wins > team2Wins ? "to right" : "to left";
-    const gradientColors = "#4bf903, #ff0d00";
-
-    cardElement.style.cssText = `
-      border: 2px solid transparent;
-      border-radius: 16px;
-      background: linear-gradient(${gradientDirection}, ${gradientColors}) border-box;
-    `;
+    applyGradientStyle(cardElement, team1Wins, team2Wins);
 
     const statsWrapper = document.createElement("div");
     statsWrapper.style.cssText = `
