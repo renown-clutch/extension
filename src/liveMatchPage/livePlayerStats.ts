@@ -150,12 +150,14 @@ export async function initializeLivePlayerStats(
 
     const existingKd = playerLink.querySelector(".kd") as HTMLElement;
     if (existingKd) {
-      existingKd.textContent = stats.current_streak;
+      let formattedStreak = stats.current_streak;
       if (stats.current_streak < 0) {
-        existingKd.style.color = "#ef4444"; // red color
+        formattedStreak = stats.current_streak.toString().replace("-", "");
+        existingKd.style.color = "#ef4444";
       } else if (stats.current_streak > 0) {
-        existingKd.style.color = "#22c55e"; // green color
+        existingKd.style.color = "#22c55e";
       }
+      existingKd.textContent = formattedStreak;
     }
 
     const statsWrapper = document.createElement("a");
