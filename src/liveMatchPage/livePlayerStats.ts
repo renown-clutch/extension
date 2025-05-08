@@ -142,8 +142,15 @@ export async function initializeLivePlayerStats(
     const steamId = href.split("/profile/")[1];
     const stats = statsData[steamId];
 
-    const existingKd = playerLink.querySelector(".kd");
-    if (existingKd) existingKd.textContent = stats.current_streak;
+    const existingKd = playerLink.querySelector(".kd") as HTMLElement;
+    if (existingKd) {
+      existingKd.textContent = stats.current_streak;
+      if (stats.current_streak < 0) {
+        existingKd.style.color = "#ef4444"; // red color
+      } else if (stats.current_streak > 0) {
+        existingKd.style.color = "#22c55e"; // green color
+      }
+    }
 
     const statsWrapper = document.createElement("a");
     statsWrapper.className = "player-stats-clutch-wrapper";
