@@ -157,7 +157,7 @@ function applyGradientStyle(
 
   element.style.cssText = `
     border-top: 2px solid transparent;
-    border-radius: 16px;
+    
     background: 
       linear-gradient(
         to right,
@@ -211,7 +211,9 @@ export function renderMapStats(): void {
     const team2Wins = mapStats.team2 || 0;
 
     const cardElement = card as HTMLElement;
-    applyGradientStyle(cardElement, team1Wins, team2Wins);
+    if (!cardElement.classList.contains('banned')) {
+      applyGradientStyle(cardElement, team1Wins, team2Wins);
+    }
 
     const statsWrapper = document.createElement("div");
     statsWrapper.style.cssText = `
