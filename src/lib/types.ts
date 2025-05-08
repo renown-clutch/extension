@@ -77,7 +77,7 @@ export const defaultUserSettings: UserSettings = {
   partyAutoAcceptDelay: 3,
   keepAlive: true,
   showBans: true,
-  showSkinDrops: true,
+  showSkinDrops: false,
   showFriendListRanks: true,
   showFaceitRanksOnMatchPage: true,
   showTeamAverageElo: true,
