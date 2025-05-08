@@ -15,10 +15,30 @@
   --scrollbar-color: #3a006f;
   --footer: #0d0020;
 }
-
-
 .report-modal .gap-wrapper .reporting-player {
   background-color: var(--slate-800);
+}
+
+.profile-recent-stats .rank-elo .rank-elo-header .period-selector .custom-selector .custom-select__control {
+  background-color: var(--slate-800);
+  border-color: var(--slate-700);
+
+}
+
+.profile-recent-stats .rank-elo .elo-history-container .elo-history .chart-container .recharts-tooltip-wrapper .custom-tooltip {
+  background-color: var(--slate-800) !important;
+  
+}
+
+
+
+path.recharts-curve.recharts-area-area {
+  fill: var(--slate-800);
+}
+
+.profile-recent-stats .rank-elo .elo-container .elo-stats-card {
+  background-color: var(--slate-800);
+
 }
 
 .dropped-skin-slim {
