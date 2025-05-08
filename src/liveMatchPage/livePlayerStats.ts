@@ -143,7 +143,7 @@ export async function initializeLivePlayerStats(
     const stats = statsData[steamId];
 
     const existingKd = playerLink.querySelector(".kd");
-    if (existingKd) existingKd.textContent = "n/a";
+    if (existingKd) existingKd.textContent = stats.current_streak;
 
     const statsWrapper = document.createElement("a");
     statsWrapper.className = "player-stats-clutch-wrapper";
