@@ -29,7 +29,7 @@ function injectPlayerStatsCSS() {
       align-items: center;
       gap: 0.3rem;
       position: relative;
-      cursor: help;
+      
     }
     .clutch-stats-block-item .stat-icon {
       width: 0.9rem;
