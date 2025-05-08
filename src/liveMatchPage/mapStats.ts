@@ -181,7 +181,6 @@ export function renderMapStats(): void {
     `;
 
     const statsWrapper = document.createElement("div");
-    statsWrapper.classList.add("clutch-map-stats-wrapper");
     statsWrapper.style.cssText = `
       display: inline-flex;
       align-items: center;
@@ -195,6 +194,16 @@ export function renderMapStats(): void {
       border-radius: 6px;
       margin-left: 16px;
     `;
+
+    const positionedWrapper = document.createElement("div");
+    positionedWrapper.classList.add("clutch-map-stats-wrapper");
+    positionedWrapper.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    `;
+    positionedWrapper.appendChild(statsWrapper);
 
     const team1Span = document.createElement("span");
     const team2Span = document.createElement("span");
@@ -216,7 +225,7 @@ export function renderMapStats(): void {
     statsWrapper.appendChild(comparisonSpan);
     statsWrapper.appendChild(team2Span);
 
-    mapNameElement.appendChild(statsWrapper);
+    mapNameElement.appendChild(positionedWrapper);
 
     console.log(
       `Injected colored stats for ${mapName}: ${team1Wins} ${comparisonSpan.textContent} ${team2Wins}`
