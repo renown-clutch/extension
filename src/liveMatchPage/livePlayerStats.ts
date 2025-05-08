@@ -6,17 +6,23 @@ function injectPlayerStatsCSS() {
   const style = document.createElement("style");
   style.id = "clutch-player-stats-style";
   style.textContent = `
+    @media (max-width: 1410px) {
+      .player-stats-clutch-wrapper {
+        display: none !important;
+      }
+    }
+
     a.player-stats-clutch-wrapper {
-    width: auto;
-    display: flex;
-    background: var(--slate-800);
-    padding: 2.4rem 0rem 0.2rem 0rem;
-    margin-top: -3.6rem;
-    border-radius: 0px 0px 2rem 2rem;
-    color: white;
-    font-size: 0.8rem;
-    justify-content: center;
-    margin-right: 1px;
+      width: auto;
+      display: flex;
+      background: var(--slate-800);
+      padding: 2.4rem 0rem 0.2rem 0rem;
+      margin-top: -3.6rem;
+      border-radius: 0px 0px 2rem 2rem;
+      color: white;
+      font-size: 0.8rem;
+      justify-content: center;
+      margin-right: 1px;
     }
     .clutch-stats-block {
       display: flex;
