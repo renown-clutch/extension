@@ -211,7 +211,7 @@ export function renderMapStats(): void {
     const team2Wins = mapStats.team2 || 0;
 
     const cardElement = card as HTMLElement;
-    if (!cardElement.classList.contains('banned')) {
+    if (!cardElement.classList.contains("banned")) {
       applyGradientStyle(cardElement, team1Wins, team2Wins);
     }
 
