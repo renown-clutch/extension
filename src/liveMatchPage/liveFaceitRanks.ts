@@ -1,6 +1,7 @@
 import { createFaceitBadgeElement } from "../utils/faceitUtils";
 import type { UserSettings } from "$lib/types";
 import { getLiveMatchPagePlayers } from "./intializeLiveMatchPage";
+import { initializeLivePlayerStats } from "./livePlayerStats";
 
 interface FaceitInfo {
   elo?: number;
@@ -364,4 +365,9 @@ export async function initializeLiveFaceitRanks(
   const players = await getLiveMatchPagePlayers();
   processPlayers(players, faceitData);
   setupPlayerListObservers(userSettings, faceitData);
+
+  // Also rerender player stats when Faceit ranks are updated
+  if (userSettings.liveMatchPlayerStats) {
+    await initializeLivePlayerStats(userSettings);
+  }
 }

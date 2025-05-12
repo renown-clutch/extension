@@ -123,21 +123,27 @@ function updatePlayerStreakAndHeader(
 
     const steamId = href.split("/profile/")[1];
     const stats = statsData[steamId];
-
     const existingKd = playerLink.querySelector(".kd") as HTMLElement;
-    if (existingKd) {
-      let formattedStreak = stats.current_streak;
 
-      if (stats.current_streak < -1) {
-        formattedStreak = stats.current_streak.toString().replace("-", "");
-        existingKd.style.color = "#ef4444";
-      } else if (stats.current_streak > 1) {
-        existingKd.style.color = "#22c55e";
-      } else {
-        formattedStreak = "-";
+    if (!existingKd || !stats) {
+      if (existingKd) {
+        existingKd.textContent = "-";
+        existingKd.style.cssText = "";
       }
-      existingKd.textContent = formattedStreak;
+      return;
     }
+
+    let formattedStreak = stats.current_streak;
+
+    if (stats.current_streak < -1) {
+      formattedStreak = stats.current_streak.toString().replace("-", "");
+      existingKd.style.color = "#ef4444";
+    } else if (stats.current_streak > 1) {
+      existingKd.style.color = "#22c55e";
+    } else {
+      formattedStreak = "-";
+    }
+    existingKd.textContent = formattedStreak;
 
     addTooltip(
       existingKd,
@@ -145,15 +151,6 @@ function updatePlayerStreakAndHeader(
     );
   });
 }
-
-// function removeExistingStreakElements() {
-//   const existingStreakElements = document.querySelectorAll(".kd");
-//   existingStreakElements.forEach((el) => {
-//     const element = el as HTMLElement;
-//     element.textContent = "-";
-//     element.style.cssText = "";
-//   });
-// }
 
 export async function initializeLivePlayerStats(
   userSettings: UserSettings
@@ -169,7 +166,9 @@ export async function initializeLivePlayerStats(
   const team1Container = pageContainer.querySelector(".team1-players");
   const team2Container = pageContainer.querySelector(".team2-players");
 
-  if (!team1Container || !team2Container) return;
+  if (!team1Container || !team2Container) {
+    return;
+  }
 
   const playerLinks = [
     ...team1Container.querySelectorAll("a.player"),
@@ -192,7 +191,9 @@ export async function initializeLivePlayerStats(
 
   playerLinks.forEach((playerLink) => {
     const href = playerLink.getAttribute("href");
-    if (!href?.includes("/profile/")) return;
+    if (!href?.includes("/profile/")) {
+      return;
+    }
 
     const steamId = href.split("/profile/")[1];
     const stats = statsData[steamId];

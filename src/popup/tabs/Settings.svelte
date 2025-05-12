@@ -44,7 +44,7 @@
 
   <footer class="mt-auto ml-auto pt-4">
     <div>
-      <p class="capitalize text-slate-400 text-xs">Version 1.0.7</p>
+      <p class="capitalize text-slate-400 text-xs">Version 1.0.8</p>
     </div>
   </footer>
 </main>
