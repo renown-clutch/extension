@@ -134,7 +134,9 @@ export function createFaceitBadgeElement(
   faceitBadge.style.cssText = `--size:${size}px; 
     display: flex; 
     align-items: center;
-    background-color: var(--slate-700); 
+    background-color: var(--slate-700);
+    min-width: 77px;
+    justify-content: space-between;
     border-radius: 20px;
     padding: 2px 10px 2px 2px;
     
