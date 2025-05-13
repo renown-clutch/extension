@@ -33,6 +33,7 @@ import { initializeMatchPage } from "./matchPage/initializeMatchPage";
 import { initializeLiveMatchPage } from "./liveMatchPage/intializeLiveMatchPage";
 import { initializeLivePlayerStats } from "./liveMatchPage/livePlayerStats";
 import { initializeSteamIdParser } from "./steamId/steamIdParser";
+import { initializeLastMatches } from "./mainPage/lastMatches";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -212,6 +213,7 @@ async function initialize(currentUrl: string) {
     initializeMatchPage(userSettings);
     initializeLiveMatchPage(userSettings);
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
+    initializeLastMatches(userSettings);
     initializeSteamIdParser();
   } catch (error: unknown) {
     console.error("Error during content script initialization:", error);

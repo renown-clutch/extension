@@ -1,7 +1,7 @@
 {
   "name": "clutch-ext",
   "private": true,
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -13,7 +13,8 @@
     "clean": "rm -rf dist node_modules",
     "export": "node export.js",
     "export:firefox": "node export-firefox.js",
-    "export:all": "node export-all.js"
+    "export:all": "node export-all.js",
+    "prepare-review": "git clone git@github.com:renown-clutch/extension.git temp-extension && cd temp-extension && zip -r ../extension.zip . && cd .. && rm -rf temp-extension"
   },
   "devDependencies": {
     "@lucide/svelte": "^0.487.0",

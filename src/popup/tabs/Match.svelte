@@ -9,12 +9,8 @@
     showMapStatsColors = $bindable(false),
     liveMatchPlayerStats = $bindable(false),
     showLiveMatchPlayerStreak = $bindable(false),
+    showLastPlayedMatches = $bindable(false),
   } = $props();
-
-  let derivedColors = $derived(showMapStatsColors && showMapStats);
-  let derivedStreak = $derived(
-    showLiveMatchPlayerStreak && liveMatchPlayerStats
-  );
 </script>
 
 <main class="flex flex-col gap-4">
@@ -58,6 +54,15 @@
     bind:checked={showLiveMatchPlayerStreak}
     disabled={!liveMatchPlayerStats}
   />
+
+  <h2 class="text-lg">Main page</h2>
+
+  <SwitchComponent
+    labelText="Last Played Matches"
+    descriptionText="Show your 3 last matches on main page"
+    bind:checked={showLastPlayedMatches}
+  />
+
   <!-- <h2 class="text-lg">Auto Ban Maps</h2>
   <SwitchComponent
     labelText="Auto Ban"

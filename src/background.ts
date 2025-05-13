@@ -244,6 +244,36 @@ browserAPI.runtime.onMessage.addListener(
           sendResponse({ success: false, error: String(error) });
         });
       return true;
+    } else if (message.type === "fetchUserLastMatches") {
+      const steamId = message.steamId;
+
+      fetch(`${API_BASE_URL}/get_user_last_matches?steam_id=${steamId}`)
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          }
+          return safeJsonParse(response);
+        })
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error: unknown) => {
+          console.error(
+            "Error fetching user last matches in background:",
+            error
+          );
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: errorMessage,
+          });
+        });
+
+      return true;
     }
   }
 );

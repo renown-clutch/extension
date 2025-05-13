@@ -61,6 +61,7 @@ export type UserSettings = {
   showMapStatsColors: boolean;
   liveMatchPlayerStats: boolean;
   showLiveMatchPlayerStreak: boolean;
+  showLastPlayedMatches: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -91,4 +92,5 @@ export const defaultUserSettings: UserSettings = {
   showMapStatsColors: true,
   liveMatchPlayerStats: true,
   showLiveMatchPlayerStreak: true,
+  showLastPlayedMatches: true,
 };

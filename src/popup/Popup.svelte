@@ -273,6 +273,7 @@
           bind:showLiveMatchPlayerStreak={
             userSettings.showLiveMatchPlayerStreak
           }
+          bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
         />
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab
