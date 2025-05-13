@@ -94,6 +94,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       justifyContent: "space-between",
       scrollMarginTop: "30px",
       alignItems: "center",
+      marginBottom: "24px",
     });
 
     const leftSection = document.createElement("div");
@@ -108,7 +109,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
             <path d="M3 3v5h5"/>
             <path d="M12 7v5l4 2"/>
         </svg>
-        <span style="margin-right: 6px; font-weight: 500;">Your last 3 matches</span>
+        <span style="margin-right: 6px; font-weight: 500; font-size: 18px;">Your last 3 matches</span>
         <button class="clutch-matches-toggle" style="background: none; border: none; cursor: pointer; padding: 0;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
                 <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
