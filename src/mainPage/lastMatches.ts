@@ -100,6 +100,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     Object.assign(leftSection.style, {
       display: "flex",
       alignItems: "center",
+      cursor: "pointer",
     });
 
     leftSection.innerHTML = `
@@ -109,11 +110,9 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
             <path d="M12 7v5l4 2"/>
         </svg>
         <span style="margin-right: 6px; font-weight: 500; font-size: 18px;">Your last 3 matches</span>
-        <button class="clutch-matches-toggle" style="background: none; border: none; cursor: pointer; padding: 0;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
-                <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </button>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
+            <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
     `;
 
     const rightSection = document.createElement("div");
@@ -151,15 +150,37 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       });
     }
 
-    titleDiv.appendChild(leftSection);
-    titleDiv.appendChild(rightSection);
-
     // Create a container for match links that will be animated
     const matchesContainer = document.createElement("div");
     const isExpanded = await getStoredExpandedState();
     matchesContainer.style.cssText = `max-height: ${
       isExpanded ? "1000px" : "0"
     }; overflow: hidden; transition: max-height 0.3s ease-in-out; display: grid; gap: 8px;`;
+
+    // Add toggle functionality
+    let isExpandedState = isExpanded;
+    const arrow = leftSection.querySelector("svg:last-child") as SVGElement;
+
+    // Update arrow initial state
+    if (arrow) {
+      arrow.style.transform = isExpandedState
+        ? "rotate(0deg)"
+        : "rotate(180deg)";
+    }
+
+    leftSection.addEventListener("click", () => {
+      isExpandedState = !isExpandedState;
+      if (arrow) {
+        arrow.style.transform = isExpandedState
+          ? "rotate(0deg)"
+          : "rotate(180deg)";
+      }
+      matchesContainer.style.maxHeight = isExpandedState ? "1000px" : "0";
+      saveExpandedState(isExpandedState);
+    });
+
+    titleDiv.appendChild(leftSection);
+    titleDiv.appendChild(rightSection);
 
     // Add header
     const headerDiv = document.createElement("div");
@@ -242,32 +263,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
 
     pastMatchesContainer.appendChild(titleDiv);
     pastMatchesContainer.appendChild(matchesContainer);
-
-    // Add toggle functionality
-    const toggleButton = titleDiv.querySelector(
-      ".clutch-matches-toggle"
-    ) as HTMLButtonElement;
-    let isExpandedState = isExpanded;
-
-    // Update arrow initial state
-    const arrow = toggleButton.querySelector("svg");
-    if (arrow) {
-      arrow.style.transform = isExpandedState
-        ? "rotate(0deg)"
-        : "rotate(180deg)";
-    }
-
-    toggleButton.addEventListener("click", () => {
-      isExpandedState = !isExpandedState;
-      const arrow = toggleButton.querySelector("svg");
-      if (arrow) {
-        arrow.style.transform = isExpandedState
-          ? "rotate(0deg)"
-          : "rotate(180deg)";
-      }
-      matchesContainer.style.maxHeight = isExpandedState ? "1000px" : "0";
-      saveExpandedState(isExpandedState);
-    });
 
     // Insert the past matches container before the live matches div
     liveMatchesDiv.parentNode?.insertBefore(
