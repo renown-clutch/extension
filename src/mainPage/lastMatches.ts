@@ -4,6 +4,28 @@ import browserAPI from "../lib/browserAPI";
 import { getUserSteamId } from "../steamId/steamIdParser";
 import { waitForElement } from "../utils/profileUtils";
 
+const MATCHES_EXPANDED_KEY = "clutchLastMatchesExpanded";
+
+async function getStoredExpandedState(): Promise<boolean> {
+  try {
+    const result = (await browserAPI.storage.local.get(
+      MATCHES_EXPANDED_KEY
+    )) as Record<string, boolean>;
+    return result[MATCHES_EXPANDED_KEY] ?? false; // Default to collapsed
+  } catch (error) {
+    console.error("Error loading matches expanded state:", error);
+    return false; // Default to collapsed on error
+  }
+}
+
+async function saveExpandedState(isExpanded: boolean): Promise<void> {
+  try {
+    await browserAPI.storage.local.set({ [MATCHES_EXPANDED_KEY]: isExpanded });
+  } catch (error) {
+    console.error("Error saving matches expanded state:", error);
+  }
+}
+
 interface Match {
   match_id: number;
   map: string;
@@ -91,8 +113,10 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
 
     // Create a container for match links that will be animated
     const matchesContainer = document.createElement("div");
-    matchesContainer.style.cssText =
-      "max-height: 1000px; overflow: hidden; transition: max-height 0.3s ease-in-out; display: grid; gap: 8px;";
+    const isExpanded = await getStoredExpandedState();
+    matchesContainer.style.cssText = `max-height: ${
+      isExpanded ? "1000px" : "0"
+    }; overflow: hidden; transition: max-height 0.3s ease-in-out; display: grid; gap: 8px;`;
 
     // Add header
     const headerDiv = document.createElement("div");
@@ -179,15 +203,26 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     const toggleButton = titleDiv.querySelector(
       ".clutch-matches-toggle"
     ) as HTMLButtonElement;
-    let isExpanded = true;
+    let isExpandedState = isExpanded;
+
+    // Update arrow initial state
+    const arrow = toggleButton.querySelector("svg");
+    if (arrow) {
+      arrow.style.transform = isExpandedState
+        ? "rotate(0deg)"
+        : "rotate(180deg)";
+    }
 
     toggleButton.addEventListener("click", () => {
-      isExpanded = !isExpanded;
+      isExpandedState = !isExpandedState;
       const arrow = toggleButton.querySelector("svg");
       if (arrow) {
-        arrow.style.transform = isExpanded ? "rotate(0deg)" : "rotate(180deg)";
+        arrow.style.transform = isExpandedState
+          ? "rotate(0deg)"
+          : "rotate(180deg)";
       }
-      matchesContainer.style.maxHeight = isExpanded ? "1000px" : "0";
+      matchesContainer.style.maxHeight = isExpandedState ? "1000px" : "0";
+      saveExpandedState(isExpandedState);
     });
 
     // Insert the past matches container before the live matches div
