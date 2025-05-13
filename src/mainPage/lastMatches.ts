@@ -108,7 +108,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
             <path d="M3 3v5h5"/>
             <path d="M12 7v5l4 2"/>
         </svg>
-        <span style="margin-right: 6px;">Your last 3 matches</span>
+        <span style="margin-right: 6px; font-weight: 500;">Your last 3 matches</span>
         <button class="clutch-matches-toggle" style="background: none; border: none; cursor: pointer; padding: 0;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
                 <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -125,8 +125,8 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     });
     rightSection.innerHTML = `
         <a href="/profile/${steamId}/matches" style="display: flex; align-items: center; gap: 4px; color: white; text-decoration: none;">
-            <span>View all matches</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right-icon lucide-move-up-right">
+            <span style="font-weight: 500; font-size: 14px; opacity: 0.7;">View all matches</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right-icon lucide-move-up-right" style="opacity: 0.7;">
                 <path d="M13 5H19V11"></path>
                 <path d="M19 5L5 19"></path>
             </svg>
