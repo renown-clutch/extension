@@ -2,6 +2,7 @@ import { type UserSettings } from "../lib/types";
 import { getCurrentPage } from "../utils/pageUtils";
 import browserAPI from "../lib/browserAPI";
 import { getUserSteamId } from "../steamId/steamIdParser";
+import { waitForElement } from "../utils/profileUtils";
 
 interface Match {
   match_id: number;
@@ -32,7 +33,7 @@ function formatDate(dateString: string): string {
 }
 
 async function injectLastMatches(settings: UserSettings): Promise<void> {
-  const liveMatchesDiv = document.querySelector("div.live-matches");
+  const liveMatchesDiv = await waitForElement("div.live-matches");
   if (!liveMatchesDiv) return;
 
   // Get the user's Steam ID dynamically
@@ -76,7 +77,11 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       fontWeight: "500",
     });
     titleDiv.innerHTML = `
-            <img alt="Activity icon" loading="lazy" width="24" height="24" decoding="async" data-nimg="1" src="/images/icons/activity.svg" style="color: transparent;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history-icon lucide-history">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+                <path d="M12 7v5l4 2"/>
+            </svg>
             <span>Your last 3 matches</span>
             <button class="clutch-matches-toggle" style="background: none; border: none; cursor: pointer; padding: 0;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
@@ -95,6 +100,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     headerDiv.className = "header clutch-last-matches-header";
     Object.assign(headerDiv.style, {
       marginBottom: "8px",
+      display: "grid",
     });
     headerDiv.innerHTML = `
         <div class="map">Map & Time</div>
