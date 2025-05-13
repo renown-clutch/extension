@@ -124,14 +124,32 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       color: "white",
     });
     rightSection.innerHTML = `
-        <a href="/profile/${steamId}/matches" style="display: flex; align-items: center; gap: 4px; color: white; text-decoration: none;">
-            <span style="font-weight: 500; font-size: 14px; opacity: 0.7;">View all matches</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right-icon lucide-move-up-right" style="opacity: 0.7;">
+        <a href="/profile/${steamId}/matches" style="display: flex; align-items: center; gap: 4px; color: white; text-decoration: none; transition: opacity 0.2s;">
+            <span style="font-weight: 500; font-size: 14px; opacity: 0.7; transition: opacity 0.2s;">View all matches</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right-icon lucide-move-up-right" style="opacity: 0.7; transition: opacity 0.2s;">
                 <path d="M13 5H19V11"></path>
                 <path d="M19 5L5 19"></path>
             </svg>
         </a>
     `;
+
+    // Add hover effect
+    const viewAllLink = rightSection.querySelector("a");
+    if (viewAllLink) {
+      viewAllLink.addEventListener("mouseenter", () => {
+        const span = viewAllLink.querySelector("span");
+        const svg = viewAllLink.querySelector("svg");
+        if (span) span.style.opacity = "1";
+        if (svg) svg.style.opacity = "1";
+      });
+
+      viewAllLink.addEventListener("mouseleave", () => {
+        const span = viewAllLink.querySelector("span");
+        const svg = viewAllLink.querySelector("svg");
+        if (span) span.style.opacity = "0.7";
+        if (svg) svg.style.opacity = "0.7";
+      });
+    }
 
     titleDiv.appendChild(leftSection);
     titleDiv.appendChild(rightSection);
