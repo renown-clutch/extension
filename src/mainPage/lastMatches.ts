@@ -94,7 +94,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       justifyContent: "space-between",
       scrollMarginTop: "30px",
       alignItems: "center",
-      marginBottom: "24px",
     });
 
     const leftSection = document.createElement("div");
@@ -166,6 +165,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     const headerDiv = document.createElement("div");
     headerDiv.className = "header clutch-last-matches-header";
     Object.assign(headerDiv.style, {
+      marginTop: "24px",
       marginBottom: "8px",
       display: "grid",
     });
