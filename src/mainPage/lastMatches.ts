@@ -165,7 +165,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     const headerDiv = document.createElement("div");
     headerDiv.className = "header clutch-last-matches-header";
     Object.assign(headerDiv.style, {
-      marginTop: "24px",
+      marginTop: "12px",
       marginBottom: "8px",
       display: "grid",
     });
