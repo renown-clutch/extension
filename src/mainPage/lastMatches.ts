@@ -91,25 +91,50 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     titleDiv.className = "clutch-last-matches-title";
     Object.assign(titleDiv.style, {
       display: "flex",
-      flexDirection: "row",
+      justifyContent: "space-between",
+      scrollMarginTop: "30px",
       alignItems: "center",
-      fontSize: "18px",
-      lineHeight: "28px",
-      fontWeight: "500",
     });
-    titleDiv.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history-icon lucide-history" style="margin-right: 12px;">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                <path d="M3 3v5h5"/>
-                <path d="M12 7v5l4 2"/>
+
+    const leftSection = document.createElement("div");
+    Object.assign(leftSection.style, {
+      display: "flex",
+      alignItems: "center",
+    });
+
+    leftSection.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history-icon lucide-history" style="margin-right: 12px;">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M12 7v5l4 2"/>
+        </svg>
+        <span style="margin-right: 6px;">Your last 3 matches</span>
+        <button class="clutch-matches-toggle" style="background: none; border: none; cursor: pointer; padding: 0;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
+                <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span style="margin-right: 6px;">Your last 3 matches</span>
-            <button class="clutch-matches-toggle" style="background: none; border: none; cursor: pointer; padding: 0;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
-                    <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-        `;
+        </button>
+    `;
+
+    const rightSection = document.createElement("div");
+    Object.assign(rightSection.style, {
+      display: "flex",
+      alignItems: "center",
+      gap: "4px",
+      color: "white",
+    });
+    rightSection.innerHTML = `
+        <a href="/profile/${steamId}/matches" style="display: flex; align-items: center; gap: 4px; color: white; text-decoration: none;">
+            <span>View all matches</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right-icon lucide-move-up-right">
+                <path d="M13 5H19V11"></path>
+                <path d="M19 5L5 19"></path>
+            </svg>
+        </a>
+    `;
+
+    titleDiv.appendChild(leftSection);
+    titleDiv.appendChild(rightSection);
 
     // Create a container for match links that will be animated
     const matchesContainer = document.createElement("div");
