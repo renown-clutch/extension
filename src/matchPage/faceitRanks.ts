@@ -36,20 +36,21 @@ const normalizePlayerNameWidths = () => {
       }
     });
 
-    // Second pass: apply the maximum width to all player names
+    // Apply the grid template to both header and rows if we found a valid width
     if (maxWidth > 0) {
-      players.forEach((player) => {
-        if (player) {
-          (player as HTMLElement).style.minWidth = `${maxWidth}px`;
-        }
-      });
-
       // Find and adjust the header's grid template
       const header = table.querySelector(".header") as HTMLElement;
       if (header) {
-        // Use the exact pixel width for the first column
-        header.style.gridTemplateColumns = `${maxWidth}px repeat(13, 1fr)`;
+        header.style.gridTemplateColumns = `${maxWidth}px repeat(12, 1fr)`;
       }
+
+      // Find and adjust all row elements
+      const rows = table.querySelectorAll(".row");
+      rows.forEach((row) => {
+        (
+          row as HTMLElement
+        ).style.gridTemplateColumns = `${maxWidth}px repeat(12, 1fr)`;
+      });
     }
   });
 };

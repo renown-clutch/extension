@@ -13,7 +13,6 @@ async function getStoredExpandedState(): Promise<boolean> {
     )) as Record<string, boolean>;
     return result[MATCHES_EXPANDED_KEY] ?? false; // Default to collapsed
   } catch (error) {
-    console.error("Error loading matches expanded state:", error);
     return false; // Default to collapsed on error
   }
 }
@@ -22,7 +21,7 @@ async function saveExpandedState(isExpanded: boolean): Promise<void> {
   try {
     await browserAPI.storage.local.set({ [MATCHES_EXPANDED_KEY]: isExpanded });
   } catch (error) {
-    console.error("Error saving matches expanded state:", error);
+    // Silently fail
   }
 }
 
@@ -61,7 +60,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
   // Get the user's Steam ID dynamically
   const steamId = await getUserSteamId();
   if (!steamId) {
-    console.error("Could not get user's Steam ID");
     return;
   }
 
@@ -72,7 +70,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     });
 
     if (!response.success || !response.data?.matches) {
-      console.error("Failed to fetch last matches:", response.error);
       return;
     }
 
@@ -200,7 +197,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     // Add match entries from the API data
     matches.forEach((match) => {
       let mapName = `de_${match.map.toLowerCase().replace(" ", "_")}`;
-      console.log(mapName);
       if (mapName === "de_dust_ii") {
         mapName = "de_dust2";
       }
@@ -268,7 +264,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       liveMatchesDiv
     );
   } catch (error) {
-    console.error("Error injecting last matches:", error);
+    // Silently fail
   }
 }
 
