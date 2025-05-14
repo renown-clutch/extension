@@ -183,6 +183,20 @@
         userSettings.showLiveMatchPlayerStreak;
     }
 
+    if (
+      previousSettings.showLastPlayedMatches !==
+      userSettings.showLastPlayedMatches
+    ) {
+      changes.showLastPlayedMatches = userSettings.showLastPlayedMatches;
+    }
+
+    if (
+      previousSettings.showLinkToCurrentMatch !==
+      userSettings.showLinkToCurrentMatch
+    ) {
+      changes.showLinkToCurrentMatch = userSettings.showLinkToCurrentMatch;
+    }
+
     return changes;
   }
 
@@ -286,6 +300,7 @@
           bind:faceitProfileButton={userSettings.faceitProfileButton}
           bind:showBans={userSettings.showBans}
           bind:showHighestElo={userSettings.showHighestElo}
+          bind:showLinkToCurrentMatch={userSettings.showLinkToCurrentMatch}
         />
       {:else if userSettings.activeTab === "Settings"}
         <SettingsTab

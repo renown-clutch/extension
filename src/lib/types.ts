@@ -40,6 +40,7 @@ export type UserSettings = {
   showInviteModal: boolean;
   csstatsProfileButton: boolean;
   faceitProfileButton: boolean;
+  showLinkToCurrentMatch: boolean;
   autoAccept: {
     match: boolean;
     party: boolean;
@@ -71,6 +72,7 @@ export const defaultUserSettings: UserSettings = {
   showInviteModal: false,
   csstatsProfileButton: true,
   faceitProfileButton: true,
+  showLinkToCurrentMatch: true,
   autoAccept: {
     match: false,
     party: false,

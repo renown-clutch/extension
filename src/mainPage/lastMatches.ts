@@ -78,7 +78,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
 
     const matches: Match[] = response.data.matches;
 
-    // Create the container for past matches
     const pastMatchesContainer = document.createElement("div");
     pastMatchesContainer.className = "profile-match-list clutch-past-matches";
     Object.assign(pastMatchesContainer.style, {
@@ -86,7 +85,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       marginBottom: "-4rem",
     });
 
-    // Create and append the title section
     const titleDiv = document.createElement("div");
     titleDiv.className = "clutch-last-matches-title";
     Object.assign(titleDiv.style, {
@@ -274,6 +272,13 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
   }
 }
 
+export function removeLastMatches(): void {
+  const pastMatchesContainer = document.querySelector(".clutch-past-matches");
+  if (pastMatchesContainer) {
+    pastMatchesContainer.remove();
+  }
+}
+
 export function initializeLastMatches(settings: UserSettings): void {
   if (!settings) return;
 
@@ -282,6 +287,7 @@ export function initializeLastMatches(settings: UserSettings): void {
   }
 
   if (!settings.showLastPlayedMatches) {
+    removeLastMatches();
     return;
   }
 

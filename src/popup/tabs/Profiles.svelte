@@ -6,6 +6,7 @@
     faceitProfileButton = $bindable(false),
     showBans = $bindable(false),
     showHighestElo = $bindable(false),
+    showLinkToCurrentMatch = $bindable(false),
   } = $props();
 </script>
 
@@ -20,6 +21,11 @@
     labelText="Faceit Button"
     descriptionText="Show Faceit profile button"
     bind:checked={faceitProfileButton}
+  />
+  <SwitchComponent
+    labelText="Current Match Link"
+    descriptionText="Show link to current match in player's profile"
+    bind:checked={showLinkToCurrentMatch}
   />
   <h2 class="text-lg">Profile</h2>
   <SwitchComponent

@@ -274,6 +274,31 @@ browserAPI.runtime.onMessage.addListener(
         });
 
       return true;
+    } else if (message.type === "fetchLiveMatches") {
+      fetch(`${API_BASE_URL}/get_live_matches`)
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(
+              `API returned ${response.status}: ${response.statusText}`
+            );
+          }
+          return safeJsonParse(response);
+        })
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error: unknown) => {
+          console.error("Error fetching live matches in background:", error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: errorMessage,
+          });
+        });
+
+      return true;
     }
   }
 );

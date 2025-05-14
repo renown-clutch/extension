@@ -34,6 +34,7 @@ import { initializeLiveMatchPage } from "./liveMatchPage/intializeLiveMatchPage"
 import { initializeLivePlayerStats } from "./liveMatchPage/livePlayerStats";
 import { initializeSteamIdParser } from "./steamId/steamIdParser";
 import { initializeLastMatches } from "./mainPage/lastMatches";
+import { initializeLinkToCurrentMatch } from "./playerProfile/linkToCurrentMatch";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -160,6 +161,14 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   ) {
     initializeLivePlayerStats(userSettings);
   }
+
+  if (changedParts.showLastPlayedMatches !== undefined) {
+    initializeLastMatches(userSettings);
+  }
+
+  if (changedParts.showLinkToCurrentMatch !== undefined) {
+    initializeLinkToCurrentMatch(userSettings);
+  }
 }
 
 async function loadFromBrowserStorage(): Promise<UserSettings> {
@@ -214,6 +223,7 @@ async function initialize(currentUrl: string) {
     initializeLiveMatchPage(userSettings);
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
     initializeLastMatches(userSettings);
+    initializeLinkToCurrentMatch(userSettings);
     initializeSteamIdParser();
   } catch (error: unknown) {
     console.error("Error during content script initialization:", error);
