@@ -41,15 +41,22 @@ const normalizePlayerNameWidths = () => {
       // Find and adjust the header's grid template
       const header = table.querySelector(".header") as HTMLElement;
       if (header) {
-        header.style.gridTemplateColumns = `${maxWidth}px repeat(12, 1fr)`;
+        // Count the number of columns by getting the number of children in header
+        const columnCount = header.children.length;
+        // Use columnCount - 1 for the repeat value (subtracting the player name column)
+        header.style.gridTemplateColumns = `${maxWidth}px repeat(${
+          columnCount - 1
+        }, 1fr)`;
       }
 
       // Find and adjust all row elements
       const rows = table.querySelectorAll(".row");
+      const columnCount =
+        (table.querySelector(".header")?.children.length || 13) - 1;
       rows.forEach((row) => {
         (
           row as HTMLElement
-        ).style.gridTemplateColumns = `${maxWidth}px repeat(12, 1fr)`;
+        ).style.gridTemplateColumns = `${maxWidth}px repeat(${columnCount}, 1fr)`;
       });
     }
   });
