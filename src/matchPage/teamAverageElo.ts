@@ -46,7 +46,7 @@ export async function initializeTeamAverageElo(
 
 function cleanupBadges() {
   const elements = document.querySelectorAll(
-    '[data-clutch-extension="team-average-elo-element"]'
+    '[data-clutch-extension="team-average-elo-element"], .team-avg-elo'
   );
   elements.forEach((element) => {
     if (element.parentNode) {
@@ -127,7 +127,7 @@ async function processTeamTable(
   );
 
   const avgRankLabel = document.createElement("div");
-  avgRankLabel.textContent = "Average Team Rank:";
+  avgRankLabel.textContent = "Average ELO:";
   avgRankLabel.style.fontSize = "14px";
   wrapper.appendChild(avgRankLabel);
 
@@ -152,5 +152,5 @@ async function processTeamTable(
 
   wrapper.appendChild(badgesContainer);
 
-  h3.insertAdjacentElement("afterend", wrapper);
+  heading.appendChild(wrapper);
 }
