@@ -47,7 +47,7 @@ function createButton({
     if (href) {
       // Only change color if href exists
       button.style.backgroundColor =
-        bgColor === "#292c34" ? "#333640" : "#ffb74d";
+        bgColor === "#292c34" ? "#333640" : "#232828";
     }
   });
   button.addEventListener("mouseout", () => {
