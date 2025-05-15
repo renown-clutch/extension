@@ -72,8 +72,8 @@ async function displayLinkToCurrentMatch(playerId: string) {
       return;
     }
 
-    const actionsContainer = profileBanner.querySelector(".actions");
-    if (!actionsContainer) {
+    const linksContainer = profileBanner.querySelector(".links");
+    if (!linksContainer) {
       return;
     }
 
@@ -82,12 +82,16 @@ async function displayLinkToCurrentMatch(playerId: string) {
     matchLink.href = `/match/${currentMatch.id}`;
     matchLink.className = "clutch-current_match_link primary-button sm";
     matchLink.innerHTML = `
-      <span class="text">Playing on ${currentMatch.map.display_name} (${
-      currentMatch.team1_current_score ?? 0
-    }-${currentMatch.team2_current_score ?? 0})</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords-icon lucide-swords"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline><line x1="5" x2="9" y1="14" y2="18"></line><line x1="7" x2="4" y1="17" y2="20"></line><line x1="3" x2="5" y1="19" y2="21"></line></svg>
+      <span class="text-playing-now">Playing on ${
+        currentMatch.map.display_name
+      } (${currentMatch.team1_current_score ?? 0}-${
+      currentMatch.team2_current_score ?? 0
+    })</span>
     `;
 
-    actionsContainer.appendChild(matchLink);
+    // Insert as first child
+    linksContainer.insertBefore(matchLink, linksContainer.firstChild);
   } catch (error) {
     // Error handling silently fails
   }
