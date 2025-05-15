@@ -33,8 +33,12 @@ interface LiveMatchesResponse {
 }
 
 async function displayLinkToCurrentMatch(playerId: string) {
+  // check if link already exists
+  if (document.querySelector(".clutch-current_match_link")) {
+    return;
+  }
+
   try {
-    // Fetch live matches from background script
     const response = await new Promise<LiveMatchesResponse>((resolve) => {
       browserAPI.runtime.sendMessage({ type: "fetchLiveMatches" }, (response) =>
         resolve(response as LiveMatchesResponse)
@@ -89,6 +93,13 @@ async function displayLinkToCurrentMatch(playerId: string) {
   }
 }
 
+const removeExistingLink = () => {
+  const existingLink = document.querySelector(".clutch-current_match_link");
+  if (existingLink) {
+    existingLink.remove();
+  }
+};
+
 export function initializeLinkToCurrentMatch(userSettings: UserSettings): void {
   const enabled = userSettings.showLinkToCurrentMatch;
 
@@ -97,10 +108,7 @@ export function initializeLinkToCurrentMatch(userSettings: UserSettings): void {
   }
 
   if (!enabled) {
-    const existingLink = document.querySelector(".clutch-current_match_link");
-    if (existingLink) {
-      existingLink.remove();
-    }
+    removeExistingLink();
     return;
   }
 
