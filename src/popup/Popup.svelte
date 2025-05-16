@@ -8,6 +8,7 @@
   import AutoAcceptTab from "./tabs/AutoAccept.svelte";
   import SettingsTab from "./tabs/Settings.svelte";
   import MatchTab from "./tabs/Match.svelte";
+  import MainPageTab from "./tabs/MainPage.svelte";
   import { onMount, untrack } from "svelte";
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings } from "$lib/types";
@@ -197,6 +198,19 @@
       changes.showLinkToCurrentMatch = userSettings.showLinkToCurrentMatch;
     }
 
+    if (
+      previousSettings.showAveragePartyElo !== userSettings.showAveragePartyElo
+    ) {
+      changes.showAveragePartyElo = userSettings.showAveragePartyElo;
+    }
+
+    if (
+      previousSettings.showFaceitEloOnPartyList !==
+      userSettings.showFaceitEloOnPartyList
+    ) {
+      changes.showFaceitEloOnPartyList = userSettings.showFaceitEloOnPartyList;
+    }
+
     return changes;
   }
 
@@ -287,7 +301,6 @@
           bind:showLiveMatchPlayerStreak={
             userSettings.showLiveMatchPlayerStreak
           }
-          bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
         />
       {:else if userSettings.activeTab === "Sounds"}
         <SoundTab
@@ -314,6 +327,12 @@
           bind:showFriendListRanks={userSettings.showFriendListRanks}
           bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
           bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
+        />
+      {:else if userSettings.activeTab === "MainPage"}
+        <MainPageTab
+          bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
+          bind:showAveragePartyElo={userSettings.showAveragePartyElo}
+          bind:showFaceitEloOnPartyList={userSettings.showFaceitEloOnPartyList}
         />
       {/if}
     </div>

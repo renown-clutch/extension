@@ -9,7 +9,6 @@
     showMapStatsColors = $bindable(false),
     liveMatchPlayerStats = $bindable(false),
     showLiveMatchPlayerStreak = $bindable(false),
-    showLastPlayedMatches = $bindable(false),
   } = $props();
 </script>
 
@@ -53,14 +52,6 @@
     descriptionText="Show player Win/Loss streak on live match pages"
     bind:checked={showLiveMatchPlayerStreak}
     disabled={!liveMatchPlayerStats}
-  />
-
-  <h2 class="text-lg">Main page</h2>
-
-  <SwitchComponent
-    labelText="Last Played Matches"
-    descriptionText="Show your 3 last matches on main page"
-    bind:checked={showLastPlayedMatches}
   />
 
   <!-- <h2 class="text-lg">Auto Ban Maps</h2>

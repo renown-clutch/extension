@@ -8,12 +8,14 @@
     User,
     Swords,
     Users,
+    HomeIcon,
   } from "@lucide/svelte";
+  import type { TabName } from "$lib/types";
 
   type Icon = typeof Settings;
 
   type SidebarItem = {
-    name: string;
+    name: TabName;
     icon: Icon;
     isBeta?: boolean;
   };
@@ -21,6 +23,7 @@
   const sidebarItems: SidebarItem[] = [
     { name: "Theme", icon: Palette },
     { name: "Auto-accept", icon: CircleCheckBig },
+    { name: "MainPage", icon: HomeIcon },
     { name: "Match", icon: Swords },
     { name: "Sounds", icon: Volume2, isBeta: true },
     { name: "Profiles", icon: User },

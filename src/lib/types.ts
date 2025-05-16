@@ -5,7 +5,8 @@ export type TabName =
   | "Sounds"
   | "Profiles"
   | "Settings"
-  | "Friends";
+  | "Friends"
+  | "MainPage";
 
 export type Theme =
   | "default"
@@ -63,6 +64,8 @@ export type UserSettings = {
   liveMatchPlayerStats: boolean;
   showLiveMatchPlayerStreak: boolean;
   showLastPlayedMatches: boolean;
+  showAveragePartyElo: boolean;
+  showFaceitEloOnPartyList: boolean;
 };
 
 export const defaultUserSettings: UserSettings = {
@@ -95,4 +98,6 @@ export const defaultUserSettings: UserSettings = {
   liveMatchPlayerStats: true,
   showLiveMatchPlayerStreak: true,
   showLastPlayedMatches: true,
+  showAveragePartyElo: true,
+  showFaceitEloOnPartyList: false,
 };
