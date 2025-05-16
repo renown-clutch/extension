@@ -12,8 +12,11 @@ const DARK_GRAY_SHEET_PATH = browserAPI.runtime.getURL(
   "themes/DarkGraySheet.css"
 );
 const BLACK_SHEET_PATH = browserAPI.runtime.getURL("themes/BlackSheet.css");
+const DEFAULT_SHEET_PATH = browserAPI.runtime.getURL("themes/DefaultSheet.css");
 
 const tempThemeStyles: Record<string, string> = {
+  default:
+    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
   dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
   pink: "html, body { background-color: #440c21 !important; color: #fff !important; transition: none !important; }",
   purple:
@@ -27,6 +30,7 @@ const tempThemeStyles: Record<string, string> = {
 };
 
 const themePathMap: Record<string, string> = {
+  default: DEFAULT_SHEET_PATH,
   dark: DARK_SHEET_PATH,
   pink: PINK_SHEET_PATH,
   purple: PURPLE_SHEET_PATH,
@@ -171,13 +175,14 @@ function removeTempStyling(): void {
 // We call this as early as possible in content script
 export function initTempStyling(): void {
   const cachedTheme = getThemeFromLocalStorage();
-  if (cachedTheme && cachedTheme !== "default") {
+  if (cachedTheme) {
     applyTempStyling(cachedTheme);
   }
 }
 
 export async function initializeTheme(theme: string): Promise<void> {
   if (
+    theme !== "default" &&
     theme !== "dark" &&
     theme !== "pink" &&
     theme !== "purple" &&

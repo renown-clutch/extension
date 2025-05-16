@@ -87,7 +87,7 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     return;
   }
 
-  if (changedParts.selectedTheme && changedParts.selectedTheme !== "default") {
+  if (changedParts.selectedTheme) {
     await initializeTheme(changedParts.selectedTheme);
   }
 
