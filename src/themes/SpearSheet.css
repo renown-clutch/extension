@@ -1,19 +1,19 @@
 :root {
   --slate-950: #000;  /* Very dark gray / near black */
   --slate-900: #000;  /* Dark gray */
-  --slate-900-80: #000; /* Dark gray with opacity */
+  --slate-900-80: #000000e0; /* Dark gray with opacity */
   --slate-800: #000;  /* Medium-dark gray */
-  --slate-700: #000;  /* Medium gray */
-  --slate-700-80: #000;  /* Medium gray with opacity */
+  --slate-700: #101010;  /* Medium gray */
+  --slate-700-80: #000000e4;  /* Medium gray with opacity */
   --slate-600: #000;  /* Lighter gray */
-  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-700) 300px);
-  --linear-gradient-90-hover: linear-gradient(90deg, var(--slate-900-80), var(--slate-800) 300px);
+  --linear-gradient-90: linear-gradient(90deg, var(--slate-900-80), var(--slate-900) 300px);
+  --linear-gradient-90-hover: linear-gradient(90deg, #151515, #202020 300px);
 
   --linear-gradient-45: linear-gradient(45deg, var(--slate-900), var(--slate-800));
   --linear-gradient-90-2: linear-gradient(90deg, var(--slate-900), var(--slate-800));;
   --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47,) 0 0),conic-gradient(from var(--angle) at 50% 50%,rgb(255, 85, 0) 0deg,rgba(255, 85, 0, 0) 1turn); /* FACEIT Orange accent */
-  --scrollbar-bg: rgba(31, 31, 31, 0.8); /* Slightly transparent dark gray */
-  --scrollbar-color: #444444; /* Lighter gray */
+  --scrollbar-bg: rgba(0, 0, 0, 0.8); /* Slightly transparent dark gray */
+  --scrollbar-color: #080808; /* Lighter gray */
   --footer: #000; /* Very dark gray / near black */
 }
 
@@ -728,6 +728,9 @@ input.iti__tel-input {
   
   .party-player-card {
     background: var(--linear-gradient-45);
+    border: 1px solid #161616;
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0);
+
 
   .connect-copy-wrapper .connect-title {
     color: hsla(0,0%,100%,.5);
@@ -1439,7 +1442,7 @@ input.iti__tel-input {
   
   .profile-banner {
     
-    background: linear-gradient(180deg, var(--slate-700), var(--slate-900));
+    background: linear-gradient(180deg, var(--slate-900), var(--slate-900));
    
 
   
@@ -2867,7 +2870,8 @@ input.iti__tel-input {
   }
 
   .next-rank-progress {
-    background: linear-gradient(90deg, var(--slate-900), var(--slate-700));
+    background: linear-gradient(90deg, var(--slate-900), var(--slate-900));
+    border: 1px solid #000;
    
   
   .next-rank-progress .content .progress-bar {
