@@ -13,6 +13,7 @@ const DARK_GRAY_SHEET_PATH = browserAPI.runtime.getURL(
 );
 const BLACK_SHEET_PATH = browserAPI.runtime.getURL("themes/BlackSheet.css");
 const DEFAULT_SHEET_PATH = browserAPI.runtime.getURL("themes/DefaultSheet.css");
+const SPEAR_SHEET_PATH = browserAPI.runtime.getURL("themes/SpearSheet.css");
 
 const tempThemeStyles: Record<string, string> = {
   default:
@@ -27,6 +28,7 @@ const tempThemeStyles: Record<string, string> = {
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
   black:
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
+  spear: "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
 };
 
 const themePathMap: Record<string, string> = {
@@ -37,6 +39,7 @@ const themePathMap: Record<string, string> = {
   green: GREEN_SHEET_PATH,
   darkgray: DARK_GRAY_SHEET_PATH,
   black: BLACK_SHEET_PATH,
+  spear: SPEAR_SHEET_PATH,
 };
 
 const tempStyleElement = document.createElement("style");
@@ -188,7 +191,8 @@ export async function initializeTheme(theme: string): Promise<void> {
     theme !== "purple" &&
     theme !== "green" &&
     theme !== "black" &&
-    theme !== "darkgray"
+    theme !== "darkgray" &&
+    theme !== "spear"
   ) {
     return;
   }

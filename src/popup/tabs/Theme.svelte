@@ -10,6 +10,7 @@
     { label: "Pink", value: "pink" },
     { label: "Purple", value: "purple" },
     { label: "Green", value: "green" },
+    { label: "Spear (OLED)", value: "spear" },
   ];
 
   let { selectedTheme = $bindable("") } = $props();
