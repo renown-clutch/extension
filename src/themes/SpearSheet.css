@@ -3098,5 +3098,6 @@ input.iti__tel-input {
 }
 
 a.clutch-current_match_link.primary-button.sm {
-    background-color: var(--slate-600);
+    border: 1px solid white;
+    border-radius: 0.5rem;
 }
