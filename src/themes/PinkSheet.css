@@ -3094,3 +3094,12 @@ input.iti__tel-input {
 a.clutch-current_match_link.primary-button.sm {
     background-color: var(--slate-600);
 }
+
+.clutch-average-party-elo {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    border-left: 2px solid var(--slate-600);
+    padding-left: 0.5rem;
+    margin-right: 0.75rem;
+}
