@@ -3083,3 +3083,15 @@ input.iti__tel-input {
     background-color: var(--slate-950);
     color: #fff;
   }
+
+  .clutch-highest-elo-element {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: solid var(--slate-600);
+    padding-left: 1rem;
+}
+
+a.clutch-current_match_link.primary-button.sm {
+    background-color: var(--slate-600);
+}
