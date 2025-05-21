@@ -263,11 +263,8 @@ async function addAveragePartyEloDisplay(
   avgRenownLabel.style.fontSize = "14px";
   wrapper.appendChild(avgRenownLabel);
 
-  const separator = document.createElement("div");
-  separator.style.width = "8px";
-  wrapper.appendChild(separator);
-
   const rankBadge = createRankBadgeElement(averageElo, 24, true);
+  rankBadge.style.marginLeft = "12px";
   wrapper.appendChild(rankBadge);
 
   partyName.appendChild(wrapper);
@@ -330,9 +327,7 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
         addAverageFaceitBadge(wrapper, faceitData);
       }
     }
-  } catch (error) {
-    // Error handling removed as per request
-  }
+  } catch (error) {}
 }
 
 async function addPlayerFaceitBadges(
@@ -359,8 +354,7 @@ async function addPlayerFaceitBadges(
           "",
           "faceit-badge-player"
         );
-
-        faceitBadge.style.marginLeft = "8px";
+        faceitBadge.style.marginTop = "4px";
 
         eloContainer.appendChild(faceitBadge);
       }
