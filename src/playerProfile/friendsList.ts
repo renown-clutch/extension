@@ -1,6 +1,7 @@
 import { type UserSettings } from "../lib/types";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 import { is404Page } from "../utils/pageUtils";
+import { waitForElement } from "../utils/profileUtils";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
 
@@ -62,7 +63,6 @@ function renderFriendRanks(
   sortByElo: boolean
 ): void {
   applyFriendListStyling();
-
   if (sortByElo) {
     const friendListContainer = document.querySelector(".profile-friend-list");
     if (friendListContainer) {
@@ -127,7 +127,7 @@ function renderFriendRanks(
 }
 
 async function extractFriendIds(): Promise<string[]> {
-  const friendListContainer = document.querySelector(".profile-friend-list");
+  const friendListContainer = await waitForElement(".profile-friend-list");
   if (!friendListContainer) return [];
 
   const profileLinks = friendListContainer.querySelectorAll("a.profile-link");
@@ -180,16 +180,18 @@ export async function initializeFriendsList(
 
   if (is404Page()) {
     return;
-  } 
+  }
 
   const friendIds = await extractFriendIds();
+
   if (friendIds.length === 0) return;
 
   let ranks = {};
+
   try {
     ranks = await fetchFriendsRanks(friendIds);
   } catch (error) {
-    console.error("Error fetching friend ranks:", error);
+    console.error("[Clutch] Error fetching friend ranks:", error);
     return;
   }
 

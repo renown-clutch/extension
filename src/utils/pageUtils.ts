@@ -50,7 +50,7 @@ const ROUTE_MATCHERS: RouteMatcher[] = [
     handler: () => ({ type: "profileSettings" }),
   },
   {
-    pattern: /^\/profile\/(\d+)$/,
+    pattern: /^\/profile\/(\d+)(?:\/.*)?$/,
     handler: (matches) => ({ type: "profile", id: matches![1] }),
   },
   {
