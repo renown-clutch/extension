@@ -3088,3 +3088,25 @@ input.iti__tel-input {
     background-color: var(--slate-950);
     color: #fff;
   }
+
+.clutch-highest-elo-element {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: solid white;
+    padding-left: 1rem;
+}
+
+a.clutch-current_match_link.primary-button.sm {
+    border: 1px solid white;
+    border-radius: 0.5rem;
+}
+
+.clutch-average-party-elo {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    border-left: 2px solid white;
+    padding-left: 0.5rem;
+    margin-right: 0.75rem;
+}
