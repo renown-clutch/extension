@@ -1,7 +1,7 @@
 import browserAPI from "../lib/browserAPI";
 
 const STEAM_ID_STORAGE_KEY = "userSteamId";
-const STEAM_ID_REFRESH_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+const STEAM_ID_REFRESH_INTERVAL = 60 * 60 * 1000;
 
 interface SteamIdData {
   steamId: string;
@@ -53,7 +53,6 @@ export async function initializeSteamIdParser(): Promise<void> {
   const storedData = await getStoredSteamId();
   const currentTime = Date.now();
 
-  // If we have stored data and it's less than 6 hours old, use it
   if (
     storedData &&
     currentTime - storedData.timestamp < STEAM_ID_REFRESH_INTERVAL
@@ -61,7 +60,6 @@ export async function initializeSteamIdParser(): Promise<void> {
     return;
   }
 
-  // Otherwise, try to parse the steam ID from the dropdown
   const steamId = await parseSteamIdFromDropdown();
   if (steamId) {
     await storeSteamId(steamId);

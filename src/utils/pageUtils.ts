@@ -11,73 +11,79 @@ export type PageType =
   | { type: "play" }
   | { type: "unknown" };
 
+type RouteMatcher = {
+  pattern: RegExp | string;
+  handler: (matches: RegExpMatchArray | null) => PageType;
+};
+
+const ROUTE_MATCHERS: RouteMatcher[] = [
+  {
+    pattern: "renown.gg/admin",
+    handler: () => ({ type: "admin" }),
+  },
+  {
+    pattern: /^\/$/,
+    handler: () => ({ type: "home" }),
+  },
+  {
+    pattern: /^\/play$/,
+    handler: () => ({ type: "play" }),
+  },
+  {
+    pattern: /^\/play\/match$/,
+    handler: () => ({ type: "playMatch" }),
+  },
+  {
+    pattern: /^\/banlist$/,
+    handler: () => ({ type: "banlist" }),
+  },
+  {
+    pattern: /^\/drops$/,
+    handler: () => ({ type: "drops" }),
+  },
+  {
+    pattern: /^\/feedback/,
+    handler: () => ({ type: "feedback" }),
+  },
+  {
+    pattern: /^\/profile\/settings/,
+    handler: () => ({ type: "profileSettings" }),
+  },
+  {
+    pattern: /^\/profile\/(\d+)$/,
+    handler: (matches) => ({ type: "profile", id: matches![1] }),
+  },
+  {
+    pattern: /^\/match\/(\d+)$/,
+    handler: (matches) => ({ type: "matchPage", id: matches![1] }),
+  },
+];
+
 export function getCurrentPage(): PageType {
   const url = window.location.href;
   const path = new URL(url).pathname;
 
-  console.log("[Clutch] getCurrentPage analyzing URL:", url, "path:", path);
-
   if (url.includes("renown.gg/admin")) {
-    console.log("[Clutch] Detected admin page");
     return { type: "admin" };
   }
 
-  if (path === "/") {
-    console.log("[Clutch] Detected home page");
-    return { type: "home" };
+  for (const { pattern, handler } of ROUTE_MATCHERS) {
+    if (typeof pattern === "string") {
+      if (url.includes(pattern)) {
+        return handler(null);
+      }
+    } else {
+      const matches = path.match(pattern);
+      if (matches) {
+        return handler(matches);
+      }
+    }
   }
-
-  if (path === "/play") {
-    console.log("[Clutch] Detected play page");
-    return { type: "play" };
-  }
-
-  if (path.startsWith("/play/match")) {
-    console.log("[Clutch] Detected play match page");
-    return { type: "playMatch" };
-  }
-
-  if (path === "/banlist") {
-    console.log("[Clutch] Detected banlist page");
-    return { type: "banlist" };
-  }
-
-  if (path === "/drops") {
-    console.log("[Clutch] Detected drops page");
-    return { type: "drops" };
-  }
-
-  if (path.startsWith("/feedback")) {
-    console.log("[Clutch] Detected feedback page");
-    return { type: "feedback" };
-  }
-
-  if (path.startsWith("/profile/settings")) {
-    console.log("[Clutch] Detected profile settings page");
-    return { type: "profileSettings" };
-  }
-
-  const profileMatch = path.match(/^\/profile\/(\d+)$/);
-  if (profileMatch) {
-    console.log("[Clutch] Detected profile page for ID:", profileMatch[1]);
-    return { type: "profile", id: profileMatch[1] };
-  }
-
-  const matchMatch = path.match(/^\/match\/(\d+)$/);
-  if (matchMatch) {
-    console.log("[Clutch] Detected match page for ID:", matchMatch[1]);
-    return { type: "matchPage", id: matchMatch[1] };
-  }
-
-  console.log("[Clutch] Unknown page type");
   return { type: "unknown" };
 }
 
 export function isLiveMatch(): boolean {
-  return (
-    getCurrentPage().type === "playMatch" ||
-    window.location.href.startsWith("file://")
-  );
+  return getCurrentPage().type === "playMatch";
 }
 
 export function isMatchPage(): boolean {
@@ -87,6 +93,5 @@ export function isMatchPage(): boolean {
 export function is404Page(): boolean {
   const notFoundPage = document.querySelector(".page.not-found");
   const is404 = notFoundPage !== null;
-  console.log("[Clutch] is404Page check:", is404, "element:", notFoundPage);
   return is404;
 }

@@ -28,7 +28,7 @@ import {
   updateKeepAliveSettings,
 } from "./keepAlive/keepAlive";
 import { initializeExtensionButton } from "./navbar/extensionButton";
-import { getCurrentPage } from "./utils/pageUtils";
+import { getCurrentPage, type PageType } from "./utils/pageUtils";
 import { initializeMatchPage } from "./matchPage/initializeMatchPage";
 import { initializeLiveMatchPage } from "./liveMatchPage/intializeLiveMatchPage";
 import { initializeLivePlayerStats } from "./liveMatchPage/livePlayerStats";
@@ -41,50 +41,6 @@ let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
 
 let lastUrl = window.location.href;
-
-declare global {
-  interface Window {
-    __NEXT_DATA__?: any;
-    clutchInitialized?: boolean;
-  }
-}
-
-function waitForPageReady(): Promise<void> {
-  return new Promise((resolve) => {
-    const checkHydration = () => {
-      if (window.__NEXT_DATA__) {
-        resolve();
-        return;
-      }
-      if (document.readyState === "complete") {
-        resolve();
-        return;
-      }
-      setTimeout(checkHydration, 100);
-    };
-    checkHydration();
-  });
-}
-
-function checkWebSocketStatus(): Promise<boolean> {
-  return new Promise((resolve) => {
-    browserAPI.runtime.sendMessage(
-      { type: "checkWebSocketStatus" },
-      (response) => {
-        if (response && response.connected) {
-          resolve(true);
-        } else {
-          browserAPI.runtime.sendMessage(
-            { type: "reconnectWebSocket" },
-            (reconnectResponse) => {
-              setTimeout(() => resolve(false), 1000);
-            }
-          );
-        }
-      }
-    );
-  });
-}
 
 function shouldBeInjected(): boolean {
   const currentPage = getCurrentPage();
@@ -100,101 +56,65 @@ function shouldBeInjected(): boolean {
   return true;
 }
 
+if (shouldBeInjected()) {
+  initTempStyling();
+}
+
+type SettingHandler = (
+  settings: UserSettings,
+  value?: any
+) => void | Promise<void>;
+
+const SETTING_HANDLERS: Record<string, SettingHandler[]> = {
+  selectedTheme: [(settings, value) => initializeTheme(value)],
+  csstatsProfileButton: [initializeProfileButtons],
+  faceitProfileButton: [initializeProfileButtons],
+  showBans: [(settings, value) => initializeProfileBans(value)],
+  showHighestElo: [(settings, value) => initializeHighestElo(value)],
+  showFriendListRanks: [initializeFriendsList],
+  sortFriendsByRenownElo: [initializeFriendsList],
+  showSidebarFriendRanks: [initializeSidebarFriends],
+  "autoAccept.match": [updateMatchFoundAutoAcceptSettings],
+  matchAutoAcceptDelay: [updateMatchFoundAutoAcceptSettings],
+  matchFoundSound: [updateMatchFoundAutoAcceptSettings],
+  matchFoundVolume: [updateMatchFoundAutoAcceptSettings],
+  "autoAccept.party": [updateAutoAcceptPartyInviteSettings],
+  partyAutoAcceptDelay: [updateAutoAcceptPartyInviteSettings],
+  keepAlive: [updateKeepAliveSettings],
+  showFaceitRanksOnMatchPage: [initializeMatchPage, initializeLiveMatchPage],
+  showTeamAverageElo: [initializeMatchPage, initializeLiveMatchPage],
+  showMapStats: [initializeLiveMatchPage],
+  showMapStatsColors: [initializeLiveMatchPage],
+  showExtensionNavbarButton: [
+    (settings, value) => initializeExtensionButton(value),
+  ],
+  liveMatchPlayerStats: [initializeLivePlayerStats],
+  showLiveMatchPlayerStreak: [initializeLivePlayerStats],
+  showLastPlayedMatches: [initializeLastMatches],
+  showLinkToCurrentMatch: [initializeLinkToCurrentMatch],
+  showAveragePartyElo: [initializeAveragePartyElo],
+  showFaceitEloOnPartyList: [initializeAveragePartyElo],
+};
+
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (!shouldBeInjected()) {
     removeAllThemeStyles();
     return;
   }
 
-  if (changedParts.selectedTheme) {
-    await initializeTheme(changedParts.selectedTheme);
-  }
+  const handlersToRun = new Set<{ handler: SettingHandler; value: any }>();
 
-  if (
-    changedParts.csstatsProfileButton !== undefined ||
-    changedParts.faceitProfileButton !== undefined
-  ) {
-    initializeProfileButtons(userSettings);
-  }
+  Object.entries(changedParts).forEach(([key, value]) => {
+    if (value !== undefined) {
+      const handlers = SETTING_HANDLERS[key];
+      if (handlers) {
+        handlers.forEach((handler) => handlersToRun.add({ handler, value }));
+      }
+    }
+  });
 
-  if (changedParts.showBans !== undefined) {
-    initializeProfileBans(changedParts.showBans);
-  }
-
-  if (changedParts.showHighestElo !== undefined) {
-    initializeHighestElo(changedParts.showHighestElo);
-  }
-
-  if (
-    changedParts.showFriendListRanks !== undefined ||
-    changedParts.sortFriendsByRenownElo !== undefined
-  ) {
-    initializeFriendsList(userSettings);
-  }
-
-  if (changedParts.showSidebarFriendRanks !== undefined) {
-    initializeSidebarFriends(userSettings);
-  }
-
-  if (
-    changedParts.autoAccept?.match !== undefined ||
-    changedParts.matchAutoAcceptDelay !== undefined ||
-    changedParts.matchFoundSound !== undefined ||
-    changedParts.matchFoundVolume !== undefined
-  ) {
-    updateMatchFoundAutoAcceptSettings(userSettings);
-  }
-
-  if (
-    changedParts.autoAccept?.party !== undefined ||
-    changedParts.partyAutoAcceptDelay !== undefined
-  ) {
-    updateAutoAcceptPartyInviteSettings(userSettings);
-  }
-
-  if (changedParts.keepAlive !== undefined) {
-    updateKeepAliveSettings(userSettings);
-  }
-
-  if (
-    changedParts.showFaceitRanksOnMatchPage !== undefined ||
-    changedParts.showTeamAverageElo !== undefined
-  ) {
-    initializeMatchPage(userSettings);
-    initializeLiveMatchPage(userSettings);
-  }
-
-  if (
-    changedParts.showMapStats !== undefined ||
-    changedParts.showMapStatsColors !== undefined
-  ) {
-    initializeLiveMatchPage(userSettings);
-  }
-
-  if (changedParts.showExtensionNavbarButton !== undefined) {
-    initializeExtensionButton(userSettings.showExtensionNavbarButton);
-  }
-
-  if (
-    changedParts.liveMatchPlayerStats !== undefined ||
-    changedParts.showLiveMatchPlayerStreak !== undefined
-  ) {
-    initializeLivePlayerStats(userSettings);
-  }
-
-  if (changedParts.showLastPlayedMatches !== undefined) {
-    initializeLastMatches(userSettings);
-  }
-
-  if (changedParts.showLinkToCurrentMatch !== undefined) {
-    initializeLinkToCurrentMatch(userSettings);
-  }
-
-  if (
-    changedParts.showAveragePartyElo !== undefined ||
-    changedParts.showFaceitEloOnPartyList !== undefined
-  ) {
-    initializeAveragePartyElo(userSettings);
+  for (const { handler, value } of handlersToRun) {
+    await handler(userSettings, value);
   }
 }
 
@@ -216,66 +136,57 @@ function observeUrlChanges() {
     const currentUrl = window.location.href;
     if (currentUrl !== lastUrl) {
       lastUrl = currentUrl;
-      window.clutchInitialized = false;
-      initialize(currentUrl);
+      initialize(getCurrentPage().type);
     }
   });
 
   observer.observe(document, { subtree: true, childList: true });
 }
 
-async function initialize(currentUrl: string) {
+async function initialize(pageType: PageType["type"]) {
   if (!shouldBeInjected()) {
     removeAllThemeStyles();
     return;
   }
 
+  console.log("[Clutch] Initializing for page type:", pageType);
+
   try {
-    if (window.clutchInitialized) {
-      return;
-    }
-
-    const wsConnected = await checkWebSocketStatus();
-
     const freshSettings = await loadFromBrowserStorage();
     userSettings = freshSettings;
 
     await initializeTheme(userSettings.selectedTheme);
-
-    await waitForPageReady();
-
-    initializeProfileButtons(userSettings);
-
-    initializeFriendsList(userSettings);
-
-    initializeProfileBans(userSettings.showBans);
-
-    initializeHighestElo(userSettings.showHighestElo);
-
-    initializeMatchFoundAutoAccept(userSettings);
-
-    initializeAutoAcceptPartyInvite(userSettings);
-
-    initializeKeepAlive(userSettings);
-
     initializeSidebarFriends(userSettings);
-
-    initializeMatchPage(userSettings);
-
-    initializeLiveMatchPage(userSettings);
-
+    initializeSteamIdParser();
+    initializeMatchFoundAutoAccept(userSettings);
+    initializeAutoAcceptPartyInvite(userSettings);
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
 
-    initializeLastMatches(userSettings);
+    if (pageType === "profile") {
+      initializeProfileButtons(userSettings);
+      initializeFriendsList(userSettings);
+      initializeProfileBans(userSettings.showBans);
+      initializeHighestElo(userSettings.showHighestElo);
+      initializeLinkToCurrentMatch(userSettings);
+    }
 
-    initializeLinkToCurrentMatch(userSettings);
+    if (pageType === "matchPage") {
+      initializeMatchPage(userSettings);
+    }
 
-    initializeAveragePartyElo(userSettings);
+    if (pageType === "playMatch") {
+      initializeLiveMatchPage(userSettings);
+    }
 
-    initializeSteamIdParser();
+    if (pageType === "play") {
+      initializeAveragePartyElo(userSettings);
+      initializeLastMatches(userSettings);
+    }
 
-    window.clutchInitialized = true;
-  } catch (error: unknown) {}
+    initializeKeepAlive(userSettings);
+  } catch (error: unknown) {
+    console.error("Error initializing:", error);
+  }
 }
 
 browserAPI.runtime.onMessage.addListener(
@@ -285,9 +196,6 @@ browserAPI.runtime.onMessage.addListener(
     sendResponse: SendResponseCallback
   ) => {
     if (message.type === "webSocketConnected") {
-      if (!window.clutchInitialized) {
-        initialize(window.location.href);
-      }
       sendResponse({ status: "success" });
       return;
     } else if (message.type === "settingsUpdate") {
@@ -298,16 +206,8 @@ browserAPI.runtime.onMessage.addListener(
           saveThemeToLocalStorage(message.changedParts.selectedTheme);
         }
 
-        applyChangedSettings(message.changedParts)
-          .then(() => {
-            sendResponse({ status: "success" });
-          })
-          .catch((error) => {
-            sendResponse({
-              status: "error",
-              message: "Failed to apply settings",
-            });
-          });
+        applyChangedSettings(message.changedParts);
+        sendResponse({ status: "success" });
         return true;
       } else {
         sendResponse({ status: "success" });
@@ -321,10 +221,6 @@ browserAPI.runtime.onMessage.addListener(
   }
 );
 
-if (shouldBeInjected()) {
-  initTempStyling();
-}
-
 observeUrlChanges();
 
-initialize(window.location.href);
+initialize(getCurrentPage().type);

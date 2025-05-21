@@ -28,7 +28,8 @@ const tempThemeStyles: Record<string, string> = {
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
   black:
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
-  spear: "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
+  spear:
+    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
 };
 
 const themePathMap: Record<string, string> = {
@@ -54,7 +55,6 @@ let isTempThemeInjected = false;
 
 const stylesheetCache: Record<string, string> = {};
 
-// Try to load cached temp styles from localStorage
 try {
   const cachedStyles = localStorage.getItem(TEMP_STYLE_CACHE_KEY);
   if (cachedStyles) {
@@ -67,11 +67,9 @@ try {
   console.error("Failed to load cached temp styles:", e);
 }
 
-// Preload all stylesheets when the module loads
 (function preloadStylesheets() {
   const paths = Object.values(themePathMap);
 
-  // Create preload links for faster loading
   paths.forEach((path) => {
     const link = document.createElement("link");
     link.rel = "preload";
@@ -79,7 +77,6 @@ try {
     link.as = "style";
     document.head?.appendChild(link);
 
-    // Also start fetching the stylesheets to cache them
     fetch(path)
       .then((response) => {
         if (response.ok) {
@@ -90,7 +87,6 @@ try {
       .then((stylesheet) => {
         stylesheetCache[path] = stylesheet;
 
-        // Update temp styles cache in localStorage
         try {
           const tempStylesCache: Record<string, string> = {};
           Object.entries(themePathMap).forEach(([theme, path]) => {
@@ -112,7 +108,6 @@ try {
   });
 })();
 
-// Save theme preference to localStorage for faster access
 export function saveThemeToLocalStorage(theme: string): void {
   try {
     localStorage.setItem(LOCAL_STORAGE_THEME_KEY, theme);
@@ -121,7 +116,6 @@ export function saveThemeToLocalStorage(theme: string): void {
   }
 }
 
-// Get theme from localStorage (faster than Chrome storage)
 export function getThemeFromLocalStorage(): string | null {
   try {
     return localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
@@ -131,16 +125,12 @@ export function getThemeFromLocalStorage(): string | null {
   }
 }
 
-// Apply temporary styling immediately to prevent flash
 function applyTempStyling(theme: string = "dark"): void {
   if (!isTempThemeInjected && document.documentElement) {
-    // Try to use cached full stylesheet first if available
     const themePath = themePathMap[theme] || themePathMap.dark;
     if (stylesheetCache[themePath]) {
-      // Extract only essential styles for quick application
       let cssText = stylesheetCache[themePath];
 
-      // Extract just the root variables and body styles
       const rootMatch = cssText.match(/:root\s*{[^}]+}/);
       const bodyMatch = cssText.match(/body,html\s*{[^}]+}/);
 
@@ -151,12 +141,10 @@ function applyTempStyling(theme: string = "dark"): void {
       if (essentialStyles) {
         tempStyleElement.textContent = essentialStyles;
       } else {
-        // Fall back to simplified temp styles if extraction fails
         tempStyleElement.textContent =
           tempThemeStyles[theme] || tempThemeStyles.dark;
       }
     } else {
-      // Fall back to simplified temp styles
       tempStyleElement.textContent =
         tempThemeStyles[theme] || tempThemeStyles.dark;
     }
@@ -166,7 +154,6 @@ function applyTempStyling(theme: string = "dark"): void {
   }
 }
 
-// Remove temporary styling
 function removeTempStyling(): void {
   if (isTempThemeInjected && tempStyleElement.parentNode) {
     tempStyleElement.parentNode.removeChild(tempStyleElement);
@@ -174,8 +161,6 @@ function removeTempStyling(): void {
   }
 }
 
-// This function initializes temporary styling immediately
-// We call this as early as possible in content script
 export function initTempStyling(): void {
   const cachedTheme = getThemeFromLocalStorage();
   if (cachedTheme) {
@@ -184,32 +169,15 @@ export function initTempStyling(): void {
 }
 
 export async function initializeTheme(theme: string): Promise<void> {
-  if (
-    theme !== "default" &&
-    theme !== "dark" &&
-    theme !== "pink" &&
-    theme !== "purple" &&
-    theme !== "green" &&
-    theme !== "black" &&
-    theme !== "darkgray" &&
-    theme !== "spear"
-  ) {
-    return;
-  }
-
-  // Save theme to localStorage for future quick access
   saveThemeToLocalStorage(theme);
 
-  // Apply temporary styling immediately with the correct theme color
   applyTempStyling(theme);
 
   try {
     await loadAndApplyTheme(theme);
-    // Remove temporary styling after proper theme is loaded
     removeTempStyling();
   } catch (error) {
     console.error("Failed to initialize theme:", error);
-    // Clean up temp styling on error
     removeTempStyling();
   }
 }
@@ -247,7 +215,6 @@ async function loadAndApplyTheme(theme: string): Promise<void> {
         document.head.appendChild(styleElement);
         isThemeInjected = true;
       } else {
-        // Use our new utility for head observer
         createHeadObserver(
           () => {
             if (document.head && !isThemeInjected) {
@@ -265,21 +232,17 @@ async function loadAndApplyTheme(theme: string): Promise<void> {
   }
 }
 
-// Remove all theme styles and revert to original look
 export function removeAllThemeStyles(): void {
-  // Remove temporary styling
   if (isTempThemeInjected && tempStyleElement.parentNode) {
     tempStyleElement.parentNode.removeChild(tempStyleElement);
     isTempThemeInjected = false;
   }
 
-  // Remove permanent styling
   if (isThemeInjected && styleElement.parentNode) {
     styleElement.parentNode.removeChild(styleElement);
     isThemeInjected = false;
   }
 
-  // Clear theme from localStorage
   try {
     localStorage.removeItem(LOCAL_STORAGE_THEME_KEY);
   } catch (error) {
