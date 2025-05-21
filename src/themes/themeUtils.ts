@@ -1,5 +1,6 @@
 import { createHeadObserver } from "../utils/observerUtils";
 import browserAPI from "../lib/browserAPI";
+import type { UserSettings } from "$lib/types";
 
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
 const TEMP_STYLE_CACHE_KEY = "clutch-temp-styles-cache";
@@ -13,7 +14,7 @@ const DARK_GRAY_SHEET_PATH = browserAPI.runtime.getURL(
 );
 const BLACK_SHEET_PATH = browserAPI.runtime.getURL("themes/BlackSheet.css");
 const DEFAULT_SHEET_PATH = browserAPI.runtime.getURL("themes/DefaultSheet.css");
-const SPEAR_SHEET_PATH = browserAPI.runtime.getURL("themes/SpearSheet.css");
+const OLED_SHEET_PATH = browserAPI.runtime.getURL("themes/OledSheet.css");
 
 const tempThemeStyles: Record<string, string> = {
   default:
@@ -28,8 +29,7 @@ const tempThemeStyles: Record<string, string> = {
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
   black:
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
-  spear:
-    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
+  oled: "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
 };
 
 const themePathMap: Record<string, string> = {
@@ -40,7 +40,7 @@ const themePathMap: Record<string, string> = {
   green: GREEN_SHEET_PATH,
   darkgray: DARK_GRAY_SHEET_PATH,
   black: BLACK_SHEET_PATH,
-  spear: SPEAR_SHEET_PATH,
+  oled: OLED_SHEET_PATH,
 };
 
 const tempStyleElement = document.createElement("style");
@@ -190,7 +190,10 @@ export function applyThemeToPopup(theme: string): void {
   }
 }
 
-export async function initializeTheme(theme: string): Promise<void> {
+export async function initializeTheme(
+  userSettings: UserSettings
+): Promise<void> {
+  const theme = userSettings.selectedTheme;
   saveThemeToLocalStorage(theme);
 
   applyTempStyling(theme);

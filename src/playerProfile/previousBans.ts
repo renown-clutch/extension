@@ -6,6 +6,7 @@ import {
 } from "../utils/profileUtils";
 import { addTooltip } from "../utils/faceitUtils";
 import { is404Page } from "../utils/pageUtils";
+import type { UserSettings } from "$lib/types";
 
 interface Ban {
   category: string;
@@ -324,12 +325,14 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   });
 }
 
-export async function initializeProfileBans(showBans: boolean): Promise<void> {
+export async function initializeProfileBans(
+  userSettings: UserSettings
+): Promise<void> {
   if (!isProfilePage()) {
     return;
   }
 
-  if (!showBans) {
+  if (!userSettings.showBans) {
     removeBanElements();
     return;
   }

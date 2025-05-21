@@ -66,11 +66,11 @@ type SettingHandler = (
 ) => void | Promise<void>;
 
 const SETTING_HANDLERS: Record<string, SettingHandler[]> = {
-  selectedTheme: [(settings, value) => initializeTheme(value)],
+  selectedTheme: [initializeTheme],
   csstatsProfileButton: [initializeProfileButtons],
   faceitProfileButton: [initializeProfileButtons],
-  showBans: [(settings, value) => initializeProfileBans(value)],
-  showHighestElo: [(settings, value) => initializeHighestElo(value)],
+  showBans: [initializeProfileBans],
+  showHighestElo: [initializeHighestElo],
   showFriendListRanks: [initializeFriendsList],
   sortFriendsByRenownElo: [initializeFriendsList],
   showSidebarFriendRanks: [initializeSidebarFriends],
@@ -85,9 +85,7 @@ const SETTING_HANDLERS: Record<string, SettingHandler[]> = {
   showTeamAverageElo: [initializeMatchPage, initializeLiveMatchPage],
   showMapStats: [initializeLiveMatchPage],
   showMapStatsColors: [initializeLiveMatchPage],
-  showExtensionNavbarButton: [
-    (settings, value) => initializeExtensionButton(value),
-  ],
+  showExtensionNavbarButton: [initializeExtensionButton],
   liveMatchPlayerStats: [initializeLivePlayerStats],
   showLiveMatchPlayerStreak: [initializeLivePlayerStats],
   showLastPlayedMatches: [initializeLastMatches],
@@ -149,13 +147,11 @@ async function initialize(pageType: PageType["type"]) {
     return;
   }
 
-  console.log("[Clutch] Initializing for page type:", pageType);
-
   try {
     const freshSettings = await loadFromBrowserStorage();
     userSettings = freshSettings;
 
-    await initializeTheme(userSettings.selectedTheme);
+    await initializeTheme(userSettings);
     initializeSidebarFriends(userSettings);
     initializeSteamIdParser();
     initializeMatchFoundAutoAccept(userSettings);
@@ -165,8 +161,8 @@ async function initialize(pageType: PageType["type"]) {
     if (pageType === "profile") {
       initializeProfileButtons(userSettings);
       initializeFriendsList(userSettings);
-      initializeProfileBans(userSettings.showBans);
-      initializeHighestElo(userSettings.showHighestElo);
+      initializeProfileBans(userSettings);
+      initializeHighestElo(userSettings);
       initializeLinkToCurrentMatch(userSettings);
     }
 
