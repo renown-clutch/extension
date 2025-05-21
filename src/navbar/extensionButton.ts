@@ -1,3 +1,6 @@
+import type { UserSettings } from "$lib/types";
+import { waitForElement } from "../utils/profileUtils";
+
 const BUTTON_ID = "clutch-extension-navbar-link";
 
 function handleButtonClick(e: MouseEvent) {
@@ -18,7 +21,7 @@ async function addLinkToNavbar(): Promise<void> {
     return;
   }
 
-  const linksContainer = document.querySelector(
+  const linksContainer = await waitForElement(
     ".navbar .container .content .links"
   );
   if (!linksContainer) {
@@ -51,8 +54,8 @@ function removeLinkFromNavbar(): void {
   });
 }
 
-export function initializeExtensionButton(enabled: boolean): void {
-  if (!enabled) {
+export function initializeExtensionButton(userSettings: UserSettings): void {
+  if (!userSettings.showExtensionNavbarButton) {
     removeLinkFromNavbar();
     return;
   }

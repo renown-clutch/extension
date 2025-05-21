@@ -168,6 +168,28 @@ export function initTempStyling(): void {
   }
 }
 
+export function applyThemeToPopup(theme: string): void {
+  const popupRoot = document.querySelector(".popup-root");
+  if (popupRoot) {
+    const themePath = themePathMap[theme] || themePathMap.dark;
+    if (stylesheetCache[themePath]) {
+      const cssText = stylesheetCache[themePath];
+      const rootMatch = cssText.match(/:root\s*{[^}]+}/);
+      if (rootMatch) {
+        // Remove any existing theme styles
+        const existingStyles = popupRoot.querySelectorAll("style[data-theme]");
+        existingStyles.forEach((style) => style.remove());
+
+        // Add new theme styles
+        const styleElement = document.createElement("style");
+        styleElement.setAttribute("data-theme", theme);
+        styleElement.textContent = rootMatch[0];
+        popupRoot.appendChild(styleElement);
+      }
+    }
+  }
+}
+
 export async function initializeTheme(theme: string): Promise<void> {
   saveThemeToLocalStorage(theme);
 

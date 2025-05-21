@@ -160,7 +160,7 @@ async function initialize(pageType: PageType["type"]) {
     initializeSteamIdParser();
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
-    initializeExtensionButton(userSettings.showExtensionNavbarButton);
+    initializeExtensionButton(userSettings);
 
     if (pageType === "profile") {
       initializeProfileButtons(userSettings);

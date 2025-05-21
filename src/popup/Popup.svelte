@@ -13,6 +13,7 @@
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings } from "$lib/types";
   import browserAPI from "$lib/browserAPI";
+  import { applyThemeToPopup } from "../themes/themeUtils";
 
   let userSettings: UserSettings = $state<UserSettings>(defaultUserSettings);
   let previousSettings: UserSettings = { ...defaultUserSettings };
@@ -244,6 +245,10 @@
         }
       });
 
+      if (userSettings.selectedTheme) {
+        applyThemeToPopup(userSettings.selectedTheme);
+      }
+
       console.log("Loaded settings:", userSettings);
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -267,6 +272,10 @@
       const changes = detectChanges();
 
       if (Object.keys(changes).length > 0) {
+        if (changes.selectedTheme) {
+          applyThemeToPopup(changes.selectedTheme);
+        }
+
         sendSettingsToContentScript(changes);
         previousSettings = stripProxies(userSettings);
       }
@@ -276,7 +285,7 @@
   });
 </script>
 
-<main class="w-[600px] bg-slate-950">
+<main class="w-[600px] popup-root">
   <div class="flex h-[480px]">
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
@@ -340,4 +349,7 @@
 </main>
 
 <style>
+  .popup-root {
+    background-color: var(--slate-950);
+  }
 </style>
