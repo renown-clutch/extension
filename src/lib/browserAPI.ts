@@ -45,6 +45,10 @@ const browserAPI = (function () {
         addListener: (callback: () => void) =>
           api.runtime.onInstalled.addListener(callback),
       },
+      onStartup: {
+        addListener: (callback: () => void) =>
+          api.runtime.onStartup.addListener(callback),
+      },
       sendMessage: (
         message: any,
         responseCallback?: (response: any) => void
@@ -53,9 +57,7 @@ const browserAPI = (function () {
           // Firefox returns a promise
           const promise = browser.runtime.sendMessage(message);
           if (responseCallback) {
-            promise.then(responseCallback).catch((error) => {
-              console.error("Error sending message:", error);
-            });
+            promise.then(responseCallback).catch((error) => {});
           }
           return promise;
         } else if (api.runtime) {
@@ -69,7 +71,6 @@ const browserAPI = (function () {
         try {
           return api.runtime.id;
         } catch (e) {
-          console.warn("Extension context may be invalidated");
           return null;
         }
       },
@@ -108,9 +109,7 @@ const browserAPI = (function () {
           } else if (typeof chrome !== "undefined" && chrome.runtime) {
             chrome.runtime.sendMessage({ action: "openPopup" });
           }
-        } catch (error) {
-          console.warn("Failed to request popup opening:", error);
-        }
+        } catch (error) {}
 
         return Promise.resolve();
       },

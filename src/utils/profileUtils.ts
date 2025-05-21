@@ -4,11 +4,20 @@ export const PROFILE_URL_REGEX = /\/profile\/(\d+)/;
 
 export function getPlayerIdFromUrl(): string | null {
   const match = window.location.pathname.match(PROFILE_URL_REGEX);
-  return match ? match[1] : null;
+  const playerId = match ? match[1] : null;
+  console.log(
+    "[Clutch] getPlayerIdFromUrl:",
+    playerId,
+    "from path:",
+    window.location.pathname
+  );
+  return playerId;
 }
 
 export function isProfilePage(): boolean {
-  return getPlayerIdFromUrl() !== null;
+  const isProfile = getPlayerIdFromUrl() !== null;
+  console.log("[Clutch] isProfilePage:", isProfile);
+  return isProfile;
 }
 
 export function createProfileChangeHandler(
@@ -66,6 +75,7 @@ export function waitForElement(
     stabilityThreshold?: number;
   }
 ): Promise<Element> {
+  console.log("[Clutch] waitForElement called with selector:", selector);
   return waitForElements(selector, {
     ...options,
     single: true,
@@ -82,6 +92,13 @@ export function waitForElements(
     single?: boolean;
   }
 ): Promise<Element | NodeListOf<Element>> {
+  console.log(
+    "[Clutch] waitForElements called with selector:",
+    selector,
+    "options:",
+    options
+  );
+
   const {
     checkStability = true,
     stabilityTimeout = 1000,
@@ -97,13 +114,26 @@ export function waitForElements(
       const elements = single
         ? document.querySelector(selector)
         : document.querySelectorAll(selector);
+
+      console.log(
+        "[Clutch] waitForElements searching for:",
+        selector,
+        "found:",
+        !!elements,
+        single ? "" : `count: ${(elements as NodeListOf<Element>).length}`
+      );
+
       if (
         elements &&
         (single ? true : (elements as NodeListOf<Element>).length > 0)
       ) {
         if (!checkStability) {
+          console.log(
+            "[Clutch] Element found and stability check disabled, resolving immediately"
+          );
           resolve(elements);
         } else {
+          console.log("[Clutch] Element found, starting stability check");
           let lastChildCount = single
             ? (elements as Element).childNodes.length
             : (elements as NodeListOf<Element>)[0].childNodes.length;

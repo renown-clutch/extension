@@ -3,6 +3,7 @@ import { getCurrentPage } from "../utils/pageUtils";
 import browserAPI from "../lib/browserAPI";
 import { getUserSteamId } from "../steamId/steamIdParser";
 import { waitForElement } from "../utils/profileUtils";
+import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 
 const MATCHES_EXPANDED_KEY = "clutchLastMatchesExpanded";
 
@@ -235,15 +236,10 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       }</div>
                 <div class="adr">${match.adr}</div>
                 <div class="elo">
-                    <div class="tooltip-wrapper" tabindex="0">
-                        <div class="rank-badge diamond" aria-label="Rank: Diamond, Elo: ${
-                          match.elo_before
-                        }" style="--size: 28px;">
-                            <img alt="Renown rank Diamond" loading="lazy" width="28" height="28" decoding="async" data-nimg="1" 
-                                 src="https://cdn.renown.gg/images/ranks/diamond.svg" style="color: transparent;">
-                            <span>${match.elo_before.toLocaleString()}</span>
-                        </div>
-                    </div>
+                    ${
+                      createRankBadgeElement(match.elo_before, 28, true)
+                        .outerHTML
+                    }
                     <div class="elo-change ${
                       match.elo_change >= 0 ? "positive" : "negative"
                     }">

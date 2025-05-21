@@ -45,6 +45,7 @@ let lastUrl = window.location.href;
 declare global {
   interface Window {
     __NEXT_DATA__?: any;
+    clutchInitialized?: boolean;
   }
 }
 
@@ -65,16 +66,34 @@ function waitForPageReady(): Promise<void> {
   });
 }
 
+function checkWebSocketStatus(): Promise<boolean> {
+  return new Promise((resolve) => {
+    browserAPI.runtime.sendMessage(
+      { type: "checkWebSocketStatus" },
+      (response) => {
+        if (response && response.connected) {
+          resolve(true);
+        } else {
+          browserAPI.runtime.sendMessage(
+            { type: "reconnectWebSocket" },
+            (reconnectResponse) => {
+              setTimeout(() => resolve(false), 1000);
+            }
+          );
+        }
+      }
+    );
+  });
+}
+
 function shouldBeInjected(): boolean {
   const currentPage = getCurrentPage();
 
   if (currentPage.type === "admin") {
-    console.log("Admin page, skipping initialization");
     return false;
   }
 
   if (currentPage.type === "home") {
-    console.log("Home page, skipping initialization");
     return false;
   }
 
@@ -188,9 +207,8 @@ async function loadFromBrowserStorage(): Promise<UserSettings> {
     const settings = result[LS_KEY] || defaultUserSettings;
     return settings;
   } catch (error: unknown) {
-    console.error("Error loading settings from browser storage:", error);
+    return defaultUserSettings;
   }
-  return defaultUserSettings;
 }
 
 function observeUrlChanges() {
@@ -198,6 +216,7 @@ function observeUrlChanges() {
     const currentUrl = window.location.href;
     if (currentUrl !== lastUrl) {
       lastUrl = currentUrl;
+      window.clutchInitialized = false;
       initialize(currentUrl);
     }
   });
@@ -212,6 +231,12 @@ async function initialize(currentUrl: string) {
   }
 
   try {
+    if (window.clutchInitialized) {
+      return;
+    }
+
+    const wsConnected = await checkWebSocketStatus();
+
     const freshSettings = await loadFromBrowserStorage();
     userSettings = freshSettings;
 
@@ -220,23 +245,37 @@ async function initialize(currentUrl: string) {
     await waitForPageReady();
 
     initializeProfileButtons(userSettings);
+
     initializeFriendsList(userSettings);
+
     initializeProfileBans(userSettings.showBans);
+
     initializeHighestElo(userSettings.showHighestElo);
+
     initializeMatchFoundAutoAccept(userSettings);
+
     initializeAutoAcceptPartyInvite(userSettings);
+
     initializeKeepAlive(userSettings);
+
     initializeSidebarFriends(userSettings);
+
     initializeMatchPage(userSettings);
+
     initializeLiveMatchPage(userSettings);
+
     initializeExtensionButton(userSettings.showExtensionNavbarButton);
+
     initializeLastMatches(userSettings);
+
     initializeLinkToCurrentMatch(userSettings);
+
     initializeAveragePartyElo(userSettings);
+
     initializeSteamIdParser();
-  } catch (error: unknown) {
-    console.error("Error during content script initialization:", error);
-  }
+
+    window.clutchInitialized = true;
+  } catch (error: unknown) {}
 }
 
 browserAPI.runtime.onMessage.addListener(
@@ -245,7 +284,13 @@ browserAPI.runtime.onMessage.addListener(
     _sender: MessageSender,
     sendResponse: SendResponseCallback
   ) => {
-    if (message.type === "settingsUpdate") {
+    if (message.type === "webSocketConnected") {
+      if (!window.clutchInitialized) {
+        initialize(window.location.href);
+      }
+      sendResponse({ status: "success" });
+      return;
+    } else if (message.type === "settingsUpdate") {
       userSettings = message.settings;
 
       if (message.changedParts) {

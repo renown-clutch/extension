@@ -36,7 +36,6 @@ function createButton({
   button.style.backgroundColor = bgColor;
   button.setAttribute("data-clutch-extension", "true");
 
-  // Disable button if href is empty
   if (!href) {
     button.style.pointerEvents = "none";
     button.style.opacity = "0.5";
@@ -45,14 +44,12 @@ function createButton({
 
   button.addEventListener("mouseover", () => {
     if (href) {
-      // Only change color if href exists
       button.style.backgroundColor =
         bgColor === "#292c34" ? "#333640" : "#232828";
     }
   });
   button.addEventListener("mouseout", () => {
     if (href) {
-      // Only change color if href exists
       button.style.backgroundColor = bgColor;
     }
   });
@@ -72,10 +69,15 @@ function removeButton(className: string) {
 async function appendButtonsToDom(settings: UserSettings) {
   const linksDiv = await waitForElement(".profile-banner div.links");
 
-  if (!linksDiv) return;
+  if (!linksDiv) {
+    return;
+  }
 
   const playerId = getPlayerIdFromUrl();
-  if (!playerId) return;
+
+  if (!playerId) {
+    return;
+  }
 
   let faceitButton: HTMLAnchorElement | null = null;
   let csstatsButton: HTMLAnchorElement | null = null;
@@ -84,14 +86,17 @@ async function appendButtonsToDom(settings: UserSettings) {
 
   if (settings.faceitProfileButton && !existingFaceitButton) {
     const faceitData = await fetchFaceitData(playerId);
+
     const faceitIcon = getFaceitLevelIcon(faceitData.elo);
 
-    faceitButton = createButton({
-      className: "clutch-faceit-button",
-      href: faceitData.url || "",
-      bgColor: "#141616",
-      iconPath: faceitIcon,
-    });
+    try {
+      faceitButton = createButton({
+        className: "clutch-faceit-button",
+        href: faceitData.url || "",
+        bgColor: "#141616",
+        iconPath: faceitIcon,
+      });
+    } catch (error) {}
   }
 
   const existingCsstatsButton = document.querySelector(
@@ -99,20 +104,21 @@ async function appendButtonsToDom(settings: UserSettings) {
   );
 
   if (settings.csstatsProfileButton && !existingCsstatsButton) {
-    csstatsButton = createButton({
-      className: "clutch-csstats-button",
-      href: `https://csstats.gg/player/${playerId}`,
-      bgColor: "#292c34",
-      iconPath: "static/csstats.svg",
-    });
-    linksDiv.appendChild(csstatsButton);
+    try {
+      csstatsButton = createButton({
+        className: "clutch-csstats-button",
+        href: `https://csstats.gg/player/${playerId}`,
+        bgColor: "#292c34",
+        iconPath: "static/csstats.svg",
+      });
+      linksDiv.appendChild(csstatsButton);
+    } catch (error) {}
   }
 
   if (faceitButton) {
-    linksDiv.appendChild(faceitButton);
-  }
-  if (csstatsButton) {
-    linksDiv.appendChild(csstatsButton);
+    try {
+      linksDiv.appendChild(faceitButton);
+    } catch (error) {}
   }
 }
 
@@ -121,11 +127,18 @@ async function fetchFaceitData(
 ): Promise<{ url: string | null; elo: number | null }> {
   return new Promise((resolve) => {
     try {
+      const timeoutId = setTimeout(() => {
+        resolve({ url: null, elo: null });
+      }, 10000);
+
       browserAPI.runtime.sendMessage(
         { type: "get_faceit_info", steam_ids: [steamId] },
         (response) => {
+          clearTimeout(timeoutId);
+
           if (response && Object.keys(response).length > 0) {
             const faceitData = response[steamId];
+
             if (faceitData) {
               const url = faceitData.url || null;
               const elo = faceitData.elo || null;
@@ -139,7 +152,6 @@ async function fetchFaceitData(
         }
       );
     } catch (error) {
-      console.warn("Error in faceit data fetch:", error);
       resolve({ url: null, elo: null });
     }
   });
@@ -151,9 +163,11 @@ export async function initializeProfileButtons(
   if (!isProfilePage()) {
     return;
   }
+
   if (!settings.csstatsProfileButton) {
     removeButton(".clutch-csstats-button");
   }
+
   if (!settings.faceitProfileButton) {
     removeButton(".clutch-faceit-button");
   }
@@ -162,5 +176,5 @@ export async function initializeProfileButtons(
     return;
   }
 
-  appendButtonsToDom(settings);
+  await appendButtonsToDom(settings);
 }
