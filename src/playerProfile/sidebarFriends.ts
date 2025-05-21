@@ -1,3 +1,4 @@
+import { waitForElement } from "../utils/profileUtils";
 import { type UserSettings } from "../lib/types";
 import { getRankTier, createRankBadgeElement } from "../utils/rankBadgeUtils";
 
@@ -88,7 +89,7 @@ async function fetchFriendsRanks(
 }
 
 async function processSidebarFriends(showRanks: boolean): Promise<void> {
-  const sidebarFriends = document.querySelector(".sidebar-content .friends");
+  const sidebarFriends = await waitForElement(".sidebar-content .friends");
   if (!sidebarFriends) {
     return;
   }
