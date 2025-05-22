@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import fs from 'fs';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -70,6 +71,56 @@ function copyThemeFiles() {
   }
 }
 
+// Copy feature CSS files
+function copyFeatureStyles() {
+  console.log('Copying feature styles...');
+  
+  const featureStylesDir = resolve(__dirname, 'dist/featureStyles');
+  if (!fs.existsSync(featureStylesDir)) {
+    fs.mkdirSync(featureStylesDir, { recursive: true });
+  }
+  
+  // Directories to ignore
+  const ignoreDirs = ['popup', 'themes'];
+  
+  // Function to recursively find CSS files
+  function findCSSFiles(dir) {
+    const files = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = resolve(dir, entry.name);
+      if (entry.isDirectory()) {
+        // Skip ignored directories
+        if (!ignoreDirs.includes(entry.name)) {
+          files.push(...findCSSFiles(fullPath));
+        }
+      } else if (entry.isFile() && entry.name.endsWith('.css')) {
+        files.push(fullPath);
+      }
+    }
+    
+    return files;
+  }
+  
+  // Find all CSS files in src directory
+  const srcDir = resolve(__dirname, 'src');
+  const cssFiles = findCSSFiles(srcDir);
+  
+  // Copy each CSS file to dist/featureStyles
+  for (const file of cssFiles) {
+    const fileName = path.basename(file);
+    const destPath = resolve(featureStylesDir, fileName);
+    
+    fs.copyFileSync(file, destPath);
+    console.log(`Copied ${fileName}`);
+  }
+  
+  if (cssFiles.length === 0) {
+    console.warn('No CSS files found in src directory');
+  }
+}
+
 // Build each entry point
 async function buildEntries() {
   // Copy public files first
@@ -79,6 +130,8 @@ async function buildEntries() {
   
   // Copy theme files
   copyThemeFiles();
+  // Copy feature styles
+  copyFeatureStyles();
 
   for (const entry of entryPoints) {
     console.log(`Building ${entry.name}...`);

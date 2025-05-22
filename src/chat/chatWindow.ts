@@ -17,259 +17,9 @@ export async function initializeChatWindow() {
 
   const shadowRoot = createShadowRoot(container);
 
-  const style = document.createElement("style");
-  style.textContent = `
-    .chat-container {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 300px;
-      height: 400px;
-      background-color: rgba(20, 20, 20, 0.92);
-      backdrop-filter: blur(8px);
-      border: 1px solid #444;
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      z-index: 9999;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .chat-container.minimized {
-      width: 48px;
-      height: 48px;
-      border-radius: 24px;
-      overflow: hidden;
-    }
-
-    .minimize-tab {
-      position: absolute;
-      top: -20px;
-      right: 10px;
-      width: 24px;
-      height: 20px;
-      background-color: rgba(20, 20, 20, 0.92);
-      border: 1px solid #444;
-      border-bottom: none;
-      border-radius: 8px 8px 0 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 10000;
-    }
-
-    .minimize-tab:hover {
-      background-color: rgba(30, 30, 30, 0.92);
-    }
-
-    .minimize-tab svg {
-      width: 16px;
-      height: 16px;
-      fill: #888;
-      transition: transform 0.3s ease;
-    }
-
-    .chat-container.minimized .minimize-tab svg {
-      transform: rotate(180deg);
-    }
-
-    .chat-messages, .chat-input-container {
-      transition: opacity 0.3s ease;
-    }
-
-    .chat-container.minimized .chat-messages,
-    .chat-container.minimized .chat-input-container {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .minimized-icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 24px;
-      height: 24px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .chat-container.minimized .minimized-icon {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      scrollbar-width: thin;
-      scrollbar-color: #4a9eff #222;
-      border-radius: 8px;
-      position: relative;
-    }
-
-    .chat-messages::-webkit-scrollbar {
-      width: 8px;
-      position: absolute;
-    }
-
-    .chat-messages::-webkit-scrollbar-thumb {
-      background: #4a9eff;
-      border-radius: 4px;
-    }
-
-    .chat-messages::-webkit-scrollbar-track {
-      background: #222;
-      border-radius: 4px;
-    }
-
-    .chat-messages::-webkit-scrollbar-corner {
-      background: transparent;
-    }
-
-    .chat-messages::-webkit-scrollbar-track:vertical {
-      margin: 8px 0;
-    }
-
-    .chat-messages::-webkit-scrollbar-track:horizontal {
-      margin: 0 8px;
-    }
-
-    .chat-input-container {
-      display: flex;
-      padding: 6px 10px 6px 10px;
-      gap: 4px;
-      border-top: 1px solid #444;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .chat-input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #444;
-      border-radius: 4px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    .chat-input:focus {
-      outline: none;
-      border-color: #666;
-    }
-
-    .input-indicators {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1px;
-    }
-    .cooldown-indicator {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 12px;
-      color: #888;
-      min-width: 32px;
-      height: 16px;
-      visibility: hidden;
-    }
-    .cooldown-indicator.active {
-      visibility: visible;
-    }
-    .char-count {
-      font-size: 12px;
-      color: #888;
-    }
-
-    .char-count.warning {
-      color: #ff6b6b;
-    }
-
-    .send-button {
-      padding: 8px 16px;
-      background-color: #444;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .send-button:hover {
-      background-color: #555;
-    }
-
-    .send-button:disabled {
-      background-color: #333;
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-
-    .message {
-      margin-bottom: 8px;
-      word-wrap: break-word;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    .message .username {
-      font-weight: bold;
-      margin-right: 3px;
-      flex-shrink: 0;
-    }
-
-    .message-content-row {
-      position: relative;
-      width: 100%;
-      word-break: break-word;
-      padding-bottom: 2px;
-    }
-    .message-main {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      flex: 1 1 auto;
-      word-break: break-word;
-      white-space: pre-wrap;
-      min-width: 0;
-      padding-right: 48px; /* space for timestamp */
-    }
-    .message .username {
-      font-weight: bold;
-      margin-right: 3px;
-      flex-shrink: 0;
-    }
-    .message-colon {
-      margin-right: 3px;
-      flex-shrink: 0;
-    }
-    .message-text {
-      flex: 1 1 auto;
-      word-break: break-word;
-      white-space: pre-wrap;
-      min-width: 0;
-    }
-
-    .message .timestamp {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      font-size: 11px;
-      color: #888;
-      margin-left: 8px;
-      white-space: nowrap;
-    }
-  `;
-
+  const style = document.createElement("link");
+  style.rel = "stylesheet";
+  style.href = browserAPI.runtime.getURL("featureStyles/chatWindow.css");
   shadowRoot.appendChild(style);
 
   const chatContainer = document.createElement("div");
@@ -363,14 +113,26 @@ export async function initializeChatWindow() {
           message: message,
         });
         input.value = "";
+        updateCharCount(); // Reset character count
         isCooldown = true;
         cooldownIndicator.classList.add("active");
         updateSendButtonState();
-        setTimeout(() => {
-          isCooldown = false;
-          cooldownIndicator.classList.remove("active");
-          updateSendButtonState();
-        }, 2000);
+
+        // Implement countdown
+        let timeLeft = 2;
+        const updateCountdown = () => {
+          if (timeLeft > 0) {
+            cooldownIndicator.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <span>${timeLeft}s</span>`;
+            timeLeft--;
+            setTimeout(updateCountdown, 1000);
+          } else {
+            isCooldown = false;
+            cooldownIndicator.classList.remove("active");
+            cooldownIndicator.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#888" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <span>2s</span>`;
+            updateSendButtonState();
+          }
+        };
+        updateCountdown();
       } catch (error) {
         console.error("[Chat Content] Error sending message:", error);
       }
