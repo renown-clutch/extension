@@ -16,12 +16,16 @@ const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_DELAY = 3000;
 let heartbeatInterval: number | null = null;
 const HEARTBEAT_INTERVAL = 30000;
+let userDataCheckInterval: ReturnType<typeof setInterval> | null = null;
 
 type RequestCallback = (data: any) => void;
 const pendingRequests: Map<string, RequestCallback> = new Map();
 let requestId = 0;
 
 const pendingRequestTypes: Map<string, string> = new Map();
+
+const processedMessageIds = new Set<string>();
+const MESSAGE_DEDUPLICATION_LIMIT = 100; // Limit the size of the set to prevent memory issues
 
 async function storePendingRequest(
   requestId: string,
@@ -74,6 +78,15 @@ async function initializeWebSocket() {
   const isStaging = true;
   const ws_url = isStaging ? staging_ws_url : prod_ws_url;
 
+  // Initialize WS_BASE_URL with the default URL to prevent connection errors
+  WS_BASE_URL = `${ws_url}?client_id=${clientId}`;
+
+  // Clear any existing check intervals
+  if (userDataCheckInterval !== null) {
+    clearInterval(userDataCheckInterval);
+    userDataCheckInterval = null;
+  }
+
   try {
     const { steamId } = await getUserInfo();
 
@@ -82,7 +95,6 @@ async function initializeWebSocket() {
       console.log("[Chat Background] WS_BASE_URL:", WS_BASE_URL);
       connectWebSocket();
     } else {
-      WS_BASE_URL = `${ws_url}?client_id=${clientId}`;
       console.log(
         "[Chat Background] No Steam ID available, using basic URL:",
         WS_BASE_URL
@@ -98,11 +110,7 @@ async function initializeWebSocket() {
         if (userData && userData.steamId) {
           WS_BASE_URL = `${ws_url}?client_id=${clientId}&steam_id=${userData.steamId}`;
 
-          if (socket) {
-            try {
-              socket.close();
-            } catch (e) {}
-          }
+          // No need to manually close the socket here since connectWebSocket will handle it
           reconnectAttempts = 0;
           connectWebSocket();
           return true;
@@ -110,21 +118,56 @@ async function initializeWebSocket() {
         return false;
       };
 
-      const checkInterval = setInterval(async () => {
+      // Store the interval ID so we can clear it later if needed
+      userDataCheckInterval = setInterval(async () => {
         const hasData = await checkForUserData();
-        if (hasData) {
-          clearInterval(checkInterval);
+        if (hasData && userDataCheckInterval !== null) {
+          clearInterval(userDataCheckInterval);
+          userDataCheckInterval = null;
         }
       }, 30000);
     }
   } catch (error) {
     console.error("[Chat Background] Error initializing WebSocket:", error);
-    WS_BASE_URL = `${ws_url}?client_id=${clientId}`;
     connectWebSocket();
   }
 }
 
 function connectWebSocket() {
+  // Close any existing connection first
+  if (socket) {
+    try {
+      // Only attempt to close if not already closed
+      if (
+        socket.readyState !== WebSocket.CLOSED &&
+        socket.readyState !== WebSocket.CLOSING
+      ) {
+        socket.onclose = null; // Remove the reconnect handler
+        socket.close();
+      }
+    } catch (error) {
+      console.error("[Chat Background] Error closing existing socket:", error);
+    }
+    socket = null;
+  }
+
+  // Validate WebSocket URL - must begin with ws:// or wss://
+  if (
+    !WS_BASE_URL ||
+    (!WS_BASE_URL.startsWith("ws://") && !WS_BASE_URL.startsWith("wss://"))
+  ) {
+    console.error("[Chat Background] Invalid WebSocket URL:", WS_BASE_URL);
+    const staging_ws_url = "wss://api-staging.lorem.sh/ws";
+    const prod_ws_url = "wss://api.clutch.lorem.sh/ws";
+    const isStaging = true;
+    const ws_url = isStaging ? staging_ws_url : prod_ws_url;
+    WS_BASE_URL = `${ws_url}?client_id=${clientId}`;
+    console.log(
+      "[Chat Background] Reset to default WebSocket URL:",
+      WS_BASE_URL
+    );
+  }
+
   browserAPI.storage.local
     .get("user_steam_id")
     .then((result) => {
@@ -212,6 +255,37 @@ function handleWebSocketMessage(event: MessageEvent) {
 
     if (message.type === "pong") {
       return;
+    }
+
+    // Deduplicate messages by checking a unique identifier
+    // For chat messages, we can use a combination of username, message and timestamp if available
+    if (message.type === "chat_message" && message.data) {
+      const { username, message: content, timestamp } = message.data;
+      if (username && content) {
+        const messageId = `${username}_${content}_${timestamp || Date.now()}`;
+
+        // If we've already processed this exact message recently, skip it
+        if (processedMessageIds.has(messageId)) {
+          console.log(
+            "[Chat Background] Skipping duplicate message:",
+            messageId
+          );
+          return;
+        }
+
+        // Add to processed messages
+        processedMessageIds.add(messageId);
+
+        // Limit the size of our tracking set
+        if (processedMessageIds.size > MESSAGE_DEDUPLICATION_LIMIT) {
+          // Remove the oldest entries (convert to array, slice, and convert back to set)
+          const messagesArray = Array.from(processedMessageIds);
+          processedMessageIds.clear();
+          messagesArray
+            .slice(-MESSAGE_DEDUPLICATION_LIMIT / 2)
+            .forEach((id) => processedMessageIds.add(id));
+        }
+      }
     }
 
     if (message.type === "chat_message" || message.type === "recent_messages") {
