@@ -2,6 +2,9 @@ import { createShadowRoot } from "../lib/shadowDOM";
 import browserAPI from "../lib/browserAPI";
 import { waitForElement } from "../utils/profileUtils";
 import { getUserInfo } from "../steamId/steamIdParser";
+import { getStoredUIState, saveUIState } from "../utils/uiStateUtils";
+
+const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
 
 export async function initializeChatWindow() {
   await waitForElement("body");
@@ -29,6 +32,74 @@ export async function initializeChatWindow() {
       display: flex;
       flex-direction: column;
       z-index: 9999;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chat-container.minimized {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .minimize-tab {
+      position: absolute;
+      top: -20px;
+      right: 10px;
+      width: 24px;
+      height: 20px;
+      background-color: rgba(20, 20, 20, 0.92);
+      border: 1px solid #444;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10000;
+    }
+
+    .minimize-tab:hover {
+      background-color: rgba(30, 30, 30, 0.92);
+    }
+
+    .minimize-tab svg {
+      width: 16px;
+      height: 16px;
+      fill: #888;
+      transition: transform 0.3s ease;
+    }
+
+    .chat-container.minimized .minimize-tab svg {
+      transform: rotate(180deg);
+    }
+
+    .chat-messages, .chat-input-container {
+      transition: opacity 0.3s ease;
+    }
+
+    .chat-container.minimized .chat-messages,
+    .chat-container.minimized .chat-input-container {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .minimized-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px;
+      height: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .chat-container.minimized .minimized-icon {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .chat-messages {
@@ -40,10 +111,13 @@ export async function initializeChatWindow() {
       font-size: 14px;
       scrollbar-width: thin;
       scrollbar-color: #4a9eff #222;
+      border-radius: 8px;
+      position: relative;
     }
 
     .chat-messages::-webkit-scrollbar {
       width: 8px;
+      position: absolute;
     }
 
     .chat-messages::-webkit-scrollbar-thumb {
@@ -54,6 +128,18 @@ export async function initializeChatWindow() {
     .chat-messages::-webkit-scrollbar-track {
       background: #222;
       border-radius: 4px;
+    }
+
+    .chat-messages::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar-track:vertical {
+      margin: 8px 0;
+    }
+
+    .chat-messages::-webkit-scrollbar-track:horizontal {
+      margin: 0 8px;
     }
 
     .chat-input-container {
@@ -137,7 +223,8 @@ export async function initializeChatWindow() {
 
     .message .username {
       font-weight: bold;
-      color: #4a9eff;
+      margin-right: 3px;
+      flex-shrink: 0;
     }
 
     .message-content-row {
@@ -158,7 +245,6 @@ export async function initializeChatWindow() {
     }
     .message .username {
       font-weight: bold;
-      color: #4a9eff;
       margin-right: 3px;
       flex-shrink: 0;
     }
@@ -188,6 +274,40 @@ export async function initializeChatWindow() {
 
   const chatContainer = document.createElement("div");
   chatContainer.className = "chat-container";
+
+  const minimizeTab = document.createElement("div");
+  minimizeTab.className = "minimize-tab";
+  minimizeTab.innerHTML = `
+    <svg viewBox="0 0 24 24">
+      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+    </svg>
+  `;
+
+  const minimizedIcon = document.createElement("div");
+  minimizedIcon.className = "minimized-icon";
+  minimizedIcon.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="#888">
+      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+    </svg>
+  `;
+
+  // Initialize minimized state from storage
+  const isMinimized = await getStoredUIState(CHAT_MINIMIZED_KEY);
+  if (isMinimized) {
+    chatContainer.classList.add("minimized");
+  }
+
+  function toggleMinimize() {
+    const newState = !chatContainer.classList.contains("minimized");
+    chatContainer.classList.toggle("minimized", newState);
+    saveUIState(CHAT_MINIMIZED_KEY, newState);
+  }
+
+  minimizeTab.addEventListener("click", toggleMinimize);
+  minimizedIcon.addEventListener("click", toggleMinimize);
+
+  chatContainer.appendChild(minimizeTab);
+  chatContainer.appendChild(minimizedIcon);
 
   const messagesContainer = document.createElement("div");
   messagesContainer.className = "chat-messages";
@@ -300,6 +420,28 @@ export async function initializeChatWindow() {
     });
   }
 
+  function hashString(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash);
+  }
+
+  function usernameToColor(username: string): string {
+    const hash = hashString(username);
+    // Use HSL color space for better color distribution
+    // Hue: 0-360 (full color spectrum)
+    // Saturation: 60-80% (avoid too pale or too intense)
+    // Lightness: 45-65% (avoid too dark or too light)
+    const hue = hash % 360;
+    const saturation = 60 + (hash % 20); // 60-80%
+    const lightness = 45 + (hash % 20); // 45-65%
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  }
+
   function addMessageToChat(message: {
     username: string;
     message: string;
@@ -317,6 +459,7 @@ export async function initializeChatWindow() {
     const usernameSpan = document.createElement("span");
     usernameSpan.className = "username";
     usernameSpan.textContent = message.username;
+    usernameSpan.style.color = usernameToColor(message.username);
 
     const colonSpan = document.createElement("span");
     colonSpan.className = "message-colon";

@@ -4,6 +4,7 @@ import browserAPI from "../lib/browserAPI";
 import { getUserSteamId } from "../steamId/steamIdParser";
 import { waitForElement } from "../utils/profileUtils";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
+import { getStoredUIState, saveUIState } from "../utils/uiStateUtils";
 
 const MATCHES_EXPANDED_KEY = "clutchLastMatchesExpanded";
 
@@ -148,7 +149,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
 
     // Create a container for match links that will be animated
     const matchesContainer = document.createElement("div");
-    const isExpanded = await getStoredExpandedState();
+    const isExpanded = await getStoredUIState(MATCHES_EXPANDED_KEY);
     matchesContainer.style.cssText = `max-height: ${
       isExpanded ? "1000px" : "0"
     }; overflow: hidden; transition: max-height 0.3s ease-in-out; display: grid; gap: 8px;`;
@@ -172,7 +173,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
           : "rotate(180deg)";
       }
       matchesContainer.style.maxHeight = isExpandedState ? "1000px" : "0";
-      saveExpandedState(isExpandedState);
+      saveUIState(MATCHES_EXPANDED_KEY, isExpandedState);
     });
 
     titleDiv.appendChild(leftSection);
