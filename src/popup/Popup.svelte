@@ -245,9 +245,9 @@
         }
       });
 
-      // if (userSettings.selectedTheme) {
-      //   applyThemeToPopup(userSettings.selectedTheme);
-      // }
+      if (userSettings.selectedTheme) {
+        applyThemeToPopup(userSettings.selectedTheme);
+      }
 
       console.log("Loaded settings:", userSettings);
     } catch (error) {
@@ -272,9 +272,9 @@
       const changes = detectChanges();
 
       if (Object.keys(changes).length > 0) {
-        // if (changes.selectedTheme) {
-        //   applyThemeToPopup(changes.selectedTheme);
-        // }
+        if (changes.selectedTheme) {
+          applyThemeToPopup(changes.selectedTheme);
+        }
 
         sendSettingsToContentScript(changes);
         previousSettings = stripProxies(userSettings);
