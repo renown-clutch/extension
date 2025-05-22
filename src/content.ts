@@ -36,6 +36,7 @@ import { initializeSteamIdParser } from "./steamId/steamIdParser";
 import { initializeLastMatches } from "./mainPage/lastMatches";
 import { initializeLinkToCurrentMatch } from "./playerProfile/linkToCurrentMatch";
 import { initializeAveragePartyElo } from "./mainPage/averagePartyElo";
+import { initializeChatWindow } from "./chat/chatWindow";
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -151,12 +152,14 @@ async function initialize(pageType: PageType["type"]) {
     const freshSettings = await loadFromBrowserStorage();
     userSettings = freshSettings;
 
+    await initializeSteamIdParser();
+
     await initializeTheme(userSettings);
     initializeSidebarFriends(userSettings);
-    initializeSteamIdParser();
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
     initializeExtensionButton(userSettings);
+    await initializeChatWindow();
 
     if (pageType === "profile") {
       initializeProfileButtons(userSettings);

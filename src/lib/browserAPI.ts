@@ -123,6 +123,35 @@ const browserAPI = (function () {
         return false;
       }
     },
+
+    // Tabs API
+    tabs: {
+      query: (
+        queryInfo: { active?: boolean; currentWindow?: boolean },
+        callback: (tabs: Array<{ id?: number }>) => void
+      ) => {
+        return api.tabs.query(queryInfo, callback);
+      },
+      sendMessage: (
+        tabId: number,
+        message: any,
+        responseCallback?: (response: any) => void
+      ) => {
+        if (typeof browser !== "undefined" && browser.tabs) {
+          const promise = browser.tabs.sendMessage(tabId, message);
+          if (responseCallback) {
+            promise.then(responseCallback).catch((error) => {});
+          }
+          return promise;
+        } else if (api.tabs) {
+          return api.tabs.sendMessage(
+            tabId,
+            message,
+            responseCallback || (() => {})
+          );
+        }
+      },
+    },
   };
 })();
 

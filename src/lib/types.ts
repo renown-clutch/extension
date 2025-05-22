@@ -15,7 +15,8 @@ export type Theme =
   | "dark"
   | "pink"
   | "purple"
-  | "green";
+  | "green"
+  | "oled";
 
 export type MatchFoundSound =
   | "none"

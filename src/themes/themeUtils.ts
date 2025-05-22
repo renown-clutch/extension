@@ -1,6 +1,6 @@
 import { createHeadObserver } from "../utils/observerUtils";
 import browserAPI from "../lib/browserAPI";
-import type { UserSettings } from "$lib/types";
+import type { Theme, UserSettings } from "$lib/types";
 
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
 const TEMP_STYLE_CACHE_KEY = "clutch-temp-styles-cache";
@@ -16,7 +16,7 @@ const BLACK_SHEET_PATH = browserAPI.runtime.getURL("themes/BlackSheet.css");
 const DEFAULT_SHEET_PATH = browserAPI.runtime.getURL("themes/DefaultSheet.css");
 const OLED_SHEET_PATH = browserAPI.runtime.getURL("themes/OledSheet.css");
 
-const tempThemeStyles: Record<string, string> = {
+const tempThemeStyles: Record<Theme, string> = {
   default:
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
   dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
@@ -116,16 +116,16 @@ export function saveThemeToLocalStorage(theme: string): void {
   }
 }
 
-export function getThemeFromLocalStorage(): string | null {
+export function getThemeFromLocalStorage(): Theme | null {
   try {
-    return localStorage.getItem(LOCAL_STORAGE_THEME_KEY);
+    return localStorage.getItem(LOCAL_STORAGE_THEME_KEY) as Theme | null;
   } catch (error) {
     console.error("Failed to get theme from localStorage:", error);
     return null;
   }
 }
 
-function applyTempStyling(theme: string = "dark"): void {
+function applyTempStyling(theme: Theme = "dark"): void {
   if (!isTempThemeInjected && document.documentElement) {
     const themePath = themePathMap[theme] || themePathMap.dark;
     if (stylesheetCache[themePath]) {
@@ -176,11 +176,9 @@ export function applyThemeToPopup(theme: string): void {
       const cssText = stylesheetCache[themePath];
       const rootMatch = cssText.match(/:root\s*{[^}]+}/);
       if (rootMatch) {
-        // Remove any existing theme styles
         const existingStyles = popupRoot.querySelectorAll("style[data-theme]");
         existingStyles.forEach((style) => style.remove());
 
-        // Add new theme styles
         const styleElement = document.createElement("style");
         styleElement.setAttribute("data-theme", theme);
         styleElement.textContent = rootMatch[0];
@@ -193,7 +191,7 @@ export function applyThemeToPopup(theme: string): void {
 export async function initializeTheme(
   userSettings: UserSettings
 ): Promise<void> {
-  const theme = userSettings.selectedTheme;
+  const theme = userSettings.selectedTheme as Theme;
   saveThemeToLocalStorage(theme);
 
   applyTempStyling(theme);

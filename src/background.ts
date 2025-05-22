@@ -3,8 +3,11 @@ import browserAPI, {
   type MessageSender,
   type SendResponseCallback,
 } from "./lib/browserAPI";
+import { getUserInfo } from "./steamId/steamIdParser";
 
-const WS_BASE_URL = "wss://api.clutch.lorem.sh/ws";
+const clientId = crypto.randomUUID();
+let WS_BASE_URL = "";
+const STEAM_ID_STORAGE_KEY = "userSteamId";
 
 let socket: WebSocket | null = null;
 let isConnected = false;
@@ -65,22 +68,67 @@ async function processPendingRequest(
   }
 }
 
-function connectWebSocket() {
-  const clientId = `extension_${Date.now()}_${Math.random()
-    .toString(36)
-    .substring(2, 8)}`;
+async function initializeWebSocket() {
+  const staging_ws_url = "wss://api-staging.lorem.sh/ws";
+  const prod_ws_url = "wss://api.clutch.lorem.sh/ws";
+  const isStaging = true;
+  const ws_url = isStaging ? staging_ws_url : prod_ws_url;
 
+  try {
+    const { steamId } = await getUserInfo();
+
+    if (steamId) {
+      WS_BASE_URL = `${ws_url}?client_id=${clientId}&steam_id=${steamId}`;
+      console.log("[Chat Background] WS_BASE_URL:", WS_BASE_URL);
+      connectWebSocket();
+    } else {
+      WS_BASE_URL = `${ws_url}?client_id=${clientId}`;
+      console.log(
+        "[Chat Background] No Steam ID available, using basic URL:",
+        WS_BASE_URL
+      );
+      connectWebSocket();
+
+      const checkForUserData = async () => {
+        const result = (await browserAPI.storage.local.get(
+          STEAM_ID_STORAGE_KEY
+        )) as { [key: string]: any };
+        const userData = result[STEAM_ID_STORAGE_KEY];
+
+        if (userData && userData.steamId) {
+          WS_BASE_URL = `${ws_url}?client_id=${clientId}&steam_id=${userData.steamId}`;
+
+          if (socket) {
+            try {
+              socket.close();
+            } catch (e) {}
+          }
+          reconnectAttempts = 0;
+          connectWebSocket();
+          return true;
+        }
+        return false;
+      };
+
+      const checkInterval = setInterval(async () => {
+        const hasData = await checkForUserData();
+        if (hasData) {
+          clearInterval(checkInterval);
+        }
+      }, 30000);
+    }
+  } catch (error) {
+    console.error("[Chat Background] Error initializing WebSocket:", error);
+    WS_BASE_URL = `${ws_url}?client_id=${clientId}`;
+    connectWebSocket();
+  }
+}
+
+function connectWebSocket() {
   browserAPI.storage.local
     .get("user_steam_id")
     .then((result) => {
-      let url = `${WS_BASE_URL}?client_id=${clientId}`;
-
-      const typedResult = result as { user_steam_id?: string };
-      if (typedResult.user_steam_id) {
-        url += `&steam_id=${typedResult.user_steam_id}`;
-      }
-
-      socket = new WebSocket(url);
+      socket = new WebSocket(WS_BASE_URL);
 
       socket.onopen = () => {
         isConnected = true;
@@ -119,8 +167,7 @@ function connectWebSocket() {
     .catch((error) => {
       console.error("Error retrieving user steam ID:", error);
 
-      const url = `${WS_BASE_URL}?client_id=${clientId}`;
-      socket = new WebSocket(url);
+      socket = new WebSocket(WS_BASE_URL);
 
       socket.onopen = () => {
         isConnected = true;
@@ -161,8 +208,29 @@ function connectWebSocket() {
 function handleWebSocketMessage(event: MessageEvent) {
   try {
     const message = JSON.parse(event.data);
+    console.log("[Chat Background] Received WebSocket message:", message);
 
     if (message.type === "pong") {
+      return;
+    }
+
+    if (message.type === "chat_message" || message.type === "recent_messages") {
+      console.log(
+        "[Chat Background] Forwarding chat message to content script:",
+        message
+      );
+      // Forward chat messages to content script
+      browserAPI.tabs.query(
+        { active: true, currentWindow: true },
+        (tabs: Array<{ id?: number }>) => {
+          if (tabs[0]?.id) {
+            console.log("[Chat Background] Sending to tab:", tabs[0].id);
+            browserAPI.tabs.sendMessage(tabs[0].id, message);
+          } else {
+            console.error("[Chat Background] No active tab found");
+          }
+        }
+      );
       return;
     }
 
@@ -303,11 +371,11 @@ function sendWebSocketMessage(message: any): Promise<any> {
 }
 
 browserAPI.runtime.onInstalled.addListener(() => {
-  connectWebSocket();
+  initializeWebSocket();
 });
 
 browserAPI.runtime.onStartup.addListener(() => {
-  connectWebSocket();
+  initializeWebSocket();
 });
 
 function openPopupWindow() {
@@ -346,6 +414,52 @@ browserAPI.runtime.onMessage.addListener(
       connectWebSocket();
       sendResponse({ success: true });
       return true;
+    } else if (message.type === "send_chat_message") {
+      console.log(
+        "[Chat Background] Received send_chat_message request:",
+        message
+      );
+
+      if (isConnected && socket && socket.readyState === WebSocket.OPEN) {
+        const wsMessage = {
+          type: "send_chat_message",
+          username: message.username,
+          message: message.message,
+        };
+        console.log("[Chat Background] Sending to WebSocket:", wsMessage);
+
+        socket.send(JSON.stringify(wsMessage));
+        sendResponse({ success: true });
+      } else {
+        console.error(
+          "[Chat Background] WebSocket not connected for send_chat_message"
+        );
+        sendResponse({ success: false, error: "WebSocket not connected" });
+      }
+      return true;
+    } else if (message.type === "get_recent_messages") {
+      console.log(
+        "[Chat Background] Received get_recent_messages request:",
+        message
+      );
+
+      if (isConnected && socket && socket.readyState === WebSocket.OPEN) {
+        const wsMessage = {
+          type: "get_recent_messages",
+          limit: message.limit || 50,
+        };
+        console.log("[Chat Background] Sending to WebSocket:", wsMessage);
+
+        socket.send(JSON.stringify(wsMessage));
+        // The response will be handled by the WebSocket message handler
+        return true;
+      } else {
+        console.error(
+          "[Chat Background] WebSocket not connected for get_recent_messages"
+        );
+        sendResponse({ success: false, error: "WebSocket not connected" });
+        return true;
+      }
     } else if (message.type === "get_faceit_info" && message.steam_ids) {
       getFaceitInfo(message.steam_ids)
         .then((response) => {
