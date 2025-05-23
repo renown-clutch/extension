@@ -14,7 +14,12 @@ import { initializeProfileBans } from "./playerProfile/previousBans";
 import { initializeFriendsList } from "./playerProfile/friendsList";
 import { initializeSidebarFriends } from "./playerProfile/sidebarFriends";
 import { initializeHighestElo } from "./playerProfile/highestElo";
-import { defaultUserSettings, type UserSettings } from "./lib/types";
+import {
+  defaultUserSettings,
+  type UserSettings,
+  SETTING_DEFINITIONS,
+  type SettingHandler,
+} from "./lib/types";
 import {
   initializeMatchFoundAutoAccept,
   updateMatchFoundAutoAcceptSettings,
@@ -31,7 +36,6 @@ import { initializeExtensionButton } from "./navbar/extensionButton";
 import { getCurrentPage, type PageType } from "./utils/pageUtils";
 import { initializeMatchPage } from "./matchPage/initializeMatchPage";
 import { initializeLiveMatchPage } from "./liveMatchPage/intializeLiveMatchPage";
-import { initializeLivePlayerStats } from "./liveMatchPage/livePlayerStats";
 import { initializeSteamIdParser } from "./steamId/steamIdParser";
 import { initializeLastMatches } from "./mainPage/lastMatches";
 import { initializeLinkToCurrentMatch } from "./playerProfile/linkToCurrentMatch";
@@ -61,39 +65,26 @@ if (shouldBeInjected()) {
   initTempStyling();
 }
 
-type SettingHandler = (
-  settings: UserSettings,
-  value?: any
-) => void | Promise<void>;
+export function registerSettingHandler(
+  key: keyof UserSettings,
+  handler: SettingHandler
+) {
+  const definition = SETTING_DEFINITIONS[key];
+  if (definition) {
+    if (!definition.handlers) {
+      definition.handlers = [];
+    }
+    definition.handlers.push(handler);
+  }
+}
 
-const SETTING_HANDLERS: Record<string, SettingHandler[]> = {
-  selectedTheme: [initializeTheme],
-  csstatsProfileButton: [initializeProfileButtons],
-  faceitProfileButton: [initializeProfileButtons],
-  showBans: [initializeProfileBans],
-  showHighestElo: [initializeHighestElo],
-  showFriendListRanks: [initializeFriendsList],
-  sortFriendsByRenownElo: [initializeFriendsList],
-  showSidebarFriendRanks: [initializeSidebarFriends],
-  "autoAccept.match": [updateMatchFoundAutoAcceptSettings],
-  matchAutoAcceptDelay: [updateMatchFoundAutoAcceptSettings],
-  matchFoundSound: [updateMatchFoundAutoAcceptSettings],
-  matchFoundVolume: [updateMatchFoundAutoAcceptSettings],
-  "autoAccept.party": [updateAutoAcceptPartyInviteSettings],
-  partyAutoAcceptDelay: [updateAutoAcceptPartyInviteSettings],
-  keepAlive: [updateKeepAliveSettings],
-  showFaceitRanksOnMatchPage: [initializeMatchPage, initializeLiveMatchPage],
-  showTeamAverageElo: [initializeMatchPage, initializeLiveMatchPage],
-  showMapStats: [initializeLiveMatchPage],
-  showMapStatsColors: [initializeLiveMatchPage],
-  showExtensionNavbarButton: [initializeExtensionButton],
-  liveMatchPlayerStats: [initializeLivePlayerStats],
-  showLiveMatchPlayerStreak: [initializeLivePlayerStats],
-  showLastPlayedMatches: [initializeLastMatches],
-  showLinkToCurrentMatch: [initializeLinkToCurrentMatch],
-  showAveragePartyElo: [initializeAveragePartyElo],
-  showFaceitEloOnPartyList: [initializeAveragePartyElo],
-};
+Object.entries(SETTING_DEFINITIONS).forEach(([key, def]) => {
+  if (def.handlers) {
+    def.handlers.forEach((handler: SettingHandler) => {
+      registerSettingHandler(key as keyof UserSettings, handler);
+    });
+  }
+});
 
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (!shouldBeInjected()) {
@@ -105,9 +96,11 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
 
   Object.entries(changedParts).forEach(([key, value]) => {
     if (value !== undefined) {
-      const handlers = SETTING_HANDLERS[key];
-      if (handlers) {
-        handlers.forEach((handler) => handlersToRun.add({ handler, value }));
+      const definition = SETTING_DEFINITIONS[key as keyof UserSettings];
+      if (definition?.handlers) {
+        definition.handlers.forEach((handler) =>
+          handlersToRun.add({ handler, value })
+        );
       }
     }
   });
@@ -159,7 +152,7 @@ async function initialize(pageType: PageType["type"]) {
     initializeMatchFoundAutoAccept(userSettings);
     initializeAutoAcceptPartyInvite(userSettings);
     initializeExtensionButton(userSettings);
-    await initializeChatWindow();
+    await initializeChatWindow(userSettings);
 
     if (pageType === "profile") {
       initializeProfileButtons(userSettings);

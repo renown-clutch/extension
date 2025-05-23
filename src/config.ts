@@ -12,6 +12,6 @@ export const config = {
     steamIdKey: "userSteamId",
   },
   deduplication: {
-    messageLimit: 100,
+    messageLimit: 20,
   },
 };

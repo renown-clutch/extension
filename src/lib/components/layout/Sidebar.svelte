@@ -9,6 +9,7 @@
     Swords,
     Users,
     HomeIcon,
+    MessageCircle,
   } from "@lucide/svelte";
   import type { TabName } from "$lib/types";
 
@@ -23,6 +24,7 @@
   const sidebarItems: SidebarItem[] = [
     { name: "Theme", icon: Palette },
     { name: "Auto-accept", icon: CircleCheckBig },
+    { name: "Chat", icon: MessageCircle },
     { name: "MainPage", icon: HomeIcon },
     { name: "Match", icon: Swords },
     { name: "Sounds", icon: Volume2, isBeta: true },

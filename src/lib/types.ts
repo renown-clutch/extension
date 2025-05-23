@@ -1,3 +1,21 @@
+import { initializeTheme } from "../themes/themeUtils";
+import { initializeProfileButtons } from "../playerProfile/profileButtons";
+import { initializeProfileBans } from "../playerProfile/previousBans";
+import { initializeFriendsList } from "../playerProfile/friendsList";
+import { initializeSidebarFriends } from "../playerProfile/sidebarFriends";
+import { initializeHighestElo } from "../playerProfile/highestElo";
+import { updateMatchFoundAutoAcceptSettings } from "../autoAccept/matchFoundModal";
+import { updateAutoAcceptPartyInviteSettings } from "../autoAccept/partyInviteModal";
+import { updateKeepAliveSettings } from "../keepAlive/keepAlive";
+import { initializeExtensionButton } from "../navbar/extensionButton";
+import { initializeMatchPage } from "../matchPage/initializeMatchPage";
+import { initializeLiveMatchPage } from "../liveMatchPage/intializeLiveMatchPage";
+import { initializeLivePlayerStats } from "../liveMatchPage/livePlayerStats";
+import { initializeLastMatches } from "../mainPage/lastMatches";
+import { initializeLinkToCurrentMatch } from "../playerProfile/linkToCurrentMatch";
+import { initializeAveragePartyElo } from "../mainPage/averagePartyElo";
+import { initializeChatWindow } from "../chat/chatWindow";
+
 export type TabName =
   | "Theme"
   | "Auto-accept"
@@ -6,7 +24,8 @@ export type TabName =
   | "Profiles"
   | "Settings"
   | "Friends"
-  | "MainPage";
+  | "MainPage"
+  | "Chat";
 
 export type Theme =
   | "default"
@@ -67,38 +86,249 @@ export type UserSettings = {
   showLastPlayedMatches: boolean;
   showAveragePartyElo: boolean;
   showFaceitEloOnPartyList: boolean;
+  showChatWindow: boolean;
 };
 
-export const defaultUserSettings: UserSettings = {
-  activeTab: "Theme",
-  selectedTheme: "",
-  showConfirmModal: false,
-  showInviteModal: false,
-  csstatsProfileButton: true,
-  faceitProfileButton: true,
-  showLinkToCurrentMatch: true,
-  autoAccept: {
-    match: false,
-    party: false,
+export type SettingCategory =
+  | "theme"
+  | "profile"
+  | "match"
+  | "sound"
+  | "autoAccept"
+  | "friends"
+  | "mainPage"
+  | "general"
+  | "chat";
+
+export type SettingHandler = (
+  settings: UserSettings,
+  value?: any
+) => void | Promise<void>;
+
+export interface SettingDefinition<T> {
+  key: keyof UserSettings;
+  category: SettingCategory;
+  defaultValue: T;
+  description?: string;
+  handlers?: SettingHandler[];
+}
+
+export const SETTING_DEFINITIONS: Record<
+  keyof UserSettings,
+  SettingDefinition<any>
+> = {
+  activeTab: {
+    key: "activeTab",
+    category: "general",
+    defaultValue: "Theme",
+    description: "The currently active tab in the popup",
   },
-  matchAutoAcceptDelay: 3,
-  partyAutoAcceptDelay: 3,
-  keepAlive: true,
-  showBans: true,
-  showFriendListRanks: true,
-  showFaceitRanksOnMatchPage: true,
-  showTeamAverageElo: true,
-  sortFriendsByRenownElo: false,
-  showSidebarFriendRanks: true,
-  showExtensionNavbarButton: true,
-  showHighestElo: true,
-  matchFoundSound: "none",
-  matchFoundVolume: 70,
-  showMapStats: true,
-  showMapStatsColors: true,
-  liveMatchPlayerStats: true,
-  showLiveMatchPlayerStreak: true,
-  showLastPlayedMatches: true,
-  showAveragePartyElo: true,
-  showFaceitEloOnPartyList: false,
+  selectedTheme: {
+    key: "selectedTheme",
+    category: "theme",
+    defaultValue: "",
+    description: "The selected theme for the extension",
+    handlers: [initializeTheme],
+  },
+  showConfirmModal: {
+    key: "showConfirmModal",
+    category: "general",
+    defaultValue: false,
+    description: "Whether to show the confirm modal",
+  },
+  showInviteModal: {
+    key: "showInviteModal",
+    category: "general",
+    defaultValue: false,
+    description: "Whether to show the invite modal",
+  },
+  csstatsProfileButton: {
+    key: "csstatsProfileButton",
+    category: "profile",
+    defaultValue: true,
+    description: "Show CSStats profile button",
+    handlers: [initializeProfileButtons],
+  },
+  faceitProfileButton: {
+    key: "faceitProfileButton",
+    category: "profile",
+    defaultValue: true,
+    description: "Show Faceit profile button",
+    handlers: [initializeProfileButtons],
+  },
+  showLinkToCurrentMatch: {
+    key: "showLinkToCurrentMatch",
+    category: "profile",
+    defaultValue: true,
+    description: "Show link to current match",
+    handlers: [initializeLinkToCurrentMatch],
+  },
+  autoAccept: {
+    key: "autoAccept",
+    category: "autoAccept",
+    defaultValue: {
+      match: false,
+      party: false,
+    },
+    description: "Auto accept settings for match and party",
+    handlers: [updateMatchFoundAutoAcceptSettings],
+  },
+  matchAutoAcceptDelay: {
+    key: "matchAutoAcceptDelay",
+    category: "autoAccept",
+    defaultValue: 3,
+    description: "Delay before auto accepting match",
+    handlers: [updateMatchFoundAutoAcceptSettings],
+  },
+  partyAutoAcceptDelay: {
+    key: "partyAutoAcceptDelay",
+    category: "autoAccept",
+    defaultValue: 3,
+    description: "Delay before auto accepting party invite",
+    handlers: [updateAutoAcceptPartyInviteSettings],
+  },
+  keepAlive: {
+    key: "keepAlive",
+    category: "general",
+    defaultValue: true,
+    description: "Keep the extension alive",
+    handlers: [updateKeepAliveSettings],
+  },
+  showBans: {
+    key: "showBans",
+    category: "profile",
+    defaultValue: true,
+    description: "Show ban information",
+    handlers: [initializeProfileBans],
+  },
+  showFriendListRanks: {
+    key: "showFriendListRanks",
+    category: "friends",
+    defaultValue: true,
+    description: "Show ranks in friend list",
+    handlers: [initializeFriendsList],
+  },
+  showFaceitRanksOnMatchPage: {
+    key: "showFaceitRanksOnMatchPage",
+    category: "match",
+    defaultValue: true,
+    description: "Show Faceit ranks on match page",
+    handlers: [initializeMatchPage, initializeLiveMatchPage],
+  },
+  showTeamAverageElo: {
+    key: "showTeamAverageElo",
+    category: "match",
+    defaultValue: true,
+    description: "Show team average ELO",
+    handlers: [initializeMatchPage, initializeLiveMatchPage],
+  },
+  sortFriendsByRenownElo: {
+    key: "sortFriendsByRenownElo",
+    category: "friends",
+    defaultValue: false,
+    description: "Sort friends by Renown ELO",
+    handlers: [initializeFriendsList],
+  },
+  showSidebarFriendRanks: {
+    key: "showSidebarFriendRanks",
+    category: "friends",
+    defaultValue: true,
+    description: "Show friend ranks in sidebar",
+    handlers: [initializeSidebarFriends],
+  },
+  showExtensionNavbarButton: {
+    key: "showExtensionNavbarButton",
+    category: "general",
+    defaultValue: true,
+    description: "Show extension button in navbar",
+    handlers: [initializeExtensionButton],
+  },
+  showHighestElo: {
+    key: "showHighestElo",
+    category: "profile",
+    defaultValue: true,
+    description: "Show highest ELO",
+    handlers: [initializeHighestElo],
+  },
+  matchFoundSound: {
+    key: "matchFoundSound",
+    category: "sound",
+    defaultValue: "none",
+    description: "Sound to play when match is found",
+    handlers: [updateMatchFoundAutoAcceptSettings],
+  },
+  matchFoundVolume: {
+    key: "matchFoundVolume",
+    category: "sound",
+    defaultValue: 70,
+    description: "Volume for match found sound",
+    handlers: [updateMatchFoundAutoAcceptSettings],
+  },
+  showMapStats: {
+    key: "showMapStats",
+    category: "match",
+    defaultValue: true,
+    description: "Show map statistics",
+    handlers: [initializeLiveMatchPage],
+  },
+  showMapStatsColors: {
+    key: "showMapStatsColors",
+    category: "match",
+    defaultValue: true,
+    description: "Show map statistics colors",
+    handlers: [initializeLiveMatchPage],
+  },
+  liveMatchPlayerStats: {
+    key: "liveMatchPlayerStats",
+    category: "match",
+    defaultValue: true,
+    description: "Show live match player statistics",
+    handlers: [initializeLivePlayerStats],
+  },
+  showLiveMatchPlayerStreak: {
+    key: "showLiveMatchPlayerStreak",
+    category: "match",
+    defaultValue: true,
+    description: "Show live match player streak",
+    handlers: [initializeLivePlayerStats],
+  },
+  showLastPlayedMatches: {
+    key: "showLastPlayedMatches",
+    category: "mainPage",
+    defaultValue: true,
+    description: "Show last played matches",
+    handlers: [initializeLastMatches],
+  },
+  showAveragePartyElo: {
+    key: "showAveragePartyElo",
+    category: "mainPage",
+    defaultValue: true,
+    description: "Show average party ELO",
+    handlers: [initializeAveragePartyElo],
+  },
+  showFaceitEloOnPartyList: {
+    key: "showFaceitEloOnPartyList",
+    category: "mainPage",
+    defaultValue: false,
+    description: "Show Faceit ELO on party list",
+    handlers: [initializeAveragePartyElo],
+  },
+  showChatWindow: {
+    key: "showChatWindow",
+    category: "chat",
+    defaultValue: false,
+    description: "Show chat window",
+    handlers: [initializeChatWindow],
+  },
 };
+
+// Generate defaultUserSettings from definitions
+export const defaultUserSettings: UserSettings = Object.entries(
+  SETTING_DEFINITIONS
+).reduce(
+  (acc, [key, def]) => ({
+    ...acc,
+    [key]: def.defaultValue,
+  }),
+  {} as UserSettings
+);

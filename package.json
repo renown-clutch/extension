@@ -28,6 +28,8 @@
     "clsx": "^2.1.1",
     "concurrently": "^9.1.2",
     "lucide-svelte": "^0.487.0",
+    "postcss": "^8.5.3",
+    "postcss-cli": "^11.0.1",
     "svelte": "^5.20.2",
     "svelte-check": "^4.1.4",
     "tailwind-merge": "^3.2.0",

@@ -4,6 +4,10 @@ import { dirname, resolve } from 'path';
 import fs from 'fs';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -72,8 +76,8 @@ function copyThemeFiles() {
 }
 
 // Copy feature CSS files
-function copyFeatureStyles() {
-  console.log('Copying feature styles...');
+async function copyFeatureStyles() {
+  console.log('Processing feature styles with PostCSS...');
   
   const featureStylesDir = resolve(__dirname, 'dist/featureStyles');
   if (!fs.existsSync(featureStylesDir)) {
@@ -107,13 +111,26 @@ function copyFeatureStyles() {
   const srcDir = resolve(__dirname, 'src');
   const cssFiles = findCSSFiles(srcDir);
   
-  // Copy each CSS file to dist/featureStyles
+  // Process each CSS file through PostCSS
   for (const file of cssFiles) {
     const fileName = path.basename(file);
     const destPath = resolve(featureStylesDir, fileName);
     
-    fs.copyFileSync(file, destPath);
-    console.log(`Copied ${fileName}`);
+    try {
+      // Process CSS file through PostCSS
+      const { stdout, stderr } = await execAsync(`npx postcss "${file}" -o "${destPath}"`);
+      
+      if (stderr) {
+        console.warn(`PostCSS warning for ${fileName}:`, stderr);
+      }
+      
+      console.log(`Processed ${fileName} with PostCSS`);
+    } catch (error) {
+      // If PostCSS fails, fall back to copying
+      console.warn(`PostCSS failed for ${fileName}, falling back to copy:`, error.message);
+      fs.copyFileSync(file, destPath);
+      console.log(`Copied ${fileName} (fallback)`);
+    }
   }
   
   if (cssFiles.length === 0) {
@@ -131,7 +148,7 @@ async function buildEntries() {
   // Copy theme files
   copyThemeFiles();
   // Copy feature styles
-  copyFeatureStyles();
+  await copyFeatureStyles();
 
   for (const entry of entryPoints) {
     console.log(`Building ${entry.name}...`);

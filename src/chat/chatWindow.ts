@@ -3,10 +3,23 @@ import browserAPI from "../lib/browserAPI";
 import { waitForElement } from "../utils/profileUtils";
 import { getUserInfo } from "../steamId/steamIdParser";
 import { getStoredUIState, saveUIState } from "../utils/uiStateUtils";
+import type { UserSettings } from "../lib/types";
 
 const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
 
-export async function initializeChatWindow() {
+async function removeChatWindow() {
+  const chatWindow = document.getElementById("clutch-chat-window");
+  if (chatWindow) {
+    chatWindow.remove();
+  }
+}
+
+export async function initializeChatWindow(userSettings: UserSettings) {
+  if (!userSettings.showChatWindow) {
+    removeChatWindow();
+    return;
+  }
+
   await waitForElement("body");
   if (document.getElementById("clutch-chat-window")) {
     return;

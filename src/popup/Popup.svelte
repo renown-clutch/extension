@@ -9,9 +9,10 @@
   import SettingsTab from "./tabs/Settings.svelte";
   import MatchTab from "./tabs/Match.svelte";
   import MainPageTab from "./tabs/MainPage.svelte";
+  import ChatTab from "./tabs/Chat.svelte";
   import { onMount, untrack } from "svelte";
   import type { UserSettings } from "$lib/types";
-  import { defaultUserSettings } from "$lib/types";
+  import { defaultUserSettings, SETTING_DEFINITIONS } from "$lib/types";
   import browserAPI from "$lib/browserAPI";
   import { applyThemeToPopup } from "../themes/themeUtils";
 
@@ -60,157 +61,14 @@
   function detectChanges(): Partial<UserSettings> {
     const changes: Partial<UserSettings> = {};
 
-    if (previousSettings.selectedTheme !== userSettings.selectedTheme) {
-      changes.selectedTheme = userSettings.selectedTheme;
-    }
+    Object.entries(SETTING_DEFINITIONS).forEach(([key, def]) => {
+      const currentValue = userSettings[key as keyof UserSettings];
+      const previousValue = previousSettings[key as keyof UserSettings];
 
-    if (
-      previousSettings.csstatsProfileButton !==
-      userSettings.csstatsProfileButton
-    ) {
-      changes.csstatsProfileButton = userSettings.csstatsProfileButton;
-    }
-
-    if (
-      previousSettings.faceitProfileButton !== userSettings.faceitProfileButton
-    ) {
-      changes.faceitProfileButton = userSettings.faceitProfileButton;
-    }
-
-    if (previousSettings.showBans !== userSettings.showBans) {
-      changes.showBans = userSettings.showBans;
-    }
-
-    if (
-      JSON.stringify(previousSettings.autoAccept) !==
-      JSON.stringify(userSettings.autoAccept)
-    ) {
-      changes.autoAccept = { ...userSettings.autoAccept };
-    }
-
-    if (
-      previousSettings.matchAutoAcceptDelay !==
-      userSettings.matchAutoAcceptDelay
-    ) {
-      changes.matchAutoAcceptDelay = userSettings.matchAutoAcceptDelay;
-    }
-
-    if (
-      previousSettings.partyAutoAcceptDelay !==
-      userSettings.partyAutoAcceptDelay
-    ) {
-      changes.partyAutoAcceptDelay = userSettings.partyAutoAcceptDelay;
-    }
-
-    if (previousSettings.keepAlive !== userSettings.keepAlive) {
-      changes.keepAlive = userSettings.keepAlive;
-    }
-
-    if (
-      previousSettings.showFriendListRanks !== userSettings.showFriendListRanks
-    ) {
-      changes.showFriendListRanks = userSettings.showFriendListRanks;
-    }
-
-    if (
-      previousSettings.showFaceitRanksOnMatchPage !==
-      userSettings.showFaceitRanksOnMatchPage
-    ) {
-      changes.showFaceitRanksOnMatchPage =
-        userSettings.showFaceitRanksOnMatchPage;
-    }
-
-    if (
-      previousSettings.showTeamAverageElo !== userSettings.showTeamAverageElo
-    ) {
-      changes.showTeamAverageElo = userSettings.showTeamAverageElo;
-    }
-
-    if (
-      previousSettings.sortFriendsByRenownElo !==
-      userSettings.sortFriendsByRenownElo
-    ) {
-      changes.sortFriendsByRenownElo = userSettings.sortFriendsByRenownElo;
-    }
-
-    if (
-      previousSettings.showSidebarFriendRanks !==
-      userSettings.showSidebarFriendRanks
-    ) {
-      changes.showSidebarFriendRanks = userSettings.showSidebarFriendRanks;
-    }
-
-    if (
-      previousSettings.showExtensionNavbarButton !==
-      userSettings.showExtensionNavbarButton
-    ) {
-      changes.showExtensionNavbarButton =
-        userSettings.showExtensionNavbarButton;
-    }
-
-    if (previousSettings.showHighestElo !== userSettings.showHighestElo) {
-      changes.showHighestElo = userSettings.showHighestElo;
-    }
-
-    if (previousSettings.matchFoundSound !== userSettings.matchFoundSound) {
-      changes.matchFoundSound = userSettings.matchFoundSound;
-    }
-
-    if (previousSettings.matchFoundVolume !== userSettings.matchFoundVolume) {
-      changes.matchFoundVolume = userSettings.matchFoundVolume;
-    }
-
-    if (previousSettings.showMapStats !== userSettings.showMapStats) {
-      changes.showMapStats = userSettings.showMapStats;
-    }
-
-    if (
-      previousSettings.showMapStatsColors !== userSettings.showMapStatsColors
-    ) {
-      changes.showMapStatsColors = userSettings.showMapStatsColors;
-    }
-
-    if (
-      previousSettings.liveMatchPlayerStats !==
-      userSettings.liveMatchPlayerStats
-    ) {
-      changes.liveMatchPlayerStats = userSettings.liveMatchPlayerStats;
-    }
-
-    if (
-      previousSettings.showLiveMatchPlayerStreak !==
-      userSettings.showLiveMatchPlayerStreak
-    ) {
-      changes.showLiveMatchPlayerStreak =
-        userSettings.showLiveMatchPlayerStreak;
-    }
-
-    if (
-      previousSettings.showLastPlayedMatches !==
-      userSettings.showLastPlayedMatches
-    ) {
-      changes.showLastPlayedMatches = userSettings.showLastPlayedMatches;
-    }
-
-    if (
-      previousSettings.showLinkToCurrentMatch !==
-      userSettings.showLinkToCurrentMatch
-    ) {
-      changes.showLinkToCurrentMatch = userSettings.showLinkToCurrentMatch;
-    }
-
-    if (
-      previousSettings.showAveragePartyElo !== userSettings.showAveragePartyElo
-    ) {
-      changes.showAveragePartyElo = userSettings.showAveragePartyElo;
-    }
-
-    if (
-      previousSettings.showFaceitEloOnPartyList !==
-      userSettings.showFaceitEloOnPartyList
-    ) {
-      changes.showFaceitEloOnPartyList = userSettings.showFaceitEloOnPartyList;
-    }
+      if (JSON.stringify(currentValue) !== JSON.stringify(previousValue)) {
+        (changes as any)[key] = currentValue;
+      }
+    });
 
     return changes;
   }
@@ -298,6 +156,8 @@
           bind:matchAutoAcceptDelay={userSettings.matchAutoAcceptDelay}
           bind:partyAutoAcceptDelay={userSettings.partyAutoAcceptDelay}
         />
+      {:else if userSettings.activeTab === "Chat"}
+        <ChatTab bind:showChatWindow={userSettings.showChatWindow} />
       {:else if userSettings.activeTab === "Match"}
         <MatchTab
           bind:showFaceitRanksOnMatchPage={
