@@ -8,7 +8,7 @@
 </script>
 
 <div
-  class="text-slate-200 border-2 border-slate-900 rounded-lg p-4 {disabled
+  class="text-[var(--slate-200)] border-2 border-[var(--slate-900)] rounded-lg p-4 {disabled
     ? 'opacity-50 pointer-events-none'
     : ''}"
 >
@@ -24,7 +24,7 @@
       {disabled}
     />
     <section
-      class="flex-1 flex w-full justify-between text-xs text-slate-400 pt-2"
+      class="flex-1 flex w-full justify-between text-xs text-[var(--slate-400)] pt-2"
     >
       <p>0</p>
       <p>100</p>

@@ -38,6 +38,13 @@ export async function initializeChatWindow(userSettings: UserSettings) {
   const chatContainer = document.createElement("div");
   chatContainer.className = "chat-container";
 
+  const chatHeader = document.createElement("div");
+  chatHeader.className = "chat-header";
+
+  const chatTitle = document.createElement("h3");
+  chatTitle.className = "chat-title";
+  chatTitle.textContent = "Clutch Global Chat";
+
   const minimizeTab = document.createElement("div");
   minimizeTab.className = "minimize-tab";
   minimizeTab.innerHTML = `
@@ -46,12 +53,14 @@ export async function initializeChatWindow(userSettings: UserSettings) {
     </svg>
   `;
 
+  chatHeader.appendChild(chatTitle);
+  chatHeader.appendChild(minimizeTab);
+  chatContainer.appendChild(chatHeader);
+
   const minimizedIcon = document.createElement("div");
   minimizedIcon.className = "minimized-icon";
   minimizedIcon.innerHTML = `
-    <svg viewBox="0 0 24 24" fill="#888">
-      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle-icon lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
   `;
 
   // Initialize minimized state from storage
@@ -69,7 +78,6 @@ export async function initializeChatWindow(userSettings: UserSettings) {
   minimizeTab.addEventListener("click", toggleMinimize);
   minimizedIcon.addEventListener("click", toggleMinimize);
 
-  chatContainer.appendChild(minimizeTab);
   chatContainer.appendChild(minimizedIcon);
 
   const messagesContainer = document.createElement("div");
@@ -99,7 +107,9 @@ export async function initializeChatWindow(userSettings: UserSettings) {
 
   const sendButton = document.createElement("button");
   sendButton.className = "send-button";
-  sendButton.textContent = "Send";
+  sendButton.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-icon lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>
+  `;
   sendButton.disabled = true;
 
   let isCooldown = false;

@@ -61,7 +61,7 @@
 </script>
 
 <button
-  class="inline-flex items-center justify-center h-9 rounded-md px-3 text-sm font-medium transition-colors border bg-background hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+  class="inline-flex items-center justify-center h-9 rounded-md px-3 text-sm font-medium transition-colors border bg-[var(--slate-900)] hover:bg-[var(--slate-800)] hover:text-[var(--slate-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--slate-700)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
   {disabled}
   onclick={toggleSound}
 >

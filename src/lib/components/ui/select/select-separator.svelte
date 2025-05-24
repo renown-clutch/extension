@@ -12,6 +12,6 @@
 
 <Separator
   bind:ref
-  class={cn("bg-muted -mx-1 my-1 h-px", className)}
+  class={cn("bg-[var(--slate-700)] -mx-1 my-1 h-px", className)}
   {...restProps}
 />

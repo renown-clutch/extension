@@ -23,7 +23,7 @@
 </script>
 
 <div
-  class="flex flex-col text-slate-200 border-2 border-slate-900 rounded-lg p-4"
+  class="flex flex-col text-[var(--slate-200)] border-2 border-[var(--slate-900)] rounded-lg p-4"
 >
   <div class="flex items-center justify-between">
     <div class="max-w-[24ch]">
@@ -33,7 +33,7 @@
     <Switch id={switchId} bind:checked {disabled} />
   </div>
 
-  <div class="mt-4 border-t border-slate-900 pt-4">
+  <div class="mt-4 border-t border-[var(--slate-900)] pt-4">
     <h2 class="text-sm">{labelText2}</h2>
     <DiscriptionToggle text={descriptionText2} {warn} />
     <div class="flex flex-col items-center mt-4">
@@ -46,7 +46,7 @@
         disabled={disabled || !checked}
       />
       <section
-        class="flex-1 max-w-[95%] flex w-full justify-between text-xs text-slate-400 pt-2"
+        class="flex-1 max-w-[95%] flex w-full justify-between text-xs text-[var(--slate-400)] pt-2"
       >
         <p>0s</p>
         <p>{maxValue}s</p>

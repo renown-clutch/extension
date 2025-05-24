@@ -53,11 +53,11 @@
 </script>
 
 <div
-  class="flex border-2 p-4 border-slate-900 rounded-lg flex-col gap-6 w-full"
+  class="flex border-2 p-4 border-[var(--slate-900)] rounded-lg flex-col gap-6 w-full"
 >
   <div
     class=" transition-colors duration-200 w-full"
-    class:border-slate-500={isDraggingOver === "container1"}
+    class:border-[var(--slate-500)]={isDraggingOver === "container1"}
     use:droppable={{
       container: "container1",
       callbacks: {
@@ -67,20 +67,20 @@
       },
     }}
   >
-    <h3 class="text-sm font-medium text-slate-300 mb-2">Map Veto</h3>
+    <h3 class="text-sm font-medium text-[var(--slate-300)] mb-2">Map Veto</h3>
     <div class="flex flex-col gap-2 w-full">
       {#each container1 as item, index}
         <div
-          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-xs text-slate-300 group w-full"
+          class="flex items-center justify-between px-2 py-1 border-2 border-[var(--slate-900)] rounded text-xs text-[var(--slate-300)] group w-full"
           use:draggable={{ container: "container1", dragData: item }}
         >
           <div class="flex items-center gap-2">
-            <span class="text-slate-500 w-4">{index + 1}.</span>
+            <span class="text-[var(--slate-500)] w-4">{index + 1}.</span>
             <span>{item.name}</span>
           </div>
           <div class="flex items-center gap-2">
             <button
-              class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+              class="w-5 h-5 flex items-center justify-center text-[var(--slate-400)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
               onclick={() => moveToContainer2(item)}
               aria-label="Move to available maps"
             >
@@ -100,7 +100,7 @@
             <div class="w-6 h-6 flex items-center justify-center cursor-move">
               <div class="grid grid-cols-2 grid-rows-3 gap-0.5">
                 {#each Array(6) as _}
-                  <div class="w-1 h-1 bg-slate-500 rounded-full"></div>
+                  <div class="w-1 h-1 bg-[var(--slate-500)] rounded-full"></div>
                 {/each}
               </div>
             </div>
@@ -112,7 +112,7 @@
 
   <div
     class=" rounded-lg transition-colors duration-200 w-full"
-    class:border-slate-500={isDraggingOver === "container2"}
+    class:border-[var(--slate-500)]={isDraggingOver === "container2"}
     use:droppable={{
       container: "container2",
       callbacks: {
@@ -122,15 +122,17 @@
       },
     }}
   >
-    <h3 class="text-sm font-medium text-slate-300 mb-2">Available Maps</h3>
+    <h3 class="text-sm font-medium text-[var(--slate-300)] mb-2">
+      Available Maps
+    </h3>
     <div class="grid grid-cols-2 gap-2 w-full">
       {#each container2 as item}
         <div
-          class="flex items-center justify-between px-2 py-1 border-2 border-slate-900 rounded text-xs text-slate-300 w-full"
+          class="flex items-center justify-between px-2 py-1 border-2 border-[var(--slate-900)] rounded text-xs text-[var(--slate-300)] w-full"
         >
           <span>{item.name}</span>
           <button
-            class="w-5 h-5 flex items-center justify-center text-slate-400 hover:text-slate-300 transition-colors"
+            class="w-5 h-5 flex items-center justify-center text-[var(--slate-400)] hover:text-[var(--slate-300)] transition-colors"
             onclick={() => moveToContainer1(item)}
             aria-label="Move to map veto"
           >

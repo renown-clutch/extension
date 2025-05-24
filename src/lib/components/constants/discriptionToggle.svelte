@@ -4,7 +4,7 @@
 </script>
 
 <h2
-  class={`text-xs leading-tight ${warn ? "text-yellow-600" : "text-slate-500"}`}
+  class={`text-xs leading-tight ${warn ? "text-yellow-600" : "text-[var(--slate-500)]"}`}
 >
   {text}
 </h2>

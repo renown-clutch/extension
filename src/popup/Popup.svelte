@@ -143,7 +143,7 @@
   });
 </script>
 
-<main class="w-[600px] popup-root">
+<main class="w-[620px] popup-root">
   <div class="flex h-[480px]">
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
