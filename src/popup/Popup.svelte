@@ -14,7 +14,7 @@
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings, SETTING_DEFINITIONS } from "$lib/types";
   import browserAPI from "$lib/browserAPI";
-  import { applyThemeToPopup } from "../themes/themeUtils";
+  // import { initializePopupTheme, switchPopupTheme } from "../themes/themeUtils";
 
   let userSettings: UserSettings = $state<UserSettings>(defaultUserSettings);
   let previousSettings: UserSettings = { ...defaultUserSettings };
@@ -87,6 +87,8 @@
         settings = result.userSettings;
       }
 
+      console.log("Loaded settings:", settings);
+
       untrack(() => {
         if (settings) {
           userSettings = settings;
@@ -103,9 +105,9 @@
         }
       });
 
-      if (userSettings.selectedTheme) {
-        applyThemeToPopup(userSettings.selectedTheme);
-      }
+      // if (userSettings.selectedTheme) {
+      //   await initializePopupTheme(userSettings.selectedTheme);
+      // }
 
       console.log("Loaded settings:", userSettings);
     } catch (error) {
@@ -131,7 +133,7 @@
 
       if (Object.keys(changes).length > 0) {
         if (changes.selectedTheme) {
-          applyThemeToPopup(changes.selectedTheme);
+          // switchPopupTheme(changes.selectedTheme);
         }
 
         sendSettingsToContentScript(changes);

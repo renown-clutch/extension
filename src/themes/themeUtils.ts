@@ -45,6 +45,64 @@ let currentThemeClass = "";
 
 const stylesheetCache: Record<string, string> = {};
 
+// Track shadow DOM elements that need styling
+const shadowRoots: Set<ShadowRoot> = new Set();
+
+export function registerShadowRoot(shadowRoot: ShadowRoot): void {
+  shadowRoots.add(shadowRoot);
+
+  // Inject existing styles into the new shadow root
+  if (isFeaturesInjected && featureStyleElement.textContent) {
+    injectStyleIntoShadowRoot(
+      shadowRoot,
+      featureStyleElement.textContent,
+      "clutch-features-shadow"
+    );
+  }
+  if (isUnifiedThemesInjected && unifiedThemesElement.textContent) {
+    injectStyleIntoShadowRoot(
+      shadowRoot,
+      unifiedThemesElement.textContent,
+      "clutch-unified-themes-shadow"
+    );
+  }
+  if (isCommonInjected && commonStyleElement.textContent) {
+    injectStyleIntoShadowRoot(
+      shadowRoot,
+      commonStyleElement.textContent,
+      "clutch-common-shadow"
+    );
+  }
+}
+
+export function unregisterShadowRoot(shadowRoot: ShadowRoot): void {
+  shadowRoots.delete(shadowRoot);
+}
+
+function injectStyleIntoShadowRoot(
+  shadowRoot: ShadowRoot,
+  css: string,
+  id: string
+): void {
+  // Remove existing style element with the same ID
+  const existingStyle = shadowRoot.querySelector(`#${id}`);
+  if (existingStyle) {
+    existingStyle.remove();
+  }
+
+  // Create and inject new style element
+  const styleElement = document.createElement("style");
+  styleElement.id = id;
+  styleElement.textContent = css;
+  shadowRoot.appendChild(styleElement);
+}
+
+function injectStyleIntoAllShadowRoots(css: string, id: string): void {
+  shadowRoots.forEach((shadowRoot) => {
+    injectStyleIntoShadowRoot(shadowRoot, css, id);
+  });
+}
+
 export function saveThemeToLocalStorage(theme: string): void {
   try {
     localStorage.setItem(LOCAL_STORAGE_THEME_KEY, theme);
@@ -64,6 +122,11 @@ export function getThemeFromLocalStorage(): Theme | null {
 
 function applyTempStyling(theme: Theme = "dark"): void {
   if (!isTempThemeInjected && document.documentElement) {
+    // Don't apply any temporary styling for default theme
+    if (theme === "default") {
+      return;
+    }
+
     tempStyleElement.textContent =
       tempThemeStyles[theme] || tempThemeStyles.dark;
     document.documentElement.appendChild(tempStyleElement);
@@ -78,22 +141,29 @@ function removeTempStyling(): void {
   }
 }
 
+function removeCommonStyles(): void {
+  if (isCommonInjected && commonStyleElement.parentNode) {
+    commonStyleElement.parentNode.removeChild(commonStyleElement);
+    isCommonInjected = false;
+  }
+}
+
+function ensureCommonStylesLoaded(): void {
+  if (!isCommonInjected) {
+    loadAndApplyCommon();
+  }
+}
+
 function applyThemeClass(theme: Theme): void {
   if (currentThemeClass) {
     document.documentElement.classList.remove(currentThemeClass);
   }
 
   if (theme === "default") {
-    const commonStyleElement = document.getElementById("clutch-common");
-    if (commonStyleElement) {
-      commonStyleElement.remove();
-    }
+    removeCommonStyles();
     return;
   } else {
-    const commonStyleElement = document.getElementById("clutch-common");
-    if (!commonStyleElement) {
-      loadAndApplyCommon();
-    }
+    ensureCommonStylesLoaded();
   }
 
   const themeClass = `theme-${theme}`;
@@ -103,24 +173,14 @@ function applyThemeClass(theme: Theme): void {
 
 export function initTempStyling(): void {
   const cachedTheme = getThemeFromLocalStorage();
-  if (cachedTheme) {
+  if (cachedTheme && cachedTheme !== "default") {
     applyTempStyling(cachedTheme);
   }
 }
 
 export function applyThemeToPopup(theme: string): void {
-  const popupRoot = document.querySelector(".popup-root");
-  if (popupRoot) {
-    // Remove any existing theme classes
-    popupRoot.classList.forEach((className) => {
-      if (className.startsWith("theme-")) {
-        popupRoot.classList.remove(className);
-      }
-    });
-
-    // Add the new theme class
-    popupRoot.classList.add(`theme-${theme}`);
-  }
+  // Legacy function - now delegates to switchPopupTheme
+  switchPopupTheme(theme as Theme);
 }
 
 export async function initializeTheme(
@@ -129,19 +189,15 @@ export async function initializeTheme(
   const theme = userSettings.selectedTheme as Theme;
   saveThemeToLocalStorage(theme);
 
-  applyTempStyling(theme);
+  // Skip temp styling for default theme to avoid flash
+  if (theme !== "default") {
+    applyTempStyling(theme);
+  }
 
   try {
+    await Promise.all([loadAndApplyUnifiedThemes(), loadAndApplyFeatures()]);
+
     applyThemeClass(theme);
-
-    const loadPromises = [loadAndApplyUnifiedThemes(), loadAndApplyFeatures()];
-
-    // Only load common styles if theme is not default
-    if (theme !== "default") {
-      loadPromises.push(loadAndApplyCommon());
-    }
-
-    await Promise.all(loadPromises);
 
     removeTempStyling();
   } catch (error) {
@@ -170,7 +226,10 @@ export function switchThemeSync(theme: Theme): void {
     applyThemeClass(theme);
   } else {
     // If not loaded yet, apply temp styling and load in background
-    applyTempStyling(theme);
+    // But skip temp styling for default theme to avoid flash
+    if (theme !== "default") {
+      applyTempStyling(theme);
+    }
     loadAndApplyUnifiedThemes().then(() => {
       applyThemeClass(theme);
       removeTempStyling();
@@ -208,12 +267,22 @@ async function loadAndApplyUnifiedThemes(): Promise<void> {
       if (document.head) {
         document.head.appendChild(unifiedThemesElement);
         isUnifiedThemesInjected = true;
+        // Also inject into shadow DOM elements
+        injectStyleIntoAllShadowRoots(
+          stylesheet,
+          "clutch-unified-themes-shadow"
+        );
       } else {
         createHeadObserver(
           () => {
             if (document.head && !isUnifiedThemesInjected) {
               document.head.appendChild(unifiedThemesElement);
               isUnifiedThemesInjected = true;
+              // Also inject into shadow DOM elements
+              injectStyleIntoAllShadowRoots(
+                stylesheet,
+                "clutch-unified-themes-shadow"
+              );
             }
           },
           { childList: true }
@@ -235,12 +304,19 @@ async function loadAndApplyFeatures(): Promise<void> {
       if (document.head) {
         document.head.appendChild(featureStyleElement);
         isFeaturesInjected = true;
+        // Also inject into shadow DOM elements
+        injectStyleIntoAllShadowRoots(stylesheet, "clutch-features-shadow");
       } else {
         createHeadObserver(
           () => {
             if (document.head && !isFeaturesInjected) {
               document.head.appendChild(featureStyleElement);
               isFeaturesInjected = true;
+              // Also inject into shadow DOM elements
+              injectStyleIntoAllShadowRoots(
+                stylesheet,
+                "clutch-features-shadow"
+              );
             }
           },
           { childList: true }
@@ -262,12 +338,16 @@ async function loadAndApplyCommon(): Promise<void> {
       if (document.head) {
         document.head.appendChild(commonStyleElement);
         isCommonInjected = true;
+        // Also inject into shadow DOM elements
+        injectStyleIntoAllShadowRoots(stylesheet, "clutch-common-shadow");
       } else {
         createHeadObserver(
           () => {
             if (document.head && !isCommonInjected) {
               document.head.appendChild(commonStyleElement);
               isCommonInjected = true;
+              // Also inject into shadow DOM elements
+              injectStyleIntoAllShadowRoots(stylesheet, "clutch-common-shadow");
             }
           },
           { childList: true }
@@ -296,10 +376,7 @@ export function removeAllThemeStyles(): void {
     isFeaturesInjected = false;
   }
 
-  if (isCommonInjected && commonStyleElement.parentNode) {
-    commonStyleElement.parentNode.removeChild(commonStyleElement);
-    isCommonInjected = false;
-  }
+  removeCommonStyles();
 
   // Remove theme class
   if (currentThemeClass) {
@@ -311,5 +388,54 @@ export function removeAllThemeStyles(): void {
     localStorage.removeItem(LOCAL_STORAGE_THEME_KEY);
   } catch (error) {
     console.error("Failed to remove theme from localStorage:", error);
+  }
+}
+
+export async function initializePopupTheme(theme: Theme): Promise<void> {
+  try {
+    // Load unified themes stylesheet for popup
+    await loadAndApplyUnifiedThemes();
+
+    // Apply theme class to document root for popup
+    if (currentThemeClass) {
+      document.documentElement.classList.remove(currentThemeClass);
+    }
+
+    if (theme !== "default") {
+      const themeClass = `theme-${theme}`;
+      document.documentElement.classList.add(themeClass);
+      currentThemeClass = themeClass;
+    }
+  } catch (error) {
+    console.error("Failed to initialize popup theme:", error);
+    // Fallback: still apply theme class even if unified themes failed to load
+    if (theme !== "default") {
+      const themeClass = `theme-${theme}`;
+      document.documentElement.classList.add(themeClass);
+      currentThemeClass = themeClass;
+    }
+  }
+}
+
+export function switchPopupTheme(theme: Theme): void {
+  // Remove current theme class
+  if (currentThemeClass) {
+    document.documentElement.classList.remove(currentThemeClass);
+  }
+
+  // Apply new theme class if not default
+  if (theme !== "default") {
+    const themeClass = `theme-${theme}`;
+    document.documentElement.classList.add(themeClass);
+    currentThemeClass = themeClass;
+  } else {
+    currentThemeClass = "";
+  }
+
+  // If unified themes aren't loaded yet, load them in the background
+  if (!isUnifiedThemesInjected) {
+    loadAndApplyUnifiedThemes().catch((error) => {
+      console.error("Failed to load unified themes for popup:", error);
+    });
   }
 }

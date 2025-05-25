@@ -19,33 +19,6 @@
   const triggerContent = $derived(
     themes.find((t) => t.value === selectedTheme)?.label ?? "Select a theme"
   );
-
-  function reloadPage() {
-    if (typeof chrome !== "undefined" && chrome.tabs) {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0]?.id) {
-          chrome.tabs.reload(tabs[0].id);
-        }
-      });
-    } else if (typeof browser !== "undefined" && browser.tabs) {
-      browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-        if (tabs[0]?.id) {
-          browser.tabs.reload(tabs[0].id);
-        }
-      });
-    }
-  }
-
-  $effect(() => {
-    if (
-      selectedTheme === "default" &&
-      previousTheme !== "" &&
-      previousTheme !== selectedTheme
-    ) {
-      reloadPage();
-    }
-    previousTheme = selectedTheme;
-  });
 </script>
 
 <main class=" ">
