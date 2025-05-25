@@ -84,7 +84,6 @@ function applyThemeClass(theme: Theme): void {
   }
 
   if (theme === "default") {
-    // delete clutch-common
     const commonStyleElement = document.getElementById("clutch-common");
     if (commonStyleElement) {
       commonStyleElement.remove();

@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 *.zip
 dist-firefox/
+
+.css-cache.json
