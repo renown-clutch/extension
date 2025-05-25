@@ -1,16 +1,16 @@
 <script lang="ts">
   import "./Popup.css";
   import Sidebar from "$lib/components/layout/Sidebar.svelte";
-  // import SoundTab from "./tabs/Sound.svelte";
+  import SoundTab from "./tabs/Sound.svelte";
   import ThemeTab from "./tabs/Theme.svelte";
-  // import ProfilesTab from "./tabs/Profiles.svelte";
-  // import FriendsTab from "./tabs/Friends.svelte";
-  // import AutoAcceptTab from "./tabs/AutoAccept.svelte";
-  // import SettingsTab from "./tabs/Settings.svelte";
-  // import MatchTab from "./tabs/Match.svelte";
-  // import MainPageTab from "./tabs/MainPage.svelte";
+  import ProfilesTab from "./tabs/Profiles.svelte";
+  import FriendsTab from "./tabs/Friends.svelte";
+  import AutoAcceptTab from "./tabs/AutoAccept.svelte";
+  import SettingsTab from "./tabs/Settings.svelte";
+  import MatchTab from "./tabs/Match.svelte";
+  import MainPageTab from "./tabs/MainPage.svelte";
   import ChatTab from "./tabs/Chat.svelte";
-  import { onMount, untrack } from "svelte";
+  import { onMount } from "svelte";
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings, SETTING_DEFINITIONS } from "$lib/types";
   import browserAPI from "$lib/browserAPI";
@@ -154,15 +154,15 @@
 
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
-        <!-- {:else if userSettings.activeTab === "Auto-accept"}
+      {:else if userSettings.activeTab === "Auto-accept"}
         <AutoAcceptTab
           bind:autoAccept={userSettings.autoAccept}
           bind:matchAutoAcceptDelay={userSettings.matchAutoAcceptDelay}
           bind:partyAutoAcceptDelay={userSettings.partyAutoAcceptDelay}
-        /> -->
+        />
       {:else if userSettings.activeTab === "Chat"}
         <ChatTab bind:showChatWindow={userSettings.showChatWindow} />
-        <!-- {:else if userSettings.activeTab === "Match"}
+      {:else if userSettings.activeTab === "Match"}
         <MatchTab
           bind:showFaceitRanksOnMatchPage={
             userSettings.showFaceitRanksOnMatchPage
@@ -206,7 +206,7 @@
           bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
           bind:showAveragePartyElo={userSettings.showAveragePartyElo}
           bind:showFaceitEloOnPartyList={userSettings.showFaceitEloOnPartyList}
-        /> -->
+        />
       {/if}
     </div>
   </div>

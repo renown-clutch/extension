@@ -305,7 +305,8 @@ async function buildEntries() {
       plugins: [
         svelte({
           compilerOptions: {
-            dev: false
+            dev: isWatch, // Use dev mode when watching, production when building
+            hydratable: false
           }
         }),
         {
@@ -334,8 +335,9 @@ async function buildEntries() {
       },
       esbuild: {
         target: 'esnext',
-        minify: true,
-        treeShaking: true
+        minify: !isWatch, // Only minify in production builds
+        treeShaking: true,
+        keepNames: true // Preserve function names for better debugging
       },
       build: {
         watch: isWatch ? {} : null,
@@ -355,8 +357,8 @@ async function buildEntries() {
             assetFileNames: '[name].[ext]'
           },
           treeshake: {
-            moduleSideEffects: false,
-            propertyReadSideEffects: false,
+            moduleSideEffects: 'no-external',
+            propertyReadSideEffects: true, // Keep property reads for state reactivity
             unknownGlobalSideEffects: false
           }
         }
