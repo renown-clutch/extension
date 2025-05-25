@@ -126,7 +126,7 @@ export const SETTING_DEFINITIONS: Record<
   selectedTheme: {
     key: "selectedTheme",
     category: "theme",
-    defaultValue: "",
+    defaultValue: "dark",
     description: "The selected theme for the extension",
     handlers: [initializeTheme],
   },
