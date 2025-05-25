@@ -393,10 +393,8 @@ export function removeAllThemeStyles(): void {
 
 export async function initializePopupTheme(theme: Theme): Promise<void> {
   try {
-    // Load unified themes stylesheet for popup
     await loadAndApplyUnifiedThemes();
 
-    // Apply theme class to document root for popup
     if (currentThemeClass) {
       document.documentElement.classList.remove(currentThemeClass);
     }
@@ -423,14 +421,14 @@ export function switchPopupTheme(theme: Theme): void {
     document.documentElement.classList.remove(currentThemeClass);
   }
 
-  // Apply new theme class if not default
+  let themeClass = "";
   if (theme !== "default") {
-    const themeClass = `theme-${theme}`;
-    document.documentElement.classList.add(themeClass);
-    currentThemeClass = themeClass;
+    themeClass = `theme-${theme}`;
   } else {
-    currentThemeClass = "";
+    themeClass = "theme-dark";
   }
+  document.documentElement.classList.add(themeClass);
+  currentThemeClass = themeClass;
 
   // If unified themes aren't loaded yet, load them in the background
   if (!isUnifiedThemesInjected) {

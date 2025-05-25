@@ -88,26 +88,14 @@
 /* Custom Scrollbar Styles */
 ::-webkit-scrollbar {
   width: 10px;
-  background: var(--slate-950);
+  background: var(--scrollbar-bg, var(--slate-950));
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--slate-700);
+  background: var(--scrollbar-color, var(--slate-700));
   border-radius: 8px;
-  border: 2px solid var(--slate-950);
+  border: 2px solid var(--scrollbar-bg, var(--slate-950));
 }
 
 ::-webkit-scrollbar-corner {
-  background: var(--slate-950);
-}
-
-.dark ::-webkit-scrollbar {
-  background: hsl(var(--background));
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: hsl(var(--sidebar-accent));
-  border: 2px solid hsl(var(--background));
-}
-
-.dark ::-webkit-scrollbar-corner {
-  background: hsl(var(--background));
+  background: var(--scrollbar-bg, var(--slate-950));
 }
