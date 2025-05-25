@@ -4,8 +4,8 @@
 
   const themes = [
     { label: "Default", value: "default" },
-    { label: "Dark", value: "dark" },
-    { label: "Dark Gray", value: "darkgray" },
+    { label: "Blue", value: "dark" },
+    { label: "Gray", value: "darkgray" },
     { label: "Black", value: "black" },
     { label: "Pink", value: "pink" },
     { label: "Purple", value: "purple" },
@@ -14,7 +14,6 @@
   ];
 
   let { selectedTheme = $bindable("") } = $props();
-  let previousTheme = $state(selectedTheme);
 
   const triggerContent = $derived(
     themes.find((t) => t.value === selectedTheme)?.label ?? "Select a theme"
