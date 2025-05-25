@@ -1,22 +1,24 @@
 <script lang="ts">
   import "./Popup.css";
   import Sidebar from "$lib/components/layout/Sidebar.svelte";
-  import SoundTab from "./tabs/Sound.svelte";
+  // import SoundTab from "./tabs/Sound.svelte";
   import ThemeTab from "./tabs/Theme.svelte";
-  import ProfilesTab from "./tabs/Profiles.svelte";
-  import FriendsTab from "./tabs/Friends.svelte";
-  import AutoAcceptTab from "./tabs/AutoAccept.svelte";
-  import SettingsTab from "./tabs/Settings.svelte";
-  import MatchTab from "./tabs/Match.svelte";
-  import MainPageTab from "./tabs/MainPage.svelte";
+  // import ProfilesTab from "./tabs/Profiles.svelte";
+  // import FriendsTab from "./tabs/Friends.svelte";
+  // import AutoAcceptTab from "./tabs/AutoAccept.svelte";
+  // import SettingsTab from "./tabs/Settings.svelte";
+  // import MatchTab from "./tabs/Match.svelte";
+  // import MainPageTab from "./tabs/MainPage.svelte";
   import ChatTab from "./tabs/Chat.svelte";
   import { onMount, untrack } from "svelte";
   import type { UserSettings } from "$lib/types";
   import { defaultUserSettings, SETTING_DEFINITIONS } from "$lib/types";
   import browserAPI from "$lib/browserAPI";
-  // import { initializePopupTheme, switchPopupTheme } from "../themes/themeUtils";
+  import { initializePopupTheme, switchPopupTheme } from "../themes/themeUtils";
 
-  let userSettings: UserSettings = $state<UserSettings>(defaultUserSettings);
+  let userSettings = $state<UserSettings>({
+    ...defaultUserSettings,
+  });
   let previousSettings: UserSettings = { ...defaultUserSettings };
 
   function stripProxies(obj: any): any {
@@ -89,25 +91,20 @@
 
       console.log("Loaded settings:", settings);
 
-      untrack(() => {
-        if (settings) {
-          userSettings = settings;
-          previousSettings = { ...settings };
+      if (settings) {
+        const cleanSettings = JSON.parse(JSON.stringify(settings));
+        const mergedSettings = { ...defaultUserSettings, ...cleanSettings };
 
-          Object.keys(defaultUserSettings).forEach((key) => {
-            if (!(key in userSettings)) {
-              (userSettings as any)[key] = (defaultUserSettings as any)[key];
-            }
-          });
-        } else {
-          userSettings = defaultUserSettings;
-          previousSettings = { ...defaultUserSettings };
-        }
-      });
+        userSettings = mergedSettings;
+        previousSettings = { ...mergedSettings };
+      } else {
+        userSettings = { ...defaultUserSettings };
+        previousSettings = { ...defaultUserSettings };
+      }
 
-      // if (userSettings.selectedTheme) {
-      //   await initializePopupTheme(userSettings.selectedTheme);
-      // }
+      if (userSettings.selectedTheme) {
+        await initializePopupTheme(userSettings.selectedTheme);
+      }
 
       console.log("Loaded settings:", userSettings);
     } catch (error) {
@@ -133,7 +130,7 @@
 
       if (Object.keys(changes).length > 0) {
         if (changes.selectedTheme) {
-          // switchPopupTheme(changes.selectedTheme);
+          switchPopupTheme(changes.selectedTheme);
         }
 
         sendSettingsToContentScript(changes);
@@ -150,17 +147,22 @@
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
     <div class="flex-1 p-8 overflow-y-auto">
+      <!-- Debug info -->
+      <div class="text-xs text-gray-500 mb-2">
+        Active tab: {userSettings.activeTab}
+      </div>
+
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
-      {:else if userSettings.activeTab === "Auto-accept"}
+        <!-- {:else if userSettings.activeTab === "Auto-accept"}
         <AutoAcceptTab
           bind:autoAccept={userSettings.autoAccept}
           bind:matchAutoAcceptDelay={userSettings.matchAutoAcceptDelay}
           bind:partyAutoAcceptDelay={userSettings.partyAutoAcceptDelay}
-        />
+        /> -->
       {:else if userSettings.activeTab === "Chat"}
         <ChatTab bind:showChatWindow={userSettings.showChatWindow} />
-      {:else if userSettings.activeTab === "Match"}
+        <!-- {:else if userSettings.activeTab === "Match"}
         <MatchTab
           bind:showFaceitRanksOnMatchPage={
             userSettings.showFaceitRanksOnMatchPage
@@ -204,7 +206,7 @@
           bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
           bind:showAveragePartyElo={userSettings.showAveragePartyElo}
           bind:showFaceitEloOnPartyList={userSettings.showFaceitEloOnPartyList}
-        />
+        /> -->
       {/if}
     </div>
   </div>
