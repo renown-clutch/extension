@@ -1,0 +1,59 @@
+/* Sidebar Friends Component Styles */
+
+.clutch-sidebar-friends-container {
+  padding: 28px;
+}
+
+.clutch-sidebar-friend-profile-link {
+  gap: 10px;
+}
+
+/* Hide badges when sidebar is collapsed */
+.play-friend-list.collapsed .friend-row .profile-link .tooltip-wrapper {
+  display: none;
+}
+
+/* Fix layout for friend rows */
+.sidebar-content .friends .friend-row .profile-link {
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Ensure avatar keeps its size */
+.sidebar-content .friends .friend-row .profile-link .avatar {
+  flex-shrink: 0 !important;
+}
+
+/* Make info area flexible but prevent overflow */
+.sidebar-content .friends .friend-row .profile-link .info {
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Prevent name from causing overflow */
+.sidebar-content .friends .friend-row .profile-link .info .name {
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
+/* Position rank badge consistently */
+.sidebar-content .friends .friend-row .profile-link .tooltip-wrapper {
+  margin-left: auto !important;
+  margin-right: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Make rank badge more compact */
+.sidebar-content
+  .friends
+  .friend-row
+  .profile-link
+  .tooltip-wrapper
+  .rank-badge {
+  padding: 0 6px !important;
+}

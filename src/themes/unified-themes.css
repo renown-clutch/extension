@@ -1,0 +1,291 @@
+/* Base theme variables - Default theme */
+:root,
+.theme-default {
+  --slate-950: #020618;
+  --slate-900: #0f172b;
+  --slate-900-80: #0f172bdb;
+  --slate-800: #3b241f;
+  --slate-700: #3b241f;
+  --slate-700-80: #314158db;
+  --slate-600: #45556c;
+}
+
+/* Dark theme */
+.theme-dark {
+  --slate-950: #020618;
+  --slate-900: #0f1629;
+  --slate-900-80: #0f1629db;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-700-80: #334155db;
+  --slate-600: #475569;
+  --linear-gradient-90: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-700) 300px
+  );
+  --linear-gradient-90-hover: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-800) 300px
+  );
+  --linear-gradient-45: linear-gradient(
+    45deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --linear-gradient-90-2: linear-gradient(
+    90deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47) 0 0),
+    conic-gradient(
+      from var(--angle) at 50% 50%,
+      rgb(255, 85, 0) 0deg,
+      rgba(255, 85, 0, 0) 1turn
+    );
+  --scrollbar-bg: rgba(15, 22, 41, 0.8);
+  --scrollbar-color: #334155;
+  --footer: #0f1629;
+}
+
+/* Pink theme */
+.theme-pink {
+  --slate-950: #440c21;
+  --slate-900: #5c1a2e;
+  --slate-900-80: #5c1a2edb;
+  --slate-800: #7c2d3e;
+  --slate-700: #9c3f4e;
+  --slate-700-80: #9c3f4edb;
+  --slate-600: #bc515e;
+  --linear-gradient-90: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-700) 300px
+  );
+  --linear-gradient-90-hover: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-800) 300px
+  );
+  --linear-gradient-45: linear-gradient(
+    45deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --linear-gradient-90-2: linear-gradient(
+    90deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --confirm-match-modal-bg-image: linear-gradient(rgba(68, 12, 33) 0 0),
+    conic-gradient(
+      from var(--angle) at 50% 50%,
+      rgb(255, 85, 0) 0deg,
+      rgba(255, 85, 0, 0) 1turn
+    );
+  --scrollbar-bg: rgba(92, 26, 46, 0.8);
+  --scrollbar-color: #9c3f4e;
+  --footer: #5c1a2e;
+}
+
+/* Purple theme */
+.theme-purple {
+  --slate-950: #1a0033;
+  --slate-900: #2d1a4d;
+  --slate-900-80: #2d1a4ddb;
+  --slate-800: #4a2d66;
+  --slate-700: #663f80;
+  --slate-700-80: #663f80db;
+  --slate-600: #825299;
+  --linear-gradient-90: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-700) 300px
+  );
+  --linear-gradient-90-hover: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-800) 300px
+  );
+  --linear-gradient-45: linear-gradient(
+    45deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --linear-gradient-90-2: linear-gradient(
+    90deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --confirm-match-modal-bg-image: linear-gradient(rgba(26, 0, 51) 0 0),
+    conic-gradient(
+      from var(--angle) at 50% 50%,
+      rgb(255, 85, 0) 0deg,
+      rgba(255, 85, 0, 0) 1turn
+    );
+  --scrollbar-bg: rgba(45, 26, 77, 0.8);
+  --scrollbar-color: #663f80;
+  --footer: #2d1a4d;
+}
+
+/* Green theme */
+.theme-green {
+  --slate-950: #0a2613;
+  --slate-900: #1a3d26;
+  --slate-900-80: #1a3d26db;
+  --slate-800: #2d5339;
+  --slate-700: #3f6a4d;
+  --slate-700-80: #3f6a4ddb;
+  --slate-600: #528060;
+  --linear-gradient-90: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-700) 300px
+  );
+  --linear-gradient-90-hover: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-800) 300px
+  );
+  --linear-gradient-45: linear-gradient(
+    45deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --linear-gradient-90-2: linear-gradient(
+    90deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --confirm-match-modal-bg-image: linear-gradient(rgba(10, 38, 19) 0 0),
+    conic-gradient(
+      from var(--angle) at 50% 50%,
+      rgb(255, 85, 0) 0deg,
+      rgba(255, 85, 0, 0) 1turn
+    );
+  --scrollbar-bg: rgba(26, 61, 38, 0.8);
+  --scrollbar-color: #3f6a4d;
+  --footer: #1a3d26;
+}
+
+/* Dark Gray theme */
+.theme-darkgray {
+  --slate-950: #1a1a1a;
+  --slate-900: #2a2a2a;
+  --slate-900-80: #2a2a2adb;
+  --slate-800: #3a3a3a;
+  --slate-700: #4a4a4a;
+  --slate-700-80: #4a4a4adb;
+  --slate-600: #5a5a5a;
+  --linear-gradient-90: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-700) 300px
+  );
+  --linear-gradient-90-hover: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-800) 300px
+  );
+  --linear-gradient-45: linear-gradient(
+    45deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --linear-gradient-90-2: linear-gradient(
+    90deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --confirm-match-modal-bg-image: linear-gradient(rgba(26, 26, 26) 0 0),
+    conic-gradient(
+      from var(--angle) at 50% 50%,
+      rgb(255, 85, 0) 0deg,
+      rgba(255, 85, 0, 0) 1turn
+    );
+  --scrollbar-bg: rgba(42, 42, 42, 0.8);
+  --scrollbar-color: #4a4a4a;
+  --footer: #2a2a2a;
+}
+
+/* Black theme */
+.theme-black {
+  --slate-950: #0a0a0a;
+  --slate-900: #171717;
+  --slate-900-80: #171717db;
+  --slate-800: #262626;
+  --slate-700: #404040;
+  --slate-700-80: #404040db;
+  --slate-600: #525252;
+  --linear-gradient-90: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-700) 300px
+  );
+  --linear-gradient-90-hover: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-800) 300px
+  );
+  --linear-gradient-45: linear-gradient(
+    45deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --linear-gradient-90-2: linear-gradient(
+    90deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47) 0 0),
+    conic-gradient(
+      from var(--angle) at 50% 50%,
+      rgb(255, 85, 0) 0deg,
+      rgba(255, 85, 0, 0) 1turn
+    );
+  --scrollbar-bg: rgba(31, 31, 31, 0.8);
+  --scrollbar-color: #444444;
+  --footer: #1a1a1a;
+}
+
+/* OLED theme */
+.theme-oled {
+  --slate-950: #000000;
+  --slate-900: #0d0d0d;
+  --slate-900-80: #0d0d0ddb;
+  --slate-800: #1a1a1a;
+  --slate-700: #262626;
+  --slate-700-80: #262626db;
+  --slate-600: #333333;
+  --linear-gradient-90: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-700) 300px
+  );
+  --linear-gradient-90-hover: linear-gradient(
+    90deg,
+    var(--slate-900-80),
+    var(--slate-800) 300px
+  );
+  --linear-gradient-45: linear-gradient(
+    45deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --linear-gradient-90-2: linear-gradient(
+    90deg,
+    var(--slate-900),
+    var(--slate-800)
+  );
+  --confirm-match-modal-bg-image: linear-gradient(rgba(0, 0, 0) 0 0),
+    conic-gradient(
+      from var(--angle) at 50% 50%,
+      rgb(255, 85, 0) 0deg,
+      rgba(255, 85, 0, 0) 1turn
+    );
+  --scrollbar-bg: rgba(13, 13, 13, 0.8);
+  --scrollbar-color: #262626;
+  --footer: #0d0d0d;
+}

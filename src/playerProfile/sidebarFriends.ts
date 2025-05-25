@@ -1,6 +1,7 @@
 import { waitForElement } from "../utils/profileUtils";
 import { type UserSettings } from "../lib/types";
 import { getRankTier, createRankBadgeElement } from "../utils/rankBadgeUtils";
+import browserAPI from "../lib/browserAPI";
 
 let friendsObserver: MutationObserver | null = null;
 
@@ -11,6 +12,12 @@ function removeRankBadges(): void {
   tooltipWrappers.forEach((wrapper) => {
     wrapper.remove();
   });
+
+  // Remove injected CSS when cleaning up
+  const styleElement = document.getElementById("clutch-sidebar-friends-styles");
+  if (styleElement) {
+    styleElement.remove();
+  }
 }
 
 function renderFriendRanks(ranks: Record<string, number | null>): void {
@@ -18,7 +25,7 @@ function renderFriendRanks(ranks: Record<string, number | null>): void {
     ".play-friend-list"
   ) as HTMLElement;
   if (playFriendList) {
-    playFriendList.style.padding = "28px";
+    playFriendList.classList.add("clutch-sidebar-friends-container");
   }
   const friendRows = playFriendList.querySelectorAll(".friend-row");
 
@@ -30,7 +37,7 @@ function renderFriendRanks(ranks: Record<string, number | null>): void {
 
     const href = profileLink.getAttribute("href");
     if (!href) return;
-    profileLink.style.gap = "10px";
+    profileLink.classList.add("clutch-sidebar-friend-profile-link");
 
     const match = href.match(/\/profile\/(\d+)/);
     if (!match || !match[1]) return;
@@ -97,67 +104,9 @@ async function processSidebarFriends(showRanks: boolean): Promise<void> {
   const friendIds = await extractFriendIds();
 
   if (friendIds.length > 0) {
-    injectCollapseCSS();
     const ranks = await fetchFriendsRanks(friendIds);
     renderFriendRanks(ranks);
   }
-}
-
-function injectCollapseCSS(): void {
-  const styleId = "clutch-sidebar-rank-style";
-
-  if (document.getElementById(styleId)) return;
-
-  const style = document.createElement("style");
-  style.id = styleId;
-  style.textContent = `
-    /* Hide badges when sidebar is collapsed */
-    .play-friend-list.collapsed .friend-row .profile-link .tooltip-wrapper {
-      display: none;
-    }
-    
-    /* Fix layout for friend rows */
-    .sidebar-content .friends .friend-row .profile-link {
-      display: flex !important;
-      align-items: center !important;
-      position: relative !important;
-      width: 100% !important;
-      overflow: hidden !important;
-    }
-    
-    /* Ensure avatar keeps its size */
-    .sidebar-content .friends .friend-row .profile-link .avatar {
-      flex-shrink: 0 !important;
-    }
-    
-    /* Make info area flexible but prevent overflow */
-    .sidebar-content .friends .friend-row .profile-link .info {
-      flex: 1 !important;
-      min-width: 0 !important;
-      overflow: hidden !important;
-    }
-    
-    /* Prevent name from causing overflow */
-    .sidebar-content .friends .friend-row .profile-link .info .name {
-      text-overflow: ellipsis !important;
-      overflow: hidden !important;
-      white-space: nowrap !important;
-    }
-    
-    /* Position rank badge consistently */
-    .sidebar-content .friends .friend-row .profile-link .tooltip-wrapper {
-      margin-left: auto !important;
-      margin-right: 8px !important;
-      flex-shrink: 0 !important;
-    }
-    
-    /* Make rank badge more compact */
-    .sidebar-content .friends .friend-row .profile-link .tooltip-wrapper .rank-badge {
-      padding: 0 6px !important;
-    }
-  `;
-
-  document.head.appendChild(style);
 }
 
 function setupFriendsObserver(settings: UserSettings): void {

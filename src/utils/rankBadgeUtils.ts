@@ -2,6 +2,8 @@
  * Utilities for creating and displaying Renown rank badges
  */
 
+import browserAPI from "../lib/browserAPI";
+
 /**
  * Determines rank tier based on elo
  */
@@ -64,8 +66,8 @@ export function createRankBadgeElement(
 
   // Create rank badge div
   const rankBadge = document.createElement("div");
-  rankBadge.className = `rank-badge ${rankTier}`;
-  rankBadge.style.cssText = `--size:${size}px; display: flex; align-items: center;${additionalStyles}`;
+  rankBadge.className = `rank-badge ${rankTier} clutch-rank-badge`;
+  rankBadge.style.cssText = `--size:${size}px; ${additionalStyles}`;
   rankBadge.setAttribute(
     "aria-label",
     `Rank: ${capitalizedRankTier}, Elo: ${formattedElo}`
@@ -85,7 +87,7 @@ export function createRankBadgeElement(
   // Add elo text if requested
   if (includeEloText && formattedElo) {
     const span = document.createElement("span");
-    span.style.marginLeft = "4px";
+    span.className = "clutch-rank-badge-text";
     span.textContent = formattedElo;
     rankBadge.appendChild(span);
   }
@@ -110,13 +112,13 @@ export function createRankBadgeHtml(
 
   return `
     <div class="tooltip-wrapper" tabindex="0">
-      <div class="rank-badge ${rankTier}" style="--size:${size}px; display: flex; align-items: center;" aria-label="Rank: ${capitalizedRankTier}, Elo: ${formattedElo}">
+      <div class="rank-badge ${rankTier} clutch-rank-badge" style="--size:${size}px;" aria-label="Rank: ${capitalizedRankTier}, Elo: ${formattedElo}">
         <img alt="Renown rank ${rankTier}" loading="lazy" width="${size}" height="${size}" decoding="async" data-nimg="1" style="color:transparent" src="${getRankIconPath(
     rankTier
   )}">
         ${
           includeEloText
-            ? `<span style="margin-left: 4px;">${formattedElo}</span>`
+            ? `<span class="clutch-rank-badge-text">${formattedElo}</span>`
             : ""
         }
       </div>

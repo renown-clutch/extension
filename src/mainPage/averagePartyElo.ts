@@ -254,17 +254,16 @@ async function addAveragePartyEloDisplay(
   if (existing) existing.remove();
 
   const wrapper = document.createElement("div");
-  wrapper.style.cssText =
-    "display: flex; align-items: center; gap: 0.1rem; border-left: 2px solid var(--slate-600); padding-left: 0.5rem; margin-right: 0.75rem;";
+  wrapper.className = "clutch-average-party-elo-wrapper";
   wrapper.setAttribute("data-clutch-extension", "average-party-elo");
 
   const avgRenownLabel = document.createElement("div");
+  avgRenownLabel.className = "clutch-average-elo-label";
   avgRenownLabel.textContent = "Average ELO:";
-  avgRenownLabel.style.fontSize = "14px";
   wrapper.appendChild(avgRenownLabel);
 
   const rankBadge = createRankBadgeElement(averageElo, 24, true);
-  rankBadge.style.marginLeft = "12px";
+  rankBadge.className = "clutch-average-elo-rank-badge";
   wrapper.appendChild(rankBadge);
 
   partyName.appendChild(wrapper);
@@ -354,7 +353,7 @@ async function addPlayerFaceitBadges(
           "",
           "faceit-badge-player"
         );
-        faceitBadge.style.marginTop = "4px";
+        faceitBadge.classList.add("clutch-player-faceit-badge");
 
         eloContainer.appendChild(faceitBadge);
       }
@@ -380,7 +379,7 @@ function addAverageFaceitBadge(
     const averageFaceitElo = Math.round(totalFaceitElo / faceitPlayerCount);
 
     const separator = document.createElement("div");
-    separator.style.width = "8px";
+    separator.className = "clutch-faceit-separator";
     wrapper.appendChild(separator);
 
     const faceitBadge = createFaceitBadgeElement(

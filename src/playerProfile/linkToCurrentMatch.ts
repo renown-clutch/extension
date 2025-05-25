@@ -76,9 +76,7 @@ async function displayLinkToCurrentMatch(playerId: string) {
       ".actions"
     ) as HTMLElement;
     if (actionsElement) {
-      Object.assign(actionsElement.style, {
-        alignItems: "flex-end",
-      });
+      actionsElement.classList.add("clutch-profile-actions-container");
     }
 
     const linksContainer = profileBanner.querySelector(".links");
@@ -89,30 +87,8 @@ async function displayLinkToCurrentMatch(playerId: string) {
     // Create and add the link
     const matchLink = document.createElement("a");
     matchLink.href = `/match/${currentMatch.id}`;
-    matchLink.className = "clutch-current_match_link primary-button sm";
-    Object.assign(matchLink.style, {
-      padding: "6px 14px",
-      borderRadius: "100rem",
-      backgroundColor: "hsla(0, 0%, 100%, .05)",
-      display: "flex",
-      gap: "8px",
-      alignItems: "center",
-      fontSize: "14px",
-      lineHeight: "20px",
-      fontWeight: "500",
-      color: "#fff",
-      transition: "background-color 0.2s ease",
-      cursor: "pointer"
-    });
-
-    // Add hover effect
-    matchLink.addEventListener("mouseenter", () => {
-      matchLink.style.backgroundColor = "hsla(0, 0%, 100%, .1)";
-    });
-
-    matchLink.addEventListener("mouseleave", () => {
-      matchLink.style.backgroundColor = "hsla(0, 0%, 100%, .05)";
-    });
+    matchLink.className =
+      "clutch-current_match_link clutch-current-match-link primary-button sm";
 
     matchLink.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords-icon lucide-swords"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"></polyline><line x1="5" x2="9" y1="14" y2="18"></line><line x1="7" x2="4" y1="17" y2="20"></line><line x1="3" x2="5" y1="19" y2="21"></line></svg>
@@ -134,6 +110,14 @@ const removeExistingLink = () => {
   const existingLink = document.querySelector(".clutch-current_match_link");
   if (existingLink) {
     existingLink.remove();
+  }
+
+  // Remove injected CSS when cleaning up
+  const styleElement = document.getElementById(
+    "clutch-link-to-current-match-styles"
+  );
+  if (styleElement) {
+    styleElement.remove();
   }
 };
 

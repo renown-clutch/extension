@@ -6,6 +6,7 @@ import {
 } from "../utils/profileUtils";
 import { addTooltip } from "../utils/faceitUtils";
 import { is404Page } from "../utils/pageUtils";
+import browserAPI from "../lib/browserAPI";
 import type { UserSettings } from "$lib/types";
 
 interface Ban {
@@ -39,18 +40,11 @@ async function fetchUserBans(steamId: string): Promise<Ban[]> {
 
 function createBanBadge(ban: Ban): HTMLDivElement {
   const tooltipWrapper = document.createElement("div");
-  tooltipWrapper.className = "tooltip-wrapper";
-  tooltipWrapper.style.position = "relative";
-  tooltipWrapper.style.display = "inline-block";
+  tooltipWrapper.className = "tooltip-wrapper clutch-ban-tooltip-wrapper";
   tooltipWrapper.setAttribute("data-clutch-extension", "ban-element");
 
   const banBadge = document.createElement("div");
-  banBadge.className = "ban-badge";
-  banBadge.style.padding = "8px 12px";
-  banBadge.style.margin = "0 8px 0 0";
-  banBadge.style.fontSize = "12px";
-  banBadge.style.backgroundColor = "transparent";
-  banBadge.style.border = "1px solid var(--toastify-color-error)";
+  banBadge.className = "ban-badge clutch-ban-badge";
 
   const issuedDate = new Date(ban.issued_on);
   const formattedIssuedDate = formatDate(issuedDate);
@@ -104,18 +98,8 @@ function createBanBadge(ban: Ban): HTMLDivElement {
 
 function createNoBansBadge(): HTMLDivElement {
   const banBadge = document.createElement("div");
-  banBadge.className = "ban-badge good";
+  banBadge.className = "ban-badge good clutch-ban-badge";
   banBadge.setAttribute("data-clutch-extension", "ban-element");
-  banBadge.style.backgroundColor = "var(--toastify-color-success)";
-  banBadge.style.color = "var(--toastify-color-light)";
-  banBadge.style.padding = "8px 12px";
-  banBadge.style.margin = "0 4px 0 0";
-  banBadge.style.fontSize = "12px";
-  banBadge.style.lineHeight = "16px";
-  banBadge.style.maxWidth = "160px";
-  banBadge.style.justifyContent = "center";
-  banBadge.style.display = "flex";
-  banBadge.style.alignItems = "center";
 
   const badgeCheckSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -129,8 +113,7 @@ function createNoBansBadge(): HTMLDivElement {
   badgeCheckSvg.setAttribute("stroke-width", "2");
   badgeCheckSvg.setAttribute("stroke-linecap", "round");
   badgeCheckSvg.setAttribute("stroke-linejoin", "round");
-  badgeCheckSvg.style.verticalAlign = "middle";
-  badgeCheckSvg.style.marginRight = "6px";
+  badgeCheckSvg.classList.add("clutch-ban-check-svg");
 
   const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path1.setAttribute(
@@ -154,17 +137,8 @@ function createNoBansBadge(): HTMLDivElement {
 
 function createNoOtherBansBadge(): HTMLDivElement {
   const banBadge = document.createElement("div");
-  banBadge.className = "ban-badge";
+  banBadge.className = "ban-badge no-other-bans clutch-ban-badge";
   banBadge.setAttribute("data-clutch-extension", "ban-element");
-  banBadge.style.padding = "6px 10px";
-  banBadge.style.margin = "0 8px 0 0";
-  banBadge.style.fontSize = "12px";
-  banBadge.style.backgroundColor = "transparent";
-  banBadge.style.border = "1px solid var(--toastify-color-transparent)";
-  banBadge.style.color = "var(--toastify-color-transparent)";
-  banBadge.style.display = "inline-flex";
-  banBadge.style.alignItems = "center";
-  banBadge.style.whiteSpace = "nowrap";
 
   const searchXSvg = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -178,8 +152,7 @@ function createNoOtherBansBadge(): HTMLDivElement {
   searchXSvg.setAttribute("stroke-width", "2");
   searchXSvg.setAttribute("stroke-linecap", "round");
   searchXSvg.setAttribute("stroke-linejoin", "round");
-  searchXSvg.style.verticalAlign = "middle";
-  searchXSvg.style.marginRight = "4px";
+  searchXSvg.classList.add("clutch-ban-search-svg");
 
   const circle = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -219,6 +192,12 @@ function removeBanElements() {
     .forEach((element) => {
       element.remove();
     });
+
+  // Remove injected CSS when cleaning up
+  const styleElement = document.getElementById("clutch-previous-bans-styles");
+  if (styleElement) {
+    styleElement.remove();
+  }
 }
 
 async function renderBanBadges(bans: Ban[]): Promise<void> {
@@ -238,9 +217,6 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   const headerDiv = document.createElement("div");
   headerDiv.className = "text clutch-ban-history-header";
   headerDiv.setAttribute("data-clutch-extension", "ban-element");
-  headerDiv.style.marginBottom = "8px";
-  headerDiv.style.marginTop = "16px";
-  headerDiv.style.fontWeight = "600";
   headerDiv.textContent = "Ban History";
   container.appendChild(headerDiv);
 
@@ -336,6 +312,7 @@ export async function initializeProfileBans(
     removeBanElements();
     return;
   }
+
 
   if (is404Page()) {
     return;

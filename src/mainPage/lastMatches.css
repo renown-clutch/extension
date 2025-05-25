@@ -1,0 +1,92 @@
+/* Last Matches Component Styles */
+
+.clutch-past-matches {
+  margin-top: 2.5rem;
+  margin-bottom: -4rem;
+}
+
+.clutch-last-matches-title {
+  display: flex;
+  justify-content: space-between;
+  scroll-margin-top: 30px;
+  align-items: center;
+}
+
+.clutch-title-left-section {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.clutch-title-right-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: white;
+}
+
+.clutch-title-right-section a {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: white;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.clutch-title-right-section span {
+  font-weight: 500;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.clutch-title-right-section svg {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.clutch-title-right-section a:hover span,
+.clutch-title-right-section a:hover svg {
+  opacity: 1;
+}
+
+.clutch-matches-container {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  display: grid;
+  gap: 8px;
+}
+
+.clutch-matches-container.expanded {
+  max-height: 1000px;
+}
+
+.clutch-matches-container.collapsed {
+  max-height: 0;
+}
+
+.clutch-last-matches-header {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  display: grid;
+}
+
+.clutch-title-arrow {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+}
+
+.clutch-title-arrow.expanded {
+  transform: rotate(0deg);
+}
+
+.clutch-history-icon {
+  margin-right: 12px;
+}
+
+.clutch-title-text {
+  margin-right: 6px;
+  font-weight: 500;
+  font-size: 18px;
+}

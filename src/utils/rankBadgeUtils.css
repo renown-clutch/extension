@@ -1,0 +1,10 @@
+/* Rank Badge Utils Component Styles */
+
+.clutch-rank-badge {
+  display: flex;
+  align-items: center;
+}
+
+.clutch-rank-badge-text {
+  margin-left: 4px;
+}

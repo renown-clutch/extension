@@ -1,0 +1,781 @@
+.report-modal .gap-wrapper .reporting-player {
+  background-color: var(--slate-800);
+}
+
+.profile-recent-stats
+  .rank-elo
+  .rank-elo-header
+  .period-selector
+  .custom-selector
+  .custom-select__control {
+  background-color: var(--slate-800);
+  border-color: var(--slate-700);
+}
+
+.profile-recent-stats
+  .rank-elo
+  .elo-history-container
+  .elo-history
+  .chart-container
+  .recharts-tooltip-wrapper
+  .custom-tooltip {
+  background-color: var(--slate-800) !important;
+}
+
+path.recharts-curve.recharts-area-area {
+  fill: var(--slate-800);
+}
+
+.profile-recent-stats .rank-elo .elo-container .elo-stats-card {
+  background-color: var(--slate-800);
+}
+
+.dropped-skin-slim {
+  background: var(--slate-900-80);
+}
+
+.primary-button.dark {
+  background-color: var(--slate-800);
+}
+
+.report-modal .gap-wrapper .ban-options .option .radio-wrapper .radio {
+  border: 1px solid var(--slate-700);
+}
+
+.report-modal .gap-wrapper .ban-options .option.active,
+.report-modal .gap-wrapper .ban-options .option:hover {
+  background-color: var(--slate-800);
+}
+
+.match-veto .voting-options .voting-card.banned .overlay {
+  background: var(--slate-900-80);
+}
+
+.page.settings-layout
+  .grid
+  .membership-details
+  .overview
+  .payment
+  .payment-details {
+  background-color: var(--slate-900-80);
+}
+
+.page.settings-layout
+  .grid
+  .membership-details
+  .overview
+  .plan-features
+  .tier-features {
+  background-color: var(--slate-900-80);
+}
+
+.navbar .container .content .actions .profile-menu.open .toggle,
+.navbar .container .content .actions .profile-menu:hover .toggle {
+  background-color: var(--slate-900);
+}
+
+.modal .modal-content {
+  border: 2px solid var(--slate-900);
+}
+
+.rate-teammates .modal-content .player-list-wrapper .player-list .player {
+  background: var(--slate-950);
+  border: 1px solid var(--slate-800);
+}
+
+.rate-teammates
+  .modal-content
+  .player-list-wrapper
+  .player-list
+  .player
+  .rating-options
+  .in-party {
+  color: var(--slate-600);
+}
+
+.page.leaderboard .data .visitor-placement-row .separator .line {
+  border: 1px solid var(--slate-900);
+}
+
+.page.leaderboard .data {
+  border-top: 1px solid var(--slate-900);
+}
+
+.game-info-wrapper .card .value .map-icons .map-wrapper .bonus-map {
+  border: 1px solid var(--slate-800);
+  background-color: var(--slate-900);
+}
+
+.profile-banner .layout .wrapper .avatar-wrapper {
+  background-color: var(--slate-900);
+}
+
+.match-veto .voting-options .voting-card .overlay {
+  background: var(--slate-900-80);
+}
+
+.match-veto .voting-options .voting-card:hover .overlay {
+  background: var(--slate-700-80);
+}
+
+.match-veto .voting-options .voting-card {
+  border: 1px solid var(--slate-700);
+}
+
+.sidebar-party-status {
+  background: var(--linear-gradient-90);
+}
+
+.live-match-list .match.vote,
+.live-match-list .match:focus .actions .match-link,
+.live-match-list .match:hover .actions .match-link {
+  background-color: var(--slate-900);
+}
+
+.confirm-match-modal .modal-content {
+  border: 3px solid rgba(0, 0, 0, 0);
+  background-image: var(--confirm-match-modal-bg-image);
+  background-color: var(--slate-900);
+}
+
+.country-selector .custom-select__control {
+  border-color: var(--slate-800);
+  border-right: 2px solid var(--slate-900);
+}
+
+input.iti__tel-input {
+  border: 1px solid var(--slate-800);
+}
+
+.country-selector .custom-select__control {
+  background-color: var(--slate-950);
+  border-color: var(--slate-800);
+}
+
+.country-selector .custom-select__control:hover {
+  border-color: var(--slate-800);
+}
+
+.country-selector .custom-select__option--is-focused,
+.country-selector .custom-select__option:hover {
+  background-color: var(--slate-800);
+}
+
+.page-sub-menu-wrapper .page-sub-menu {
+  flex-direction: column;
+  border-right: 2px solid var(--slate-900);
+}
+
+.country-selector .custom-select__menu {
+  border: 1px solid var(--slate-800);
+}
+
+.input .input-container input {
+  border: 1px solid var(--slate-900);
+}
+
+.page.settings-layout
+  .settings-invite-friends
+  .layout
+  .friends-wrapper
+  .friends
+  .mode-toggle
+  button {
+  border-bottom: 2px solid var(--slate-800);
+}
+
+.page.settings-layout
+  .settings-invite-friends
+  .invite-count
+  .card
+  .circle:before {
+  background: conic-gradient(
+    from 0deg,
+    #ff94ab 0,
+    #ffa576 var(--progress),
+    var(--slate-800) var(--progress),
+    #162034 100%
+  );
+}
+
+.live-match-list .match.vote:focus,
+.live-match-list .match.vote:hover {
+  background-color: var(--slate-900);
+}
+
+.sidebar-party-status .row .actions button.leave-party:hover {
+  background-color: var(--slate-900);
+}
+
+.page.current-match .player-list .player {
+  background: var(--slate-900);
+  border: 1px solid var(--slate-700);
+}
+
+.connect-copy-wrapper .connect-copy .connect-input {
+  background: var(--slate-900);
+}
+
+.connect-copy-wrapper .connect-copy .mask {
+  background: var(--slate-700);
+}
+
+.sidebar-party-status .row .actions button.leave-party {
+  background-color: var(--slate-700);
+  color: hsla(0, 0%, 100%, 0.8);
+}
+
+.Toastify__toast-theme--dark {
+  background: var(--slate-700);
+  color: var(--toastify-text-color-dark);
+}
+
+.profile-match-list .skeleton .match {
+  background: var(--linear-gradient-90);
+}
+
+.tooltip-wrapper .tooltip {
+  background-color: var(--slate-700);
+}
+
+.profile-banner .layout .wrapper .flag {
+  background-color: var(--slate-900);
+}
+
+.profile-match-list .skeleton .match .skeleton-box {
+  background: var(--slate-700);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  border-radius: 3px;
+}
+
+.navbar
+  .container
+  .content
+  .actions
+  .profile-menu
+  .dropdown
+  .content
+  .logout-wrapper {
+  border-top: 2px solid var(--slate-700);
+  padding: 8px 12px;
+}
+
+.tooltip-wrapper .tooltip {
+  background-color: var(--slate-700);
+  border: 1px solid var(--slate-600);
+}
+
+.navbar
+  .container
+  .content
+  .actions
+  .profile-menu
+  .dropdown
+  .content
+  .dropdown-links
+  a:hover {
+  background-color: var(--slate-700);
+}
+
+.profile-match-list .match {
+  background: var(--linear-gradient-90),
+    var(--match-bg) no-repeat left center / auto 100%;
+}
+
+.profile-match-list .match:hover {
+  background: var(--linear-gradient-90-hover),
+    var(--match-bg) no-repeat left center / auto 100%;
+  background-color: var(--slate-950);
+}
+
+.footer {
+  background-color: var(--footer);
+}
+
+.navbar .container .content .actions .profile-menu.open .toggle,
+.navbar .container .content .actions .profile-menu:hover .toggle {
+  background-color: var(--slate-700);
+}
+
+.navbar
+  .container
+  .content
+  .actions
+  .profile-menu
+  .dropdown
+  .content
+  .dropdown-links
+  a:hover {
+  background-color: var(--slate-700);
+}
+
+.primary-button.darker {
+  background-color: var(--slate-900);
+  color: #fff;
+}
+
+.primary-button:not(:disabled):hover.dark {
+  background-color: var(--slate-700);
+}
+
+.primary-button:not(:disabled):hover.darker {
+  background-color: var(--slate-900);
+}
+
+.input .input-container input {
+  background-color: var(--slate-950);
+  color: #fff;
+}
+
+.landing-page .navbar.scrolled {
+  background-color: var(--slate-950);
+}
+
+.navbar .container .content .actions .notification .toggle {
+  background-color: var(--slate-900);
+  color: hsla(0, 0%, 100%, 0.65);
+}
+
+.navbar .container .content .actions .notification .notification-count .count {
+  color: var(--slate-950);
+}
+
+.site-layout > .grid aside.sidebar button.toggle {
+  background-color: var(--slate-700);
+}
+
+.navbar .container .content .actions .notification.open .toggle,
+.navbar .container .content .actions .notification:hover .toggle {
+  background-color: var(--slate-700);
+}
+
+.navbar
+  .container
+  .content
+  .actions
+  .notification
+  .notification-container
+  .notification-content {
+  background-color: var(--slate-950);
+}
+
+.navbar .container .content .actions .profile-menu .toggle {
+  background-color: var(--slate-900);
+}
+
+.navbar .container .content .actions .profile-menu.open .toggle,
+.navbar .container .content .actions .profile-menu:hover .toggle {
+  background-color: var(--slate-700);
+}
+
+.navbar .container .content .actions .profile-menu .dropdown .content {
+  background-color: var(--slate-950);
+}
+
+.navbar {
+  border-bottom: 2px solid var(--slate-900);
+  background-color: var(--slate-950);
+  transition: background-color, box-shadow 0.2s ease-in-out;
+}
+
+.navbar
+  .container
+  .content
+  .actions
+  .profile-menu
+  .dropdown
+  .content
+  .logout-wrapper
+  .text-button:hover {
+  background-color: var(--slate-700);
+}
+
+.team-stats-table .row {
+  position: relative;
+  background-color: var(--slate-900);
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+}
+
+.navbar.open > .container .content .links {
+  background-color: var(--slate-950);
+}
+
+.page.play .banner-notification {
+  background-color: var(--slate-950);
+}
+
+.live-match-list .match {
+  background: var(--linear-gradient-90),
+    var(--match-bg) no-repeat left center / auto 100%;
+  background-color: var(--slate-950);
+}
+
+.live-match-list .match:hover {
+  background: var(--linear-gradient-90-hover),
+    var(--match-bg) no-repeat left center / auto 100%;
+  background-color: var(--slate-950);
+}
+
+.live-match-list .match .actions .match-link {
+  background-color: var(--slate-600);
+}
+
+.live-match-list .match .actions .match-link:hover {
+  background-color: var(--slate-600);
+}
+
+.live-match-list .match.vote,
+.live-match-list .match:focus .actions .match-link,
+.live-match-list .match:hover .actions .match-link {
+  background-color: var(--slate-900);
+}
+
+.modal .modal-content {
+  background-color: var(--slate-900);
+}
+
+@media screen and (min-width: 500px) {
+  .waitlist-page .wrapper {
+    background-color: var(--slate-900);
+  }
+}
+
+.user-badge .badge {
+  background-color: var(--slate-950);
+}
+
+.party-player-card {
+  background: var(--linear-gradient-45);
+}
+
+.live-match-list .match {
+  background-color: var(--slate-950);
+}
+
+.live-match-list .match.vote,
+.live-match-list .match:focus .actions .match-link,
+.live-match-list .match:hover .actions .match-link {
+  background-color: var(--slate-900);
+}
+
+.live-match-list .match.vote:focus,
+.live-match-list .match.vote:hover {
+  background-color: var(--slate-950);
+}
+
+.live-match-list .match .actions .match-link {
+  background-color: var(--slate-950);
+  color: hsla(0, 0%, 100%, 0.8);
+}
+
+.team-stats-table .row {
+  background-color: var(--slate-900);
+}
+
+.play-friend-list {
+  background-color: var(--slate-900);
+}
+
+.play-friend-list .search input {
+  background-color: var(--slate-950);
+  color: #fff;
+}
+
+.confirm-match-modal {
+  background-color: var(--slate-900);
+}
+
+.confirm-match-modal .modal-content .title {
+  color: #fff;
+  background-color: var(--slate-900);
+}
+
+.notification-component {
+  --scrollbar-track-color: var(--scrollbar-bg);
+  --scrollbar-thumb-color: var(--scrollbar-color);
+}
+
+.notification-component .notifications .row.info .icon {
+  background-color: var(--slate-700);
+}
+
+.profile-recent-stats .stats .stat-card {
+  background-color: var(--slate-900);
+}
+
+.profile-recent-stats .rank-elo .leetify-info {
+  background-color: var(--slate-900);
+}
+
+.profile-banner {
+  background: linear-gradient(180deg, var(--slate-700), var(--slate-900));
+}
+
+.profile-banner .layout .wrapper .flag {
+  background-color: var(--slate-900);
+}
+
+.profile-friend-list .friend-row {
+  background-color: var(--slate-900);
+}
+
+.profile-friend-list .friend-row:hover {
+  background-color: var(--slate-700);
+}
+
+.waitlist .tooltip .tooltiptext {
+  background-color: var(--slate-700);
+  color: #fff;
+}
+
+.waitlist .tooltip .tooltiptext:after {
+  border-top-color: var(--slate-700);
+}
+
+.step.payment .period {
+  background-color: var(--slate-950);
+}
+
+.page.settings-layout .grid .membership-details .payment-details {
+  background-color: var(--slate-900);
+}
+
+.page.policies-layout .banning-policy table thead {
+  background-color: var(--slate-900);
+}
+
+.page.policies-layout .banning-policy table .group-name {
+  background-color: var(--slate-900);
+  color: #fff;
+}
+
+.country-selector .custom-select__control {
+  background-color: var(--slate-950);
+  border-color: var(--slate-800);
+}
+
+.country-selector .custom-select__control:hover {
+  border-color: var(--slate-800);
+}
+
+.country-selector .custom-select__menu {
+  background-color: var(--slate-950);
+}
+
+:root {
+  --scrollbar-track-color: var(--scrollbar-bg);
+  --scrollbar-thumb-color: var(--scrollbar-color);
+}
+
+.report-modal .gap-wrapper .reporting-player {
+  background-color: var(--slate-800);
+}
+
+.report-modal .gap-wrapper .ban-options .option {
+  background-color: var(--slate-900);
+}
+
+.report-modal
+  .gap-wrapper
+  .ban-options
+  .option
+  .radio-wrapper
+  .radio.active
+  .dot {
+  background-color: var(--slate-950);
+}
+
+.page.welcome-flow .steps .step {
+  background-color: #473737;
+}
+
+.page.welcome-flow .got-ranking .ranks-scroll-wrapper {
+  background-color: var(--slate-900);
+}
+
+.page.welcome-flow .we-care .cards-wrapper .cards .card {
+  background-color: var(--slate-900);
+}
+
+.page.welcome-flow .contract .terms ol li:before {
+  color: #ffe793;
+  background-color: var(--slate-950);
+}
+
+.page.welcome-flow .contract .signature .signature-field {
+  background-color: var(--slate-900);
+}
+
+.page.welcome-flow .connect-discord .discord-steps .discord-step {
+  background-color: var(--slate-900);
+}
+
+.landing-page section.anti-cheat {
+  background-color: var(--slate-900);
+}
+
+.landing-page section.ai-powered {
+  background-color: var(--slate-900);
+}
+
+.landing-page section.pricing {
+  background-color: var(--slate-900);
+}
+
+.landing-page section.pricing .step.payment .period {
+  background-color: var(--slate-950);
+}
+
+.faq .faq-item .question {
+  background-color: var(--slate-900);
+}
+
+.faq .faq-item .answer {
+  background-color: var(--slate-900);
+  color: hsla(0, 0%, 100%, 0.8);
+}
+
+.discord-manage-link .badge {
+  background-color: var(--slate-900);
+}
+
+.page.leaderboard .filtering .group .wrapper .leaderboard-mode-switch {
+  background-color: var(--slate-900);
+}
+
+.page.leaderboard .data .visitor-placement-row .row:first-child,
+.page.leaderboard .data .visitor-placement-row .row:nth-child(2),
+.page.leaderboard .data .visitor-placement-row .row:nth-child(3) {
+  background-color: var(--slate-900);
+}
+
+.page.leaderboard .data .row {
+  background-color: var(--slate-900);
+}
+
+.game-info-wrapper {
+  border-top: 2px solid var(--slate-700);
+}
+
+.page.settings-layout
+  .settings-invite-friends
+  .invite-sent-modal
+  .modal-content
+  .user-card {
+  background-color: var(--slate-900);
+}
+
+.page.settings-layout
+  .settings-invite-friends
+  .layout
+  .friends-wrapper
+  .search
+  input {
+  background-color: var(--slate-950);
+  color: #fff;
+}
+
+.page.settings-layout
+  .settings-invite-friends
+  .layout
+  .friends-wrapper
+  .friends {
+  background-color: var(--slate-900);
+}
+
+.page.settings-layout .settings-invite-friends .invite-count .card {
+  background-color: var(--slate-900);
+}
+
+.page.settings-layout .settings-invite-friends .invite-count .card .circle {
+  background-color: var(--slate-900);
+}
+
+.page.settings-layout
+  .settings-invite-friends
+  .invite-count
+  .card
+  .circle:after {
+  background-color: var(--slate-900);
+}
+
+.upcoming-skin-drop {
+  background-color: var(--slate-900);
+}
+
+.custom-selector .custom-select__control {
+  background-color: var(--slate-950);
+  border-color: var(--slate-900);
+}
+
+.custom-selector .custom-select__control:hover {
+  border-color: var(--slate-900);
+}
+
+.custom-selector .custom-select__control--is-focused,
+.custom-selector .custom-select__control--is-focused:hover {
+  border-color: var(--slate-800);
+}
+
+.custom-selector .custom-select__option--is-focused,
+.custom-selector .custom-select__option:hover {
+  background-color: var(--slate-800);
+}
+
+.custom-selector .custom-select__menu {
+  background-color: var(--slate-950);
+  border-color: var(--slate-900);
+}
+
+.tooltip-wrapper .tooltip {
+  background-color: var(--slate-700);
+  color: #fff;
+}
+
+.tooltip-wrapper .tooltip .tooltip-arrow {
+  background-color: var(--slate-700);
+}
+
+.next-rank-progress {
+  background: linear-gradient(90deg, var(--slate-900), var(--slate-700));
+}
+
+.sidebar-party-status .row .actions button.leave-party {
+  background-color: var(--slate-950);
+  color: hsla(0, 0%, 100%, 0.8);
+}
+
+.site-layout > .grid aside.sidebar {
+  background-color: var(--slate-900);
+}
+
+.site-layout > .grid aside.sidebar button.toggle {
+  background-color: var(--slate-700);
+}
+
+.site-layout > .grid aside.sidebar button.toggle:hover {
+  background-color: var(--slate-600);
+}
+
+.profile-match-list .match {
+  background-color: var(--slate-950);
+}
+
+.profile-match-list .match:focus .actions .match-link,
+.profile-match-list .match:hover .actions .match-link {
+  background-color: var(--slate-900);
+}
+
+.page.settings-layout .support-page .contact-channels .channel {
+  background-color: var(--slate-900);
+}
+
+.page.settings-layout .support-page .contact-channels .channel .icon {
+  background-color: var(--slate-950);
+}
+
+body,
+html {
+  background-color: var(--slate-950);
+  color: #fff;
+}

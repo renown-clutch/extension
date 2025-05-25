@@ -48,9 +48,9 @@ try {
 function copyThemeFiles() {
   console.log('Copying theme files...');
   
-  const themesDir = resolve(__dirname, 'dist/themes');
-  if (!fs.existsSync(themesDir)) {
-    fs.mkdirSync(themesDir, { recursive: true });
+  const stylesDir = resolve(__dirname, 'dist/styles');
+  if (!fs.existsSync(stylesDir)) {
+    fs.mkdirSync(stylesDir, { recursive: true });
   }
   
   // Read all CSS files from src/themes directory
@@ -59,10 +59,10 @@ function copyThemeFiles() {
     const themeFiles = fs.readdirSync(srcThemesDir)
       .filter(file => file.endsWith('.css'));
     
-    // Copy each CSS file to dist/themes
+    // Copy each CSS file to dist/styles
     for (const file of themeFiles) {
       const srcPath = resolve(srcThemesDir, file);
-      const destPath = resolve(themesDir, file);
+      const destPath = resolve(stylesDir, file);
       fs.copyFileSync(srcPath, destPath);
       console.log(`Copied ${file}`);
     }
@@ -75,14 +75,9 @@ function copyThemeFiles() {
   }
 }
 
-// Copy feature CSS files
-async function copyFeatureStyles() {
-  console.log('Processing feature styles with PostCSS...');
-  
-  const featureStylesDir = resolve(__dirname, 'dist/featureStyles');
-  if (!fs.existsSync(featureStylesDir)) {
-    fs.mkdirSync(featureStylesDir, { recursive: true });
-  }
+// Merge feature CSS files into a single stylesheet
+async function mergeFeatureStyles() {
+  console.log('Merging feature styles into single stylesheet...');
   
   // Directories to ignore
   const ignoreDirs = ['popup', 'themes'];
@@ -111,31 +106,57 @@ async function copyFeatureStyles() {
   const srcDir = resolve(__dirname, 'src');
   const cssFiles = findCSSFiles(srcDir);
   
-  // Process each CSS file through PostCSS
+  if (cssFiles.length === 0) {
+    console.warn('No CSS files found in src directory');
+    return;
+  }
+  
+  let mergedCSS = '';
+  
+  // Process and merge each CSS file
   for (const file of cssFiles) {
     const fileName = path.basename(file);
-    const destPath = resolve(featureStylesDir, fileName);
+    const relativePath = path.relative(srcDir, file);
     
     try {
-      // Process CSS file through PostCSS
-      const { stdout, stderr } = await execAsync(`npx postcss "${file}" -o "${destPath}"`);
+      let cssContent = '';
       
-      if (stderr) {
-        console.warn(`PostCSS warning for ${fileName}:`, stderr);
+      // Try to process with PostCSS first
+      try {
+        const { stdout, stderr } = await execAsync(`npx postcss "${file}" --to-stdout`);
+        
+        if (stderr) {
+          console.warn(`PostCSS warning for ${fileName}:`, stderr);
+        }
+        
+        cssContent = stdout;
+        console.log(`Processed ${fileName} with PostCSS`);
+      } catch (error) {
+        // If PostCSS fails, fall back to reading raw file
+        console.warn(`PostCSS failed for ${fileName}, falling back to raw CSS:`, error.message);
+        cssContent = fs.readFileSync(file, 'utf8');
+        console.log(`Read ${fileName} as raw CSS`);
       }
       
-      console.log(`Processed ${fileName} with PostCSS`);
+      // Add a comment header for each file
+      mergedCSS += `\n/* === ${relativePath} === */\n`;
+      mergedCSS += cssContent;
+      mergedCSS += '\n';
+      
     } catch (error) {
-      // If PostCSS fails, fall back to copying
-      console.warn(`PostCSS failed for ${fileName}, falling back to copy:`, error.message);
-      fs.copyFileSync(file, destPath);
-      console.log(`Copied ${fileName} (fallback)`);
+      console.error(`Failed to process ${fileName}:`, error);
     }
   }
   
-  if (cssFiles.length === 0) {
-    console.warn('No CSS files found in src directory');
+  // Write the merged CSS to dist/styles/features.css
+  const stylesDir = resolve(__dirname, 'dist/styles');
+  if (!fs.existsSync(stylesDir)) {
+    fs.mkdirSync(stylesDir, { recursive: true });
   }
+  const outputPath = resolve(stylesDir, 'features.css');
+  fs.writeFileSync(outputPath, mergedCSS, 'utf8');
+  
+  console.log(`Merged ${cssFiles.length} CSS files into features.css`);
 }
 
 // Build each entry point
@@ -147,8 +168,6 @@ async function buildEntries() {
   
   // Copy theme files
   copyThemeFiles();
-  // Copy feature styles
-  await copyFeatureStyles();
 
   for (const entry of entryPoints) {
     console.log(`Building ${entry.name}...`);
@@ -201,6 +220,9 @@ async function buildEntries() {
       }
     });
   }
+
+  // Merge feature styles after all builds are complete
+  await mergeFeatureStyles();
 
   console.log('Build complete!');
 }

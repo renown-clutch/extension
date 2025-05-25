@@ -1,8 +1,8 @@
 // Configuration settings for the extension
 export const config = {
   websocket: {
-    stagingUrl: "wss://api-staging.lorem.sh/ws",
-    productionUrl: "wss://api.clutch.lorem.sh/ws",
+    stagingUrl: "wss://api-staging.goclutch.pro/ws",
+    productionUrl: "wss://api.goclutch.pro/ws",
     useStaging: true,
     maxReconnectAttempts: 5,
     reconnectDelay: 3000,

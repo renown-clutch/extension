@@ -1,0 +1,26 @@
+/* Average Party Elo Component Styles */
+
+.clutch-average-party-elo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  border-left: 2px solid var(--slate-600);
+  padding-left: 0.5rem;
+  margin-right: 0.75rem;
+}
+
+.clutch-average-elo-label {
+  font-size: 14px;
+}
+
+.clutch-average-elo-rank-badge {
+  margin-left: 12px;
+}
+
+.clutch-player-faceit-badge {
+  margin-top: 4px;
+}
+
+.clutch-faceit-separator {
+  width: 8px;
+}

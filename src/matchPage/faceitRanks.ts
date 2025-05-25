@@ -1,4 +1,5 @@
 import { createFaceitBadgeElement } from "../utils/faceitUtils";
+import browserAPI from "../lib/browserAPI";
 import type { UserSettings } from "$lib/types";
 
 interface FaceitInfo {
@@ -17,6 +18,12 @@ const cleanupFaceitIcons = () => {
     .forEach((element) => {
       element?.parentNode?.removeChild(element);
     });
+
+  // Remove injected CSS when cleaning up
+  const styleElement = document.getElementById("clutch-faceit-ranks-styles");
+  if (styleElement) {
+    styleElement.remove();
+  }
 };
 
 const normalizePlayerNameWidths = () => {

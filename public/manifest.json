@@ -43,8 +43,7 @@
       "resources": [
         "static/*.svg",
         "static/*.png",
-        "themes/*.css",
-        "featureStyles/*.css",
+        "styles/*.css",
         "static/*.mp3",
         "static/*.wav"
       ],

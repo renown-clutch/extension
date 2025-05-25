@@ -23,40 +23,18 @@ function createButton({
   visible?: boolean;
 }): HTMLAnchorElement {
   const button = document.createElement("a");
-  button.className = className;
+  button.className = `${className} clutch-profile-button`;
   button.target = "_blank";
   button.href = href;
   button.style.display = visible ? "flex" : "none";
-  button.style.alignItems = "center";
-  button.style.justifyContent = "center";
-  button.style.height = "40px";
-  button.style.width = "40px";
-  button.style.borderRadius = "4px";
-  button.style.color = "#000";
-  button.style.backgroundColor = bgColor;
   button.setAttribute("data-clutch-extension", "true");
 
   if (!href) {
-    button.style.pointerEvents = "none";
-    button.style.opacity = "0.5";
-    button.style.cursor = "not-allowed";
+    button.classList.add("disabled");
   }
 
-  button.addEventListener("mouseover", () => {
-    if (href) {
-      button.style.backgroundColor =
-        bgColor === "#292c34" ? "#333640" : "#232828";
-    }
-  });
-  button.addEventListener("mouseout", () => {
-    if (href) {
-      button.style.backgroundColor = bgColor;
-    }
-  });
   const img = document.createElement("img");
   img.src = getExtensionUrl(iconPath);
-  img.style.width = "24px";
-  img.style.height = "24px";
   button.appendChild(img);
   return button;
 }
@@ -64,6 +42,13 @@ function createButton({
 function removeButton(className: string) {
   const buttonsInDom = document.querySelectorAll(className);
   buttonsInDom.forEach((button) => button.remove());
+}
+
+function removeProfileButtonsCSS() {
+  const styleElement = document.getElementById("clutch-profile-buttons-styles");
+  if (styleElement) {
+    styleElement.remove();
+  }
 }
 
 async function appendButtonsToDom(settings: UserSettings) {
@@ -170,6 +155,11 @@ export async function initializeProfileButtons(
 
   if (!settings.faceitProfileButton) {
     removeButton(".clutch-faceit-button");
+  }
+
+  if (!settings.csstatsProfileButton && !settings.faceitProfileButton) {
+    removeProfileButtonsCSS();
+    return;
   }
 
   if (is404Page()) {

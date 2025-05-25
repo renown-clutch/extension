@@ -60,13 +60,12 @@ async function displayHighestElo(playerId: string) {
   const peakEloBadge = createRankBadgeElement(highestElo, 20, true, "");
 
   const wrapper = document.createElement("div");
-  wrapper.style.cssText =
-    "display: flex; align-items: center; gap: 1rem; border-left: solid var(--slate-600); padding-left: 1rem;";
+  wrapper.className = "clutch-highest-elo-wrapper";
   wrapper.setAttribute("data-clutch-extension", "highest-elo-element");
 
   const peakEloLabel = document.createElement("div");
+  peakEloLabel.className = "clutch-highest-elo-label";
   peakEloLabel.textContent = "Peak ELO";
-  peakEloLabel.style.fontSize = "14px";
 
   wrapper.appendChild(peakEloLabel);
   wrapper.appendChild(peakEloBadge);
@@ -79,6 +78,12 @@ function removeHighestEloElement() {
     '[data-clutch-extension="highest-elo-element"]'
   );
   elements.forEach((element) => element.remove());
+
+  // Remove injected CSS when cleaning up
+  const styleElement = document.getElementById("clutch-highest-elo-styles");
+  if (styleElement) {
+    styleElement.remove();
+  }
 }
 
 export function initializeHighestElo(userSettings: UserSettings): void {

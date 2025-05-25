@@ -8,11 +8,3 @@
   --slate-600: #45556c;
 }
 
-.clutch-average-party-elo {
-    display: flex;
-    align-items: center;
-    gap: 0.1rem;
-    border-left: 2px solid var(--slate-600);
-    padding-left: 0.5rem;
-    margin-right: 0.75rem;
-}

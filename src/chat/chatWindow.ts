@@ -30,11 +30,6 @@ export async function initializeChatWindow(userSettings: UserSettings) {
 
   const shadowRoot = createShadowRoot(container);
 
-  const style = document.createElement("link");
-  style.rel = "stylesheet";
-  style.href = browserAPI.runtime.getURL("featureStyles/chatWindow.css");
-  shadowRoot.appendChild(style);
-
   const chatContainer = document.createElement("div");
   chatContainer.className = "chat-container";
 

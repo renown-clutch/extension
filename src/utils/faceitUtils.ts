@@ -1,3 +1,5 @@
+import browserAPI from "../lib/browserAPI";
+
 export function getFaceitLevel(elo: number | null): number {
   if (elo === null) return 0;
 
@@ -25,15 +27,9 @@ function createFaceitImageElement(
   size: number
 ): HTMLElement {
   const imgContainer = document.createElement("div");
-  imgContainer.style.cssText = `
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: ${size}px;
-    height: ${size}px;
-    margin-right: 2px;
-  `;
+  imgContainer.className = "clutch-faceit-image-container";
+  imgContainer.style.width = `${size}px`;
+  imgContainer.style.height = `${size}px`;
 
   let iconPath = "";
   if (faceitLevel === 0) {
@@ -45,15 +41,10 @@ function createFaceitImageElement(
   }
 
   const img = document.createElement("img");
+  img.className = "clutch-faceit-image";
   img.alt = `Faceit level ${faceitLevel}`;
   img.width = size;
   img.height = size;
-  img.style.color = "transparent";
-  img.style.cssText = `
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-  `;
   img.src = iconPath;
 
   imgContainer.appendChild(img);
@@ -64,23 +55,6 @@ export function createTooltipElement(text: string): HTMLElement {
   const tooltip = document.createElement("div");
   tooltip.className = "clutch-tooltip";
   tooltip.textContent = text;
-  Object.assign(tooltip.style, {
-    position: "absolute",
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
-    color: "white",
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    whiteSpace: "nowrap",
-    zIndex: "9999",
-    pointerEvents: "none",
-    opacity: "0",
-    transition: "opacity 0.1s",
-    bottom: "100%",
-    left: "50%",
-    transform: "translateX(-50%)",
-    marginBottom: "5px",
-  });
   return tooltip;
 }
 
@@ -92,8 +66,12 @@ export function addTooltip(element: HTMLElement, text: string): void {
   const tooltip = createTooltipElement(text);
   element.appendChild(tooltip);
 
-  element.addEventListener("mouseenter", () => (tooltip.style.opacity = "1"));
-  element.addEventListener("mouseleave", () => (tooltip.style.opacity = "0"));
+  element.addEventListener("mouseenter", () =>
+    tooltip.classList.add("visible")
+  );
+  element.addEventListener("mouseleave", () =>
+    tooltip.classList.remove("visible")
+  );
 }
 
 export function createFaceitBadgeElement(
@@ -130,18 +108,8 @@ export function createFaceitBadgeElement(
   }
 
   const faceitBadge = document.createElement("div");
-  faceitBadge.className = "faceit-badge";
-  faceitBadge.style.cssText = `--size:${size}px; 
-    display: flex; 
-    align-items: center;
-    background-color: var(--slate-700);
-    min-width: 77px;
-    justify-content: space-between;
-    border-radius: 20px;
-    padding: 2px 10px 2px 2px;
-    
-    ${additionalStyles}
-  `;
+  faceitBadge.className = "faceit-badge clutch-faceit-badge";
+  faceitBadge.style.cssText = `--size:${size}px; ${additionalStyles}`;
   faceitBadge.setAttribute(
     "aria-label",
     elo === null
@@ -153,8 +121,7 @@ export function createFaceitBadgeElement(
 
   if (formattedElo) {
     const span = document.createElement("span");
-    span.style.cssText =
-      "margin-left: 4px; color: white; font-size: 14px; font-weight: 500;";
+    span.className = "clutch-faceit-badge-text";
     span.textContent = formattedElo;
     faceitBadge.appendChild(span);
   }
@@ -170,9 +137,9 @@ export function createFaceitBadgeElement(
 
 function wrapInAnchor(element: HTMLElement, url: string): HTMLElement {
   const link = document.createElement("a");
+  link.className = "clutch-faceit-badge-link";
   link.href = url;
   link.target = "_blank";
-  link.style.cursor = "pointer";
   link.appendChild(element);
   return link;
 }

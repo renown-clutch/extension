@@ -1,0 +1,23 @@
+/* Team Average Elo Component Styles for Match Page */
+
+.clutch-team-average-elo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: solid var(--slate-600);
+  padding-left: 1rem;
+}
+
+.clutch-team-average-elo-label {
+  font-size: 14px;
+}
+
+.clutch-team-badges-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clutch-team-faceit-badge {
+  margin-top: 1px;
+}

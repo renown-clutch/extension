@@ -2,50 +2,12 @@ import { type UserSettings } from "../lib/types";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 import { is404Page } from "../utils/pageUtils";
 import { waitForElement } from "../utils/profileUtils";
+import browserAPI from "../lib/browserAPI";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
 
 function isFriendsPage(): boolean {
   return FRIENDS_PAGE_REGEX.test(window.location.pathname);
-}
-
-function applyFriendListStyling(): void {
-  if (document.getElementById("clutch-friends-list-style")) return;
-
-  const styleEl = document.createElement("style");
-  styleEl.id = "clutch-friends-list-style";
-  styleEl.textContent = `
-    .profile-friend-list .friend-row {
-      display: flex !important;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-    }
-    .profile-friend-list .friend-row .profile-link {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      margin-right: 10px;
-    }
-    .profile-friend-list .friend-row .info {
-      overflow: hidden;
-      flex: 1;
-    }
-    .profile-friend-list .friend-row .info .name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 150px;
-    }
-    .profile-friend-list .friend-row .tooltip-wrapper {
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-      margin-left: auto;
-      margin-right: 10px;
-    }
-  `;
-  document.head.appendChild(styleEl);
 }
 
 function removeRankBadges(): void {
@@ -55,6 +17,12 @@ function removeRankBadges(): void {
   tooltipWrappers.forEach((wrapper) => {
     wrapper.remove();
   });
+
+  // Remove injected CSS when cleaning up
+  const styleElement = document.getElementById("clutch-friends-list-styles");
+  if (styleElement) {
+    styleElement.remove();
+  }
 }
 
 function renderFriendRanks(
@@ -62,7 +30,6 @@ function renderFriendRanks(
   ranks: Record<string, number | null>,
   sortByElo: boolean
 ): void {
-  applyFriendListStyling();
   if (sortByElo) {
     const friendListContainer = document.querySelector(".profile-friend-list");
     if (friendListContainer) {

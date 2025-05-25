@@ -1,0 +1,38 @@
+/* Profile Buttons Component Styles */
+
+.clutch-profile-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  width: 40px;
+  border-radius: 4px;
+  color: #000;
+}
+
+.clutch-profile-button.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.clutch-faceit-button {
+  background-color: #141616;
+}
+
+.clutch-faceit-button:hover {
+  background-color: #232828;
+}
+
+.clutch-csstats-button {
+  background-color: #292c34;
+}
+
+.clutch-csstats-button:hover {
+  background-color: #333640;
+}
+
+.clutch-profile-button img {
+  width: 24px;
+  height: 24px;
+}

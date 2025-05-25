@@ -8,6 +8,7 @@ import {
   saveThemeToLocalStorage,
   initializeTheme,
   removeAllThemeStyles,
+  switchThemeSync,
 } from "./themes/themeUtils";
 import { initializeProfileButtons } from "./playerProfile/profileButtons";
 import { initializeProfileBans } from "./playerProfile/previousBans";
@@ -92,10 +93,16 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     return;
   }
 
+  // Handle theme changes with instant switching
+  if (changedParts.selectedTheme) {
+    switchThemeSync(changedParts.selectedTheme);
+  }
+
   const handlersToRun = new Set<{ handler: SettingHandler; value: any }>();
 
   Object.entries(changedParts).forEach(([key, value]) => {
-    if (value !== undefined) {
+    if (value !== undefined && key !== "selectedTheme") {
+      // Skip theme as it's handled above
       const definition = SETTING_DEFINITIONS[key as keyof UserSettings];
       if (definition?.handlers) {
         definition.handlers.forEach((handler) =>

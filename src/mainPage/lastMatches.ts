@@ -79,100 +79,62 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
 
     const pastMatchesContainer = document.createElement("div");
     pastMatchesContainer.className = "profile-match-list clutch-past-matches";
-    Object.assign(pastMatchesContainer.style, {
-      marginTop: "2.5rem",
-      marginBottom: "-4rem",
-    });
 
     const titleDiv = document.createElement("div");
     titleDiv.className = "clutch-last-matches-title";
-    Object.assign(titleDiv.style, {
-      display: "flex",
-      justifyContent: "space-between",
-      scrollMarginTop: "30px",
-      alignItems: "center",
-    });
 
     const leftSection = document.createElement("div");
-    Object.assign(leftSection.style, {
-      display: "flex",
-      alignItems: "center",
-      cursor: "pointer",
-    });
+    leftSection.className = "clutch-title-left-section";
 
     leftSection.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history-icon lucide-history" style="margin-right: 12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history-icon lucide-history clutch-history-icon">
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
             <path d="M3 3v5h5"/>
             <path d="M12 7v5l4 2"/>
         </svg>
-        <span style="margin-right: 6px; font-weight: 500; font-size: 18px;">Your last 3 matches</span>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="transform: rotate(0deg); transition: transform 0.3s ease;">
+        <span class="clutch-title-text">Your last 3 matches</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="clutch-title-arrow">
             <path d="M7 10L12 15L17 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     `;
 
     const rightSection = document.createElement("div");
-    Object.assign(rightSection.style, {
-      display: "flex",
-      alignItems: "center",
-      gap: "4px",
-      color: "white",
-    });
+    rightSection.className = "clutch-title-right-section";
     rightSection.innerHTML = `
-        <a href="/profile/${steamId}/matches" style="display: flex; align-items: center; gap: 4px; color: white; text-decoration: none; transition: opacity 0.2s;">
-            <span style="font-weight: 500; font-size: 14px; opacity: 0.7; transition: opacity 0.2s;">View all matches</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right-icon lucide-move-up-right" style="opacity: 0.7; transition: opacity 0.2s;">
+        <a href="/profile/${steamId}/matches">
+            <span>View all matches</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-move-up-right-icon lucide-move-up-right">
                 <path d="M13 5H19V11"></path>
                 <path d="M19 5L5 19"></path>
             </svg>
         </a>
     `;
 
-    // Add hover effect
-    const viewAllLink = rightSection.querySelector("a");
-    if (viewAllLink) {
-      viewAllLink.addEventListener("mouseenter", () => {
-        const span = viewAllLink.querySelector("span");
-        const svg = viewAllLink.querySelector("svg");
-        if (span) span.style.opacity = "1";
-        if (svg) svg.style.opacity = "1";
-      });
-
-      viewAllLink.addEventListener("mouseleave", () => {
-        const span = viewAllLink.querySelector("span");
-        const svg = viewAllLink.querySelector("svg");
-        if (span) span.style.opacity = "0.7";
-        if (svg) svg.style.opacity = "0.7";
-      });
-    }
-
     // Create a container for match links that will be animated
     const matchesContainer = document.createElement("div");
     const isExpanded = await getStoredUIState(MATCHES_EXPANDED_KEY);
-    matchesContainer.style.cssText = `max-height: ${
-      isExpanded ? "1000px" : "0"
-    }; overflow: hidden; transition: max-height 0.3s ease-in-out; display: grid; gap: 8px;`;
+    matchesContainer.className = `clutch-matches-container ${
+      isExpanded ? "expanded" : "collapsed"
+    }`;
 
     // Add toggle functionality
     let isExpandedState = isExpanded;
-    const arrow = leftSection.querySelector("svg:last-child") as SVGElement;
+    const arrow = leftSection.querySelector(
+      ".clutch-title-arrow"
+    ) as SVGElement;
 
     // Update arrow initial state
     if (arrow) {
-      arrow.style.transform = isExpandedState
-        ? "rotate(0deg)"
-        : "rotate(180deg)";
+      arrow.classList.toggle("expanded", isExpandedState);
     }
 
     leftSection.addEventListener("click", () => {
       isExpandedState = !isExpandedState;
       if (arrow) {
-        arrow.style.transform = isExpandedState
-          ? "rotate(0deg)"
-          : "rotate(180deg)";
+        arrow.classList.toggle("expanded", isExpandedState);
       }
-      matchesContainer.style.maxHeight = isExpandedState ? "1000px" : "0";
+      matchesContainer.classList.toggle("expanded", isExpandedState);
+      matchesContainer.classList.toggle("collapsed", !isExpandedState);
       saveUIState(MATCHES_EXPANDED_KEY, isExpandedState);
     });
 
@@ -182,11 +144,6 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     // Add header
     const headerDiv = document.createElement("div");
     headerDiv.className = "header clutch-last-matches-header";
-    Object.assign(headerDiv.style, {
-      marginTop: "12px",
-      marginBottom: "8px",
-      display: "grid",
-    });
     headerDiv.innerHTML = `
         <div class="map">Map & Time</div>
         <div class="score">Score</div>
@@ -269,6 +226,12 @@ export function removeLastMatches(): void {
   const pastMatchesContainer = document.querySelector(".clutch-past-matches");
   if (pastMatchesContainer) {
     pastMatchesContainer.remove();
+  }
+
+  // Remove injected CSS
+  const styleElement = document.getElementById("clutch-last-matches-styles");
+  if (styleElement) {
+    styleElement.remove();
   }
 }
 

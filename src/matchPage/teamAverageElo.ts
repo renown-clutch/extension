@@ -53,6 +53,14 @@ function cleanupBadges() {
       element.parentNode.removeChild(element);
     }
   });
+
+  // Remove injected CSS when cleaning up
+  const styleElement = document.getElementById(
+    "clutch-team-average-elo-styles"
+  );
+  if (styleElement) {
+    styleElement.remove();
+  }
 }
 
 function calculateTeamAverageElo(container: HTMLElement): number | null {
@@ -118,8 +126,7 @@ async function processTeamTable(
   if (avgRenownElo === null && avgFaceitElo === null) return;
 
   const wrapper = document.createElement("div");
-  wrapper.style.cssText =
-    "display: flex; align-items: center; gap: 1rem; border-left: solid var(--slate-600); padding-left: 1rem; ";
+  wrapper.className = "clutch-team-average-elo-wrapper";
   wrapper.setAttribute("data-clutch-extension", "team-average-elo-element");
   wrapper.setAttribute(
     "data-team-id",
@@ -127,13 +134,12 @@ async function processTeamTable(
   );
 
   const avgRankLabel = document.createElement("div");
+  avgRankLabel.className = "clutch-team-average-elo-label";
   avgRankLabel.textContent = "Average ELO:";
-  avgRankLabel.style.fontSize = "14px";
   wrapper.appendChild(avgRankLabel);
 
   const badgesContainer = document.createElement("div");
-  badgesContainer.style.cssText =
-    "display: flex; align-items: center; gap: 8px;";
+  badgesContainer.className = "clutch-team-badges-container";
 
   if (avgRenownElo !== null) {
     const rankBadgeElement = createRankBadgeElement(avgRenownElo, 25, true);
@@ -145,8 +151,9 @@ async function processTeamTable(
       avgFaceitElo,
       25,
       true,
-      "margin-top: 1px;"
+      ""
     );
+    faceitBadgeElement.classList.add("clutch-team-faceit-badge");
     badgesContainer.appendChild(faceitBadgeElement);
   }
 

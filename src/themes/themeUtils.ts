@@ -3,22 +3,15 @@ import browserAPI from "../lib/browserAPI";
 import type { Theme, UserSettings } from "$lib/types";
 
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
-const TEMP_STYLE_CACHE_KEY = "clutch-temp-styles-cache";
 
-const DARK_SHEET_PATH = browserAPI.runtime.getURL("themes/DarkSheet.css");
-const PINK_SHEET_PATH = browserAPI.runtime.getURL("themes/PinkSheet.css");
-const PURPLE_SHEET_PATH = browserAPI.runtime.getURL("themes/PurpleSheet.css");
-const GREEN_SHEET_PATH = browserAPI.runtime.getURL("themes/GreenSheet.css");
-const DARK_GRAY_SHEET_PATH = browserAPI.runtime.getURL(
-  "themes/DarkGraySheet.css"
+const UNIFIED_THEMES_PATH = browserAPI.runtime.getURL(
+  "styles/unified-themes.css"
 );
-const BLACK_SHEET_PATH = browserAPI.runtime.getURL("themes/BlackSheet.css");
-const DEFAULT_SHEET_PATH = browserAPI.runtime.getURL("themes/DefaultSheet.css");
-const OLED_SHEET_PATH = browserAPI.runtime.getURL("themes/OledSheet.css");
+const FEATURES_SHEET_PATH = browserAPI.runtime.getURL("styles/features.css");
+const COMMON_SHEET_PATH = browserAPI.runtime.getURL("styles/common.css");
 
 const tempThemeStyles: Record<Theme, string> = {
-  default:
-    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
+  default: "",
   dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
   pink: "html, body { background-color: #440c21 !important; color: #fff !important; transition: none !important; }",
   purple:
@@ -28,85 +21,29 @@ const tempThemeStyles: Record<Theme, string> = {
   darkgray:
     "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
   black:
-    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
-  oled: "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
-};
-
-const themePathMap: Record<string, string> = {
-  default: DEFAULT_SHEET_PATH,
-  dark: DARK_SHEET_PATH,
-  pink: PINK_SHEET_PATH,
-  purple: PURPLE_SHEET_PATH,
-  green: GREEN_SHEET_PATH,
-  darkgray: DARK_GRAY_SHEET_PATH,
-  black: BLACK_SHEET_PATH,
-  oled: OLED_SHEET_PATH,
+    "html, body { background-color: #0a0a0a !important; color: #fff !important; transition: none !important; }",
+  oled: "html, body { background-color: #000000 !important; color: #fff !important; transition: none !important; }",
 };
 
 const tempStyleElement = document.createElement("style");
 tempStyleElement.id = "clutch-theme-temp";
-tempStyleElement.textContent = tempThemeStyles.dark;
 
-const styleElement = document.createElement("style");
-styleElement.id = "clutch-theme";
+const unifiedThemesElement = document.createElement("style");
+unifiedThemesElement.id = "clutch-unified-themes";
 
-let isThemeInjected = false;
+const featureStyleElement = document.createElement("style");
+featureStyleElement.id = "clutch-features";
+
+const commonStyleElement = document.createElement("style");
+commonStyleElement.id = "clutch-common";
+
+let isUnifiedThemesInjected = false;
 let isTempThemeInjected = false;
+let isFeaturesInjected = false;
+let isCommonInjected = false;
+let currentThemeClass = "";
 
 const stylesheetCache: Record<string, string> = {};
-
-try {
-  const cachedStyles = localStorage.getItem(TEMP_STYLE_CACHE_KEY);
-  if (cachedStyles) {
-    const parsedStyles = JSON.parse(cachedStyles);
-    Object.keys(parsedStyles).forEach((theme) => {
-      stylesheetCache[themePathMap[theme]] = parsedStyles[theme];
-    });
-  }
-} catch (e) {
-  console.error("Failed to load cached temp styles:", e);
-}
-
-(function preloadStylesheets() {
-  const paths = Object.values(themePathMap);
-
-  paths.forEach((path) => {
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.href = path;
-    link.as = "style";
-    document.head?.appendChild(link);
-
-    fetch(path)
-      .then((response) => {
-        if (response.ok) {
-          return response.text();
-        }
-        throw new Error(`Failed to preload stylesheet: ${response.statusText}`);
-      })
-      .then((stylesheet) => {
-        stylesheetCache[path] = stylesheet;
-
-        try {
-          const tempStylesCache: Record<string, string> = {};
-          Object.entries(themePathMap).forEach(([theme, path]) => {
-            if (stylesheetCache[path]) {
-              tempStylesCache[theme] = stylesheetCache[path];
-            }
-          });
-          localStorage.setItem(
-            TEMP_STYLE_CACHE_KEY,
-            JSON.stringify(tempStylesCache)
-          );
-        } catch (e) {
-          console.error("Failed to cache temp styles:", e);
-        }
-      })
-      .catch((error) => {
-        console.error(`Error preloading stylesheet:`, error);
-      });
-  });
-})();
 
 export function saveThemeToLocalStorage(theme: string): void {
   try {
@@ -127,28 +64,8 @@ export function getThemeFromLocalStorage(): Theme | null {
 
 function applyTempStyling(theme: Theme = "dark"): void {
   if (!isTempThemeInjected && document.documentElement) {
-    const themePath = themePathMap[theme] || themePathMap.dark;
-    if (stylesheetCache[themePath]) {
-      let cssText = stylesheetCache[themePath];
-
-      const rootMatch = cssText.match(/:root\s*{[^}]+}/);
-      const bodyMatch = cssText.match(/body,html\s*{[^}]+}/);
-
-      let essentialStyles = "";
-      if (rootMatch) essentialStyles += rootMatch[0];
-      if (bodyMatch) essentialStyles += bodyMatch[0];
-
-      if (essentialStyles) {
-        tempStyleElement.textContent = essentialStyles;
-      } else {
-        tempStyleElement.textContent =
-          tempThemeStyles[theme] || tempThemeStyles.dark;
-      }
-    } else {
-      tempStyleElement.textContent =
-        tempThemeStyles[theme] || tempThemeStyles.dark;
-    }
-
+    tempStyleElement.textContent =
+      tempThemeStyles[theme] || tempThemeStyles.dark;
     document.documentElement.appendChild(tempStyleElement);
     isTempThemeInjected = true;
   }
@@ -161,6 +78,30 @@ function removeTempStyling(): void {
   }
 }
 
+function applyThemeClass(theme: Theme): void {
+  if (currentThemeClass) {
+    document.documentElement.classList.remove(currentThemeClass);
+  }
+
+  if (theme === "default") {
+    // delete clutch-common
+    const commonStyleElement = document.getElementById("clutch-common");
+    if (commonStyleElement) {
+      commonStyleElement.remove();
+    }
+    return;
+  } else {
+    const commonStyleElement = document.getElementById("clutch-common");
+    if (!commonStyleElement) {
+      loadAndApplyCommon();
+    }
+  }
+
+  const themeClass = `theme-${theme}`;
+  document.documentElement.classList.add(themeClass);
+  currentThemeClass = themeClass;
+}
+
 export function initTempStyling(): void {
   const cachedTheme = getThemeFromLocalStorage();
   if (cachedTheme) {
@@ -171,20 +112,15 @@ export function initTempStyling(): void {
 export function applyThemeToPopup(theme: string): void {
   const popupRoot = document.querySelector(".popup-root");
   if (popupRoot) {
-    const themePath = themePathMap[theme] || themePathMap.dark;
-    if (stylesheetCache[themePath]) {
-      const cssText = stylesheetCache[themePath];
-      const rootMatch = cssText.match(/:root\s*{[^}]+}/);
-      if (rootMatch) {
-        const existingStyles = popupRoot.querySelectorAll("style[data-theme]");
-        existingStyles.forEach((style) => style.remove());
-
-        const styleElement = document.createElement("style");
-        styleElement.setAttribute("data-theme", theme);
-        styleElement.textContent = rootMatch[0];
-        popupRoot.appendChild(styleElement);
+    // Remove any existing theme classes
+    popupRoot.classList.forEach((className) => {
+      if (className.startsWith("theme-")) {
+        popupRoot.classList.remove(className);
       }
-    }
+    });
+
+    // Add the new theme class
+    popupRoot.classList.add(`theme-${theme}`);
   }
 }
 
@@ -197,11 +133,49 @@ export async function initializeTheme(
   applyTempStyling(theme);
 
   try {
-    await loadAndApplyTheme(theme);
+    applyThemeClass(theme);
+
+    const loadPromises = [loadAndApplyUnifiedThemes(), loadAndApplyFeatures()];
+
+    // Only load common styles if theme is not default
+    if (theme !== "default") {
+      loadPromises.push(loadAndApplyCommon());
+    }
+
+    await Promise.all(loadPromises);
+
     removeTempStyling();
   } catch (error) {
     console.error("Failed to initialize theme:", error);
     removeTempStyling();
+  }
+}
+
+export async function switchTheme(theme: Theme): Promise<void> {
+  saveThemeToLocalStorage(theme);
+
+  // Ensure unified themes are loaded
+  if (!isUnifiedThemesInjected) {
+    await loadAndApplyUnifiedThemes();
+  }
+
+  // Switch theme class immediately - no loading required!
+  applyThemeClass(theme);
+}
+
+export function switchThemeSync(theme: Theme): void {
+  saveThemeToLocalStorage(theme);
+
+  // If unified themes are already loaded, switch immediately
+  if (isUnifiedThemesInjected) {
+    applyThemeClass(theme);
+  } else {
+    // If not loaded yet, apply temp styling and load in background
+    applyTempStyling(theme);
+    loadAndApplyUnifiedThemes().then(() => {
+      applyThemeClass(theme);
+      removeTempStyling();
+    });
   }
 }
 
@@ -226,23 +200,21 @@ async function loadStylesheet(url: string): Promise<string> {
   }
 }
 
-async function loadAndApplyTheme(theme: string): Promise<void> {
-  const url = themePathMap[theme] || themePathMap.dark;
-
+async function loadAndApplyUnifiedThemes(): Promise<void> {
   try {
-    const stylesheet = await loadStylesheet(url);
-    styleElement.textContent = stylesheet;
+    const stylesheet = await loadStylesheet(UNIFIED_THEMES_PATH);
+    unifiedThemesElement.textContent = stylesheet;
 
-    if (!isThemeInjected) {
+    if (!isUnifiedThemesInjected) {
       if (document.head) {
-        document.head.appendChild(styleElement);
-        isThemeInjected = true;
+        document.head.appendChild(unifiedThemesElement);
+        isUnifiedThemesInjected = true;
       } else {
         createHeadObserver(
           () => {
-            if (document.head && !isThemeInjected) {
-              document.head.appendChild(styleElement);
-              isThemeInjected = true;
+            if (document.head && !isUnifiedThemesInjected) {
+              document.head.appendChild(unifiedThemesElement);
+              isUnifiedThemesInjected = true;
             }
           },
           { childList: true }
@@ -250,7 +222,61 @@ async function loadAndApplyTheme(theme: string): Promise<void> {
       }
     }
   } catch (error) {
-    console.error(`Failed to load theme ${theme}:`, error);
+    console.error("Failed to load unified themes:", error);
+    throw error;
+  }
+}
+
+async function loadAndApplyFeatures(): Promise<void> {
+  try {
+    const stylesheet = await loadStylesheet(FEATURES_SHEET_PATH);
+    featureStyleElement.textContent = stylesheet;
+
+    if (!isFeaturesInjected) {
+      if (document.head) {
+        document.head.appendChild(featureStyleElement);
+        isFeaturesInjected = true;
+      } else {
+        createHeadObserver(
+          () => {
+            if (document.head && !isFeaturesInjected) {
+              document.head.appendChild(featureStyleElement);
+              isFeaturesInjected = true;
+            }
+          },
+          { childList: true }
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load feature styles:", error);
+    throw error;
+  }
+}
+
+async function loadAndApplyCommon(): Promise<void> {
+  try {
+    const stylesheet = await loadStylesheet(COMMON_SHEET_PATH);
+    commonStyleElement.textContent = stylesheet;
+
+    if (!isCommonInjected) {
+      if (document.head) {
+        document.head.appendChild(commonStyleElement);
+        isCommonInjected = true;
+      } else {
+        createHeadObserver(
+          () => {
+            if (document.head && !isCommonInjected) {
+              document.head.appendChild(commonStyleElement);
+              isCommonInjected = true;
+            }
+          },
+          { childList: true }
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load common styles:", error);
     throw error;
   }
 }
@@ -261,9 +287,25 @@ export function removeAllThemeStyles(): void {
     isTempThemeInjected = false;
   }
 
-  if (isThemeInjected && styleElement.parentNode) {
-    styleElement.parentNode.removeChild(styleElement);
-    isThemeInjected = false;
+  if (isUnifiedThemesInjected && unifiedThemesElement.parentNode) {
+    unifiedThemesElement.parentNode.removeChild(unifiedThemesElement);
+    isUnifiedThemesInjected = false;
+  }
+
+  if (isFeaturesInjected && featureStyleElement.parentNode) {
+    featureStyleElement.parentNode.removeChild(featureStyleElement);
+    isFeaturesInjected = false;
+  }
+
+  if (isCommonInjected && commonStyleElement.parentNode) {
+    commonStyleElement.parentNode.removeChild(commonStyleElement);
+    isCommonInjected = false;
+  }
+
+  // Remove theme class
+  if (currentThemeClass) {
+    document.documentElement.classList.remove(currentThemeClass);
+    currentThemeClass = "";
   }
 
   try {
