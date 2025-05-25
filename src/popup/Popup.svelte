@@ -147,11 +147,6 @@
     <Sidebar bind:activeTab={userSettings.activeTab} />
 
     <div class="flex-1 p-8 overflow-y-auto">
-      <!-- Debug info -->
-      <div class="text-xs text-gray-500 mb-2">
-        Active tab: {userSettings.activeTab}
-      </div>
-
       {#if userSettings.activeTab === "Theme"}
         <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
       {:else if userSettings.activeTab === "Auto-accept"}
