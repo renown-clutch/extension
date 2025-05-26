@@ -3,6 +3,8 @@ import browserAPI from "../lib/browserAPI";
 import type { Theme, UserSettings } from "$lib/types";
 
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
+const LOCAL_STORAGE_CSS_CACHE_KEY = "clutch-css-cache";
+const CSS_CACHE_VERSION = "1.0.0";
 
 const STYLESHEET_PATHS = {
   unified: browserAPI.runtime.getURL("styles/unified-themes.css"),
@@ -12,17 +14,20 @@ const STYLESHEET_PATHS = {
 
 const TEMP_THEME_STYLES: Record<Theme, string> = {
   default: "",
-  dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
-  pink: "html, body { background-color: #440c21 !important; color: #fff !important; transition: none !important; }",
-  purple:
-    "html, body { background-color: #1a0033 !important; color: #fff !important; transition: none !important; }",
-  green:
-    "html, body { background-color: #0a2613 !important; color: #fff !important; transition: none !important; }",
-  darkgray:
-    "html, body { background-color: #1a1a1a !important; color: #fff !important; transition: none !important; }",
-  black:
-    "html, body { background-color: #0a0a0a !important; color: #fff !important; transition: none !important; }",
-  oled: "html, body { background-color: #000000 !important; color: #fff !important; transition: none !important; }",
+  dark: `
+    html, body {background-color: #020618 !important;}`,
+  pink: `
+    html, body {background-color: #440c21 !important;}`,
+  purple: `
+    html, body {background-color: #1a0033 !important;}`,
+  green: `
+    html, body {background-color: #0a2613 !important;}`,
+  darkgray: `
+    html, body {background-color: #1a1a1a !important;}`,
+  black: `
+    html, body {background-color: #0a0a0a !important;}`,
+  oled: `
+    html, body {background-color: #000000 !important;}`,
 };
 
 type StyleType = "temp" | "unified" | "features" | "common";
@@ -40,6 +45,7 @@ class ThemeManager {
   private currentThemeClass = "";
 
   constructor() {
+    this.loadCSSCache();
     this.styleManagers = {
       temp: {
         element: this.createElement("clutch-theme-temp"),
@@ -70,24 +76,59 @@ class ThemeManager {
     return element;
   }
 
-  private async loadStylesheet(url: string): Promise<string> {
-    if (this.stylesheetCache[url]) {
-      return this.stylesheetCache[url];
-    }
-
+  private loadCSSCache(): void {
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to load stylesheet: ${response.statusText}`);
+      const cachedData = localStorage.getItem(LOCAL_STORAGE_CSS_CACHE_KEY);
+      if (cachedData) {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.version === CSS_CACHE_VERSION && parsed.cache) {
+          this.stylesheetCache = parsed.cache;
+        }
       }
-
-      const stylesheet = await response.text();
-      this.stylesheetCache[url] = stylesheet;
-      return stylesheet;
     } catch (error) {
-      console.error(`Error fetching stylesheet:`, error);
-      throw error;
+      console.error("Failed to load CSS cache:", error);
     }
+  }
+
+  private saveCSSCache(): void {
+    try {
+      const cacheData = {
+        version: CSS_CACHE_VERSION,
+        cache: this.stylesheetCache,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(
+        LOCAL_STORAGE_CSS_CACHE_KEY,
+        JSON.stringify(cacheData)
+      );
+    } catch (error) {
+      console.error("Failed to save CSS cache:", error);
+    }
+  }
+
+  private async loadStylesheet(
+    styleType: StyleType,
+    url: string
+  ): Promise<string> {
+    // Check cache first
+    const cacheKey = styleType;
+    if (this.stylesheetCache[cacheKey]) {
+      return this.stylesheetCache[cacheKey];
+    }
+
+    // Load from network
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to load stylesheet: ${response.statusText}`);
+    }
+
+    const stylesheet = await response.text();
+
+    // Cache it
+    this.stylesheetCache[cacheKey] = stylesheet;
+    this.saveCSSCache();
+
+    return stylesheet;
   }
 
   private injectStyleIntoShadowRoot(
@@ -149,7 +190,7 @@ class ThemeManager {
     url: string
   ): Promise<void> {
     try {
-      const stylesheet = await this.loadStylesheet(url);
+      const stylesheet = await this.loadStylesheet(styleType, url);
       this.injectStyleElement(styleType, stylesheet);
     } catch (error) {
       console.error(`Failed to load ${styleType} styles:`, error);
@@ -177,15 +218,9 @@ class ThemeManager {
   }
 
   private applyTempStyling(theme: Theme = "dark"): void {
-    if (
-      !this.styleManagers.temp.isInjected &&
-      document.documentElement &&
-      theme !== "default"
-    ) {
+    if (!this.styleManagers.temp.isInjected && theme !== "default") {
       const css = TEMP_THEME_STYLES[theme] || TEMP_THEME_STYLES.dark;
-      this.styleManagers.temp.element.textContent = css;
-      document.documentElement.appendChild(this.styleManagers.temp.element);
-      this.styleManagers.temp.isInjected = true;
+      this.injectStyleElement("temp", css);
     }
   }
 
@@ -211,13 +246,6 @@ class ThemeManager {
     this.shadowRoots.delete(shadowRoot);
   }
 
-  initTempStyling(): void {
-    const cachedTheme = this.getThemeFromLocalStorage();
-    if (cachedTheme && cachedTheme !== "default") {
-      this.applyTempStyling(cachedTheme);
-    }
-  }
-
   saveThemeToLocalStorage(theme: string): void {
     try {
       localStorage.setItem(LOCAL_STORAGE_THEME_KEY, theme);
@@ -239,16 +267,19 @@ class ThemeManager {
     const theme = userSettings.selectedTheme as Theme;
     this.saveThemeToLocalStorage(theme);
 
+    // Apply temp styling immediately
     if (theme !== "default") {
       this.applyTempStyling(theme);
     }
 
     try {
+      // Load main stylesheets
       await Promise.all([
         this.loadAndApplyStylesheet("unified", STYLESHEET_PATHS.unified),
         this.loadAndApplyStylesheet("features", STYLESHEET_PATHS.features),
       ]);
 
+      // Apply theme class and remove temp styling
       this.applyThemeClass(theme);
       this.removeTempStyling();
     } catch (error) {
@@ -331,6 +362,15 @@ class ThemeManager {
       console.error("Failed to remove theme from localStorage:", error);
     }
   }
+
+  clearCSSCache(): void {
+    this.stylesheetCache = {};
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_CSS_CACHE_KEY);
+    } catch (error) {
+      console.error("Failed to clear CSS cache:", error);
+    }
+  }
 }
 
 const themeManager = new ThemeManager();
@@ -346,11 +386,6 @@ export const saveThemeToLocalStorage = (theme: string): void =>
 
 export const getThemeFromLocalStorage = (): Theme | null =>
   themeManager.getThemeFromLocalStorage();
-
-export const initTempStyling = (): void => themeManager.initTempStyling();
-
-export const applyThemeToPopup = (theme: string): void =>
-  themeManager.switchPopupTheme(theme as Theme);
 
 export const initializeTheme = (userSettings: UserSettings): Promise<void> =>
   themeManager.initializeTheme(userSettings);
@@ -369,3 +404,5 @@ export const initializePopupTheme = (theme: Theme): Promise<void> =>
 
 export const switchPopupTheme = (theme: Theme): void =>
   themeManager.switchPopupTheme(theme);
+
+export const clearCSSCache = (): void => themeManager.clearCSSCache();

@@ -4,7 +4,6 @@ import browserAPI, {
   type SendResponseCallback,
 } from "./lib/browserAPI";
 import {
-  initTempStyling,
   saveThemeToLocalStorage,
   initializeTheme,
   removeAllThemeStyles,
@@ -63,7 +62,7 @@ function shouldBeInjected(): boolean {
 }
 
 if (shouldBeInjected()) {
-  initTempStyling();
+  console.log("Content script starting...");
 }
 
 export function registerSettingHandler(
