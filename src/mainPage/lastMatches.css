@@ -68,7 +68,7 @@
 
 .clutch-last-matches-header {
   margin-top: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 8px !important;
   display: grid;
 }
 

@@ -45,13 +45,11 @@ let currentThemeClass = "";
 
 const stylesheetCache: Record<string, string> = {};
 
-// Track shadow DOM elements that need styling
 const shadowRoots: Set<ShadowRoot> = new Set();
 
 export function registerShadowRoot(shadowRoot: ShadowRoot): void {
   shadowRoots.add(shadowRoot);
 
-  // Inject existing styles into the new shadow root
   if (isFeaturesInjected && featureStyleElement.textContent) {
     injectStyleIntoShadowRoot(
       shadowRoot,
@@ -84,13 +82,11 @@ function injectStyleIntoShadowRoot(
   css: string,
   id: string
 ): void {
-  // Remove existing style element with the same ID
   const existingStyle = shadowRoot.querySelector(`#${id}`);
   if (existingStyle) {
     existingStyle.remove();
   }
 
-  // Create and inject new style element
   const styleElement = document.createElement("style");
   styleElement.id = id;
   styleElement.textContent = css;
@@ -122,7 +118,6 @@ export function getThemeFromLocalStorage(): Theme | null {
 
 function applyTempStyling(theme: Theme = "dark"): void {
   if (!isTempThemeInjected && document.documentElement) {
-    // Don't apply any temporary styling for default theme
     if (theme === "default") {
       return;
     }
@@ -179,7 +174,6 @@ export function initTempStyling(): void {
 }
 
 export function applyThemeToPopup(theme: string): void {
-  // Legacy function - now delegates to switchPopupTheme
   switchPopupTheme(theme as Theme);
 }
 
@@ -189,7 +183,6 @@ export async function initializeTheme(
   const theme = userSettings.selectedTheme as Theme;
   saveThemeToLocalStorage(theme);
 
-  // Skip temp styling for default theme to avoid flash
   if (theme !== "default") {
     applyTempStyling(theme);
   }
@@ -209,24 +202,19 @@ export async function initializeTheme(
 export async function switchTheme(theme: Theme): Promise<void> {
   saveThemeToLocalStorage(theme);
 
-  // Ensure unified themes are loaded
   if (!isUnifiedThemesInjected) {
     await loadAndApplyUnifiedThemes();
   }
 
-  // Switch theme class immediately - no loading required!
   applyThemeClass(theme);
 }
 
 export function switchThemeSync(theme: Theme): void {
   saveThemeToLocalStorage(theme);
 
-  // If unified themes are already loaded, switch immediately
   if (isUnifiedThemesInjected) {
     applyThemeClass(theme);
   } else {
-    // If not loaded yet, apply temp styling and load in background
-    // But skip temp styling for default theme to avoid flash
     if (theme !== "default") {
       applyTempStyling(theme);
     }
@@ -267,7 +255,6 @@ async function loadAndApplyUnifiedThemes(): Promise<void> {
       if (document.head) {
         document.head.appendChild(unifiedThemesElement);
         isUnifiedThemesInjected = true;
-        // Also inject into shadow DOM elements
         injectStyleIntoAllShadowRoots(
           stylesheet,
           "clutch-unified-themes-shadow"
@@ -278,7 +265,6 @@ async function loadAndApplyUnifiedThemes(): Promise<void> {
             if (document.head && !isUnifiedThemesInjected) {
               document.head.appendChild(unifiedThemesElement);
               isUnifiedThemesInjected = true;
-              // Also inject into shadow DOM elements
               injectStyleIntoAllShadowRoots(
                 stylesheet,
                 "clutch-unified-themes-shadow"
@@ -304,7 +290,6 @@ async function loadAndApplyFeatures(): Promise<void> {
       if (document.head) {
         document.head.appendChild(featureStyleElement);
         isFeaturesInjected = true;
-        // Also inject into shadow DOM elements
         injectStyleIntoAllShadowRoots(stylesheet, "clutch-features-shadow");
       } else {
         createHeadObserver(
@@ -312,7 +297,7 @@ async function loadAndApplyFeatures(): Promise<void> {
             if (document.head && !isFeaturesInjected) {
               document.head.appendChild(featureStyleElement);
               isFeaturesInjected = true;
-              // Also inject into shadow DOM elements
+
               injectStyleIntoAllShadowRoots(
                 stylesheet,
                 "clutch-features-shadow"
@@ -338,7 +323,6 @@ async function loadAndApplyCommon(): Promise<void> {
       if (document.head) {
         document.head.appendChild(commonStyleElement);
         isCommonInjected = true;
-        // Also inject into shadow DOM elements
         injectStyleIntoAllShadowRoots(stylesheet, "clutch-common-shadow");
       } else {
         createHeadObserver(
@@ -346,7 +330,6 @@ async function loadAndApplyCommon(): Promise<void> {
             if (document.head && !isCommonInjected) {
               document.head.appendChild(commonStyleElement);
               isCommonInjected = true;
-              // Also inject into shadow DOM elements
               injectStyleIntoAllShadowRoots(stylesheet, "clutch-common-shadow");
             }
           },
@@ -378,7 +361,6 @@ export function removeAllThemeStyles(): void {
 
   removeCommonStyles();
 
-  // Remove theme class
   if (currentThemeClass) {
     document.documentElement.classList.remove(currentThemeClass);
     currentThemeClass = "";
@@ -392,31 +374,22 @@ export function removeAllThemeStyles(): void {
 }
 
 export async function initializePopupTheme(theme: Theme): Promise<void> {
-  try {
-    await loadAndApplyUnifiedThemes();
+  await loadAndApplyUnifiedThemes();
 
-    if (currentThemeClass) {
-      document.documentElement.classList.remove(currentThemeClass);
-    }
-
-    if (theme !== "default") {
-      const themeClass = `theme-${theme}`;
-      document.documentElement.classList.add(themeClass);
-      currentThemeClass = themeClass;
-    }
-  } catch (error) {
-    console.error("Failed to initialize popup theme:", error);
-    // Fallback: still apply theme class even if unified themes failed to load
-    if (theme !== "default") {
-      const themeClass = `theme-${theme}`;
-      document.documentElement.classList.add(themeClass);
-      currentThemeClass = themeClass;
-    }
+  if (currentThemeClass) {
+    document.documentElement.classList.remove(currentThemeClass);
   }
+  let themeClass = "theme-dark";
+  if (theme !== "default") {
+    themeClass = `theme-${theme}`;
+  } else {
+    themeClass = "theme-dark";
+  }
+  document.documentElement.classList.add(themeClass);
+  currentThemeClass = themeClass;
 }
 
 export function switchPopupTheme(theme: Theme): void {
-  // Remove current theme class
   if (currentThemeClass) {
     document.documentElement.classList.remove(currentThemeClass);
   }
@@ -430,7 +403,6 @@ export function switchPopupTheme(theme: Theme): void {
   document.documentElement.classList.add(themeClass);
   currentThemeClass = themeClass;
 
-  // If unified themes aren't loaded yet, load them in the background
   if (!isUnifiedThemesInjected) {
     loadAndApplyUnifiedThemes().catch((error) => {
       console.error("Failed to load unified themes for popup:", error);
