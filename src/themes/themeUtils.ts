@@ -4,13 +4,13 @@ import type { Theme, UserSettings } from "$lib/types";
 
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
 
-const UNIFIED_THEMES_PATH = browserAPI.runtime.getURL(
-  "styles/unified-themes.css"
-);
-const FEATURES_SHEET_PATH = browserAPI.runtime.getURL("styles/features.css");
-const COMMON_SHEET_PATH = browserAPI.runtime.getURL("styles/common.css");
+const STYLESHEET_PATHS = {
+  unified: browserAPI.runtime.getURL("styles/unified-themes.css"),
+  features: browserAPI.runtime.getURL("styles/features.css"),
+  common: browserAPI.runtime.getURL("styles/common.css"),
+} as const;
 
-const tempThemeStyles: Record<Theme, string> = {
+const TEMP_THEME_STYLES: Record<Theme, string> = {
   default: "",
   dark: "html, body { background-color: #020618 !important; color: #fff !important; transition: none !important; }",
   pink: "html, body { background-color: #440c21 !important; color: #fff !important; transition: none !important; }",
@@ -25,387 +25,347 @@ const tempThemeStyles: Record<Theme, string> = {
   oled: "html, body { background-color: #000000 !important; color: #fff !important; transition: none !important; }",
 };
 
-const tempStyleElement = document.createElement("style");
-tempStyleElement.id = "clutch-theme-temp";
+type StyleType = "temp" | "unified" | "features" | "common";
 
-const unifiedThemesElement = document.createElement("style");
-unifiedThemesElement.id = "clutch-unified-themes";
-
-const featureStyleElement = document.createElement("style");
-featureStyleElement.id = "clutch-features";
-
-const commonStyleElement = document.createElement("style");
-commonStyleElement.id = "clutch-common";
-
-let isUnifiedThemesInjected = false;
-let isTempThemeInjected = false;
-let isFeaturesInjected = false;
-let isCommonInjected = false;
-let currentThemeClass = "";
-
-const stylesheetCache: Record<string, string> = {};
-
-const shadowRoots: Set<ShadowRoot> = new Set();
-
-export function registerShadowRoot(shadowRoot: ShadowRoot): void {
-  shadowRoots.add(shadowRoot);
-
-  if (isFeaturesInjected && featureStyleElement.textContent) {
-    injectStyleIntoShadowRoot(
-      shadowRoot,
-      featureStyleElement.textContent,
-      "clutch-features-shadow"
-    );
-  }
-  if (isUnifiedThemesInjected && unifiedThemesElement.textContent) {
-    injectStyleIntoShadowRoot(
-      shadowRoot,
-      unifiedThemesElement.textContent,
-      "clutch-unified-themes-shadow"
-    );
-  }
-  if (isCommonInjected && commonStyleElement.textContent) {
-    injectStyleIntoShadowRoot(
-      shadowRoot,
-      commonStyleElement.textContent,
-      "clutch-common-shadow"
-    );
-  }
+interface StyleManager {
+  element: HTMLStyleElement;
+  isInjected: boolean;
+  shadowId: string;
 }
 
-export function unregisterShadowRoot(shadowRoot: ShadowRoot): void {
-  shadowRoots.delete(shadowRoot);
-}
+class ThemeManager {
+  private styleManagers: Record<StyleType, StyleManager>;
+  private stylesheetCache: Record<string, string> = {};
+  private shadowRoots: Set<ShadowRoot> = new Set();
+  private currentThemeClass = "";
 
-function injectStyleIntoShadowRoot(
-  shadowRoot: ShadowRoot,
-  css: string,
-  id: string
-): void {
-  const existingStyle = shadowRoot.querySelector(`#${id}`);
-  if (existingStyle) {
-    existingStyle.remove();
+  constructor() {
+    this.styleManagers = {
+      temp: {
+        element: this.createElement("clutch-theme-temp"),
+        isInjected: false,
+        shadowId: "clutch-temp-shadow",
+      },
+      unified: {
+        element: this.createElement("clutch-unified-themes"),
+        isInjected: false,
+        shadowId: "clutch-unified-themes-shadow",
+      },
+      features: {
+        element: this.createElement("clutch-features"),
+        isInjected: false,
+        shadowId: "clutch-features-shadow",
+      },
+      common: {
+        element: this.createElement("clutch-common"),
+        isInjected: false,
+        shadowId: "clutch-common-shadow",
+      },
+    };
   }
 
-  const styleElement = document.createElement("style");
-  styleElement.id = id;
-  styleElement.textContent = css;
-  shadowRoot.appendChild(styleElement);
-}
-
-function injectStyleIntoAllShadowRoots(css: string, id: string): void {
-  shadowRoots.forEach((shadowRoot) => {
-    injectStyleIntoShadowRoot(shadowRoot, css, id);
-  });
-}
-
-export function saveThemeToLocalStorage(theme: string): void {
-  try {
-    localStorage.setItem(LOCAL_STORAGE_THEME_KEY, theme);
-  } catch (error) {
-    console.error("Failed to save theme to localStorage:", error);
+  private createElement(id: string): HTMLStyleElement {
+    const element = document.createElement("style");
+    element.id = id;
+    return element;
   }
-}
 
-export function getThemeFromLocalStorage(): Theme | null {
-  try {
-    return localStorage.getItem(LOCAL_STORAGE_THEME_KEY) as Theme | null;
-  } catch (error) {
-    console.error("Failed to get theme from localStorage:", error);
-    return null;
+  private async loadStylesheet(url: string): Promise<string> {
+    if (this.stylesheetCache[url]) {
+      return this.stylesheetCache[url];
+    }
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to load stylesheet: ${response.statusText}`);
+      }
+
+      const stylesheet = await response.text();
+      this.stylesheetCache[url] = stylesheet;
+      return stylesheet;
+    } catch (error) {
+      console.error(`Error fetching stylesheet:`, error);
+      throw error;
+    }
   }
-}
 
-function applyTempStyling(theme: Theme = "dark"): void {
-  if (!isTempThemeInjected && document.documentElement) {
+  private injectStyleIntoShadowRoot(
+    shadowRoot: ShadowRoot,
+    css: string,
+    id: string
+  ): void {
+    const existingStyle = shadowRoot.querySelector(`#${id}`);
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+
+    const styleElement = document.createElement("style");
+    styleElement.id = id;
+    styleElement.textContent = css;
+    shadowRoot.appendChild(styleElement);
+  }
+
+  private injectStyleIntoAllShadowRoots(css: string, id: string): void {
+    this.shadowRoots.forEach((shadowRoot) => {
+      this.injectStyleIntoShadowRoot(shadowRoot, css, id);
+    });
+  }
+
+  private injectStyleElement(styleType: StyleType, css: string): void {
+    const manager = this.styleManagers[styleType];
+    manager.element.textContent = css;
+
+    if (!manager.isInjected) {
+      if (document.head) {
+        document.head.appendChild(manager.element);
+        manager.isInjected = true;
+        this.injectStyleIntoAllShadowRoots(css, manager.shadowId);
+      } else {
+        createHeadObserver(
+          () => {
+            if (document.head && !manager.isInjected) {
+              document.head.appendChild(manager.element);
+              manager.isInjected = true;
+              this.injectStyleIntoAllShadowRoots(css, manager.shadowId);
+            }
+          },
+          { childList: true }
+        );
+      }
+    }
+  }
+
+  private removeStyleElement(styleType: StyleType): void {
+    const manager = this.styleManagers[styleType];
+    if (manager.isInjected && manager.element.parentNode) {
+      manager.element.parentNode.removeChild(manager.element);
+      manager.isInjected = false;
+    }
+  }
+
+  private async loadAndApplyStylesheet(
+    styleType: StyleType,
+    url: string
+  ): Promise<void> {
+    try {
+      const stylesheet = await this.loadStylesheet(url);
+      this.injectStyleElement(styleType, stylesheet);
+    } catch (error) {
+      console.error(`Failed to load ${styleType} styles:`, error);
+      throw error;
+    }
+  }
+
+  private applyThemeClass(theme: Theme): void {
+    if (this.currentThemeClass) {
+      document.documentElement.classList.remove(this.currentThemeClass);
+    }
+
     if (theme === "default") {
+      this.removeStyleElement("common");
       return;
     }
 
-    tempStyleElement.textContent =
-      tempThemeStyles[theme] || tempThemeStyles.dark;
-    document.documentElement.appendChild(tempStyleElement);
-    isTempThemeInjected = true;
-  }
-}
+    if (!this.styleManagers.common.isInjected) {
+      this.loadAndApplyStylesheet("common", STYLESHEET_PATHS.common);
+    }
 
-function removeTempStyling(): void {
-  if (isTempThemeInjected && tempStyleElement.parentNode) {
-    tempStyleElement.parentNode.removeChild(tempStyleElement);
-    isTempThemeInjected = false;
-  }
-}
-
-function removeCommonStyles(): void {
-  if (isCommonInjected && commonStyleElement.parentNode) {
-    commonStyleElement.parentNode.removeChild(commonStyleElement);
-    isCommonInjected = false;
-  }
-}
-
-function ensureCommonStylesLoaded(): void {
-  if (!isCommonInjected) {
-    loadAndApplyCommon();
-  }
-}
-
-function applyThemeClass(theme: Theme): void {
-  if (currentThemeClass) {
-    document.documentElement.classList.remove(currentThemeClass);
+    const themeClass = `theme-${theme}`;
+    document.documentElement.classList.add(themeClass);
+    this.currentThemeClass = themeClass;
   }
 
-  if (theme === "default") {
-    removeCommonStyles();
-    return;
-  } else {
-    ensureCommonStylesLoaded();
+  private applyTempStyling(theme: Theme = "dark"): void {
+    if (
+      !this.styleManagers.temp.isInjected &&
+      document.documentElement &&
+      theme !== "default"
+    ) {
+      const css = TEMP_THEME_STYLES[theme] || TEMP_THEME_STYLES.dark;
+      this.styleManagers.temp.element.textContent = css;
+      document.documentElement.appendChild(this.styleManagers.temp.element);
+      this.styleManagers.temp.isInjected = true;
+    }
   }
 
-  const themeClass = `theme-${theme}`;
-  document.documentElement.classList.add(themeClass);
-  currentThemeClass = themeClass;
-}
-
-export function initTempStyling(): void {
-  const cachedTheme = getThemeFromLocalStorage();
-  if (cachedTheme && cachedTheme !== "default") {
-    applyTempStyling(cachedTheme);
-  }
-}
-
-export function applyThemeToPopup(theme: string): void {
-  switchPopupTheme(theme as Theme);
-}
-
-export async function initializeTheme(
-  userSettings: UserSettings
-): Promise<void> {
-  const theme = userSettings.selectedTheme as Theme;
-  saveThemeToLocalStorage(theme);
-
-  if (theme !== "default") {
-    applyTempStyling(theme);
+  private removeTempStyling(): void {
+    this.removeStyleElement("temp");
   }
 
-  try {
-    await Promise.all([loadAndApplyUnifiedThemes(), loadAndApplyFeatures()]);
+  registerShadowRoot(shadowRoot: ShadowRoot): void {
+    this.shadowRoots.add(shadowRoot);
 
-    applyThemeClass(theme);
-
-    removeTempStyling();
-  } catch (error) {
-    console.error("Failed to initialize theme:", error);
-    removeTempStyling();
-  }
-}
-
-export async function switchTheme(theme: Theme): Promise<void> {
-  saveThemeToLocalStorage(theme);
-
-  if (!isUnifiedThemesInjected) {
-    await loadAndApplyUnifiedThemes();
+    Object.entries(this.styleManagers).forEach(([, manager]) => {
+      if (manager.isInjected && manager.element.textContent) {
+        this.injectStyleIntoShadowRoot(
+          shadowRoot,
+          manager.element.textContent,
+          manager.shadowId
+        );
+      }
+    });
   }
 
-  applyThemeClass(theme);
-}
+  unregisterShadowRoot(shadowRoot: ShadowRoot): void {
+    this.shadowRoots.delete(shadowRoot);
+  }
 
-export function switchThemeSync(theme: Theme): void {
-  saveThemeToLocalStorage(theme);
+  initTempStyling(): void {
+    const cachedTheme = this.getThemeFromLocalStorage();
+    if (cachedTheme && cachedTheme !== "default") {
+      this.applyTempStyling(cachedTheme);
+    }
+  }
 
-  if (isUnifiedThemesInjected) {
-    applyThemeClass(theme);
-  } else {
+  saveThemeToLocalStorage(theme: string): void {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_THEME_KEY, theme);
+    } catch (error) {
+      console.error("Failed to save theme to localStorage:", error);
+    }
+  }
+
+  getThemeFromLocalStorage(): Theme | null {
+    try {
+      return localStorage.getItem(LOCAL_STORAGE_THEME_KEY) as Theme | null;
+    } catch (error) {
+      console.error("Failed to get theme from localStorage:", error);
+      return null;
+    }
+  }
+
+  async initializeTheme(userSettings: UserSettings): Promise<void> {
+    const theme = userSettings.selectedTheme as Theme;
+    this.saveThemeToLocalStorage(theme);
+
     if (theme !== "default") {
-      applyTempStyling(theme);
+      this.applyTempStyling(theme);
     }
-    loadAndApplyUnifiedThemes().then(() => {
-      applyThemeClass(theme);
-      removeTempStyling();
+
+    try {
+      await Promise.all([
+        this.loadAndApplyStylesheet("unified", STYLESHEET_PATHS.unified),
+        this.loadAndApplyStylesheet("features", STYLESHEET_PATHS.features),
+      ]);
+
+      this.applyThemeClass(theme);
+      this.removeTempStyling();
+    } catch (error) {
+      console.error("Failed to initialize theme:", error);
+      this.removeTempStyling();
+    }
+  }
+
+  async switchTheme(theme: Theme): Promise<void> {
+    this.saveThemeToLocalStorage(theme);
+
+    if (!this.styleManagers.unified.isInjected) {
+      await this.loadAndApplyStylesheet("unified", STYLESHEET_PATHS.unified);
+    }
+
+    this.applyThemeClass(theme);
+  }
+
+  switchThemeSync(theme: Theme): void {
+    this.saveThemeToLocalStorage(theme);
+
+    if (this.styleManagers.unified.isInjected) {
+      this.applyThemeClass(theme);
+    } else {
+      if (theme !== "default") {
+        this.applyTempStyling(theme);
+      }
+      this.loadAndApplyStylesheet("unified", STYLESHEET_PATHS.unified).then(
+        () => {
+          this.applyThemeClass(theme);
+          this.removeTempStyling();
+        }
+      );
+    }
+  }
+
+  async initializePopupTheme(theme: Theme): Promise<void> {
+    await this.loadAndApplyStylesheet("unified", STYLESHEET_PATHS.unified);
+
+    if (this.currentThemeClass) {
+      document.documentElement.classList.remove(this.currentThemeClass);
+    }
+
+    const themeClass = theme !== "default" ? `theme-${theme}` : "theme-dark";
+    document.documentElement.classList.add(themeClass);
+    this.currentThemeClass = themeClass;
+  }
+
+  switchPopupTheme(theme: Theme): void {
+    if (this.currentThemeClass) {
+      document.documentElement.classList.remove(this.currentThemeClass);
+    }
+
+    const themeClass = theme !== "default" ? `theme-${theme}` : "theme-dark";
+    document.documentElement.classList.add(themeClass);
+    this.currentThemeClass = themeClass;
+
+    if (!this.styleManagers.unified.isInjected) {
+      this.loadAndApplyStylesheet("unified", STYLESHEET_PATHS.unified).catch(
+        (error) => {
+          console.error("Failed to load unified themes for popup:", error);
+        }
+      );
+    }
+  }
+
+  removeAllThemeStyles(): void {
+    Object.keys(this.styleManagers).forEach((styleType) => {
+      this.removeStyleElement(styleType as StyleType);
     });
-  }
-}
 
-async function loadStylesheet(url: string): Promise<string> {
-  if (stylesheetCache[url]) {
-    return stylesheetCache[url];
-  }
-
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`Failed to load stylesheet: ${response.statusText}`);
+    if (this.currentThemeClass) {
+      document.documentElement.classList.remove(this.currentThemeClass);
+      this.currentThemeClass = "";
     }
 
-    const stylesheet = await response.text();
-    stylesheetCache[url] = stylesheet;
-    return stylesheet;
-  } catch (error) {
-    console.error(`Error fetching stylesheet:`, error);
-    throw error;
-  }
-}
-
-async function loadAndApplyUnifiedThemes(): Promise<void> {
-  try {
-    const stylesheet = await loadStylesheet(UNIFIED_THEMES_PATH);
-    unifiedThemesElement.textContent = stylesheet;
-
-    if (!isUnifiedThemesInjected) {
-      if (document.head) {
-        document.head.appendChild(unifiedThemesElement);
-        isUnifiedThemesInjected = true;
-        injectStyleIntoAllShadowRoots(
-          stylesheet,
-          "clutch-unified-themes-shadow"
-        );
-      } else {
-        createHeadObserver(
-          () => {
-            if (document.head && !isUnifiedThemesInjected) {
-              document.head.appendChild(unifiedThemesElement);
-              isUnifiedThemesInjected = true;
-              injectStyleIntoAllShadowRoots(
-                stylesheet,
-                "clutch-unified-themes-shadow"
-              );
-            }
-          },
-          { childList: true }
-        );
-      }
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_THEME_KEY);
+    } catch (error) {
+      console.error("Failed to remove theme from localStorage:", error);
     }
-  } catch (error) {
-    console.error("Failed to load unified themes:", error);
-    throw error;
   }
 }
 
-async function loadAndApplyFeatures(): Promise<void> {
-  try {
-    const stylesheet = await loadStylesheet(FEATURES_SHEET_PATH);
-    featureStyleElement.textContent = stylesheet;
+const themeManager = new ThemeManager();
 
-    if (!isFeaturesInjected) {
-      if (document.head) {
-        document.head.appendChild(featureStyleElement);
-        isFeaturesInjected = true;
-        injectStyleIntoAllShadowRoots(stylesheet, "clutch-features-shadow");
-      } else {
-        createHeadObserver(
-          () => {
-            if (document.head && !isFeaturesInjected) {
-              document.head.appendChild(featureStyleElement);
-              isFeaturesInjected = true;
+export const registerShadowRoot = (shadowRoot: ShadowRoot): void =>
+  themeManager.registerShadowRoot(shadowRoot);
 
-              injectStyleIntoAllShadowRoots(
-                stylesheet,
-                "clutch-features-shadow"
-              );
-            }
-          },
-          { childList: true }
-        );
-      }
-    }
-  } catch (error) {
-    console.error("Failed to load feature styles:", error);
-    throw error;
-  }
-}
+export const unregisterShadowRoot = (shadowRoot: ShadowRoot): void =>
+  themeManager.unregisterShadowRoot(shadowRoot);
 
-async function loadAndApplyCommon(): Promise<void> {
-  try {
-    const stylesheet = await loadStylesheet(COMMON_SHEET_PATH);
-    commonStyleElement.textContent = stylesheet;
+export const saveThemeToLocalStorage = (theme: string): void =>
+  themeManager.saveThemeToLocalStorage(theme);
 
-    if (!isCommonInjected) {
-      if (document.head) {
-        document.head.appendChild(commonStyleElement);
-        isCommonInjected = true;
-        injectStyleIntoAllShadowRoots(stylesheet, "clutch-common-shadow");
-      } else {
-        createHeadObserver(
-          () => {
-            if (document.head && !isCommonInjected) {
-              document.head.appendChild(commonStyleElement);
-              isCommonInjected = true;
-              injectStyleIntoAllShadowRoots(stylesheet, "clutch-common-shadow");
-            }
-          },
-          { childList: true }
-        );
-      }
-    }
-  } catch (error) {
-    console.error("Failed to load common styles:", error);
-    throw error;
-  }
-}
+export const getThemeFromLocalStorage = (): Theme | null =>
+  themeManager.getThemeFromLocalStorage();
 
-export function removeAllThemeStyles(): void {
-  if (isTempThemeInjected && tempStyleElement.parentNode) {
-    tempStyleElement.parentNode.removeChild(tempStyleElement);
-    isTempThemeInjected = false;
-  }
+export const initTempStyling = (): void => themeManager.initTempStyling();
 
-  if (isUnifiedThemesInjected && unifiedThemesElement.parentNode) {
-    unifiedThemesElement.parentNode.removeChild(unifiedThemesElement);
-    isUnifiedThemesInjected = false;
-  }
+export const applyThemeToPopup = (theme: string): void =>
+  themeManager.switchPopupTheme(theme as Theme);
 
-  if (isFeaturesInjected && featureStyleElement.parentNode) {
-    featureStyleElement.parentNode.removeChild(featureStyleElement);
-    isFeaturesInjected = false;
-  }
+export const initializeTheme = (userSettings: UserSettings): Promise<void> =>
+  themeManager.initializeTheme(userSettings);
 
-  removeCommonStyles();
+export const switchTheme = (theme: Theme): Promise<void> =>
+  themeManager.switchTheme(theme);
 
-  if (currentThemeClass) {
-    document.documentElement.classList.remove(currentThemeClass);
-    currentThemeClass = "";
-  }
+export const switchThemeSync = (theme: Theme): void =>
+  themeManager.switchThemeSync(theme);
 
-  try {
-    localStorage.removeItem(LOCAL_STORAGE_THEME_KEY);
-  } catch (error) {
-    console.error("Failed to remove theme from localStorage:", error);
-  }
-}
+export const removeAllThemeStyles = (): void =>
+  themeManager.removeAllThemeStyles();
 
-export async function initializePopupTheme(theme: Theme): Promise<void> {
-  await loadAndApplyUnifiedThemes();
+export const initializePopupTheme = (theme: Theme): Promise<void> =>
+  themeManager.initializePopupTheme(theme);
 
-  if (currentThemeClass) {
-    document.documentElement.classList.remove(currentThemeClass);
-  }
-  let themeClass = "theme-dark";
-  if (theme !== "default") {
-    themeClass = `theme-${theme}`;
-  } else {
-    themeClass = "theme-dark";
-  }
-  document.documentElement.classList.add(themeClass);
-  currentThemeClass = themeClass;
-}
-
-export function switchPopupTheme(theme: Theme): void {
-  if (currentThemeClass) {
-    document.documentElement.classList.remove(currentThemeClass);
-  }
-
-  let themeClass = "";
-  if (theme !== "default") {
-    themeClass = `theme-${theme}`;
-  } else {
-    themeClass = "theme-dark";
-  }
-  document.documentElement.classList.add(themeClass);
-  currentThemeClass = themeClass;
-
-  if (!isUnifiedThemesInjected) {
-    loadAndApplyUnifiedThemes().catch((error) => {
-      console.error("Failed to load unified themes for popup:", error);
-    });
-  }
-}
+export const switchPopupTheme = (theme: Theme): void =>
+  themeManager.switchPopupTheme(theme);
