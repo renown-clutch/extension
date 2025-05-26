@@ -92,13 +92,13 @@
 
 /* Purple theme */
 .theme-purple {
-  --slate-950: #1a0033;
-  --slate-900: #2d1a4d;
-  --slate-900-80: #2d1a4ddb;
-  --slate-800: #4a2d66;
-  --slate-700: #663f80;
-  --slate-700-80: #663f80db;
-  --slate-600: #825299;
+  --slate-950: #2e1065;
+  --slate-900: #4c1d95;
+  --slate-900-80: #4c1d95db;
+  --slate-800: #5b21b6;
+  --slate-700: #6d28d9;
+  --slate-700-80: #6d28d9db;
+  --slate-600: #7c3aed;
   --linear-gradient-90: linear-gradient(
     90deg,
     var(--slate-900-80),
