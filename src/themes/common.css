@@ -508,7 +508,7 @@ input.iti__tel-input {
 }
 
 .profile-banner {
-  background: linear-gradient(180deg, var(--slate-700), var(--slate-900));
+  background: linear-gradient(180deg, var(--slate-800), var(--slate-950));
 }
 
 .profile-banner .layout .wrapper .flag {

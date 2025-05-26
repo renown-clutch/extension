@@ -52,13 +52,13 @@
 
 /* Pink theme */
 .theme-pink {
-  --slate-950: #440c21;
-  --slate-900: #5c1a2e;
-  --slate-900-80: #5c1a2edb;
-  --slate-800: #7c2d3e;
-  --slate-700: #9c3f4e;
-  --slate-700-80: #9c3f4edb;
-  --slate-600: #bc515e;
+  --slate-950: #500724;
+  --slate-900: #881337;
+  --slate-900-80: #881337db;
+  --slate-800: #9d174d;
+  --slate-700: #be185d;
+  --slate-700-80: #be185ddb;
+  --slate-600: #db2777;
   --linear-gradient-90: linear-gradient(
     90deg,
     var(--slate-900-80),
