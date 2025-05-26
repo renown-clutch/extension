@@ -1,3 +1,5 @@
+import { registerShadowRoot } from "../themes/shadowThemeManager";
+
 /**
  * Creates a shadow root for an element with proper TypeScript types
  * @param element The element to attach the shadow root to
@@ -8,5 +10,10 @@ export function createShadowRoot(element: HTMLElement): ShadowRoot {
     return element.shadowRoot;
   }
 
-  return element.attachShadow({ mode: "open" });
+  const shadowRoot = element.attachShadow({ mode: "open" });
+
+  // Automatically register the shadow root with the theme system
+  registerShadowRoot(shadowRoot);
+
+  return shadowRoot;
 }

@@ -1,4 +1,3 @@
-import { initializeTheme } from "../themes/themeUtils";
 import { initializeProfileButtons } from "../playerProfile/profileButtons";
 import { initializeProfileBans } from "../playerProfile/previousBans";
 import { initializeFriendsList } from "../playerProfile/friendsList";
@@ -128,7 +127,6 @@ export const SETTING_DEFINITIONS: Record<
     category: "theme",
     defaultValue: "dark",
     description: "The selected theme for the extension",
-    handlers: [initializeTheme],
   },
   showConfirmModal: {
     key: "showConfirmModal",

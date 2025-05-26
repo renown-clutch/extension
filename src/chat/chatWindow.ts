@@ -3,7 +3,7 @@ import browserAPI from "../lib/browserAPI";
 import { waitForElement } from "../utils/profileUtils";
 import { getUserInfo } from "../steamId/steamIdParser";
 import { getStoredUIState, saveUIState } from "../utils/uiStateUtils";
-import { registerShadowRoot, unregisterShadowRoot } from "../themes/themeUtils";
+import { unregisterShadowRoot } from "../themes/shadowThemeManager";
 import type { UserSettings } from "../lib/types";
 
 const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
@@ -35,9 +35,6 @@ export async function initializeChatWindow(userSettings: UserSettings) {
   container.id = "clutch-chat-window";
 
   const shadowRoot = createShadowRoot(container);
-
-  // Register shadow root with theme utilities for style injection
-  registerShadowRoot(shadowRoot);
 
   const chatContainer = document.createElement("div");
   chatContainer.className = "chat-container";
