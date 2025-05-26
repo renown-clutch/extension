@@ -13,6 +13,13 @@
   border: 1px solid var(--toastify-color-error);
 }
 
+.ban-badge.clutch-ban-badge {
+  padding: 0.5rem 1rem;
+  font-size: 12px;
+  margin-top: 0.4rem;
+  border: transparent;
+}
+
 .clutch-ban-badge.good {
   background-color: var(--toastify-color-success);
   color: var(--toastify-color-light);
