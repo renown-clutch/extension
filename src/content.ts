@@ -74,7 +74,7 @@ if (shouldBeInjected()) {
   // Try fast injection first (uses cache)
   fastThemeInjection();
   // Then run enhanced injection to ensure all CSS is loaded
-  enhancedThemeInjection().catch((error) => {
+  enhancedThemeInjection().catch((error: unknown) => {
     console.warn("Enhanced theme injection failed:", error);
   });
 }
@@ -158,6 +158,14 @@ async function initialize(pageType: PageType["type"]) {
   try {
     const freshSettings = await loadFromBrowserStorage();
     userSettings = freshSettings;
+
+    // Sync theme preference with localStorage if needed
+    if (userSettings.selectedTheme) {
+      const currentTheme = localStorage.getItem("clutch-theme-preference");
+      if (currentTheme !== userSettings.selectedTheme) {
+        switchTheme(userSettings.selectedTheme);
+      }
+    }
 
     await initializeSteamIdParser();
 

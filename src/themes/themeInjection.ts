@@ -206,8 +206,13 @@ function injectCSS(css: string, id: string): void {
 // Fast theme injection - runs immediately with cached CSS (no network calls)
 export function fastThemeInjection(): void {
   try {
-    const themePreference = localStorage.getItem("clutch-theme-preference");
-    if (!themePreference) return;
+    let themePreference = localStorage.getItem("clutch-theme-preference");
+
+    // If no theme preference is set, use the default from settings
+    if (!themePreference) {
+      themePreference = "dark"; // This matches defaultUserSettings.selectedTheme
+      localStorage.setItem("clutch-theme-preference", themePreference);
+    }
 
     // Apply theme class immediately
     if (themePreference !== "default") {
@@ -239,8 +244,13 @@ export function fastThemeInjection(): void {
 // Enhanced theme injection - loads CSS with hash validation
 export async function enhancedThemeInjection(): Promise<void> {
   try {
-    const themePreference = localStorage.getItem("clutch-theme-preference");
-    if (!themePreference) return;
+    let themePreference = localStorage.getItem("clutch-theme-preference");
+
+    // If no theme preference is set, use the default from settings
+    if (!themePreference) {
+      themePreference = "dark"; // This matches defaultUserSettings.selectedTheme
+      localStorage.setItem("clutch-theme-preference", themePreference);
+    }
 
     // Apply theme class
     if (themePreference !== "default") {
