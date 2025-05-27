@@ -31,6 +31,9 @@ function applyThemeToShadowRoot(shadowRoot: ShadowRoot): void {
       if (parsedCache.cache) {
         const cache = parsedCache.cache;
 
+        // Debug: Log cache structure to understand the data format
+        console.log("Shadow root cache structure:", Object.keys(cache));
+
         // Inject unified and features styles
         const stylesToInject = ["unified", "features"];
 
@@ -41,11 +44,19 @@ function applyThemeToShadowRoot(shadowRoot: ShadowRoot): void {
 
         stylesToInject.forEach((styleType) => {
           if (cache[styleType]) {
-            injectStyleIntoShadowRoot(
-              shadowRoot,
-              cache[styleType],
-              `clutch-${styleType}-shadow`
-            );
+            // Ensure we're passing a string, not an object
+            const cssContent =
+              typeof cache[styleType] === "string"
+                ? cache[styleType]
+                : cache[styleType].css || cache[styleType].content || "";
+
+            if (cssContent) {
+              injectStyleIntoShadowRoot(
+                shadowRoot,
+                cssContent,
+                `clutch-${styleType}-shadow`
+              );
+            }
           }
         });
       }
@@ -60,6 +71,12 @@ function injectStyleIntoShadowRoot(
   css: string,
   id: string
 ): void {
+  // Validate that css is actually a string
+  if (typeof css !== "string") {
+    console.error(`Expected CSS string for ${id}, but got:`, typeof css, css);
+    return;
+  }
+
   // Remove existing style with same id
   const existingStyle = shadowRoot.querySelector(`#${id}`);
   if (existingStyle) {
