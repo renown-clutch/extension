@@ -47,17 +47,29 @@
     if (typeof chrome !== "undefined" && chrome.tabs) {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            type: "forceReload",
-          });
+          chrome.tabs.sendMessage(
+            tabs[0].id,
+            {
+              type: "forceReload",
+            },
+            () => {
+              if (chrome.runtime.lastError) {
+                return;
+              }
+            }
+          );
         }
       });
     } else if (typeof browser !== "undefined" && browser.tabs) {
       browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
         if (tabs[0]?.id) {
-          browser.tabs.sendMessage(tabs[0].id, {
-            type: "forceReload",
-          });
+          browser.tabs
+            .sendMessage(tabs[0].id, {
+              type: "forceReload",
+            })
+            .catch(() => {
+              return;
+            });
         }
       });
     }

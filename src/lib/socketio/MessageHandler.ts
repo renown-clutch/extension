@@ -7,14 +7,11 @@ export class MessageHandler {
 
   constructor() {}
 
-  public handleMessage(
-    event: MessageEvent,
+  public handleSocketIOMessage(
+    message: any,
     storageService: StorageService
   ): void {
     try {
-      const message = JSON.parse(event.data);
-      console.log("[MessageHandler] Received WebSocket message:", message);
-
       if (message.type === "pong") {
         return;
       }
@@ -28,13 +25,11 @@ export class MessageHandler {
         return;
       }
 
-      // Handle recent messages
       if (message.type === "recent_messages") {
         this.forwardMessageToTabs(message);
         return;
       }
 
-      // Handle responses with requestId
       if (
         message.requestId &&
         storageService.hasPendingRequest(message.requestId)
@@ -46,7 +41,6 @@ export class MessageHandler {
         return;
       }
 
-      // Handle responses without requestId but with a matching request type
       if (!message.requestId) {
         const matchingRequest = storageService.getResponseHandlerForType(
           message.type
@@ -60,10 +54,19 @@ export class MessageHandler {
             { type: message.type, data: message.data },
             callback
           );
+        } else {
+          console.log(
+            "[MessageHandler] ❌ No matching request found for type:",
+            message.type
+          );
         }
       }
     } catch (error) {
-      console.error("[MessageHandler] Error handling message:", error);
+      console.error("[MessageHandler] ❌ Error handling message:", {
+        error,
+        message,
+        timestamp: new Date().toISOString(),
+      });
     }
   }
 
@@ -73,18 +76,25 @@ export class MessageHandler {
     if (username && content) {
       const messageId = `${username}_${content}_${timestamp || Date.now()}`;
 
-      // If we've already processed this exact message recently, skip it
       if (this.processedMessageIds.has(messageId)) {
-        console.log("[MessageHandler] Skipping duplicate message:", messageId);
+        console.log("[MessageHandler] 🔄 Skipping duplicate message:", {
+          messageId,
+          username,
+          content:
+            content.substring(0, 50) + (content.length > 50 ? "..." : ""),
+          timestamp,
+        });
         return true;
       }
 
-      // Add to processed messages
       this.processedMessageIds.add(messageId);
 
-      // Limit the size of our tracking set
       if (this.processedMessageIds.size > config.deduplication.messageLimit) {
-        // Remove the oldest entries (convert to array, slice, and convert back to set)
+        console.log("[MessageHandler] 🧹 Cleaning up processed messages set:", {
+          currentSize: this.processedMessageIds.size,
+          limit: config.deduplication.messageLimit,
+        });
+
         const messagesArray = Array.from(this.processedMessageIds);
         this.processedMessageIds.clear();
         messagesArray
@@ -97,19 +107,27 @@ export class MessageHandler {
   }
 
   private forwardMessageToTabs(message: any): void {
-    console.log(
-      "[MessageHandler] Forwarding message to content script:",
-      message
-    );
-
     browserAPI.tabs.query(
       { active: true, currentWindow: true },
       (tabs: Array<{ id?: number }>) => {
         if (tabs[0]?.id) {
-          console.log("[MessageHandler] Sending to tab:", tabs[0].id);
-          browserAPI.tabs.sendMessage(tabs[0].id, message);
+          browserAPI.tabs.sendMessage(tabs[0].id, message, () => {
+            // Silently handle "Receiving end does not exist" error
+            const lastError =
+              typeof chrome !== "undefined"
+                ? chrome.runtime.lastError
+                : typeof browser !== "undefined"
+                ? browser.runtime.lastError
+                : null;
+            if (lastError) {
+              // This is expected when tabs are closed or content scripts aren't loaded
+              return;
+            }
+          });
         } else {
-          console.error("[MessageHandler] No active tab found");
+          console.error(
+            "[MessageHandler] ❌ No active tab found for message forwarding"
+          );
         }
       }
     );
@@ -119,18 +137,28 @@ export class MessageHandler {
     message: any,
     callback?: (data: any) => void
   ): void {
-    if (!callback) return;
+    if (!callback) {
+      console.warn("[MessageHandler] ⚠️ No callback provided for message");
+      return;
+    }
 
     try {
       if (message.type === "error") {
+        console.error(
+          "[MessageHandler] ❌ Error message received, calling callback with null"
+        );
         callback(null);
         return;
       }
-
       const responseData = message.data || message;
       callback(responseData);
     } catch (error) {
-      console.error("[MessageHandler] Error processing callback:", error);
+      console.error("[MessageHandler] ❌ Error processing callback:", {
+        error,
+        messageType: message.type,
+        timestamp: new Date().toISOString(),
+      });
+
       if (callback) {
         callback(null);
       }

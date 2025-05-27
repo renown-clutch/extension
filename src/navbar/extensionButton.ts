@@ -11,7 +11,11 @@ function handleButtonClick(e: MouseEvent) {
     if (chrome.action && typeof chrome.action.openPopup === "function") {
       chrome.action.openPopup();
     } else {
-      chrome.runtime.sendMessage({ action: "openPopup" });
+      chrome.runtime.sendMessage({ action: "openPopup" }, () => {
+        if (chrome.runtime.lastError) {
+          return;
+        }
+      });
     }
   }
 }

@@ -18,11 +18,9 @@ export class StorageService {
     message: any,
     callback: RequestCallback
   ): Promise<void> {
-    // Store callback in memory
     this.pendingRequests.set(requestId, callback);
     this.pendingRequestTypes.set(requestId, message.type);
 
-    // Persist the request to storage
     const storageKey = `pending_${requestId}`;
     const data = { [storageKey]: JSON.stringify(message) };
 
@@ -34,15 +32,13 @@ export class StorageService {
   }
 
   public async removePendingRequest(requestId: string): Promise<void> {
-    // Remove from memory
     this.pendingRequests.delete(requestId);
     this.pendingRequestTypes.delete(requestId);
 
-    // Remove from storage
     const storageKey = `pending_${requestId}`;
 
     try {
-      await browserAPI.storage.local.set({ [storageKey]: null });
+      await browserAPI.storage.local.remove(storageKey);
     } catch (error) {
       console.error("[StorageService] Error removing pending request:", error);
     }
@@ -69,6 +65,98 @@ export class StorageService {
         error
       );
       return {};
+    }
+  }
+
+  public async cleanupNullStorageEntries(): Promise<void> {
+    try {
+      const allStorage = (await browserAPI.storage.local.get({})) as Record<
+        string,
+        any
+      >;
+      const nullKeys: string[] = [];
+
+      for (const [key, value] of Object.entries(allStorage)) {
+        if (key.startsWith("pending_") && value === null) {
+          nullKeys.push(key);
+        }
+      }
+
+      if (nullKeys.length > 0) {
+        await browserAPI.storage.local.remove(nullKeys);
+      }
+    } catch (error) {
+      console.error(
+        "[StorageService] Error cleaning up null storage entries:",
+        error
+      );
+    }
+  }
+
+  public async performComprehensiveCleanup(): Promise<void> {
+    try {
+      let allStorage: Record<string, any> = {};
+
+      try {
+        allStorage = (await browserAPI.storage.local.get(
+          null as any
+        )) as Record<string, any>;
+      } catch (error) {
+        allStorage = (await browserAPI.storage.local.get({})) as Record<
+          string,
+          any
+        >;
+      }
+
+      const keysToRemove: string[] = [];
+
+      const legitimateKeys = new Set([
+        "userSettings",
+        "userSteamId",
+        "clutchLastMatchesExpanded",
+        "clutchChatMinimized",
+      ]);
+
+      for (const [key, value] of Object.entries(allStorage)) {
+        let shouldKeep = false;
+
+        if (legitimateKeys.has(key)) {
+          shouldKeep = true;
+        } else if (
+          key.startsWith("pending_req_") &&
+          value !== null &&
+          value !== undefined
+        ) {
+          shouldKeep = true;
+        }
+
+        if (!shouldKeep) {
+          keysToRemove.push(key);
+        }
+      }
+
+      if (keysToRemove.length > 0) {
+        await browserAPI.storage.local.remove(keysToRemove);
+      }
+    } catch (error) {
+      console.error(
+        "[StorageService] Error during comprehensive cleanup:",
+        error
+      );
+    }
+  }
+
+  public async logStorageUsage(): Promise<void> {
+    try {
+      const allStorage = (await browserAPI.storage.local.get(
+        null as any
+      )) as Record<string, any>;
+      console.log(`[StorageService] Current storage:`, {
+        keys: Object.keys(allStorage),
+        count: Object.keys(allStorage).length,
+      });
+    } catch (error) {
+      console.error("[StorageService] Error logging storage usage:", error);
     }
   }
 

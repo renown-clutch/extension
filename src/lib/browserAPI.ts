@@ -54,19 +54,36 @@ const browserAPI = (function () {
         responseCallback?: (response: any) => void
       ) => {
         if (typeof browser !== "undefined" && browser.runtime) {
-          // Firefox returns a promise
           const promise = browser.runtime.sendMessage(message);
           if (responseCallback) {
-            promise.then(responseCallback).catch((error) => {});
+            promise.then(responseCallback).catch((error) => {
+              if (
+                error.message &&
+                error.message.includes("Receiving end does not exist")
+              ) {
+                return;
+              }
+              console.warn("Runtime message error:", error);
+            });
           }
           return promise;
         } else if (api.runtime) {
-          // Chrome takes a callback
-          return api.runtime.sendMessage(message, responseCallback);
+          const wrappedCallback = responseCallback
+            ? (response: any) => {
+                if (api.runtime.lastError) {
+                  return;
+                }
+                responseCallback(response);
+              }
+            : () => {
+                if (api.runtime.lastError) {
+                  return;
+                }
+              };
+          return api.runtime.sendMessage(message, wrappedCallback);
         }
       },
       getURL: (path: string) => api.runtime.getURL(path),
-      // Add the id property as a getter that handles both browsers
       get id() {
         try {
           return api.runtime.id;
@@ -93,6 +110,14 @@ const browserAPI = (function () {
           }
           return new Promise((resolve) => {
             api.storage.local.set(obj, () => resolve(undefined));
+          });
+        },
+        remove: (keys: string | string[]) => {
+          if (typeof browser !== "undefined" && browser.storage) {
+            return browser.storage.local.remove(keys);
+          }
+          return new Promise((resolve) => {
+            api.storage.local.remove(keys, () => resolve(undefined));
           });
         },
       },
@@ -140,15 +165,47 @@ const browserAPI = (function () {
         if (typeof browser !== "undefined" && browser.tabs) {
           const promise = browser.tabs.sendMessage(tabId, message);
           if (responseCallback) {
-            promise.then(responseCallback).catch((error) => {});
+            promise.then(responseCallback).catch((error) => {
+              // Silently handle "Receiving end does not exist" errors
+              if (
+                error.message &&
+                error.message.includes("Receiving end does not exist")
+              ) {
+                return;
+              }
+              console.warn("Tab message error:", error);
+            });
+          } else {
+            promise.catch((error) => {
+              // Silently handle "Receiving end does not exist" errors
+              if (
+                error.message &&
+                error.message.includes("Receiving end does not exist")
+              ) {
+                return;
+              }
+              console.warn("Tab message error:", error);
+            });
           }
           return promise;
         } else if (api.tabs) {
-          return api.tabs.sendMessage(
-            tabId,
-            message,
-            responseCallback || (() => {})
-          );
+          const wrappedCallback = responseCallback
+            ? (response: any) => {
+                // Check for lastError and handle silently
+                if (api.runtime.lastError) {
+                  // Silently handle "Receiving end does not exist" errors
+                  return;
+                }
+                responseCallback(response);
+              }
+            : () => {
+                // Default callback to handle lastError
+                if (api.runtime.lastError) {
+                  // Silently handle "Receiving end does not exist" errors
+                  return;
+                }
+              };
+          return api.tabs.sendMessage(tabId, message, wrappedCallback);
         }
       },
     },

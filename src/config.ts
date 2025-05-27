@@ -1,8 +1,7 @@
-// Configuration settings for the extension
 export const config = {
-  websocket: {
-    stagingUrl: "wss://api-staging.goclutch.pro/ws",
-    productionUrl: "wss://api.goclutch.pro/ws",
+  socketio: {
+    stagingUrl: "https://api-staging.goclutch.pro",
+    productionUrl: "https://api.goclutch.pro",
     useStaging: true,
     maxReconnectAttempts: 5,
     reconnectDelay: 3000,

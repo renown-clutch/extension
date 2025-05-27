@@ -314,7 +314,7 @@ export const SETTING_DEFINITIONS: Record<
   showChatWindow: {
     key: "showChatWindow",
     category: "chat",
-    defaultValue: false,
+    defaultValue: true,
     description: "Show chat window",
     handlers: [initializeChatWindow],
   },
