@@ -14,18 +14,9 @@ import {
   SETTING_DEFINITIONS,
   type SettingHandler,
 } from "./lib/types";
-import {
-  initializeMatchFoundAutoAccept,
-  updateMatchFoundAutoAcceptSettings,
-} from "./autoAccept/matchFoundModal";
-import {
-  initializeAutoAcceptPartyInvite,
-  updateAutoAcceptPartyInviteSettings,
-} from "./autoAccept/partyInviteModal";
-import {
-  initializeKeepAlive,
-  updateKeepAliveSettings,
-} from "./keepAlive/keepAlive";
+import { initializeMatchFoundAutoAccept } from "./autoAccept/matchFoundModal";
+import { initializeAutoAcceptPartyInvite } from "./autoAccept/partyInviteModal";
+import { initializeKeepAlive } from "./keepAlive/keepAlive";
 import { initializeExtensionButton } from "./navbar/extensionButton";
 import { getCurrentPage, type PageType } from "./utils/pageUtils";
 import { initializeMatchPage } from "./matchPage/initializeMatchPage";
@@ -35,18 +26,13 @@ import { initializeLastMatches } from "./mainPage/lastMatches";
 import { initializeLinkToCurrentMatch } from "./playerProfile/linkToCurrentMatch";
 import { initializeAveragePartyElo } from "./mainPage/averagePartyElo";
 import { initializeChatWindow } from "./chat/chatWindow";
-import {
-  applyThemeToAllShadowRoots,
-  updateShadowRootThemeClasses,
-  unregisterShadowRoot,
-} from "./themes/shadowThemeManager";
+import { unregisterShadowRoot } from "./themes/shadowThemeManager";
 import {
   fastThemeInjection,
   enhancedThemeInjection,
   switchTheme,
 } from "./themes/themeInjection";
 
-// Export unregisterShadowRoot for use in other modules
 export { unregisterShadowRoot };
 
 let userSettings: UserSettings = defaultUserSettings;
@@ -68,12 +54,9 @@ function shouldBeInjected(): boolean {
   return true;
 }
 
-// Run theme injection immediately if we should be injected
 if (shouldBeInjected()) {
-  console.log("Content script starting...");
-  // Try fast injection first (uses cache)
   fastThemeInjection();
-  // Then run enhanced injection to ensure all CSS is loaded
+
   enhancedThemeInjection().catch((error: unknown) => {
     console.warn("Enhanced theme injection failed:", error);
   });
@@ -104,9 +87,6 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (!shouldBeInjected()) {
     return;
   }
-
-  // Theme changes are handled in the message handler for immediate response
-
   const handlersToRun = new Set<{ handler: SettingHandler; value: any }>();
 
   Object.entries(changedParts).forEach(([key, value]) => {
@@ -159,7 +139,6 @@ async function initialize(pageType: PageType["type"]) {
     const freshSettings = await loadFromBrowserStorage();
     userSettings = freshSettings;
 
-    // Sync theme preference with localStorage if needed
     if (userSettings.selectedTheme) {
       const currentTheme = localStorage.getItem("clutch-theme-preference");
       if (currentTheme !== userSettings.selectedTheme) {
@@ -215,7 +194,6 @@ browserAPI.runtime.onMessage.addListener(
       userSettings = message.settings;
 
       if (message.changedParts) {
-        // Handle theme changes in message handler too for immediate response
         if (message.changedParts.selectedTheme) {
           switchTheme(message.changedParts.selectedTheme);
         }

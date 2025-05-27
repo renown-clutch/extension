@@ -9,10 +9,6 @@ function doKeepAliveAction() {
 }
 
 export function initializeKeepAlive(settings: UserSettings) {
-  updateKeepAliveSettings(settings);
-}
-
-export function updateKeepAliveSettings(settings: UserSettings) {
   if (settings.keepAlive && settings.keepAlive !== lastKeepAlive) {
     if (keepAliveIntervalId !== null) {
       clearInterval(keepAliveIntervalId);

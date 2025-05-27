@@ -3,7 +3,6 @@ import {
   createSafeObserver,
   disconnectSafeObserver,
 } from "../utils/observerUtils";
-// import { soundFileMap } from "../lib/types";
 
 let latestUserSettings: UserSettings | null = null;
 let observer: MutationObserver | null = null;
@@ -11,42 +10,6 @@ const processedInvites = new Set<string>();
 let isProcessingInvite = false;
 let debounceTimer: number | null = null;
 let cleanupTimer: number | null = null;
-// let partySound: HTMLAudioElement | null = null;
-
-// function initializePartySound() {
-//   if (!latestUserSettings || !latestUserSettings.matchFoundSound) return;
-
-//   if (latestUserSettings.matchFoundSound !== "none") {
-//     partySound = new Audio(
-//       chrome.runtime.getURL(
-//         `static/sounds/${soundFileMap[latestUserSettings.matchFoundSound]}`
-//       )
-//     );
-//   }
-// }
-
-// function playPartySound() {
-//   if (!latestUserSettings) return;
-
-//   if (
-//     latestUserSettings.matchFoundSound === "none" ||
-//     latestUserSettings.matchFoundVolume === 0
-//   ) {
-//     return;
-//   }
-
-//   if (!partySound) {
-//     initializePartySound();
-//   }
-
-//   if (partySound) {
-//     partySound.volume = latestUserSettings.matchFoundVolume / 100;
-//     partySound.currentTime = 0;
-//     partySound
-//       .play()
-//       .catch((err) => console.error("Error playing party invite sound:", err));
-//   }
-// }
 
 export function initializeAutoAcceptPartyInvite(userSettings: UserSettings) {
   latestUserSettings = userSettings;
@@ -185,16 +148,4 @@ function checkForExistingInvite() {
 
   isProcessingInvite = true;
   processInvite(modal, modalId);
-}
-
-export function updateAutoAcceptPartyInviteSettings(
-  userSettings: UserSettings
-) {
-  latestUserSettings = userSettings;
-
-  // initializePartySound();
-
-  if (userSettings.autoAccept.party && !isProcessingInvite) {
-    checkForExistingInvite();
-  }
 }

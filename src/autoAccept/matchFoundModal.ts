@@ -177,13 +177,3 @@ function checkForExistingMatchFound() {
   isProcessingMatch = true;
   processMatch(modal, modalId);
 }
-
-export function updateMatchFoundAutoAcceptSettings(userSettings: UserSettings) {
-  latestUserSettings = userSettings;
-
-  initializeMatchSound();
-
-  if (userSettings.autoAccept.match && !isProcessingMatch) {
-    checkForExistingMatchFound();
-  }
-}
