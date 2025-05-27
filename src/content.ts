@@ -75,14 +75,6 @@ export function registerSettingHandler(
   }
 }
 
-Object.entries(SETTING_DEFINITIONS).forEach(([key, def]) => {
-  if (def.handlers) {
-    def.handlers.forEach((handler: SettingHandler) => {
-      registerSettingHandler(key as keyof UserSettings, handler);
-    });
-  }
-});
-
 async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   if (!shouldBeInjected()) {
     return;
@@ -103,6 +95,106 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
   for (const { handler, value } of handlersToRun) {
     await handler(userSettings, value);
   }
+}
+
+async function applyAllSettings(
+  settings: UserSettings,
+  pageType: PageType["type"]
+) {
+  if (!shouldBeInjected()) {
+    return;
+  }
+
+  const handlersToRun = new Set<SettingHandler>();
+
+  // Get all handlers for settings that should be active on this page
+  Object.entries(SETTING_DEFINITIONS).forEach(([key, definition]) => {
+    if (definition.handlers && key !== "selectedTheme") {
+      const settingKey = key as keyof UserSettings;
+      const shouldInitialize = shouldInitializeForPage(settingKey, pageType);
+
+      if (shouldInitialize) {
+        definition.handlers.forEach((handler) => handlersToRun.add(handler));
+      }
+    }
+  });
+
+  // Run all unique handlers
+  for (const handler of handlersToRun) {
+    await handler(settings);
+  }
+}
+
+function shouldInitializeForPage(
+  settingKey: keyof UserSettings,
+  pageType: PageType["type"]
+): boolean {
+  // Profile-specific settings
+  const profileSettings = [
+    "csstatsProfileButton",
+    "faceitProfileButton",
+    "showBans",
+    "showHighestElo",
+    "showLinkToCurrentMatch",
+  ];
+
+  // Match page specific settings
+  const matchPageSettings = [
+    "showFaceitRanksOnMatchPage",
+    "showTeamAverageElo",
+  ];
+
+  // Live match specific settings
+  const liveMatchSettings = [
+    "showMapStats",
+    "showMapStatsColors",
+    "liveMatchPlayerStats",
+    "showLiveMatchPlayerStreak",
+  ];
+
+  // Main page specific settings
+  const mainPageSettings = [
+    "showLastPlayedMatches",
+    "showAveragePartyElo",
+    "showFaceitEloOnPartyList",
+  ];
+
+  // Global settings that should always be initialized
+  const globalSettings = [
+    "showSidebarFriendRanks",
+    "autoAccept",
+    "matchAutoAcceptDelay",
+    "partyAutoAcceptDelay",
+    "showExtensionNavbarButton",
+    "keepAlive",
+    "showFriendListRanks",
+    "sortFriendsByRenownElo",
+    "matchFoundSound",
+    "matchFoundVolume",
+    "showChatWindow",
+  ];
+
+  if (globalSettings.includes(settingKey)) {
+    return true;
+  }
+
+  if (pageType === "profile" && profileSettings.includes(settingKey)) {
+    return true;
+  }
+
+  if (pageType === "matchPage" && matchPageSettings.includes(settingKey)) {
+    return true;
+  }
+
+  if (pageType === "playMatch" && liveMatchSettings.includes(settingKey)) {
+    return true;
+  }
+
+  if (pageType === "play" && mainPageSettings.includes(settingKey)) {
+    return true;
+  }
+
+  return false;
 }
 
 async function loadFromBrowserStorage(): Promise<UserSettings> {
@@ -148,34 +240,8 @@ async function initialize(pageType: PageType["type"]) {
 
     await initializeSteamIdParser();
 
-    initializeSidebarFriends(userSettings);
-    initializeMatchFoundAutoAccept(userSettings);
-    initializeAutoAcceptPartyInvite(userSettings);
-    initializeExtensionButton(userSettings);
-    await initializeChatWindow(userSettings);
-
-    if (pageType === "profile") {
-      initializeProfileButtons(userSettings);
-      initializeFriendsList(userSettings);
-      initializeProfileBans(userSettings);
-      initializeHighestElo(userSettings);
-      initializeLinkToCurrentMatch(userSettings);
-    }
-
-    if (pageType === "matchPage") {
-      initializeMatchPage(userSettings);
-    }
-
-    if (pageType === "playMatch") {
-      initializeLiveMatchPage(userSettings);
-    }
-
-    if (pageType === "play") {
-      initializeAveragePartyElo(userSettings);
-      initializeLastMatches(userSettings);
-    }
-
-    initializeKeepAlive(userSettings);
+    // Initialize all features through their handlers to avoid double injection
+    await applyAllSettings(userSettings, pageType);
   } catch (error: unknown) {
     console.error("Error initializing:", error);
   }
