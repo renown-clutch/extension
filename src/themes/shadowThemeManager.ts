@@ -18,8 +18,9 @@ function applyThemeToShadowRoot(shadowRoot: ShadowRoot): void {
 
   // Apply theme class to shadow root's host element if it exists
   const hostElement = (shadowRoot as any).host;
-  if (hostElement && currentTheme !== "default") {
-    const themeClass = `theme-${currentTheme}`;
+  if (hostElement) {
+    // For default theme, apply theme-dark to chat, otherwise use the selected theme
+    const themeClass = currentTheme === "default" ? "theme-dark" : `theme-${currentTheme}`;
     hostElement.classList.add(themeClass);
   }
 
@@ -106,11 +107,9 @@ function updateShadowRootThemeClasses(theme: string): void {
         }
       });
 
-      // Apply new theme class if not default
-      if (theme !== "default") {
-        const themeClass = `theme-${theme}`;
-        hostElement.classList.add(themeClass);
-      }
+      // For default theme, apply theme-dark to chat, otherwise use the selected theme
+      const themeClass = theme === "default" ? "theme-dark" : `theme-${theme}`;
+      hostElement.classList.add(themeClass);
     }
   });
 }
