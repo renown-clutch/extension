@@ -3,9 +3,6 @@ import { initializeProfileBans } from "../playerProfile/previousBans";
 import { initializeFriendsList } from "../playerProfile/friendsList";
 import { initializeSidebarFriends } from "../playerProfile/sidebarFriends";
 import { initializeHighestElo } from "../playerProfile/highestElo";
-import { updateMatchFoundAutoAcceptSettings } from "../autoAccept/matchFoundModal";
-import { updateAutoAcceptPartyInviteSettings } from "../autoAccept/partyInviteModal";
-import { updateKeepAliveSettings } from "../keepAlive/keepAlive";
 import { initializeExtensionButton } from "../navbar/extensionButton";
 import { initializeMatchPage } from "../matchPage/initializeMatchPage";
 import { initializeLiveMatchPage } from "../liveMatchPage/intializeLiveMatchPage";
@@ -14,6 +11,9 @@ import { initializeLastMatches } from "../mainPage/lastMatches";
 import { initializeLinkToCurrentMatch } from "../playerProfile/linkToCurrentMatch";
 import { initializeAveragePartyElo } from "../mainPage/averagePartyElo";
 import { initializeChatWindow } from "../chat/chatWindow";
+import { initializeMatchFoundAutoAccept } from "../autoAccept/matchFoundModal";
+import { initializeAutoAcceptPartyInvite } from "../autoAccept/partyInviteModal";
+import { initializeKeepAlive } from "../keepAlive/keepAlive";
 
 export type TabName =
   | "Theme"
@@ -169,28 +169,28 @@ export const SETTING_DEFINITIONS: Record<
       party: false,
     },
     description: "Auto accept settings for match and party",
-    handlers: [updateMatchFoundAutoAcceptSettings],
+    handlers: [initializeMatchFoundAutoAccept],
   },
   matchAutoAcceptDelay: {
     key: "matchAutoAcceptDelay",
     category: "autoAccept",
     defaultValue: 3,
     description: "Delay before auto accepting match",
-    handlers: [updateMatchFoundAutoAcceptSettings],
+    handlers: [initializeMatchFoundAutoAccept],
   },
   partyAutoAcceptDelay: {
     key: "partyAutoAcceptDelay",
     category: "autoAccept",
     defaultValue: 3,
     description: "Delay before auto accepting party invite",
-    handlers: [updateAutoAcceptPartyInviteSettings],
+    handlers: [initializeAutoAcceptPartyInvite],
   },
   keepAlive: {
     key: "keepAlive",
     category: "general",
     defaultValue: true,
     description: "Keep the extension alive",
-    handlers: [updateKeepAliveSettings],
+    handlers: [initializeKeepAlive],
   },
   showBans: {
     key: "showBans",
@@ -253,14 +253,14 @@ export const SETTING_DEFINITIONS: Record<
     category: "sound",
     defaultValue: "none",
     description: "Sound to play when match is found",
-    handlers: [updateMatchFoundAutoAcceptSettings],
+    handlers: [initializeMatchFoundAutoAccept],
   },
   matchFoundVolume: {
     key: "matchFoundVolume",
     category: "sound",
     defaultValue: 70,
     description: "Volume for match found sound",
-    handlers: [updateMatchFoundAutoAcceptSettings],
+    handlers: [initializeMatchFoundAutoAccept],
   },
   showMapStats: {
     key: "showMapStats",
