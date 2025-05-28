@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Clutch | Renown.gg extension",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Enhance your Renown.gg experience with player stats, lobby insights, and UI improvements.",
   "icons": {
     "16": "static/icon16.png",
@@ -26,7 +26,8 @@
   },
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
   "host_permissions": [
     "https://api.clutch.lorem.sh/*"

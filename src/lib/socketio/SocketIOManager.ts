@@ -462,8 +462,7 @@ export class SocketIOManager {
   }
 
   private sendQueuedRequest(queuedRequest: QueuedRequest): void {
-    const { eventName, data } = queuedRequest;
-    const requestId = this.storageService.generateRequestId(eventName);
+    const { eventName, data, requestId } = queuedRequest;
 
     this.storageService.storePendingRequest(
       requestId,

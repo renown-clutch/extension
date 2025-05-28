@@ -149,28 +149,57 @@ export class MessageHandler {
   }
 
   private forwardMessageToTabs(message: any): void {
+    // Query all tabs that match our content script URLs (renown.gg domains)
     browserAPI.tabs.query(
-      { active: true, currentWindow: true },
-      (tabs: Array<{ id?: number }>) => {
-        if (tabs[0]?.id) {
-          browserAPI.tabs.sendMessage(tabs[0].id, message, () => {
-            // Silently handle "Receiving end does not exist" error
-            const lastError =
-              typeof chrome !== "undefined"
-                ? chrome.runtime.lastError
-                : typeof browser !== "undefined"
-                ? browser.runtime.lastError
-                : null;
-            if (lastError) {
-              // This is expected when tabs are closed or content scripts aren't loaded
-              return;
-            }
-          });
-        } else {
-          console.error(
-            "[MessageHandler] ❌ No active tab found for message forwarding"
+      { url: ["*://*.renown.gg/*", "*://renown.gg/*"] },
+      (tabs: Array<{ id?: number; url?: string; active?: boolean }>) => {
+        if (tabs.length === 0) {
+          console.log(
+            "[MessageHandler] 📭 No renown.gg tabs found for message forwarding"
           );
+          return;
         }
+
+        console.log(
+          `[MessageHandler] 📤 Sending message to ${tabs.length} renown.gg tab(s):`,
+          {
+            messageType: message.type,
+            tabs: tabs.map((tab) => ({
+              id: tab.id,
+              url: tab.url,
+              active: tab.active,
+            })),
+          }
+        );
+
+        // Send message to all matching tabs
+        tabs.forEach((tab, index) => {
+          if (tab.id) {
+            browserAPI.tabs.sendMessage(tab.id, message, () => {
+              // Silently handle "Receiving end does not exist" error
+              const lastError =
+                typeof chrome !== "undefined"
+                  ? chrome.runtime.lastError
+                  : typeof browser !== "undefined"
+                  ? browser.runtime.lastError
+                  : null;
+              if (lastError) {
+                console.log(
+                  `[MessageHandler] ⚠️ Tab ${index + 1}/${tabs.length} (ID: ${
+                    tab.id
+                  }) - Content script not ready:`,
+                  lastError.message
+                );
+                return;
+              }
+              console.log(
+                `[MessageHandler] ✅ Message sent to tab ${index + 1}/${
+                  tabs.length
+                } (ID: ${tab.id})`
+              );
+            });
+          }
+        });
       }
     );
   }

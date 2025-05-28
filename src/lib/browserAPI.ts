@@ -152,8 +152,18 @@ const browserAPI = (function () {
     // Tabs API
     tabs: {
       query: (
-        queryInfo: { active?: boolean; currentWindow?: boolean },
-        callback: (tabs: Array<{ id?: number }>) => void
+        queryInfo: {
+          active?: boolean;
+          currentWindow?: boolean;
+          url?: string | string[];
+        },
+        callback: (
+          tabs: Array<{
+            id?: number;
+            url?: string;
+            active?: boolean;
+          }>
+        ) => void
       ) => {
         return api.tabs.query(queryInfo, callback);
       },
