@@ -4,6 +4,15 @@ import { MessageHandler } from "../socketio/MessageHandler";
 import { StorageService } from "../storage/StorageService";
 import { io, Socket } from "socket.io-client";
 
+interface QueuedRequest {
+  eventName: string;
+  data: any;
+  resolve: (value: any) => void;
+  reject: (reason: any) => void;
+  timestamp: number;
+  requestId: string;
+}
+
 export class SocketIOManager {
   private socket: Socket | null = null;
   private _isConnected = false;
@@ -11,6 +20,9 @@ export class SocketIOManager {
   private clientId: string;
   private messageHandler: MessageHandler;
   private storageService: StorageService;
+  private requestQueue: QueuedRequest[] = [];
+  private connectionPromise: Promise<void> | null = null;
+  private connectionResolve: (() => void) | null = null;
 
   constructor(clientId: string) {
     this.clientId = clientId;
@@ -27,12 +39,14 @@ export class SocketIOManager {
 
   public connect(steamId?: string): void {
     this.closeExistingConnection();
+    this.createConnectionPromise();
     this.connectWithFallback(steamId, 0);
   }
 
   public reconnect(): void {
     this.closeExistingConnection();
     this.reconnectAttempts = 0;
+    this.createConnectionPromise();
     this.connectWithFallback();
   }
 
@@ -48,80 +62,77 @@ export class SocketIOManager {
       : "CONNECTING";
   }
 
-  public sendMessage(eventName: string, data: any): Promise<any> {
+  public async sendMessage(eventName: string, data: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (!this.socket || !this.socket.connected) {
-        console.warn(
-          `[SocketIOManager] ❌ Cannot send message - socket not connected:`,
-          {
-            event: eventName,
-            socketExists: !!this.socket,
-            socketConnected: this.socket?.connected,
-            isConnected: this.isConnected,
-          }
-        );
+      const requestId = this.storageService.generateRequestId(eventName);
+      const queuedRequest: QueuedRequest = {
+        eventName,
+        data,
+        resolve,
+        reject,
+        timestamp: Date.now(),
+        requestId,
+      };
 
-        if (!this.isConnected) {
-          this.connect();
-        }
-        reject(new Error("Socket.IO not connected"));
+      // If socket is connected, send immediately
+      if (this.socket && this.socket.connected) {
+        this.sendQueuedRequest(queuedRequest);
         return;
       }
 
-      const requestId = this.storageService.generateRequestId(eventName);
-
-      this.storageService.storePendingRequest(
-        requestId,
-        { type: eventName, ...data },
-        resolve
+      // If not connected, queue the request
+      console.log(
+        `[SocketIOManager] 📋 Queueing request - socket not connected:`,
+        {
+          event: eventName,
+          socketExists: !!this.socket,
+          socketConnected: this.socket?.connected,
+          isConnected: this.isConnected,
+          queueSize: this.requestQueue.length + 1,
+        }
       );
 
-      try {
-        this.socket.emit(eventName, data);
-      } catch (error) {
-        console.error(
-          `[SocketIOManager] ❌ Error emitting event: ${eventName}`,
-          {
-            error,
-            requestId,
-            data,
-          }
-        );
-        this.storageService.removePendingRequest(requestId);
-        reject(error);
-      }
+      this.requestQueue.push(queuedRequest);
 
+      // Set timeout for queued requests
       setTimeout(() => {
-        if (this.storageService.hasPendingRequest(requestId)) {
+        const index = this.requestQueue.findIndex(
+          (req) => req.requestId === requestId
+        );
+        if (index !== -1) {
           console.warn(
-            `[SocketIOManager] ⏰ Request timed out for event: ${eventName}`,
+            `[SocketIOManager] ⏰ Queued request timed out for event: ${eventName}`,
             {
               requestId,
               data,
-              timeout: 10000,
+              timeout: 30000,
+              queuePosition: index,
             }
           );
-          this.storageService.removePendingRequest(requestId);
-          reject(new Error("Socket.IO request timed out"));
+          this.requestQueue.splice(index, 1);
+          reject(new Error("Socket.IO request timed out in queue"));
         }
-      }, 10000);
+      }, 30000); // Longer timeout for queued requests
+
+      // Try to connect if not already connecting
+      if (!this.connectionPromise && !this.isConnected) {
+        console.log(
+          `[SocketIOManager] 🔄 Auto-connecting due to queued request`
+        );
+        this.connect();
+      }
     });
   }
 
-  public sendChatMessage(username: string, message: string): boolean {
-    if (!this.socket || !this.socket.connected) {
-      console.warn(
-        `[SocketIOManager] ❌ Cannot send chat message - socket not connected`
-      );
-      return false;
-    }
-
+  public async sendChatMessage(
+    username: string,
+    message: string
+  ): Promise<boolean> {
     try {
-      this.socket.emit("send_chat_message", {
+      await this.sendMessage("send_chat_message", {
         username,
         message,
       });
-
       return true;
     } catch (error) {
       console.error("[SocketIOManager] ❌ Error sending chat message:", error);
@@ -129,19 +140,11 @@ export class SocketIOManager {
     }
   }
 
-  public getRecentMessages(limit: number): boolean {
-    if (!this.socket || !this.socket.connected) {
-      console.warn(
-        `[SocketIOManager] ❌ Cannot get recent messages - socket not connected`
-      );
-      return false;
-    }
-
+  public async getRecentMessages(limit: number): Promise<boolean> {
     try {
-      this.socket.emit("get_recent_messages", {
+      await this.sendMessage("get_recent_messages", {
         limit,
       });
-
       return true;
     } catch (error) {
       console.error(
@@ -180,6 +183,11 @@ export class SocketIOManager {
 
       this.socket = null;
     }
+
+    // Clear connection state
+    this._isConnected = false;
+    this.connectionPromise = null;
+    this.connectionResolve = null;
   }
 
   private setupSocketEventHandlers(attempt: number): void {
@@ -188,6 +196,10 @@ export class SocketIOManager {
     this.socket.on("connect", () => {
       this._isConnected = true;
       this.reconnectAttempts = 0;
+
+      console.log(
+        `[SocketIOManager] ✅ Socket connected, processing ${this.requestQueue.length} queued requests`
+      );
 
       try {
         browserAPI.runtime.sendMessage(
@@ -220,11 +232,31 @@ export class SocketIOManager {
         );
       }
 
+      // Resolve connection promise
+      if (this.connectionResolve) {
+        this.connectionResolve();
+        this.connectionResolve = null;
+        this.connectionPromise = null;
+      }
+
+      // Process queued requests first
+      this.processQueuedRequests();
+
+      // Then process any pending requests from storage
       this.processPendingRequests();
     });
 
     this.socket.on("disconnect", (reason) => {
       this._isConnected = false;
+
+      // Clear connection promise on disconnect
+      this.connectionPromise = null;
+      this.connectionResolve = null;
+
+      console.log(
+        `[SocketIOManager] 🔌 Socket disconnected, ${this.requestQueue.length} requests in queue`,
+        { reason }
+      );
 
       if (reason === "io server disconnect") {
         console.log(
@@ -250,7 +282,7 @@ export class SocketIOManager {
     this.socket.on("chat_message_sent", (data) => {
       this.messageHandler.handleSocketIOMessage(
         {
-          type: "chat_message",
+          type: "chat_message_sent",
           data: data.data,
         },
         this.storageService
@@ -421,5 +453,79 @@ export class SocketIOManager {
         this.scheduleReconnect();
       }
     }
+  }
+
+  private createConnectionPromise(): void {
+    this.connectionPromise = new Promise<void>((resolve) => {
+      this.connectionResolve = resolve;
+    });
+  }
+
+  private sendQueuedRequest(queuedRequest: QueuedRequest): void {
+    const { eventName, data } = queuedRequest;
+    const requestId = this.storageService.generateRequestId(eventName);
+
+    this.storageService.storePendingRequest(
+      requestId,
+      { type: eventName, ...data },
+      queuedRequest.resolve
+    );
+
+    try {
+      this.socket!.emit(eventName, data);
+    } catch (error) {
+      console.error(`[SocketIOManager] ❌ Error emitting event: ${eventName}`, {
+        error,
+        requestId,
+        data,
+      });
+      this.storageService.removePendingRequest(requestId);
+      queuedRequest.reject(error);
+    }
+
+    setTimeout(() => {
+      if (this.storageService.hasPendingRequest(requestId)) {
+        console.warn(
+          `[SocketIOManager] ⏰ Request timed out for event: ${eventName}`,
+          {
+            requestId,
+            data,
+            timeout: 10000,
+          }
+        );
+        this.storageService.removePendingRequest(requestId);
+        queuedRequest.reject(new Error("Socket.IO request timed out"));
+      }
+    }, 10000);
+  }
+
+  private processQueuedRequests(): void {
+    if (this.requestQueue.length === 0) {
+      return;
+    }
+
+    console.log(
+      `[SocketIOManager] 📤 Processing ${this.requestQueue.length} queued requests`
+    );
+
+    const queueToProcess = [...this.requestQueue];
+    this.requestQueue = [];
+
+    queueToProcess.forEach((queuedRequest, index) => {
+      try {
+        console.log(
+          `[SocketIOManager] 📤 Sending queued request ${index + 1}/${
+            queueToProcess.length
+          }: ${queuedRequest.eventName}`
+        );
+        this.sendQueuedRequest(queuedRequest);
+      } catch (error) {
+        console.error(`[SocketIOManager] ❌ Error processing queued request:`, {
+          eventName: queuedRequest.eventName,
+          error,
+        });
+        queuedRequest.reject(error);
+      }
+    });
   }
 }

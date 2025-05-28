@@ -43,15 +43,26 @@ browserAPI.runtime.onMessage.addListener(
       sendResponse({ success: true });
       return true;
     } else if (message.type === "send_chat_message") {
-      const success = socketIOManager.sendChatMessage(
-        message.username,
-        message.message
-      );
-      sendResponse({ success });
+      socketIOManager
+        .sendChatMessage(message.username, message.message)
+        .then((success) => {
+          sendResponse({ success });
+        })
+        .catch((error) => {
+          console.error("[Background] ❌ sendChatMessage error:", error);
+          sendResponse({ success: false });
+        });
       return true;
     } else if (message.type === "get_recent_messages") {
-      const success = socketIOManager.getRecentMessages(message.limit || 50);
-      sendResponse({ success });
+      socketIOManager
+        .getRecentMessages(message.limit || 50)
+        .then((success) => {
+          sendResponse({ success });
+        })
+        .catch((error) => {
+          console.error("[Background] ❌ getRecentMessages error:", error);
+          sendResponse({ success: false });
+        });
       return true;
     } else if (message.type === "get_faceit_info" && message.steam_ids) {
       apiService

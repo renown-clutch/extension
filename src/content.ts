@@ -3,29 +3,14 @@ import browserAPI, {
   type MessageSender,
   type SendResponseCallback,
 } from "./lib/browserAPI";
-import { initializeProfileButtons } from "./playerProfile/profileButtons";
-import { initializeProfileBans } from "./playerProfile/previousBans";
-import { initializeFriendsList } from "./playerProfile/friendsList";
-import { initializeSidebarFriends } from "./playerProfile/sidebarFriends";
-import { initializeHighestElo } from "./playerProfile/highestElo";
 import {
   defaultUserSettings,
   type UserSettings,
   SETTING_DEFINITIONS,
   type SettingHandler,
 } from "./lib/types";
-import { initializeMatchFoundAutoAccept } from "./autoAccept/matchFoundModal";
-import { initializeAutoAcceptPartyInvite } from "./autoAccept/partyInviteModal";
-import { initializeKeepAlive } from "./keepAlive/keepAlive";
-import { initializeExtensionButton } from "./navbar/extensionButton";
 import { getCurrentPage, type PageType } from "./utils/pageUtils";
-import { initializeMatchPage } from "./matchPage/initializeMatchPage";
-import { initializeLiveMatchPage } from "./liveMatchPage/intializeLiveMatchPage";
 import { initializeSteamIdParser } from "./steamId/steamIdParser";
-import { initializeLastMatches } from "./mainPage/lastMatches";
-import { initializeLinkToCurrentMatch } from "./playerProfile/linkToCurrentMatch";
-import { initializeAveragePartyElo } from "./mainPage/averagePartyElo";
-import { initializeChatWindow } from "./chat/chatWindow";
 import { unregisterShadowRoot } from "./themes/shadowThemeManager";
 import {
   fastThemeInjection,

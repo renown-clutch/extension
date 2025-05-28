@@ -25,7 +25,49 @@ export class MessageHandler {
         return;
       }
 
+      if (message.type === "chat_message_sent") {
+        // First try to resolve any pending send_chat_message request
+        const matchingRequest = storageService.getResponseHandlerForType(
+          message.type
+        );
+
+        if (matchingRequest) {
+          const [reqId, callback] = matchingRequest;
+          storageService.removePendingRequest(reqId);
+          this.processMessageWithCallback(
+            { type: message.type, data: message.data },
+            callback
+          );
+        }
+
+        // Also handle as a regular chat message for UI updates
+        if (message.data) {
+          if (!this.isDuplicateMessage(message.data)) {
+            this.forwardMessageToTabs({
+              type: "chat_message",
+              data: message.data,
+            });
+          }
+        }
+        return;
+      }
+
       if (message.type === "recent_messages") {
+        // First try to resolve any pending request
+        const matchingRequest = storageService.getResponseHandlerForType(
+          message.type
+        );
+
+        if (matchingRequest) {
+          const [reqId, callback] = matchingRequest;
+          storageService.removePendingRequest(reqId);
+          this.processMessageWithCallback(
+            { type: message.type, data: message.data },
+            callback
+          );
+        }
+
+        // Also forward to tabs for UI updates
         this.forwardMessageToTabs(message);
         return;
       }

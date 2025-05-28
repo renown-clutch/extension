@@ -122,12 +122,6 @@ export class StorageService {
 
         if (legitimateKeys.has(key)) {
           shouldKeep = true;
-        } else if (
-          key.startsWith("pending_req_") &&
-          value !== null &&
-          value !== undefined
-        ) {
-          shouldKeep = true;
         }
 
         if (!shouldKeep) {
@@ -176,6 +170,8 @@ export class StorageService {
       player_matchup: "get_player_matchup",
       teams_map_stats: "get_teams_map_stats",
       players_stats: "get_players_stats",
+      recent_messages: "get_recent_messages",
+      chat_message_sent: "send_chat_message",
     };
 
     const expectedRequestType = responseTypeMap[messageType];
