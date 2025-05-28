@@ -481,13 +481,35 @@ input.iti__tel-input {
   color: #fff;
 }
 
-.confirm-match-modal {
-  background-color: var(--slate-900);
+.match-veto .voting-options .voting-card-wrapper .voting-card .overlay {
+  
+  background: var(--slate-700-80);
+ 
+}
+
+.match-veto .voting-options .voting-card-wrapper.banned .voting-card .overlay {
+  background: var(--slate-900-80);
+  
+}
+
+.match-veto .voting-options .voting-card-wrapper .voting-card:hover .overlay {
+  background: var(--slate-900-80);
+}
+
+.match-veto .voting-options .voting-card-wrapper .voting-card {
+  
+  border: 1px solid var(--slate-600);
+ 
+}
+
+.match-veto .voting-options .voting-card-wrapper .voting-card .checkbox-wrapper {
+  
+  filter: grayscale(100%);
 }
 
 .confirm-match-modal .modal-content .title {
   color: #fff;
-  background-color: var(--slate-900);
+
 }
 
 .notification-component {
