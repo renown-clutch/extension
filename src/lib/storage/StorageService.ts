@@ -171,7 +171,6 @@ export class StorageService {
       teams_map_stats: "get_teams_map_stats",
       players_stats: "get_players_stats",
       recent_messages: "get_recent_messages",
-      chat_message_sent: "send_chat_message",
     };
 
     const expectedRequestType = responseTypeMap[messageType];

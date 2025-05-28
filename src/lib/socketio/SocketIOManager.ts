@@ -129,10 +129,20 @@ export class SocketIOManager {
     message: string
   ): Promise<boolean> {
     try {
-      await this.sendMessage("send_chat_message", {
+      if (!this.socket || !this.socket.connected) {
+        console.warn(
+          "[SocketIOManager] ⚠️ Socket not connected, cannot send chat message"
+        );
+        return false;
+      }
+
+      // Directly emit chat message without waiting for response
+      this.socket.emit("send_chat_message", {
         username,
         message,
       });
+
+      console.log("[SocketIOManager] ✅ Chat message emitted successfully");
       return true;
     } catch (error) {
       console.error("[SocketIOManager] ❌ Error sending chat message:", error);
