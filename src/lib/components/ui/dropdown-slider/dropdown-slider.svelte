@@ -30,7 +30,7 @@
 </script>
 
 <div
-  class="flex flex-col text-slate-200 border-2 w-full border-slate-900 rounded-lg p-4"
+  class="flex flex-col text-slate-200 border-2 w-full border-[var(--slate-900)] rounded-lg p-4"
 >
   <div class="flex flex-col gap-2">
     <div class="max-w-[24ch]">
@@ -55,7 +55,7 @@
     </div>
   </div>
 
-  <div class="mt-4 border-t border-slate-900 pt-4">
+  <div class="mt-4 border-t border-[var(--slate-900)] pt-4">
     <h2 class="text-sm">{sliderLabelText}</h2>
     <DiscriptionToggle text={sliderDescription} {warn} />
     <div class="flex flex-col items-center mt-4">
