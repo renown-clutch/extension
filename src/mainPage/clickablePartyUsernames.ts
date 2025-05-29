@@ -130,17 +130,8 @@ function makeUsernamesClickable(
           event.stopPropagation();
 
           const steamId = playerNameToSteamIdMap[playerName];
-
-          if (steamId) {
-            const profileUrl = `https://renown.gg/profile/${steamId}`;
-            window.open(profileUrl, "_blank");
-          } else {
-            // Fallback: search by username
-            const searchUrl = `https://renown.gg/search?q=${encodeURIComponent(
-              playerName
-            )}`;
-            window.open(searchUrl, "_blank");
-          }
+          const profileUrl = `https://renown.gg/profile/${steamId}`;
+          window.open(profileUrl, "_blank");
         };
 
         // Store cleanup function for later removal
@@ -205,13 +196,7 @@ async function updateClickableUsernames(): Promise<void> {
     const playerNameToSteamIdMap: Record<string, string> = {};
     playerNames.forEach((playerName) => {
       const steamId = steamIdsData[playerName];
-      if (steamId && typeof steamId === "string" && steamId.length > 10) {
-        playerNameToSteamIdMap[playerName] = steamId;
-      } else if (steamId) {
-        // Invalid Steam ID format
-      } else {
-        // No Steam ID found
-      }
+      playerNameToSteamIdMap[playerName] = steamId;
     });
 
     // Re-gather player data for making clickable (to get fresh DOM references)
