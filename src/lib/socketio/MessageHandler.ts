@@ -53,22 +53,48 @@ export class MessageHandler {
       }
 
       if (message.type === "recent_messages") {
-        // First try to resolve any pending request
+        console.log("[MessageHandler] 📨 Processing recent_messages:", {
+          messageCount: Array.isArray(message.data) ? message.data.length : 0,
+          hasData: !!message.data,
+          timestamp: Date.now(),
+          firstMessage:
+            Array.isArray(message.data) && message.data.length > 0
+              ? {
+                  username: message.data[0].username,
+                  timestamp: message.data[0].timestamp,
+                }
+              : null,
+          lastMessage:
+            Array.isArray(message.data) && message.data.length > 0
+              ? {
+                  username: message.data[message.data.length - 1].username,
+                  timestamp: message.data[message.data.length - 1].timestamp,
+                }
+              : null,
+        });
+
+        // For recent_messages, we only forward to tabs since content script
+        // no longer expects data from the direct response callback
+        console.log(
+          "[MessageHandler] 📤 Forwarding recent_messages to tabs (skipping callback resolution)"
+        );
+        this.forwardMessageToTabs(message);
+
+        // Clean up any pending request without resolving the callback
         const matchingRequest = storageService.getResponseHandlerForType(
           message.type
         );
-
         if (matchingRequest) {
-          const [reqId, callback] = matchingRequest;
-          storageService.removePendingRequest(reqId);
-          this.processMessageWithCallback(
-            { type: message.type, data: message.data },
-            callback
+          console.log(
+            "[MessageHandler] 🧹 Cleaning up pending request without callback:",
+            {
+              requestId: matchingRequest[0],
+            }
           );
+          const [reqId] = matchingRequest;
+          storageService.removePendingRequest(reqId);
         }
 
-        // Also forward to tabs for UI updates
-        this.forwardMessageToTabs(message);
         return;
       }
 

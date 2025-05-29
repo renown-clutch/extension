@@ -54,9 +54,20 @@ browserAPI.runtime.onMessage.addListener(
         });
       return true;
     } else if (message.type === "get_recent_messages") {
+      console.log("[Background] 📨 get_recent_messages request received:", {
+        limit: message.limit,
+        timestamp: Date.now(),
+        senderId: sender.id,
+        senderUrl: sender.url,
+        senderTab: sender.tab?.id,
+      });
+
       socketIOManager
         .getRecentMessages(message.limit || 50)
         .then((success) => {
+          console.log("[Background] ✅ getRecentMessages completed:", {
+            success,
+          });
           sendResponse({ success });
         })
         .catch((error) => {

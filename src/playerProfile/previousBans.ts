@@ -290,8 +290,13 @@ async function renderBanBadges(bans: Ban[]): Promise<void> {
   }
 
   if (!bans || bans.length === 0) {
-    const noBansBadge = createNoBansBadge();
-    container.appendChild(noBansBadge);
+    if (existingBanBadge) {
+      const noOtherBansBadge = createNoOtherBansBadge();
+      container.appendChild(noOtherBansBadge);
+    } else {
+      const noBansBadge = createNoBansBadge();
+      container.appendChild(noBansBadge);
+    }
     return;
   }
 
@@ -312,7 +317,6 @@ export async function initializeProfileBans(
     removeBanElements();
     return;
   }
-
 
   if (is404Page()) {
     return;

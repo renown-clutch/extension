@@ -8,9 +8,64 @@ import type { UserSettings } from "../lib/types";
 
 const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
 
+// Global reference to current chat window for message handling
+let currentChatWindow: {
+  addMessageToChat: (message: any) => void;
+  processRecentMessages: (data: any[]) => void;
+} | null = null;
+
+// Single global runtime message listener
+let messageListenerRegistered = false;
+
+function setupGlobalMessageListener() {
+  if (messageListenerRegistered) return;
+
+  console.log("[Chat Content] 🔧 Setting up global message listener");
+  messageListenerRegistered = true;
+
+  browserAPI.runtime.onMessage.addListener((message) => {
+    console.log("[Chat Content] 🎯 Runtime message received:", {
+      type: message.type,
+      timestamp: Date.now(),
+      hasData: !!message.data,
+      dataType: Array.isArray(message.data) ? "array" : typeof message.data,
+      hasChatWindow: !!currentChatWindow,
+    });
+
+    if (!currentChatWindow) {
+      console.log("[Chat Content] ⚠️ No active chat window to handle message");
+      return;
+    }
+
+    if (message.type === "chat_message") {
+      currentChatWindow.addMessageToChat(message.data);
+    } else if (message.type === "recent_messages") {
+      console.log("[Chat Content] 📥 Processing recent_messages:", {
+        messageCount: Array.isArray(message.data) ? message.data.length : 0,
+        firstThreeMessages: Array.isArray(message.data)
+          ? message.data.slice(0, 3).map((m) => ({
+              username: m.username,
+              message: m.message?.substring(0, 20) + "...",
+              timestamp: m.timestamp,
+            }))
+          : [],
+      });
+
+      if (Array.isArray(message.data)) {
+        currentChatWindow.processRecentMessages(message.data);
+      }
+    }
+  });
+}
+
 async function removeChatWindow() {
   const chatWindow = document.getElementById("clutch-chat-window");
+  console.log("[Chat Content] 🧹 removeChatWindow called", {
+    windowExists: !!chatWindow,
+  });
+
   if (chatWindow) {
+    console.log("[Chat Content] 🗑️ Removing existing chat window");
     // Unregister shadow root before removing
     const shadowRoot = chatWindow.shadowRoot;
     if (shadowRoot) {
@@ -18,18 +73,32 @@ async function removeChatWindow() {
     }
     chatWindow.remove();
   }
+
+  // Clear the global reference
+  currentChatWindow = null;
 }
 
 export async function initializeChatWindow(userSettings: UserSettings) {
+  console.log("[Chat Content] 🏗️ initializeChatWindow called", {
+    showChatWindow: userSettings.showChatWindow,
+    existingWindow: !!document.getElementById("clutch-chat-window"),
+  });
+
   if (!userSettings.showChatWindow) {
+    console.log("[Chat Content] 🚮 Removing chat window due to settings");
     removeChatWindow();
     return;
   }
 
   await waitForElement("body");
   if (document.getElementById("clutch-chat-window")) {
+    console.log(
+      "[Chat Content] ⚠️ Chat window already exists, skipping initialization"
+    );
     return;
   }
+
+  console.log("[Chat Content] ✅ Creating new chat window");
 
   const container = document.createElement("div");
   container.id = "clutch-chat-window";
@@ -172,26 +241,19 @@ export async function initializeChatWindow(userSettings: UserSettings) {
 
   input.addEventListener("input", updateCharCount);
 
-  browserAPI.runtime.onMessage.addListener((message) => {
-    if (message.type === "chat_message") {
-      addMessageToChat(message.data);
-    } else if (message.type === "recent_messages") {
-      if (Array.isArray(message.data)) {
-        message.data.reverse().forEach(addMessageToChat);
-      }
-    }
-  });
-
   async function loadRecentMessages() {
     try {
-      const response = await browserAPI.runtime.sendMessage({
+      console.log("[Chat Content] 🚀 Requesting recent messages...");
+      // Clear existing messages before loading new ones
+      messagesContainer.innerHTML = "";
+      await browserAPI.runtime.sendMessage({
         type: "get_recent_messages",
         limit: 50,
       });
-
-      if (response && response.data) {
-        response.data.reverse().forEach(addMessageToChat);
-      }
+      console.log(
+        "[Chat Content] ✅ Recent messages request sent successfully"
+      );
+      // Data will come through the runtime message listener above
     } catch (error) {
       console.error("[Chat Content] Error loading recent messages:", error);
     }
@@ -287,4 +349,38 @@ export async function initializeChatWindow(userSettings: UserSettings) {
   document.body.appendChild(container);
 
   loadRecentMessages();
+
+  // Set up the current chat window
+  currentChatWindow = {
+    addMessageToChat,
+    processRecentMessages: (data: any[]) => {
+      console.log("[Chat Content] 🔄 Adding messages:", {
+        total: data.length,
+        firstMessage:
+          data.length > 0
+            ? {
+                username: data[0].username,
+                message: data[0].message?.substring(0, 30) + "...",
+                timestamp: data[0].timestamp,
+              }
+            : null,
+        lastMessage:
+          data.length > 0
+            ? {
+                username: data[data.length - 1].username,
+                message:
+                  data[data.length - 1].message?.substring(0, 30) + "...",
+                timestamp: data[data.length - 1].timestamp,
+              }
+            : null,
+      });
+
+      data.reverse().forEach((msg, index) => {
+        addMessageToChat(msg);
+      });
+      console.log("[Chat Content] ✅ Finished adding all recent messages");
+    },
+  };
+
+  setupGlobalMessageListener();
 }
