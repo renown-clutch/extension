@@ -97,8 +97,6 @@
         settings = result.userSettings;
       }
 
-      console.log("Loaded settings:", settings);
-
       if (settings) {
         const cleanSettings = JSON.parse(JSON.stringify(settings));
         const mergedSettings = { ...defaultUserSettings, ...cleanSettings };
@@ -113,8 +111,6 @@
       if (userSettings.selectedTheme) {
         await initializePopupTheme(userSettings.selectedTheme);
       }
-
-      console.log("Loaded settings:", userSettings);
     } catch (error) {
       console.error("Error loading settings:", error);
     }

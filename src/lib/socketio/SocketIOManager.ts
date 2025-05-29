@@ -65,6 +65,7 @@ export class SocketIOManager {
   public async sendMessage(eventName: string, data: any): Promise<any> {
     return new Promise((resolve, reject) => {
       const requestId = this.storageService.generateRequestId(eventName);
+
       const queuedRequest: QueuedRequest = {
         eventName,
         data,

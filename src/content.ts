@@ -106,7 +106,11 @@ async function applyAllSettings(
 
   // Run all unique handlers
   for (const handler of handlersToRun) {
-    await handler(settings);
+    try {
+      await handler(settings);
+    } catch (error) {
+      console.error(`[Content Debug] Handler failed:`, error);
+    }
   }
 }
 

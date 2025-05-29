@@ -84,12 +84,12 @@ export async function injectMapStats(
       team2SteamIds: team2Players,
     });
 
-    if (response.success) {
+    if (response && response.success) {
       mapStatsData = response.data;
       setupMapVetoObserver();
       renderMapStats(userSettings);
     } else {
-      console.error("Failed to retrieve team map stats:", response.error);
+      console.error("Failed to retrieve team map stats:", response?.error);
     }
   } catch (error) {
     console.error("Error fetching team map stats:", error);

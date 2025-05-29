@@ -57,7 +57,9 @@ function formatDate(dateString: string): string {
 
 async function injectLastMatches(settings: UserSettings): Promise<void> {
   const liveMatchesDiv = await waitForElement("div.live-matches");
-  if (!liveMatchesDiv) return;
+  if (!liveMatchesDiv) {
+    return;
+  }
 
   // Get the user's Steam ID dynamically
   const steamId = await getUserSteamId();
@@ -71,7 +73,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       steamId: steamId,
     });
 
-    if (!response.success || !response.data?.matches) {
+    if (!response || !response.success || !response.data?.matches) {
       return;
     }
 
@@ -218,7 +220,7 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       liveMatchesDiv
     );
   } catch (error) {
-    // Silently fail
+    console.error("[LastMatches] ❌ Exception in injectLastMatches:", error);
   }
 }
 
@@ -236,9 +238,13 @@ export function removeLastMatches(): void {
 }
 
 export function initializeLastMatches(settings: UserSettings): void {
-  if (!settings) return;
+  if (!settings) {
+    return;
+  }
 
-  if (getCurrentPage().type !== "play") {
+  const currentPage = getCurrentPage();
+
+  if (currentPage.type !== "play") {
     return;
   }
 

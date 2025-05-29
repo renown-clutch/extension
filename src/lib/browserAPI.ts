@@ -54,6 +54,7 @@ const browserAPI = (function () {
         responseCallback?: (response: any) => void
       ) => {
         if (typeof browser !== "undefined" && browser.runtime) {
+          // Firefox - uses Promise-based API
           const promise = browser.runtime.sendMessage(message);
           if (responseCallback) {
             promise.then(responseCallback).catch((error) => {
@@ -61,27 +62,53 @@ const browserAPI = (function () {
                 error.message &&
                 error.message.includes("Receiving end does not exist")
               ) {
+                responseCallback(null);
                 return;
               }
               console.warn("Runtime message error:", error);
             });
           }
-          return promise;
+          return promise.catch((error) => {
+            if (
+              error.message &&
+              error.message.includes("Receiving end does not exist")
+            ) {
+              return null;
+            }
+            throw error;
+          });
         } else if (api.runtime) {
-          const wrappedCallback = responseCallback
-            ? (response: any) => {
-                if (api.runtime.lastError) {
+          // Chrome - convert callback-based API to Promise
+          return new Promise((resolve, reject) => {
+            const wrappedCallback = (response: any) => {
+              if (api.runtime.lastError) {
+                const errorMessage = api.runtime.lastError.message;
+
+                // Handle "Receiving end does not exist" gracefully
+                if (
+                  errorMessage &&
+                  errorMessage.includes("Receiving end does not exist")
+                ) {
+                  resolve(null);
+                  if (responseCallback) {
+                    responseCallback(null);
+                  }
                   return;
                 }
+
+                // For other errors, reject the promise
+                reject(new Error(errorMessage));
+                return;
+              }
+              resolve(response);
+              if (responseCallback) {
                 responseCallback(response);
               }
-            : () => {
-                if (api.runtime.lastError) {
-                  return;
-                }
-              };
-          return api.runtime.sendMessage(message, wrappedCallback);
+            };
+            api.runtime.sendMessage(message, wrappedCallback);
+          });
         }
+        return Promise.reject(new Error("No runtime API available"));
       },
       getURL: (path: string) => api.runtime.getURL(path),
       get id() {

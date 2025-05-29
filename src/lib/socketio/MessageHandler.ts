@@ -248,6 +248,7 @@ export class MessageHandler {
         return;
       }
       const responseData = message.data || message;
+
       callback(responseData);
     } catch (error) {
       console.error("[MessageHandler] ❌ Error processing callback:", {
