@@ -253,7 +253,7 @@
 /* OLED theme */
 .theme-oled {
   --slate-950: #000000;
-  --slate-900: #0d0d0d;
+  --slate-900: #000000;
   --slate-900-80: #0d0d0ddb;
   --slate-800: #1a1a1a;
   --slate-700: #262626;
@@ -271,8 +271,8 @@
   );
   --linear-gradient-45: linear-gradient(
     45deg,
-    var(--slate-900),
-    var(--slate-800)
+    var(--slate-950),
+    var(--slate-950)
   );
   --linear-gradient-90-2: linear-gradient(
     90deg,
@@ -285,7 +285,7 @@
       rgb(255, 85, 0) 0deg,
       rgba(255, 85, 0, 0) 1turn
     );
-  --scrollbar-bg: rgba(13, 13, 13, 0.8);
+  --scrollbar-bg: #000000;
   --scrollbar-color: #262626;
-  --footer: #0d0d0d;
+  --footer: #000000;
 }
