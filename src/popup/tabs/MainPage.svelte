@@ -5,6 +5,7 @@
     showLastPlayedMatches = $bindable(false),
     showAveragePartyElo = $bindable(false),
     showFaceitEloOnPartyList = $bindable(false),
+    enableClickablePartyUsernames = $bindable(false),
   } = $props();
 </script>
 
@@ -24,5 +25,10 @@
     labelText="Faceit ELO on Party List"
     descriptionText="Show Faceit ELO on party list"
     bind:checked={showFaceitEloOnPartyList}
+  />
+  <SwitchComponent
+    labelText="Clickable Party Usernames"
+    descriptionText="Make party usernames clickable links to profiles"
+    bind:checked={enableClickablePartyUsernames}
   />
 </main>

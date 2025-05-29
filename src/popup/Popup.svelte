@@ -32,36 +32,75 @@
         ? stripProxies(changedParts)
         : settingsToSend;
 
+      const message = {
+        type: "settingsUpdate",
+        settings: settingsToSend,
+        changedParts: changedPartsToSend,
+      };
+
       if (typeof browser !== "undefined" && browser.tabs) {
         browser.tabs
-          .query({ active: true, currentWindow: true })
+          .query({ url: ["*://*.renown.gg/*", "*://renown.gg/*"] })
           .then((tabs) => {
-            if (tabs[0]?.id) {
-              browser.tabs.sendMessage(tabs[0].id, {
-                type: "settingsUpdate",
-                settings: settingsToSend,
-                changedParts: changedPartsToSend,
-              });
+            if (tabs.length === 0) {
+              console.log(
+                "[Popup] No renown.gg tabs found for settings update"
+              );
+              return;
             }
+
+            console.log(
+              `[Popup] Sending settings update to ${tabs.length} renown.gg tab(s)`
+            );
+
+            tabs.forEach((tab, index) => {
+              if (tab.id) {
+                browser.tabs.sendMessage(tab.id, message).catch((error) => {
+                  console.log(
+                    `[Popup] Tab ${index + 1}/${tabs.length} (ID: ${tab.id}) - Content script not ready:`,
+                    error
+                  );
+                });
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error querying tabs:", error);
           });
       } else if (typeof chrome !== "undefined" && chrome.tabs) {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]?.id) {
-            chrome.tabs.sendMessage(
-              tabs[0].id,
-              {
-                type: "settingsUpdate",
-                settings: settingsToSend,
-                changedParts: changedPartsToSend,
-              },
-              () => {
-                if (chrome.runtime.lastError) {
-                  return;
-                }
-              }
+        chrome.tabs.query(
+          { url: ["*://*.renown.gg/*", "*://renown.gg/*"] },
+          (tabs) => {
+            if (tabs.length === 0) {
+              console.log(
+                "[Popup] No renown.gg tabs found for settings update"
+              );
+              return;
+            }
+
+            console.log(
+              `[Popup] Sending settings update to ${tabs.length} renown.gg tab(s)`
             );
+
+            tabs.forEach((tab, index) => {
+              if (tab.id) {
+                chrome.tabs.sendMessage(tab.id, message, () => {
+                  const lastError = chrome.runtime.lastError;
+                  if (lastError) {
+                    console.log(
+                      `[Popup] Tab ${index + 1}/${tabs.length} (ID: ${tab.id}) - Content script not ready:`,
+                      lastError.message
+                    );
+                    return;
+                  }
+                  console.log(
+                    `[Popup] Settings update sent to tab ${index + 1}/${tabs.length} (ID: ${tab.id})`
+                  );
+                });
+              }
+            });
           }
-        });
+        );
       }
     } catch (error) {
       console.error("Error sending settings to content script:", error);
@@ -205,6 +244,9 @@
           bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
           bind:showAveragePartyElo={userSettings.showAveragePartyElo}
           bind:showFaceitEloOnPartyList={userSettings.showFaceitEloOnPartyList}
+          bind:enableClickablePartyUsernames={
+            userSettings.enableClickablePartyUsernames
+          }
         />
       {/if}
     </div>

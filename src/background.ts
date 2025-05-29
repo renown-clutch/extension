@@ -101,6 +101,21 @@ browserAPI.runtime.onMessage.addListener(
           });
         });
       return true;
+    } else if (message.type === "getSteamIdsByNames") {
+      apiService
+        .getSteamIdsByNames(message.playerNames)
+        .then((data) => {
+          sendResponse({ success: true, data });
+        })
+        .catch((error) => {
+          console.error("[Background] ❌ getSteamIdsByNames error:", error);
+          sendResponse({
+            success: false,
+            error: String(error),
+            details: error instanceof Error ? error.message : String(error),
+          });
+        });
+      return true;
     } else if (message.type === "fetchTeamsMapStats") {
       apiService
         .getTeamsMapStats(message.team1SteamIds, message.team2SteamIds)

@@ -19,6 +19,12 @@ export class SocketIOAPIService {
     });
   }
 
+  public async getSteamIdsByNames(playerNames: string[]): Promise<any> {
+    return this.socketIOManager.sendMessage("get_steam_ids_by_names", {
+      player_names: playerNames,
+    });
+  }
+
   public async getTeamsMapStats(
     team1SteamIds: string[],
     team2SteamIds: string[]

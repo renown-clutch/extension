@@ -165,6 +165,7 @@ export class StorageService {
       profile_data: "get_profile_data",
       users_ranks: "get_users_ranks",
       faceit_elo_by_names: "get_faceit_elo_by_names",
+      steam_ids_by_names: "get_steam_ids_by_names",
       user_last_matches: "get_user_last_matches",
       live_matches: "get_live_matches",
       player_matchup: "get_player_matchup",

@@ -343,6 +343,7 @@ export class SocketIOManager {
       "user_last_matches",
       "live_matches",
       "faceit_elo_by_names",
+      "steam_ids_by_names",
       "user_renown_stats",
     ];
 

@@ -10,6 +10,7 @@ import { initializeLivePlayerStats } from "../liveMatchPage/livePlayerStats";
 import { initializeLastMatches } from "../mainPage/lastMatches";
 import { initializeLinkToCurrentMatch } from "../playerProfile/linkToCurrentMatch";
 import { initializeAveragePartyElo } from "../mainPage/averagePartyElo";
+import { initializeMainPage } from "../mainPage/initMainPage";
 import { initializeChatWindow } from "../chat/chatWindow";
 import { initializeMatchFoundAutoAccept } from "../autoAccept/matchFoundModal";
 import { initializeAutoAcceptPartyInvite } from "../autoAccept/partyInviteModal";
@@ -85,6 +86,7 @@ export type UserSettings = {
   showLastPlayedMatches: boolean;
   showAveragePartyElo: boolean;
   showFaceitEloOnPartyList: boolean;
+  enableClickablePartyUsernames: boolean;
   showChatWindow: boolean;
 };
 
@@ -295,21 +297,28 @@ export const SETTING_DEFINITIONS: Record<
     category: "mainPage",
     defaultValue: true,
     description: "Show last played matches",
-    handlers: [initializeLastMatches],
+    handlers: [initializeMainPage],
   },
   showAveragePartyElo: {
     key: "showAveragePartyElo",
     category: "mainPage",
     defaultValue: true,
     description: "Show average party ELO",
-    handlers: [initializeAveragePartyElo],
+    handlers: [initializeMainPage],
   },
   showFaceitEloOnPartyList: {
     key: "showFaceitEloOnPartyList",
     category: "mainPage",
     defaultValue: false,
     description: "Show Faceit ELO on party list",
-    handlers: [initializeAveragePartyElo],
+    handlers: [initializeMainPage],
+  },
+  enableClickablePartyUsernames: {
+    key: "enableClickablePartyUsernames",
+    category: "mainPage",
+    defaultValue: true,
+    description: "Make party usernames clickable links to profiles",
+    handlers: [initializeMainPage],
   },
   showChatWindow: {
     key: "showChatWindow",

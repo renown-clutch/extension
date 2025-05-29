@@ -146,6 +146,7 @@ function shouldInitializeForPage(
     "showLastPlayedMatches",
     "showAveragePartyElo",
     "showFaceitEloOnPartyList",
+    "enableClickablePartyUsernames",
   ];
 
   // Global settings that should always be initialized

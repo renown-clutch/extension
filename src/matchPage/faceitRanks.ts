@@ -75,18 +75,18 @@ const processPlayers = (
 ): void => {
   cleanupFaceitIcons();
 
-  players.forEach(({ element, steamId }) => {
+  players.forEach(({ element, steamId }, index) => {
     const badgeSize = 25;
 
     const faceitInfo = faceitData[steamId];
 
     const faceitBadge = createFaceitBadgeElement(
-      faceitInfo.elo || null,
+      faceitInfo?.elo || null,
       badgeSize,
       true,
       "",
       "faceit-badge-match-page",
-      faceitInfo.url || ""
+      faceitInfo?.url || ""
     );
 
     if (element.firstElementChild?.nextElementSibling) {

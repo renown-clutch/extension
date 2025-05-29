@@ -206,10 +206,16 @@ export async function initializeChatWindow(userSettings: UserSettings) {
   async function loadRecentMessages() {
     try {
       messagesContainer.innerHTML = "";
-      await browserAPI.runtime.sendMessage({
-        type: "get_recent_messages",
-        limit: 50,
-      });
+      // Don't await this call since the response comes via the global message listener
+      browserAPI.runtime
+        .sendMessage({
+          type: "get_recent_messages",
+          limit: 50,
+        })
+        .catch((error) => {
+          // Handle potential sendMessage errors gracefully
+          console.warn("[Chat Content] SendMessage error (expected):", error);
+        });
     } catch (error) {
       console.error("[Chat Content] Error loading recent messages:", error);
     }

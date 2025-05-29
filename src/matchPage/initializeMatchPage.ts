@@ -3,6 +3,7 @@ import { waitForElements } from "../utils/profileUtils";
 import { initializeFaceitRanks } from "./faceitRanks";
 import { initializeTeamAverageElo } from "./teamAverageElo";
 import { isMatchPage } from "../utils/pageUtils";
+import { waitForHydrationComplete } from "../utils/hydrationUtils";
 
 interface PlayerData {
   steamId: string;
@@ -80,6 +81,9 @@ export async function initializeMatchPage(
   if (!isMatchPage()) {
     return;
   }
+
+  // Wait for hydration to complete before proceeding
+  await waitForHydrationComplete();
 
   const matchPageData = await initializeMatchPageData();
   if (!matchPageData) {

@@ -3,6 +3,12 @@ import { getCurrentPage } from "../utils/pageUtils";
 import { waitForElement } from "../utils/profileUtils";
 import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 import { createFaceitBadgeElement } from "../utils/faceitUtils";
+import {
+  waitForHydrationComplete,
+  resetHydrationDetection,
+  cleanupHydrationDetection,
+  createHydrationAwareMutationCallback,
+} from "../utils/hydrationUtils";
 import browserAPI from "../lib/browserAPI";
 
 let partyObserver: MutationObserver | null = null;
@@ -135,6 +141,20 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
       const hasAddedOrRemovedNodes =
         mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0;
 
+      // Special check for hydration-related changes
+      const isLikelyHydrationChange =
+        mutation.addedNodes.length > 0 &&
+        Array.from(mutation.addedNodes).some(
+          (node) =>
+            node instanceof Element &&
+            node.classList?.contains("party-player-card")
+        );
+
+      if (isLikelyHydrationChange) {
+        // Reset hydration detection so we wait again
+        resetHydrationDetection();
+      }
+
       return (
         (isPartyElement &&
           (isChildListChange || isAttributeChange || isCharacterDataChange)) ||
@@ -204,20 +224,34 @@ async function gatherPlayerData(showSinglePlayers: boolean = false): Promise<{
   const playerNames: string[] = [];
   const playerNameToCardMap: Record<string, Element> = {};
 
-  playerCards.forEach((card) => {
+  playerCards.forEach((card, index) => {
     const eloElement = card.querySelector(".rank-badge span");
     const playerNameElement = card.querySelector(".name");
 
     if (playerNameElement) {
       const playerName = playerNameElement.textContent?.trim();
+
       if (playerName) {
         playerNames.push(playerName);
         playerNameToCardMap[playerName] = card;
+      }
+    } else {
+      // Try alternative selectors
+      const altNameElement = card.querySelector(
+        ".party-player-name, .player-name, [class*='name']"
+      );
+      if (altNameElement) {
+        const playerName = altNameElement.textContent?.trim();
+        if (playerName) {
+          playerNames.push(playerName);
+          playerNameToCardMap[playerName] = card;
+        }
       }
     }
 
     if (eloElement) {
       const eloText = eloElement.textContent;
+
       if (eloText) {
         const elo = parseInt(eloText.replace(/,/g, ""));
         if (!isNaN(elo)) {
@@ -295,6 +329,8 @@ function removeAveragePartyEloDisplay(): void {
 
 async function updatePartyDisplay(settings: UserSettings): Promise<void> {
   try {
+    await waitForHydrationComplete();
+
     removeAllFaceitBadges();
     removeAveragePartyEloDisplay();
 
@@ -326,7 +362,9 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
         addAverageFaceitBadge(wrapper, faceitData);
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    // Silent error handling
+  }
 }
 
 async function addPlayerFaceitBadges(
@@ -401,10 +439,15 @@ export function removeAveragePartyElo(disconnectObserver = true): void {
     partyObserver.disconnect();
     partyObserver = null;
   }
+
+  // Clean up hydration detection state
+  cleanupHydrationDetection();
 }
 
 export function initializeAveragePartyElo(settings: UserSettings): void {
-  if (!settings) return;
+  if (!settings) {
+    return;
+  }
 
   if (getCurrentPage().type !== "play") {
     return;
