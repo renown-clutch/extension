@@ -16,6 +16,7 @@ import {
   fastThemeInjection,
   enhancedThemeInjection,
   switchTheme,
+  removeAllInjectedCSS,
 } from "./themes/themeInjection";
 import { config } from "./config";
 
@@ -38,6 +39,14 @@ function shouldBeInjected(): boolean {
   }
 
   return true;
+}
+
+function isCSSInjected(): boolean {
+  // Check if the main CSS files have been injected by looking for their elements
+  return !!(
+    document.getElementById("clutch-fast-unified") ||
+    document.getElementById("clutch-fast-features")
+  );
 }
 
 if (shouldBeInjected()) {
@@ -230,7 +239,22 @@ function observeUrlChanges() {
 
 async function initialize(pageType: PageType["type"]) {
   if (!shouldBeInjected()) {
+    // Remove CSS when navigating to pages that shouldn't have injection
+    if (isCSSInjected()) {
+      removeAllInjectedCSS();
+    }
     return;
+  }
+
+  // If CSS hasn't been injected yet and we should inject it, do it now
+  // This handles the case where users start on a non-injected page (like admin/home)
+  // and then navigate to a page that requires injection
+  if (!isCSSInjected()) {
+    fastThemeInjection();
+
+    enhancedThemeInjection().catch((error: unknown) => {
+      console.warn("Enhanced theme injection failed:", error);
+    });
   }
 
   try {

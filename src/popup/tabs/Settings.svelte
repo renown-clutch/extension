@@ -68,7 +68,7 @@
     </div>
 
     <div>
-      <p class="capitalize text-slate-200 text-xs">Version 1.1.0</p>
+      <p class="capitalize text-slate-200 text-xs">Version 1.1.2</p>
     </div>
   </footer>
 </main>

@@ -286,6 +286,29 @@ export function switchTheme(theme: string): void {
   }
 }
 
+export function removeAllInjectedCSS(): void {
+  try {
+    // Remove all clutch-fast style elements
+    const stylesToRemove = ["unified", "features", "common"];
+
+    stylesToRemove.forEach((styleType) => {
+      const element = document.getElementById(`clutch-fast-${styleType}`);
+      if (element) {
+        element.remove();
+      }
+    });
+
+    // Remove theme classes from document element
+    document.documentElement.classList.forEach((className) => {
+      if (className.startsWith("theme-")) {
+        document.documentElement.classList.remove(className);
+      }
+    });
+  } catch (error) {
+    console.error("Failed to remove injected CSS:", error);
+  }
+}
+
 export { cssCache };
 
 export function clearCSSCache(): void {

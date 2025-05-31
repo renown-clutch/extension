@@ -50,8 +50,8 @@ async function updateVersions() {
     const settingsPath = path.join(__dirname, 'src/popup/tabs/Settings.svelte');
     let settingsContent = fs.readFileSync(settingsPath, 'utf8');
     settingsContent = settingsContent.replace(
-      /<p class="capitalize text-slate-400 text-xs">Version .+?<\/p>/,
-      `<p class="capitalize text-slate-400 text-xs">Version ${version}</p>`
+      /<p class="capitalize text-slate-200 text-xs">Version .+?<\/p>/,
+      `<p class="capitalize text-slate-200 text-xs">Version ${version}</p>`
     );
     fs.writeFileSync(settingsPath, settingsContent);
     console.log(`✅ Updated version in Settings.svelte to ${version}`);

@@ -482,14 +482,11 @@ input.iti__tel-input {
 }
 
 .match-veto .voting-options .voting-card-wrapper .voting-card .overlay {
-  
   background: var(--slate-700-80);
- 
 }
 
 .match-veto .voting-options .voting-card-wrapper.banned .voting-card .overlay {
   background: var(--slate-900-80);
-  
 }
 
 .match-veto .voting-options .voting-card-wrapper .voting-card:hover .overlay {
@@ -497,19 +494,19 @@ input.iti__tel-input {
 }
 
 .match-veto .voting-options .voting-card-wrapper .voting-card {
-  
   border: 1px solid var(--slate-600);
- 
 }
 
-.match-veto .voting-options .voting-card-wrapper .voting-card .checkbox-wrapper {
-  
+.match-veto
+  .voting-options
+  .voting-card-wrapper
+  .voting-card
+  .checkbox-wrapper {
   filter: grayscale(100%);
 }
 
 .confirm-match-modal .modal-content .title {
   color: #fff;
-
 }
 
 .notification-component {
@@ -531,6 +528,7 @@ input.iti__tel-input {
 
 .profile-banner {
   background: linear-gradient(180deg, var(--slate-800), var(--slate-950));
+  padding-bottom: 0;
 }
 
 .profile-banner .layout .wrapper .flag {
