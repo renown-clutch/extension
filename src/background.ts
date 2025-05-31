@@ -13,12 +13,66 @@ const apiService = new SocketIOAPIService(socketIOManager);
 
 async function initialize() {
   try {
-    const { steamId } = await getUserInfo();
-    socketIOManager.connect(steamId || undefined);
+    const steamId = await waitForValidSteamId();
+    if (steamId) {
+      console.log(
+        "[Chat Background] ✅ Got valid Steam ID, connecting to socket"
+      );
+      socketIOManager.connect(steamId);
+    } else {
+      console.warn(
+        "[Chat Background] ⚠️ No Steam ID found after timeout, connecting without ID"
+      );
+      socketIOManager.connect();
+    }
   } catch (error) {
     console.error("[Chat Background] Error initializing:", error);
     socketIOManager.connect();
   }
+}
+
+async function waitForValidSteamId(
+  maxAttempts = 10,
+  delayMs = 2000
+): Promise<string | null> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      console.log(
+        `[Chat Background] 🔍 Checking for Steam ID (attempt ${attempt}/${maxAttempts})`
+      );
+
+      const { steamId } = await getUserInfo();
+
+      if (steamId && steamId.trim() !== "") {
+        console.log(`[Chat Background] ✅ Found valid Steam ID: ${steamId}`);
+        return steamId;
+      }
+
+      console.log(
+        `[Chat Background] ⏳ Steam ID not available yet, waiting ${delayMs}ms...`
+      );
+
+      // Wait before next attempt (except on last attempt)
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    } catch (error) {
+      console.warn(
+        `[Chat Background] ❌ Error getting Steam ID (attempt ${attempt}):`,
+        error
+      );
+
+      // Wait before next attempt (except on last attempt)
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+
+  console.warn(
+    `[Chat Background] ⚠️ Failed to get Steam ID after ${maxAttempts} attempts`
+  );
+  return null;
 }
 
 browserAPI.runtime.onInstalled.addListener(initialize);
