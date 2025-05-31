@@ -7,6 +7,7 @@
     showBans = $bindable(false),
     showHighestElo = $bindable(false),
     showLinkToCurrentMatch = $bindable(false),
+    playerMatchupStats = $bindable(false),
   } = $props();
 </script>
 
@@ -38,5 +39,11 @@
     labelText="Ban History"
     descriptionText="Show previous bans of the player in the profile"
     bind:checked={showBans}
+  />
+  <h2 class="text-lg">Matchup Stats</h2>
+  <SwitchComponent
+    labelText="Player Matchup Stats"
+    descriptionText="Show matchup statistics between you and the viewed player"
+    bind:checked={playerMatchupStats}
   />
 </main>

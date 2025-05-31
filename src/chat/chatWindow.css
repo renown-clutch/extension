@@ -189,6 +189,12 @@
   position: relative;
 }
 
+.chat-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .chat-input {
   flex: 1;
   padding: 8px;
@@ -197,7 +203,6 @@
   border-radius: 4px;
   background-color: var(--slate-900);
   color: #fff;
-  position: relative;
 }
 
 .chat-input:focus {
@@ -239,9 +244,9 @@
 
 .send-button {
   position: absolute;
-  right: 8%;
+  right: 8px;
   top: 50%;
-
+  transform: translateY(-50%);
   background: none;
   border: none;
   padding: 4px;
@@ -278,9 +283,48 @@
 }
 
 .message .username {
-  font-weight: bold;
-  margin-right: 3px;
+  font-weight: 600;
+  margin-right: 0.25rem;
+  font-size: 13px;
   flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.message .username[data-clickable-username] {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.message .username[data-clickable-username]:hover {
+  filter: brightness(1.2);
+  text-decoration: underline;
+  animation: usernameHover 0.5s ease-in-out infinite;
+}
+
+@keyframes usernameHover {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.message .username[data-clickable-username][title="Loading profile..."] {
+  opacity: 0.6;
+  cursor: wait;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 .message-content-row {
@@ -293,7 +337,7 @@
 .message-main {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: baseline;
   flex: 1 1 auto;
   word-break: break-word;
   white-space: pre-wrap;

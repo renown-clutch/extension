@@ -78,4 +78,14 @@ export class SocketIOAPIService {
   public async getLiveMatches(): Promise<any> {
     return this.socketIOManager.sendMessage("get_live_matches", {});
   }
+
+  async getPlayerMatchup(
+    player1SteamId: string,
+    player2SteamId: string
+  ): Promise<any> {
+    return this.socketIOManager.sendMessage("get_player_matchup", {
+      player1_steam_id: player1SteamId,
+      player2_steam_id: player2SteamId,
+    });
+  }
 }

@@ -82,16 +82,11 @@ export class SocketIOManager {
       }
 
       // If not connected, queue the request
-      console.log(
-        `[SocketIOManager] 📋 Queueing request - socket not connected:`,
-        {
-          event: eventName,
-          socketExists: !!this.socket,
-          socketConnected: this.socket?.connected,
-          isConnected: this.isConnected,
-          queueSize: this.requestQueue.length + 1,
-        }
-      );
+      console.log(`[SocketIOManager] 📋 Queueing request:`, {
+        event: eventName,
+        clientId: this.clientId,
+        queueSize: this.requestQueue.length + 1,
+      });
 
       this.requestQueue.push(queuedRequest);
 
@@ -101,19 +96,15 @@ export class SocketIOManager {
           (req) => req.requestId === requestId
         );
         if (index !== -1) {
-          console.warn(
-            `[SocketIOManager] ⏰ Queued request timed out for event: ${eventName}`,
-            {
-              requestId,
-              data,
-              timeout: 30000,
-              queuePosition: index,
-            }
-          );
+          console.warn(`[SocketIOManager] ⏰ Queued request timed out:`, {
+            event: eventName,
+            clientId: this.clientId,
+            queuePosition: index,
+          });
           this.requestQueue.splice(index, 1);
           reject(new Error("Socket.IO request timed out in queue"));
         }
-      }, 30000); // Longer timeout for queued requests
+      }, 30000);
 
       // Try to connect if not already connecting
       if (!this.connectionPromise && !this.isConnected) {
@@ -131,9 +122,6 @@ export class SocketIOManager {
   ): Promise<boolean> {
     try {
       if (!this.socket || !this.socket.connected) {
-        console.warn(
-          "[SocketIOManager] ⚠️ Socket not connected, cannot send chat message"
-        );
         return false;
       }
 
@@ -143,10 +131,9 @@ export class SocketIOManager {
         message,
       });
 
-      console.log("[SocketIOManager] ✅ Chat message emitted successfully");
       return true;
     } catch (error) {
-      console.error("[SocketIOManager] ❌ Error sending chat message:", error);
+      console.error("[SocketIOManager] ❌ Error sending chat message");
       return false;
     }
   }
@@ -158,10 +145,7 @@ export class SocketIOManager {
       });
       return true;
     } catch (error) {
-      console.error(
-        "[SocketIOManager] ❌ Error getting recent messages:",
-        error
-      );
+      console.error("[SocketIOManager] ❌ Error getting recent messages");
       return false;
     }
   }
@@ -237,10 +221,7 @@ export class SocketIOManager {
         );
       } catch (error) {
         // Silently handle connection errors during extension reload
-        console.warn(
-          `[SocketIOManager] ⚠️ Failed to send connection status:`,
-          error
-        );
+        console.warn(`[SocketIOManager] ⚠️ Failed to send connection status`);
       }
 
       // Resolve connection promise
@@ -265,8 +246,7 @@ export class SocketIOManager {
       this.connectionResolve = null;
 
       console.log(
-        `[SocketIOManager] 🔌 Socket disconnected, ${this.requestQueue.length} requests in queue`,
-        { reason }
+        `[SocketIOManager] 🔌 Socket disconnected, ${this.requestQueue.length} requests in queue`
       );
 
       if (reason === "io server disconnect") {
@@ -330,6 +310,7 @@ export class SocketIOManager {
       );
     });
 
+    // Handle all API events
     const apiEvents = [
       "faceit_data",
       "user_bans",
@@ -349,6 +330,7 @@ export class SocketIOManager {
 
     apiEvents.forEach((eventName) => {
       this.socket!.on(eventName, (data) => {
+        console.log(`[SocketIOManager] 📥 Received ${eventName} event`);
         this.messageHandler.handleSocketIOMessage(
           {
             type: eventName,
@@ -361,7 +343,6 @@ export class SocketIOManager {
 
     this.socket.on("error", (error) => {
       console.error(`[SocketIOManager] ❌ SOCKET ERROR:`, {
-        error,
         attempt: attempt + 1,
         timestamp: new Date().toISOString(),
       });
@@ -483,12 +464,12 @@ export class SocketIOManager {
     );
 
     try {
+      console.log(`[SocketIOManager] 📤 Emitting ${eventName} event`);
       this.socket!.emit(eventName, data);
     } catch (error) {
       console.error(`[SocketIOManager] ❌ Error emitting event: ${eventName}`, {
-        error,
+        clientId: this.clientId,
         requestId,
-        data,
       });
       this.storageService.removePendingRequest(requestId);
       queuedRequest.reject(error);
@@ -496,14 +477,11 @@ export class SocketIOManager {
 
     setTimeout(() => {
       if (this.storageService.hasPendingRequest(requestId)) {
-        console.warn(
-          `[SocketIOManager] ⏰ Request timed out for event: ${eventName}`,
-          {
-            requestId,
-            data,
-            timeout: 10000,
-          }
-        );
+        console.warn(`[SocketIOManager] ⏰ Request timed out:`, {
+          event: eventName,
+          clientId: this.clientId,
+          requestId,
+        });
         this.storageService.removePendingRequest(requestId);
         queuedRequest.reject(new Error("Socket.IO request timed out"));
       }
@@ -532,8 +510,8 @@ export class SocketIOManager {
         this.sendQueuedRequest(queuedRequest);
       } catch (error) {
         console.error(`[SocketIOManager] ❌ Error processing queued request:`, {
-          eventName: queuedRequest.eventName,
-          error,
+          event: queuedRequest.eventName,
+          clientId: this.clientId,
         });
         queuedRequest.reject(error);
       }

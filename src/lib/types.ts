@@ -7,14 +7,13 @@ import { initializeExtensionButton } from "../navbar/extensionButton";
 import { initializeMatchPage } from "../matchPage/initializeMatchPage";
 import { initializeLiveMatchPage } from "../liveMatchPage/intializeLiveMatchPage";
 import { initializeLivePlayerStats } from "../liveMatchPage/livePlayerStats";
-import { initializeLastMatches } from "../mainPage/lastMatches";
 import { initializeLinkToCurrentMatch } from "../playerProfile/linkToCurrentMatch";
-import { initializeAveragePartyElo } from "../mainPage/averagePartyElo";
 import { initializeMainPage } from "../mainPage/initMainPage";
 import { initializeChatWindow } from "../chat/chatWindow";
 import { initializeMatchFoundAutoAccept } from "../autoAccept/matchFoundModal";
 import { initializeAutoAcceptPartyInvite } from "../autoAccept/partyInviteModal";
 import { initializeKeepAlive } from "../keepAlive/keepAlive";
+import { initializePlayerMatchupStats } from "../playerProfile/playerMatchupStats";
 
 export type TabName =
   | "Theme"
@@ -88,6 +87,7 @@ export type UserSettings = {
   showFaceitEloOnPartyList: boolean;
   enableClickablePartyUsernames: boolean;
   showChatWindow: boolean;
+  playerMatchupStats: boolean;
 };
 
 export type SettingCategory =
@@ -283,14 +283,14 @@ export const SETTING_DEFINITIONS: Record<
     category: "match",
     defaultValue: true,
     description: "Show live match player statistics",
-    handlers: [initializeLivePlayerStats],
+    handlers: [initializeLiveMatchPage],
   },
   showLiveMatchPlayerStreak: {
     key: "showLiveMatchPlayerStreak",
     category: "match",
     defaultValue: true,
     description: "Show live match player streak",
-    handlers: [initializeLivePlayerStats],
+    handlers: [initializeLiveMatchPage],
   },
   showLastPlayedMatches: {
     key: "showLastPlayedMatches",
@@ -327,9 +327,15 @@ export const SETTING_DEFINITIONS: Record<
     description: "Show chat window",
     handlers: [initializeChatWindow],
   },
+  playerMatchupStats: {
+    key: "playerMatchupStats",
+    category: "profile",
+    defaultValue: true,
+    description: "Show matchup stats on player profiles",
+    handlers: [initializePlayerMatchupStats],
+  },
 };
 
-// Generate defaultUserSettings from definitions
 export const defaultUserSettings: UserSettings = Object.entries(
   SETTING_DEFINITIONS
 ).reduce(

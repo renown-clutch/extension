@@ -225,6 +225,7 @@
           bind:showBans={userSettings.showBans}
           bind:showHighestElo={userSettings.showHighestElo}
           bind:showLinkToCurrentMatch={userSettings.showLinkToCurrentMatch}
+          bind:playerMatchupStats={userSettings.playerMatchupStats}
         />
       {:else if userSettings.activeTab === "Settings"}
         <SettingsTab

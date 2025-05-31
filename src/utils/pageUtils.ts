@@ -1,3 +1,5 @@
+import { config } from "../config";
+
 export type PageType =
   | { type: "home" }
   | { type: "profile"; id: string }
@@ -83,7 +85,10 @@ export function getCurrentPage(): PageType {
 }
 
 export function isLiveMatch(): boolean {
-  return getCurrentPage().type === "playMatch";
+  const url = window.location.href;
+  const isFileUrl =
+    config.debug.enableFileUrlSupport && url.startsWith("file://");
+  return getCurrentPage().type === "playMatch" || isFileUrl;
 }
 
 export function isMatchPage(): boolean {

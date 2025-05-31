@@ -13,4 +13,8 @@ export const config = {
   deduplication: {
     messageLimit: 20,
   },
+  debug: {
+    enableFileUrlSupport: false,
+    enableConsoleLogging: false,
+  },
 };

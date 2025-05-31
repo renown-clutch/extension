@@ -17,6 +17,7 @@ import {
   enhancedThemeInjection,
   switchTheme,
 } from "./themes/themeInjection";
+import { config } from "./config";
 
 export { unregisterShadowRoot };
 
@@ -99,7 +100,9 @@ async function applyAllSettings(
       const shouldInitialize = shouldInitializeForPage(settingKey, pageType);
 
       if (shouldInitialize) {
-        definition.handlers.forEach((handler) => handlersToRun.add(handler));
+        definition.handlers.forEach((handler) => {
+          handlersToRun.add(handler);
+        });
       }
     }
   });
@@ -118,6 +121,16 @@ function shouldInitializeForPage(
   settingKey: keyof UserSettings,
   pageType: PageType["type"]
 ): boolean {
+  // Special handling for file:// URLs - treat them as live match pages when debug is enabled
+  const isFileUrl = window.location.href.startsWith("file://");
+  if (
+    pageType === "unknown" &&
+    isFileUrl &&
+    config.debug.enableFileUrlSupport
+  ) {
+    pageType = "playMatch";
+  }
+
   // Profile-specific settings
   const profileSettings = [
     "csstatsProfileButton",
@@ -125,6 +138,7 @@ function shouldInitializeForPage(
     "showBans",
     "showHighestElo",
     "showLinkToCurrentMatch",
+    "playerMatchupStats",
   ];
 
   // Match page specific settings
@@ -135,6 +149,8 @@ function shouldInitializeForPage(
 
   // Live match specific settings
   const liveMatchSettings = [
+    "showFaceitRanksOnMatchPage",
+    "showTeamAverageElo",
     "showMapStats",
     "showMapStatsColors",
     "liveMatchPlayerStats",

@@ -4,6 +4,7 @@ import { waitForElement } from "../utils/profileUtils";
 import { getUserInfo } from "../steamId/steamIdParser";
 import { getStoredUIState, saveUIState } from "../utils/uiStateUtils";
 import { unregisterShadowRoot } from "../themes/shadowThemeManager";
+import { chatUsernameCache } from "../lib/chat/ChatUsernameCache";
 import type { UserSettings } from "../lib/types";
 
 const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
@@ -12,6 +13,7 @@ const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
 let currentChatWindow: {
   addMessageToChat: (message: any) => void;
   processRecentMessages: (data: any[]) => void;
+  updateClickableUsernames: () => void;
 } | null = null;
 
 // Single global runtime message listener
@@ -118,11 +120,6 @@ export async function initializeChatWindow(userSettings: UserSettings) {
   const inputContainer = document.createElement("div");
   inputContainer.className = "chat-input-container";
 
-  const input = document.createElement("input");
-  input.className = "chat-input";
-  input.placeholder = "Type a message...";
-  input.maxLength = 300;
-
   const inputIndicators = document.createElement("div");
   inputIndicators.className = "input-indicators";
 
@@ -136,6 +133,14 @@ export async function initializeChatWindow(userSettings: UserSettings) {
 
   inputIndicators.appendChild(cooldownIndicator);
   inputIndicators.appendChild(charCount);
+
+  const inputWrapper = document.createElement("div");
+  inputWrapper.className = "chat-input-wrapper";
+
+  const input = document.createElement("input");
+  input.className = "chat-input";
+  input.placeholder = "Type a message...";
+  input.maxLength = 300;
 
   const sendButton = document.createElement("button");
   sendButton.className = "send-button";
@@ -203,6 +208,12 @@ export async function initializeChatWindow(userSettings: UserSettings) {
 
   input.addEventListener("input", updateCharCount);
 
+  inputWrapper.appendChild(input);
+  inputWrapper.appendChild(sendButton);
+
+  inputContainer.appendChild(inputIndicators);
+  inputContainer.appendChild(inputWrapper);
+
   async function loadRecentMessages() {
     try {
       messagesContainer.innerHTML = "";
@@ -252,6 +263,54 @@ export async function initializeChatWindow(userSettings: UserSettings) {
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
   }
 
+  function createUsernameElement(username: string): HTMLElement {
+    const usernameSpan = document.createElement("span");
+    usernameSpan.className = "username";
+    usernameSpan.textContent = username;
+    usernameSpan.style.color = usernameToColor(username);
+    usernameSpan.style.cursor = "pointer";
+    usernameSpan.setAttribute("data-clickable-username", username);
+
+    // Queue username for cache if not already cached
+    if (!chatUsernameCache.hasCached(username)) {
+      chatUsernameCache.getSteamId(username);
+    }
+
+    usernameSpan.onclick = async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      let steamId = chatUsernameCache.getCachedSteamId(username);
+
+      if (!steamId) {
+        // Try to get it from cache (this will also queue it for batch request)
+        steamId = await chatUsernameCache.getSteamId(username);
+      }
+
+      if (steamId) {
+        const profileUrl = `https://renown.gg/profile/${steamId}`;
+        window.open(profileUrl, "_blank");
+      } else {
+        // Show loading indicator or fallback
+        usernameSpan.style.opacity = "0.6";
+        usernameSpan.title = "Loading profile...";
+
+        // Try again after a short delay
+        setTimeout(async () => {
+          const delayedSteamId = chatUsernameCache.getCachedSteamId(username);
+          if (delayedSteamId) {
+            const profileUrl = `https://renown.gg/profile/${delayedSteamId}`;
+            window.open(profileUrl, "_blank");
+            usernameSpan.style.opacity = "1";
+            usernameSpan.title = "";
+          }
+        }, 3000);
+      }
+    };
+
+    return usernameSpan;
+  }
+
   function addMessageToChat(message: {
     username: string;
     message: string;
@@ -266,10 +325,8 @@ export async function initializeChatWindow(userSettings: UserSettings) {
     const mainContent = document.createElement("span");
     mainContent.className = "message-main";
 
-    const usernameSpan = document.createElement("span");
-    usernameSpan.className = "username";
-    usernameSpan.textContent = message.username;
-    usernameSpan.style.color = usernameToColor(message.username);
+    // Create clickable username element
+    const usernameSpan = createUsernameElement(message.username);
 
     const colonSpan = document.createElement("span");
     colonSpan.className = "message-colon";
@@ -301,9 +358,28 @@ export async function initializeChatWindow(userSettings: UserSettings) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
-  inputContainer.appendChild(inputIndicators);
-  inputContainer.appendChild(input);
-  inputContainer.appendChild(sendButton);
+  function updateClickableUsernames(): void {
+    const usernameElements = messagesContainer.querySelectorAll(
+      "[data-clickable-username]"
+    );
+
+    usernameElements.forEach((element) => {
+      if (element instanceof HTMLElement) {
+        const username = element.getAttribute("data-clickable-username");
+        if (username && chatUsernameCache.hasCached(username)) {
+          // Reset any loading states
+          element.style.opacity = "1";
+          element.title = "";
+        }
+      }
+    });
+  }
+
+  // Listen for username resolution events
+  document.addEventListener("chatUsernamesResolved", (event: any) => {
+    updateClickableUsernames();
+  });
+
   chatContainer.appendChild(messagesContainer);
   chatContainer.appendChild(inputContainer);
   shadowRoot.appendChild(chatContainer);
@@ -316,10 +392,17 @@ export async function initializeChatWindow(userSettings: UserSettings) {
   currentChatWindow = {
     addMessageToChat,
     processRecentMessages: (data: any[]) => {
+      // Collect all usernames for preloading
+      const usernames = data.map((msg) => msg.username).filter(Boolean);
+      if (usernames.length > 0) {
+        chatUsernameCache.preloadUsernames(usernames);
+      }
+
       data.reverse().forEach((msg, index) => {
         addMessageToChat(msg);
       });
     },
+    updateClickableUsernames,
   };
 
   setupGlobalMessageListener();
