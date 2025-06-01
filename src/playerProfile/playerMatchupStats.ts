@@ -191,8 +191,16 @@ export async function initializePlayerMatchupStats(
     settings.playerMatchupStats
   );
 
-  if (!isProfilePage() || !isBaseProfilePage()) {
-    console.log("[Clutch] Not a profile page or not base profile page");
+  if (!isProfilePage()) {
+    console.log("[Clutch] Not a profile page");
+    return;
+  }
+
+  if (!isBaseProfilePage()) {
+    console.log(
+      "[Clutch] Not base profile page, removing existing matchup stats"
+    );
+    removeExistingMatchupStats();
     return;
   }
 
