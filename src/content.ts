@@ -10,7 +10,7 @@ import {
   type SettingHandler,
 } from "./lib/types";
 import { getCurrentPage, type PageType } from "./utils/pageUtils";
-import { initializeSteamIdParser } from "./steamId/steamIdParser";
+import { initializeSteamIdParser, getUserInfo } from "./steamId/steamIdParser";
 import { unregisterShadowRoot } from "./themes/shadowThemeManager";
 import {
   fastThemeInjection,
@@ -269,6 +269,45 @@ async function initialize(pageType: PageType["type"]) {
     }
 
     await initializeSteamIdParser();
+
+    // Try to get Steam ID and notify background script if successful
+    try {
+      const { steamId } = await getUserInfo();
+      if (steamId && steamId.trim() !== "") {
+        console.log(
+          "[Content] ✅ Found Steam ID, notifying background script:",
+          steamId
+        );
+
+        // Notify background script to initialize connection
+        browserAPI.runtime
+          .sendMessage({
+            type: "initializeWithSteamId",
+            steamId: steamId,
+          })
+          .then((response) => {
+            console.log("[Content] ✅ Background script notified successfully");
+          })
+          .catch((error) => {
+            console.warn(
+              "[Content] ⚠️ Failed to notify background script:",
+              error
+            );
+          });
+      } else {
+        console.warn(
+          "[Content] ❌ No Steam ID found - background script will not be initialized"
+        );
+        console.log(
+          "[Content] 📋 API requests will be queued until Steam ID becomes available"
+        );
+      }
+    } catch (error) {
+      console.error("[Content] ❌ Error getting Steam ID:", error);
+      console.log(
+        "[Content] 📋 API requests will be queued until Steam ID becomes available"
+      );
+    }
 
     // Initialize all features through their handlers to avoid double injection
     await applyAllSettings(userSettings, pageType);

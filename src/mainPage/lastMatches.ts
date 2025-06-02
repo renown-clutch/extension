@@ -56,6 +56,11 @@ function formatDate(dateString: string): string {
 }
 
 async function injectLastMatches(settings: UserSettings): Promise<void> {
+  const existingLastMatches = document.querySelector(".clutch-past-matches");
+  if (existingLastMatches) {
+    return;
+  }
+
   const liveMatchesDiv = await waitForElement("div.live-matches");
   if (!liveMatchesDiv) {
     return;

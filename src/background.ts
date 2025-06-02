@@ -11,23 +11,31 @@ const clientId = crypto.randomUUID();
 const socketIOManager = new SocketIOManager(clientId);
 const apiService = new SocketIOAPIService(socketIOManager);
 
-async function initialize() {
+// Don't initialize immediately on install/startup - wait for content script to notify us
+// browserAPI.runtime.onInstalled.addListener(initialize);
+// browserAPI.runtime.onStartup.addListener(initialize);
+
+let hasInitialized = false;
+
+async function initializeWithSteamId(steamId: string) {
+  if (hasInitialized) {
+    console.log("[Chat Background] ⚠️ Already initialized, skipping...");
+    return;
+  }
+
   try {
-    const steamId = await waitForValidSteamId();
-    if (steamId) {
-      console.log(
-        "[Chat Background] ✅ Got valid Steam ID, connecting to socket"
-      );
-      socketIOManager.connect(steamId);
-    } else {
-      console.warn(
-        "[Chat Background] ⚠️ No Steam ID found after timeout, connecting without ID"
-      );
-      socketIOManager.connect();
-    }
+    console.log(
+      "[Chat Background] 🚀 Initializing connection with Steam ID:",
+      steamId
+    );
+    hasInitialized = true;
+    socketIOManager.connect(steamId);
   } catch (error) {
-    console.error("[Chat Background] Error initializing:", error);
-    socketIOManager.connect();
+    console.error(
+      "[Chat Background] ❌ Error initializing with Steam ID:",
+      error
+    );
+    hasInitialized = false;
   }
 }
 
@@ -75,8 +83,18 @@ async function waitForValidSteamId(
   return null;
 }
 
-browserAPI.runtime.onInstalled.addListener(initialize);
-browserAPI.runtime.onStartup.addListener(initialize);
+// Helper function to check if we can make API requests
+function canMakeAPIRequests(): boolean {
+  return socketIOManager.hasSteamId();
+}
+
+// Helper function to provide consistent error response when Steam ID is not available
+function steamIdNotAvailableResponse() {
+  return {
+    success: false,
+    error: "Steam ID not available yet - extension is still initializing",
+  };
+}
 
 browserAPI.runtime.onMessage.addListener(
   (
@@ -85,7 +103,15 @@ browserAPI.runtime.onMessage.addListener(
     sendResponse: SendResponseCallback
   ) => {
     const handleMessage = async () => {
-      if (message.type === "checkWebSocketStatus") {
+      if (message.type === "initializeWithSteamId") {
+        if (message.steamId) {
+          await initializeWithSteamId(message.steamId);
+          sendResponse({ success: true });
+        } else {
+          sendResponse({ success: false, error: "No Steam ID provided" });
+        }
+        return true;
+      } else if (message.type === "checkWebSocketStatus") {
         const response = {
           connected: socketIOManager.isConnected,
           socketState: socketIOManager.getSocketState(),

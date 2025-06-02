@@ -128,31 +128,30 @@ export class MessageHandler {
   }
 
   private forwardMessageToTabs(message: any): void {
-    // Query all tabs that match our content script URLs (renown.gg domains)
+    // Query only the active tab in the current window
     browserAPI.tabs.query(
-      { url: ["*://*.renown.gg/*", "*://renown.gg/*"] },
+      { active: true, currentWindow: true },
       (tabs: Array<{ id?: number; url?: string; active?: boolean }>) => {
         if (tabs.length === 0) {
           return;
         }
 
-        // Send message to all matching tabs
-        tabs.forEach((tab) => {
-          if (tab.id) {
-            browserAPI.tabs.sendMessage(tab.id, message, () => {
-              // Silently handle "Receiving end does not exist" error
-              const lastError =
-                typeof chrome !== "undefined"
-                  ? chrome.runtime.lastError
-                  : typeof browser !== "undefined"
-                  ? browser.runtime.lastError
-                  : null;
-              if (lastError) {
-                return;
-              }
-            });
-          }
-        });
+        // Send message to the active tab only
+        const activeTab = tabs[0];
+        if (activeTab.id) {
+          browserAPI.tabs.sendMessage(activeTab.id, message, () => {
+            // Silently handle "Receiving end does not exist" error
+            const lastError =
+              typeof chrome !== "undefined"
+                ? chrome.runtime.lastError
+                : typeof browser !== "undefined"
+                ? browser.runtime.lastError
+                : null;
+            if (lastError) {
+              return;
+            }
+          });
+        }
       }
     );
   }

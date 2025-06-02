@@ -380,6 +380,22 @@ export async function initializeChatWindow(userSettings: UserSettings) {
     updateClickableUsernames();
   });
 
+  // Track visibility state to reload messages when tab becomes active
+  let wasHidden = false;
+
+  function handleVisibilityChange() {
+    if (document.hidden) {
+      wasHidden = true;
+    } else if (wasHidden) {
+      // Tab just became visible after being hidden - reload recent messages
+      loadRecentMessages();
+      wasHidden = false;
+    }
+  }
+
+  // Add visibility change listener
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
   chatContainer.appendChild(messagesContainer);
   chatContainer.appendChild(inputContainer);
   shadowRoot.appendChild(chatContainer);

@@ -18,6 +18,7 @@ export class SocketIOManager {
   private _isConnected = false;
   private reconnectAttempts = 0;
   private clientId: string;
+  private steamId: string | null = null;
   private messageHandler: MessageHandler;
   private storageService: StorageService;
   private requestQueue: QueuedRequest[] = [];
@@ -38,20 +39,43 @@ export class SocketIOManager {
   }
 
   public connect(steamId?: string): void {
+    if (!steamId) {
+      console.error(
+        "[SocketIOManager] ❌ Cannot connect without Steam ID - backend requires it"
+      );
+      return;
+    }
+
+    this.steamId = steamId; // Store the Steam ID for reconnections
     this.closeExistingConnection();
     this.createConnectionPromise();
     this.connectWithFallback(steamId, 0);
   }
 
   public reconnect(): void {
+    if (!this.steamId) {
+      console.error(
+        "[SocketIOManager] ❌ Cannot reconnect without Steam ID - backend requires it"
+      );
+      return;
+    }
+
     this.closeExistingConnection();
     this.reconnectAttempts = 0;
     this.createConnectionPromise();
-    this.connectWithFallback();
+    this.connectWithFallback(this.steamId, 0);
   }
 
   public get isConnected(): boolean {
     return this._isConnected;
+  }
+
+  public hasSteamId(): boolean {
+    return this.steamId !== null;
+  }
+
+  public getSteamId(): string | null {
+    return this.steamId;
   }
 
   public getSocketState(): string | undefined {
@@ -106,12 +130,17 @@ export class SocketIOManager {
         }
       }, 30000);
 
-      // Try to connect if not already connecting
-      if (!this.connectionPromise && !this.isConnected) {
+      // Don't auto-connect here - wait for Steam ID to be available
+      // The connection will be initiated by the content script via initializeWithSteamId
+      if (!this.connectionPromise && !this.isConnected && !this.steamId) {
         console.log(
-          `[SocketIOManager] 🔄 Auto-connecting due to queued request`
+          `[SocketIOManager] ⏳ Request queued, waiting for Steam ID to initialize connection`
         );
-        this.connect();
+      } else if (!this.connectionPromise && !this.isConnected && this.steamId) {
+        console.log(
+          `[SocketIOManager] 🔄 Auto-connecting with available Steam ID due to queued request`
+        );
+        this.connect(this.steamId);
       }
     });
   }
@@ -355,7 +384,19 @@ export class SocketIOManager {
       this.reconnectAttempts++;
       const timeout = reconnectDelay * this.reconnectAttempts;
 
-      setTimeout(() => this.connect(), timeout);
+      setTimeout(() => {
+        if (this.steamId) {
+          this.connect(this.steamId);
+        } else {
+          console.error(
+            `[SocketIOManager] ❌ Cannot schedule reconnect without Steam ID - backend requires it`
+          );
+        }
+      }, timeout);
+    } else {
+      console.error(
+        `[SocketIOManager] ❌ Max reconnect attempts reached (${maxReconnectAttempts})`
+      );
     }
   }
 

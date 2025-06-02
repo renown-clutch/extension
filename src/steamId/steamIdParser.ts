@@ -49,10 +49,14 @@ function parseUserInfoFromDropdown(): {
   }
 
   const profileMenu = document.querySelector(".profile-menu");
-  if (!profileMenu) return { steamId: null, username: null };
+  if (!profileMenu) {
+    return { steamId: null, username: null };
+  }
 
   const dropdown = profileMenu.querySelector(".dropdown");
-  if (!dropdown) return { steamId: null, username: null };
+  if (!dropdown) {
+    return { steamId: null, username: null };
+  }
 
   const firstProfileLink = dropdown.querySelector('a[href^="/profile/"]');
   let steamId: string | null = null;
@@ -78,10 +82,18 @@ export async function requestUserDataFromContent(): Promise<SteamIdData> {
         return;
       }
 
+      const activeTab = tabs[0];
+
       browserAPI.tabs.sendMessage(
-        tabs[0].id,
+        activeTab.id,
         { type: "parseUserData" },
         async (response) => {
+          const lastError = browserAPI.runtime.lastError;
+          if (lastError) {
+            resolve({ steamId: null, username: null, timestamp: Date.now() });
+            return;
+          }
+
           if (response && response.success) {
             await storeUserData(response.steamId, response.username);
             resolve({
@@ -102,6 +114,7 @@ export function setupUserDataMessageListener(): void {
   browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "parseUserData") {
       const { steamId, username } = parseUserInfoFromDropdown();
+
       if (steamId && username) {
         storeUserData(steamId, username).then(() => {
           sendResponse({ success: true, steamId, username });
