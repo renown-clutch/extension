@@ -231,6 +231,17 @@ export async function enhancedThemeInjection(): Promise<void> {
     const cssPromises = stylesToInject.map(async (styleType) => {
       const css = await cssCache.getCSS(styleType);
       if (css) {
+        // Double-check current theme preference before injecting
+        const currentTheme = localStorage.getItem("clutch-theme-preference");
+        if (styleType === "common" && currentTheme === "default") {
+          // Don't inject common CSS if theme was switched to default while we were loading
+          return {
+            styleType,
+            success: false,
+            reason: "theme_switched_to_default",
+          };
+        }
+
         injectCSS(css, `clutch-fast-${styleType}`);
       }
       return { styleType, success: !!css };
@@ -250,33 +261,86 @@ export async function enhancedThemeInjection(): Promise<void> {
   }
 }
 
+function removeCommonCSS(): void {
+  console.log("[Theme Debug] removeCommonCSS called");
+
+  // Remove the main common CSS element
+  const commonStyleElement = document.getElementById("clutch-fast-common");
+  if (commonStyleElement) {
+    commonStyleElement.remove();
+    console.log("[Theme Debug] Removed main common CSS element");
+  } else {
+    console.log("[Theme Debug] Main common CSS element not found");
+  }
+
+  // Also remove any duplicate common CSS elements that might exist
+  const duplicateElements = document.querySelectorAll(
+    '[id^="clutch-fast-common"]'
+  );
+  if (duplicateElements.length > 0) {
+    console.log(
+      `[Theme Debug] Found ${duplicateElements.length} duplicate common CSS elements`
+    );
+    duplicateElements.forEach((el) => {
+      if (
+        el.id === "clutch-fast-common" ||
+        el.id.startsWith("clutch-fast-common-")
+      ) {
+        el.remove();
+        console.log(`[Theme Debug] Removed duplicate element: ${el.id}`);
+      }
+    });
+  } else {
+    console.log("[Theme Debug] No duplicate common CSS elements found");
+  }
+}
+
 export function switchTheme(theme: string): void {
   try {
+    console.log(`[Theme Debug] Switching to theme: ${theme}`);
     localStorage.setItem("clutch-theme-preference", theme);
 
+    // Remove all theme classes
     document.documentElement.classList.forEach((className) => {
       if (className.startsWith("theme-")) {
         document.documentElement.classList.remove(className);
+        console.log(`[Theme Debug] Removed theme class: ${className}`);
       }
     });
 
     updateShadowRootThemeClasses(theme);
 
     if (theme === "default") {
-      const commonStyleElement = document.getElementById("clutch-fast-common");
-      if (commonStyleElement) {
-        commonStyleElement.remove();
-      }
+      // For default theme: remove common CSS and ensure it stays removed
+      console.log("[Theme Debug] Removing common CSS for default theme");
+      removeCommonCSS();
     } else {
+      // For non-default themes: add theme class and inject common CSS if needed
       const themeClass = `theme-${theme}`;
       document.documentElement.classList.add(themeClass);
+      console.log(`[Theme Debug] Added theme class: ${themeClass}`);
+
       const commonStyleElement = document.getElementById("clutch-fast-common");
       if (!commonStyleElement) {
+        console.log("[Theme Debug] Common CSS not found, loading it...");
         cssCache.getCSS("common").then((css) => {
           if (css) {
-            injectCSS(css, "clutch-fast-common");
+            // Double-check that we still need common CSS (user might have switched to default in the meantime)
+            const currentTheme = localStorage.getItem(
+              "clutch-theme-preference"
+            );
+            if (currentTheme && currentTheme !== "default") {
+              console.log("[Theme Debug] Injecting common CSS");
+              injectCSS(css, "clutch-fast-common");
+            } else {
+              console.log(
+                "[Theme Debug] Theme switched to default, skipping common CSS injection"
+              );
+            }
           }
         });
+      } else {
+        console.log("[Theme Debug] Common CSS already exists");
       }
     }
 
@@ -289,7 +353,7 @@ export function switchTheme(theme: string): void {
 export function removeAllInjectedCSS(): void {
   try {
     // Remove all clutch-fast style elements
-    const stylesToRemove = ["unified", "features", "common"];
+    const stylesToRemove = ["unified", "features"];
 
     stylesToRemove.forEach((styleType) => {
       const element = document.getElementById(`clutch-fast-${styleType}`);
@@ -297,6 +361,9 @@ export function removeAllInjectedCSS(): void {
         element.remove();
       }
     });
+
+    // Use the helper function to clean up common CSS
+    removeCommonCSS();
 
     // Remove theme classes from document element
     document.documentElement.classList.forEach((className) => {
