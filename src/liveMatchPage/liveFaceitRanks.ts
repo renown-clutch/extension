@@ -146,9 +146,6 @@ const setupPlayerListObservers = (
       ).filter((p) => !processedPlayers.has(p as HTMLElement));
 
       if (currentPlayers.length > 0) {
-        console.log(
-          "Player order changed or new players detected, updating Faceit icons"
-        );
         ignoreObserverChanges = true;
 
         try {
@@ -247,8 +244,6 @@ const setupTeamContainerObservers = (
       });
 
       if (relevantMutation) {
-        console.log("Team container changed, updating Faceit icons");
-
         ignoreObserverChanges = true;
 
         try {
@@ -296,8 +291,6 @@ const setupTeamContainerObservers = (
       });
 
       if (relevantMutation) {
-        console.log("Match content changed, updating Faceit icons");
-
         ignoreObserverChanges = true;
 
         try {
@@ -363,6 +356,9 @@ export async function initializeLiveFaceitRanks(
   }
 
   const players = await getLiveMatchPagePlayers();
+  if (players.length === 0) {
+    return;
+  }
   processPlayers(players, faceitData);
   setupPlayerListObservers(userSettings, faceitData);
 

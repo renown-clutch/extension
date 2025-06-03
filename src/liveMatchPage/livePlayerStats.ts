@@ -90,24 +90,6 @@ async function fetchPlayersStats(
         if (chrome.runtime.lastError || !response?.success) {
           resolve({});
         } else {
-          // Console log the win/loss streak data for testing
-          console.log(
-            "[WIN/LOSS STREAK TEST] Raw player stats data:",
-            response.data
-          );
-
-          if (response.data) {
-            Object.entries(response.data).forEach(
-              ([steamId, stats]: [string, any]) => {
-                if (stats && stats.current_streak !== undefined) {
-                  console.log(
-                    `[WIN/LOSS STREAK TEST] Player ${steamId}: current_streak = ${stats.current_streak}`
-                  );
-                }
-              }
-            );
-          }
-
           resolve(response.data || {});
         }
       }
@@ -126,11 +108,6 @@ function updatePlayerStreakAndHeader(
   playerLinks: Element[],
   statsData: Record<string, any>
 ) {
-  console.log(
-    "[WIN/LOSS STREAK TEST] updatePlayerStreakAndHeader called with statsData:",
-    statsData
-  );
-
   // Update K/D header to W/L
   document.querySelectorAll(".player-list-header").forEach((header) => {
     const kdHeader = Array.from(header.querySelectorAll("div")).find(
@@ -148,12 +125,6 @@ function updatePlayerStreakAndHeader(
     const stats = statsData[steamId];
     const existingKd = playerLink.querySelector(".kd") as HTMLElement;
 
-    console.log(`[WIN/LOSS STREAK TEST] Processing player ${steamId}:`, {
-      stats,
-      current_streak: stats?.current_streak,
-      existingKdElement: !!existingKd,
-    });
-
     if (!existingKd || !stats) {
       if (existingKd) {
         existingKd.textContent = "-";
@@ -167,19 +138,10 @@ function updatePlayerStreakAndHeader(
     if (stats.current_streak < -1) {
       formattedStreak = stats.current_streak.toString().replace("-", "");
       existingKd.style.color = "#ef4444";
-      console.log(
-        `[WIN/LOSS STREAK TEST] Player ${steamId} has loss streak: ${formattedStreak} (red)`
-      );
     } else if (stats.current_streak > 1) {
       existingKd.style.color = "#22c55e";
-      console.log(
-        `[WIN/LOSS STREAK TEST] Player ${steamId} has win streak: ${formattedStreak} (green)`
-      );
     } else {
       formattedStreak = "-";
-      console.log(
-        `[WIN/LOSS STREAK TEST] Player ${steamId} has no significant streak: ${stats.current_streak} (showing as -)`
-      );
     }
     existingKd.textContent = formattedStreak;
 

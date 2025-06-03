@@ -152,19 +152,16 @@ function removeExistingMatchupStats(): void {
 
 async function injectMatchupStats(matchupData: any): Promise<void> {
   try {
-    // Wait for the profile banner container first, like other profile features
     const profileBannerContainer = await waitForElement(
       ".profile-banner .container"
     );
     if (!profileBannerContainer) {
-      console.log("[Clutch] Could not find profile banner container");
       return;
     }
 
     // Wait for the recent stats section specifically
     const recentStats = await waitForElement(".profile-recent-stats");
     if (!recentStats) {
-      console.log("[Clutch] Could not find profile-recent-stats section");
       return;
     }
 
@@ -176,8 +173,6 @@ async function injectMatchupStats(matchupData: any): Promise<void> {
 
     // Insert before the existing recent stats
     recentStats.parentNode?.insertBefore(matchupSection, recentStats);
-
-    console.log("[Clutch] Successfully injected matchup stats");
   } catch (error) {
     console.error("[Clutch] Error injecting matchup stats:", error);
   }
@@ -186,67 +181,43 @@ async function injectMatchupStats(matchupData: any): Promise<void> {
 export async function initializePlayerMatchupStats(
   settings: UserSettings
 ): Promise<void> {
-  console.log(
-    "[Clutch] initializePlayerMatchupStats called with settings:",
-    settings.playerMatchupStats
-  );
-
   if (!isProfilePage()) {
-    console.log("[Clutch] Not a profile page");
     return;
   }
 
   if (!isBaseProfilePage()) {
-    console.log(
-      "[Clutch] Not base profile page, removing existing matchup stats"
-    );
     removeExistingMatchupStats();
     return;
   }
 
   if (!settings.playerMatchupStats) {
-    console.log("[Clutch] Player matchup stats disabled");
     removeExistingMatchupStats();
     return;
   }
 
   if (is404Page()) {
-    console.log("[Clutch] 404 page detected");
     return;
   }
 
   const targetPlayerId = getPlayerIdFromUrl();
-  console.log("[Clutch] Target player ID:", targetPlayerId);
   if (!targetPlayerId) {
-    console.log("[Clutch] Could not extract target player ID from URL");
     return;
   }
 
   const currentUserSteamId = await getUserSteamId();
-  console.log("[Clutch] Current user Steam ID:", currentUserSteamId);
   if (!currentUserSteamId) {
-    console.log("[Clutch] Could not get current user steam ID");
     return;
   }
 
   if (currentUserSteamId === targetPlayerId) {
-    console.log("[Clutch] Cannot show matchup stats for own profile");
     return;
   }
 
-  console.log(
-    "[Clutch] Fetching matchup stats between",
-    currentUserSteamId,
-    "and",
-    targetPlayerId
-  );
   const matchupStats = await fetchMatchupStats(
     currentUserSteamId,
     targetPlayerId
   );
-  console.log("[Clutch] Matchup stats response:", matchupStats);
 
-  // Check if we have valid matchup data (not an error response)
   if (
     matchupStats &&
     !matchupStats.error &&
@@ -254,11 +225,6 @@ export async function initializePlayerMatchupStats(
   ) {
     await injectMatchupStats(matchupStats);
   } else {
-    if (matchupStats && matchupStats.error) {
-      console.log("[Clutch] API error:", matchupStats.error);
-    } else {
-      console.log("[Clutch] Failed to fetch matchup data");
-    }
     removeExistingMatchupStats();
   }
 }

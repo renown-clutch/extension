@@ -47,13 +47,11 @@ async function displayHighestElo(playerId: string) {
   const rankBadgeElement = await waitForElement(".profile-banner .name-elo");
 
   if (!rankBadgeElement) {
-    console.log("No rank badge element found");
     return;
   }
 
   const highestElo = await fetchHighestElo(playerId);
   if (!highestElo) {
-    console.log("No highest ELO data available for this player");
     return;
   }
 

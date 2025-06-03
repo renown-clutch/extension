@@ -274,11 +274,6 @@ async function initialize(pageType: PageType["type"]) {
     try {
       const { steamId } = await getUserInfo();
       if (steamId && steamId.trim() !== "") {
-        console.log(
-          "[Content] ✅ Found Steam ID, notifying background script:",
-          steamId
-        );
-
         // Notify background script to initialize connection
         browserAPI.runtime
           .sendMessage({
@@ -286,7 +281,7 @@ async function initialize(pageType: PageType["type"]) {
             steamId: steamId,
           })
           .then((response) => {
-            console.log("[Content] ✅ Background script notified successfully");
+            // Background script notified successfully
           })
           .catch((error) => {
             console.warn(
@@ -298,15 +293,11 @@ async function initialize(pageType: PageType["type"]) {
         console.warn(
           "[Content] ❌ No Steam ID found - background script will not be initialized"
         );
-        console.log(
-          "[Content] 📋 API requests will be queued until Steam ID becomes available"
-        );
+        // API requests will be queued until Steam ID becomes available
       }
     } catch (error) {
       console.error("[Content] ❌ Error getting Steam ID:", error);
-      console.log(
-        "[Content] 📋 API requests will be queued until Steam ID becomes available"
-      );
+      // API requests will be queued until Steam ID becomes available
     }
 
     // Initialize all features through their handlers to avoid double injection

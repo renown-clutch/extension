@@ -73,7 +73,6 @@ export async function injectMapStats(
   });
 
   if (team1Players.length === 0 || team2Players.length === 0) {
-    console.log("Not enough players found to fetch team map stats");
     return;
   }
 
@@ -106,7 +105,6 @@ function setupMapVetoObserver(): void {
               node.classList.contains("match-veto") ||
               node.querySelector(".match-veto")
             ) {
-              console.log("Map veto section detected");
               observer.disconnect();
               return;
             }
