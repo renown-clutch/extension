@@ -88,12 +88,12 @@ const entryPoints = [
   },
   { 
     name: 'background', 
-    input: { background: 'src/background.ts' },
+    input: { background: 'src/core/background.ts' },
     outputPath: 'dist'
   },
   { 
     name: 'content', 
-    input: { content: 'src/content.ts' },
+    input: { content: 'src/core/content.ts' },
     outputPath: 'dist'
   }
 ];
@@ -330,7 +330,27 @@ async function buildEntries() {
       ],
       resolve: {
         alias: {
-          $lib: resolve(__dirname, './src/lib'),
+          // Legacy alias for backward compatibility
+          $lib: resolve(__dirname, './src/system/lib'),
+          
+          // New comprehensive aliases
+          $core: resolve(__dirname, './src/core'),
+          $system: resolve(__dirname, './src/system'),
+          $features: resolve(__dirname, './src/features'),
+          $utils: resolve(__dirname, './src/utils'),
+          $popup: resolve(__dirname, './src/popup'),
+          $themes: resolve(__dirname, './src/themes'),
+          
+          // System sub-aliases
+          '$system/lib': resolve(__dirname, './src/system/lib'),
+          '$system/api': resolve(__dirname, './src/system/api'),
+          '$system/auth': resolve(__dirname, './src/system/auth'),
+          '$system/components': resolve(__dirname, './src/system/components'),
+          
+          // Utils sub-aliases
+          '$utils/ui': resolve(__dirname, './src/utils/ui'),
+          '$utils/data': resolve(__dirname, './src/utils/data'),
+          '$utils/common': resolve(__dirname, './src/utils/common'),
         },
       },
       esbuild: {

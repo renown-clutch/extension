@@ -25,7 +25,27 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      $lib: path.resolve("./src/lib"),
+      // Legacy alias for backward compatibility
+      $lib: path.resolve("./src/system/lib"),
+
+      // New comprehensive aliases
+      $core: path.resolve("./src/core"),
+      $system: path.resolve("./src/system"),
+      $features: path.resolve("./src/features"),
+      $utils: path.resolve("./src/utils"),
+      $popup: path.resolve("./src/popup"),
+      $themes: path.resolve("./src/themes"),
+
+      // System sub-aliases
+      "$system/lib": path.resolve("./src/system/lib"),
+      "$system/api": path.resolve("./src/system/api"),
+      "$system/auth": path.resolve("./src/system/auth"),
+      "$system/components": path.resolve("./src/system/components"),
+
+      // Utils sub-aliases
+      "$utils/ui": path.resolve("./src/utils/ui"),
+      "$utils/data": path.resolve("./src/utils/data"),
+      "$utils/common": path.resolve("./src/utils/common"),
     },
   },
   build: {
@@ -36,8 +56,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: "src/popup/popup.html",
-        background: "src/background.ts",
-        content: "src/content.ts",
+        background: "src/core/background.ts",
+        content: "src/core/content.ts",
       },
       output: {
         // Ensure each entry point maintains its own scope without creating shared chunks

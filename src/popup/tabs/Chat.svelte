@@ -1,14 +1,14 @@
 <script lang="ts">
-  import SwitchComponent from "$lib/components/constants/switch.svelte";
-  import { SETTING_DEFINITIONS } from "$lib/types";
-  import type { UserSettings } from "$lib/types";
+  import SwitchComponent from "$system/components/constants/switch.svelte";
+  import { SETTING_DEFINITIONS } from "$system/lib/types";
+  import type { UserSettings } from "$system/lib/types";
 
   let {
     showChatWindow = $bindable<UserSettings["showChatWindow"]>(
       SETTING_DEFINITIONS.showChatWindow.defaultValue
     ),
   } = $props();
-</script> 
+</script>
 
 <main class="flex flex-col gap-4">
   <h2 class="text-lg">Chat</h2>

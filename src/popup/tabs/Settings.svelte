@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SwitchComponent from "$lib/components/constants/switch.svelte";
+  import SwitchComponent from "$system/components/constants/switch.svelte";
   import { onMount } from "svelte";
 
   let {

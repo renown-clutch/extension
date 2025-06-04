@@ -1,6 +1,6 @@
-import { createHeadObserver } from "../utils/observerUtils";
-import browserAPI from "../lib/browserAPI";
-import type { Theme, UserSettings } from "$lib/types";
+import { createHeadObserver } from "$utils/ui/observerUtils";
+import browserAPI from "$system/lib/browserAPI";
+import type { Theme, UserSettings } from "$system/lib/types";
 
 const LOCAL_STORAGE_THEME_KEY = "clutch-theme-preference";
 const LOCAL_STORAGE_CSS_CACHE_KEY = "clutch-css-cache";

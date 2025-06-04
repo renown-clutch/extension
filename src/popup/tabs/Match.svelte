@@ -1,6 +1,6 @@
 <script lang="ts">
-  import SwitchComponent from "$lib/components/constants/switch.svelte";
-  import MapVeto from "$lib/components/constants/map-veto.svelte";
+  import SwitchComponent from "$system/components/constants/switch.svelte";
+  import MapVeto from "$system/components/constants/map-veto.svelte";
 
   let {
     showFaceitRanksOnMatchPage = $bindable(false),

@@ -2,7 +2,7 @@ import {
   applyThemeToAllShadowRoots,
   updateShadowRootThemeClasses,
 } from "./shadowThemeManager";
-import browserAPI from "../lib/browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 const CSS_CACHE_KEY = "clutch-css-cache";
 

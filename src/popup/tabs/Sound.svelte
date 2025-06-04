@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { DropdownSlider } from "$lib/components/ui/dropdown-slider/index.js";
-  import { SoundTestButton } from "$lib/components/ui/sound-test-button";
-  import type { MatchFoundSound } from "$lib/types";
-  import * as Alert from "$lib/components/ui/alert/index.js";
+  import { DropdownSlider } from "$system/components/ui/dropdown-slider/index.js";
+  import { SoundTestButton } from "$system/components/ui/sound-test-button";
+  import type { MatchFoundSound } from "$system/lib/types";
+  import * as Alert from "$system/components/ui/alert/index.js";
   let {
     matchFoundSound = $bindable("none") as MatchFoundSound,
     matchFoundVolume = $bindable(70),

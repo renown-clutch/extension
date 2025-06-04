@@ -13,8 +13,41 @@
     "moduleDetection": "force",
     "baseUrl": ".",
     "paths": {
-      "$lib": ["./src/lib"],
-      "$lib/*": ["./src/lib/*"]
+      // Legacy alias for backward compatibility
+      "$lib": ["./src/system/lib"],
+      "$lib/*": ["./src/system/lib/*"],
+      
+      // New comprehensive aliases
+      "$core": ["./src/core"],
+      "$core/*": ["./src/core/*"],
+      "$system": ["./src/system"],
+      "$system/*": ["./src/system/*"],
+      "$features": ["./src/features"],
+      "$features/*": ["./src/features/*"],
+      "$utils": ["./src/utils"],
+      "$utils/*": ["./src/utils/*"],
+      "$popup": ["./src/popup"],
+      "$popup/*": ["./src/popup/*"],
+      "$themes": ["./src/themes"],
+      "$themes/*": ["./src/themes/*"],
+      
+      // System sub-aliases
+      "$system/lib": ["./src/system/lib"],
+      "$system/lib/*": ["./src/system/lib/*"],
+      "$system/api": ["./src/system/api"],
+      "$system/api/*": ["./src/system/api/*"],
+      "$system/auth": ["./src/system/auth"],
+      "$system/auth/*": ["./src/system/auth/*"],
+      "$system/components": ["./src/system/components"],
+      "$system/components/*": ["./src/system/components/*"],
+      
+      // Utils sub-aliases
+      "$utils/ui": ["./src/utils/ui"],
+      "$utils/ui/*": ["./src/utils/ui/*"],
+      "$utils/data": ["./src/utils/data"],
+      "$utils/data/*": ["./src/utils/data/*"],
+      "$utils/common": ["./src/utils/common"],
+      "$utils/common/*": ["./src/utils/common/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/popup/*.svelte", "src/lib/components/ui/dropdown-slider/index.ts"]

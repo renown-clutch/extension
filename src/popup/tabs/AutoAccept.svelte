@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { UserSettings } from "$lib/types";
-  import { defaultUserSettings } from "$lib/types";
+  import type { UserSettings } from "$system/lib/types";
+  import { defaultUserSettings } from "$system/lib/types";
   import { onMount } from "svelte";
-  import SwitchSlider from "$lib/components/constants/switch-slider.svelte";
+  import SwitchSlider from "$system/components/constants/switch-slider.svelte";
 
   let {
     autoAccept = $bindable<UserSettings["autoAccept"]>(

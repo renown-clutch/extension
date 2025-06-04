@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Label } from "$lib/components/ui/label/index.js";
-  import * as Select from "$lib/components/ui/select/index.js";
+  import { Label } from "$system/components/ui/label/index.js";
+  import * as Select from "$system/components/ui/select/index.js";
 
   const themes = [
     { label: "Default", value: "default" },

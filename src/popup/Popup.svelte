@@ -1,6 +1,6 @@
 <script lang="ts">
   import "./Popup.css";
-  import Sidebar from "$lib/components/layout/Sidebar.svelte";
+  import Sidebar from "$system/components/layout/Sidebar.svelte";
   import SoundTab from "./tabs/Sound.svelte";
   import ThemeTab from "./tabs/Theme.svelte";
   import ProfilesTab from "./tabs/Profiles.svelte";
@@ -11,9 +11,9 @@
   import MainPageTab from "./tabs/MainPage.svelte";
   import ChatTab from "./tabs/Chat.svelte";
   import { onMount, untrack } from "svelte";
-  import type { UserSettings } from "$lib/types";
-  import { defaultUserSettings, SETTING_DEFINITIONS } from "$lib/types";
-  import browserAPI from "$lib/browserAPI";
+  import type { UserSettings } from "$system/lib/types";
+  import { defaultUserSettings, SETTING_DEFINITIONS } from "$system/lib/types";
+  import browserAPI from "$system/lib/browserAPI";
   import { initializePopupTheme, switchPopupTheme } from "../themes/themeUtils";
 
   let userSettings = $state<UserSettings>({
