@@ -8,6 +8,7 @@ import browserAPI from "../lib/browserAPI";
 import { type UserSettings } from "../lib/types";
 import { getExtensionUrl } from "../utils/staticUtils";
 import { is404Page } from "../utils/pageUtils";
+import { registerProfileFeature } from "../lib/featureRegistry";
 
 function createButton({
   className,
@@ -168,3 +169,27 @@ export async function initializeProfileButtons(
 
   await appendButtonsToDom(settings);
 }
+
+// Register the CS:Stats profile button feature
+registerProfileFeature({
+  settingKey: "csstatsProfileButton",
+  category: "profile",
+  defaultValue: true,
+  description: "Show CSStats profile button",
+  handler: initializeProfileButtons,
+});
+
+// Register the Faceit profile button feature
+registerProfileFeature({
+  settingKey: "faceitProfileButton",
+  category: "profile",
+  defaultValue: true,
+  description: "Show Faceit profile button",
+  apiCalls: [
+    {
+      requestType: "get_faceit_info",
+      responseType: "faceit_data",
+    },
+  ],
+  handler: initializeProfileButtons,
+});

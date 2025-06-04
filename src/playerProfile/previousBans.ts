@@ -8,6 +8,7 @@ import { addTooltip } from "../utils/faceitUtils";
 import { is404Page } from "../utils/pageUtils";
 import browserAPI from "../lib/browserAPI";
 import type { UserSettings } from "$lib/types";
+import { registerProfileFeature } from "../lib/featureRegistry";
 
 interface Ban {
   category: string;
@@ -330,3 +331,18 @@ export async function initializeProfileBans(
 
   await renderBanBadges(bans);
 }
+
+// Register this feature with the new system
+registerProfileFeature({
+  settingKey: "showBans",
+  category: "profile",
+  defaultValue: true,
+  description: "Show ban information",
+  apiCalls: [
+    {
+      requestType: "fetchUserBans",
+      responseType: "user_bans",
+    },
+  ],
+  handler: initializeProfileBans,
+});

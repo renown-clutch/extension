@@ -355,11 +355,21 @@ export class SocketIOManager {
       "faceit_elo_by_names",
       "steam_ids_by_names",
       "user_renown_stats",
+      "matches_with_banned_players",
     ];
 
     apiEvents.forEach((eventName) => {
       this.socket!.on(eventName, (data) => {
-        console.log(`[SocketIOManager] 📥 Received ${eventName} event`);
+        console.log(`[SocketIOManager] 📥 Received ${eventName} event`, data);
+
+        // Add specific logging for our new event
+        if (eventName === "matches_with_banned_players") {
+          console.log(
+            `[SocketIOManager] 🔍 Matches with banned players response:`,
+            data
+          );
+        }
+
         this.messageHandler.handleSocketIOMessage(
           {
             type: eventName,

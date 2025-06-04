@@ -7,6 +7,7 @@ import { is404Page } from "../utils/pageUtils";
 import type { UserSettings } from "../lib/types";
 import browserAPI from "../lib/browserAPI";
 import { getUserSteamId } from "../steamId/steamIdParser";
+import { registerProfileFeature } from "../lib/featureRegistry";
 
 function isBaseProfilePage(): boolean {
   const path = window.location.pathname;
@@ -228,3 +229,18 @@ export async function initializePlayerMatchupStats(
     removeExistingMatchupStats();
   }
 }
+
+// Register this feature with the new system
+registerProfileFeature({
+  settingKey: "playerMatchupStats",
+  category: "profile",
+  defaultValue: true,
+  description: "Show matchup stats on player profiles",
+  apiCalls: [
+    {
+      requestType: "get_player_matchup",
+      responseType: "player_matchup",
+    },
+  ],
+  handler: initializePlayerMatchupStats,
+});

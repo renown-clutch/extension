@@ -1,8 +1,12 @@
-import { getPlayerIdFromUrl, waitForElement } from "../utils/profileUtils";
-import { isProfilePage } from "../utils/profileUtils";
+import {
+  isProfilePage,
+  getPlayerIdFromUrl,
+  waitForElement,
+} from "../utils/profileUtils";
 import { is404Page } from "../utils/pageUtils";
 import browserAPI from "../lib/browserAPI";
 import type { UserSettings } from "$lib/types";
+import { registerProfileFeature } from "../lib/featureRegistry";
 
 interface MatchParticipant {
   steamId: string;
@@ -106,7 +110,7 @@ async function displayLinkToCurrentMatch(playerId: string) {
   }
 }
 
-const removeExistingLink = () => {
+const removeLinkToCurrentMatchElement = () => {
   const existingLink = document.querySelector(".clutch-current_match_link");
   if (existingLink) {
     existingLink.remove();
@@ -121,15 +125,15 @@ const removeExistingLink = () => {
   }
 };
 
-export function initializeLinkToCurrentMatch(userSettings: UserSettings): void {
-  const enabled = userSettings.showLinkToCurrentMatch;
-
+export async function initializeLinkToCurrentMatch(
+  userSettings: UserSettings
+): Promise<void> {
   if (!isProfilePage()) {
     return;
   }
 
-  if (!enabled) {
-    removeExistingLink();
+  if (!userSettings.showLinkToCurrentMatch) {
+    removeLinkToCurrentMatchElement();
     return;
   }
 
@@ -142,5 +146,20 @@ export function initializeLinkToCurrentMatch(userSettings: UserSettings): void {
     return;
   }
 
-  displayLinkToCurrentMatch(playerId);
+  await displayLinkToCurrentMatch(playerId);
 }
+
+// Register this feature with the new system
+registerProfileFeature({
+  settingKey: "showLinkToCurrentMatch",
+  category: "profile",
+  defaultValue: true,
+  description: "Show link to current match",
+  apiCalls: [
+    {
+      requestType: "fetchLiveMatches",
+      responseType: "live_matches",
+    },
+  ],
+  handler: initializeLinkToCurrentMatch,
+});

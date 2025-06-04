@@ -19,8 +19,15 @@ import {
   removeAllInjectedCSS,
 } from "./themes/themeInjection";
 import { config } from "./config";
+import {
+  initializeFeatureRegistry,
+  getProfileSettingKeys,
+} from "./lib/autoRegister";
 
 export { unregisterShadowRoot };
+
+// Initialize the feature registry to load all features
+initializeFeatureRegistry();
 
 let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
@@ -140,15 +147,8 @@ function shouldInitializeForPage(
     pageType = "playMatch";
   }
 
-  // Profile-specific settings
-  const profileSettings = [
-    "csstatsProfileButton",
-    "faceitProfileButton",
-    "showBans",
-    "showHighestElo",
-    "showLinkToCurrentMatch",
-    "playerMatchupStats",
-  ];
+  // Auto-discovered profile settings
+  const profileSettings = getProfileSettingKeys();
 
   // Match page specific settings
   const matchPageSettings = [

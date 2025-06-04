@@ -3,6 +3,7 @@ import { createRankBadgeElement } from "../utils/rankBadgeUtils";
 import { isProfilePage } from "../utils/profileUtils";
 import { is404Page } from "../utils/pageUtils";
 import type { UserSettings } from "$lib/types";
+import { registerProfileFeature } from "../lib/featureRegistry";
 
 async function fetchHighestElo(steamId: string): Promise<number | null> {
   return new Promise((resolve) => {
@@ -105,3 +106,18 @@ export function initializeHighestElo(userSettings: UserSettings): void {
 
   displayHighestElo(playerId);
 }
+
+// Register this feature with the new system
+registerProfileFeature({
+  settingKey: "showHighestElo",
+  category: "profile",
+  defaultValue: true,
+  description: "Show highest ELO",
+  apiCalls: [
+    {
+      requestType: "fetchProfileData",
+      responseType: "profile_data",
+    },
+  ],
+  handler: initializeHighestElo,
+});

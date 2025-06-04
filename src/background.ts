@@ -335,6 +335,28 @@ browserAPI.runtime.onMessage.addListener(
           sendResponse({ error: String(error) });
         }
         return true;
+      } else if (message.type === "get_matches_with_banned_players") {
+        console.log(
+          "[Background] 🚀 Processing get_matches_with_banned_players request:",
+          message.match_ids
+        );
+        try {
+          const response = await apiService.getMatchesWithBannedPlayers(
+            message.match_ids
+          );
+          console.log(
+            "[Background] 📥 Received response from API service:",
+            response
+          );
+          sendResponse(response);
+        } catch (error) {
+          console.error(
+            "[Background] ❌ Error getting matches with banned players:",
+            error
+          );
+          sendResponse({ success: false, error: String(error) });
+        }
+        return true;
       } else {
         console.warn("[Background] ⚠️ Unknown message type:", {
           type: message.type,

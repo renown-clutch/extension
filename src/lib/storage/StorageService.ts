@@ -172,6 +172,7 @@ export class StorageService {
       teams_map_stats: "get_teams_map_stats",
       players_stats: "get_players_stats",
       recent_messages: "get_recent_messages",
+      matches_with_banned_players: "get_matches_with_banned_players",
     };
 
     const expectedRequestType = responseTypeMap[messageType];

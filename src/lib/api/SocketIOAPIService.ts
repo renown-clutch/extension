@@ -88,4 +88,10 @@ export class SocketIOAPIService {
       player2_steam_id: player2SteamId,
     });
   }
+
+  async getMatchesWithBannedPlayers(matchIds: number[]): Promise<any> {
+    return this.socketIOManager.sendMessage("get_matches_with_banned_players", {
+      match_ids: matchIds,
+    });
+  }
 }

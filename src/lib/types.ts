@@ -14,6 +14,7 @@ import { initializeMatchFoundAutoAccept } from "../autoAccept/matchFoundModal";
 import { initializeAutoAcceptPartyInvite } from "../autoAccept/partyInviteModal";
 import { initializeKeepAlive } from "../keepAlive/keepAlive";
 import { initializePlayerMatchupStats } from "../playerProfile/playerMatchupStats";
+import { initializeMatchesWithBannedPlayersCheck } from "../playerProfile/matchesWithBannedPlayers";
 
 export type TabName =
   | "Theme"
@@ -88,6 +89,7 @@ export type UserSettings = {
   enableClickablePartyUsernames: boolean;
   showChatWindow: boolean;
   playerMatchupStats: boolean;
+  checkMatchesWithBannedPlayers: boolean;
 };
 
 export type SettingCategory =
@@ -333,6 +335,13 @@ export const SETTING_DEFINITIONS: Record<
     defaultValue: true,
     description: "Show matchup stats on player profiles",
     handlers: [initializePlayerMatchupStats],
+  },
+  checkMatchesWithBannedPlayers: {
+    key: "checkMatchesWithBannedPlayers",
+    category: "profile",
+    defaultValue: true,
+    description: "Check and highlight matches with banned players",
+    handlers: [initializeMatchesWithBannedPlayersCheck],
   },
 };
 
