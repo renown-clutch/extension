@@ -38,14 +38,11 @@ export interface ProfileFeatureConfig extends FeatureConfig {
 
 export interface FeatureRegistry {
   features: Map<string, FeatureConfig>;
-  // Keep for backward compatibility during migration
-  profileFeatures: Map<string, ProfileFeatureConfig>;
 }
 
 // Global registry
 export const featureRegistry: FeatureRegistry = {
   features: new Map(),
-  profileFeatures: new Map(),
 };
 
 // New unified registration function
@@ -69,7 +66,6 @@ export function registerProfileFeature(config: ProfileFeatureConfig) {
 
   // Register in both places for backward compatibility
   featureRegistry.features.set(config.settingKey, profileConfig);
-  featureRegistry.profileFeatures.set(config.settingKey, config);
 
   console.log(
     `[FeatureRegistry] 📝 Registered profile feature: ${config.settingKey}`
@@ -150,11 +146,6 @@ export function getAffectedFeatures(
   return affectedFeatures;
 }
 
-// Legacy functions for backward compatibility
-export function getProfileFeatures(): ProfileFeatureConfig[] {
-  return Array.from(featureRegistry.profileFeatures.values());
-}
-
 export function getAllFeatures(): FeatureConfig[] {
   return Array.from(featureRegistry.features.values());
 }
@@ -167,10 +158,7 @@ export function getApiCallMappings(): {
   const responseMap: Record<string, string> = {};
 
   // Collect from all features (unified + profile for backward compatibility)
-  const allConfigs = [
-    ...featureRegistry.features.values(),
-    ...featureRegistry.profileFeatures.values(),
-  ];
+  const allConfigs = [...featureRegistry.features.values()];
 
   allConfigs.forEach((config) => {
     if (config.apiCalls) {

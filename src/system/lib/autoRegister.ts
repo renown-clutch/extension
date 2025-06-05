@@ -53,20 +53,6 @@ export function generateSettingDefinitions() {
     };
   });
 
-  // Include legacy profile features for backward compatibility
-  featureRegistry.profileFeatures.forEach((config, settingKey) => {
-    // Only add if not already added by unified features
-    if (!definitions[settingKey]) {
-      definitions[settingKey] = {
-        key: settingKey,
-        category: config.category,
-        defaultValue: config.defaultValue,
-        description: config.description,
-        handlers: [config.handler],
-      };
-    }
-  });
-
   return definitions;
 }
 
@@ -78,14 +64,6 @@ export function generateDefaultUserSettings(): Partial<UserSettings> {
     defaults[settingKey] = config.defaultValue;
   });
 
-  // Include legacy profile features for backward compatibility
-  featureRegistry.profileFeatures.forEach((config, settingKey) => {
-    // Only add if not already added by unified features
-    if (!(settingKey in defaults)) {
-      defaults[settingKey] = config.defaultValue;
-    }
-  });
-
   return defaults;
 }
 
@@ -95,9 +73,6 @@ export function getProfileSettingKeys(): string[] {
 
   // Add from unified features
   featureRegistry.features.forEach((_, key) => allKeys.add(key));
-
-  // Add from legacy profile features
-  featureRegistry.profileFeatures.forEach((_, key) => allKeys.add(key));
 
   return Array.from(allKeys);
 }
@@ -135,9 +110,7 @@ export function initializeFeatureRegistry() {
   console.log(
     `[AutoRegister] 🚀 Loaded ${featureRegistry.features.size} unified features`
   );
-  console.log(
-    `[AutoRegister] 🚀 Loaded ${featureRegistry.profileFeatures.size} legacy profile features`
-  );
+
   console.log(
     `[AutoRegister] 📡 Registered ${getRegisteredApiEvents().length} API events`
   );
