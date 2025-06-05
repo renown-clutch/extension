@@ -16,9 +16,9 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 🎨 **Theme System**
 
-- [ ] **Dark Theme** - Custom dark theme for extension popup and injected elements
-- [ ] **Theme Switching** - Dynamic theme switching functionality
-- [ ] **Theme Persistence** - Theme settings saved across sessions
+- [x] **Dark Theme** - Custom dark theme for extension popup and injected elements ✅
+- [x] **Theme Switching** - Dynamic theme switching functionality ✅
+- [x] **Theme Persistence** - Theme settings saved across sessions ✅
 
 ### 🤖 **Automation Features**
 
@@ -53,22 +53,22 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 🏠 **Main Page Features**
 
-- [ ] **Last Played Matches** - Recent match history display
-- [ ] **Average Party ELO** - Calculate and show party average ratings
-- [ ] **Faceit ELO on Party List** - Display Faceit ratings in party listings
-- [ ] **Clickable Party Usernames** - Convert usernames to clickable profile links
+- [x] **Last Played Matches** - Recent match history display ⚠️ _Works when enabled on load, but doesn't remove when disabled until page reload_
+- [x] **Average Party ELO** - Calculate and show party average ratings ⚠️ _Same disable issues + broken styling_
+- [x] **Faceit ELO on Party List** - Display Faceit ratings in party listings ⚠️ _Can be disabled properly but has styling issues when injected_
+- [x] **Clickable Party Usernames** - Convert usernames to clickable profile links ⚠️ _Works fine, but can't be disabled until page reload_
 
 ### 👥 **Friends System**
 
 - [ ] **Friend List Ranks** - Display ranks in friends list
 - [ ] **Friend List Sorting** - Sort friends by Renown ELO
-- [ ] **Sidebar Friend Ranks** - Show friend ranks in sidebar
+- [x] **Sidebar Friend Ranks** - Show friend ranks in sidebar ⚠️ _Works when enabled on load, but doesn't remove when disabled until page reload_
 - [ ] **Friends List UI** - Enhanced friends list interface
 
 ### 💬 **Chat System**
 
-- [ ] **Chat Window** - Enhanced chat interface
-- [ ] **Chat Integration** - Seamless chat functionality
+- [x] **Chat Window** - Enhanced chat interface ⚠️ _Functions and injects correctly, but doesn't respect popup disable setting until page reload_
+- [x] **Chat Integration** - Seamless chat functionality ⚠️ _Works when enabled on load, but doesn't remove when disabled until page reload_
 - [ ] **Chat Username Cache** - Efficient username caching system
 
 ### 🔊 **Audio Features**
@@ -79,7 +79,7 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 🌐 **Global Features**
 
-- [ ] **Extension Navbar Button** - Quick access button in site navigation
+- [x] **Extension Navbar Button** - Quick access button in site navigation ⚠️ _Works fine, but can't be disabled until page reload_
 - [ ] **Keep Alive Functionality** - Maintain extension active state
 - [ ] **Settings Persistence** - Save and sync all user preferences
 - [ ] **Cross-Browser Compatibility** - Chrome and Firefox support
@@ -152,10 +152,10 @@ src/
 ### Progress Summary
 
 - **Total Features**: 42
-- **Tested**: 0
-- **Working**: 0
-- **Needs Fixes**: 0
-- **Not Started**: 42
+- **Tested**: 12
+- **Working**: 3 (Theme System)
+- **Needs Fixes**: 9 (Chat, Sidebar Friends, Last Matches, Average Party ELO, Faceit ELO styling, Clickable Usernames, Navbar Button - various disable/styling issues)
+- **Not Started**: 30
 
 ---
 
