@@ -4,18 +4,18 @@
   "version": "1.2.1",
   "description": "Enhance your Renown.gg experience with player stats, lobby insights, and UI improvements.",
   "icons": {
-    "16": "static/icon16.png",
-    "32": "static/icon32.png",
-    "48": "static/icon48.png",
-    "128": "static/icon128.png"
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
   },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "static/icon16.png",
-      "32": "static/icon32.png",
-      "48": "static/icon48.png",
-      "128": "static/icon128.png"
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
     }
   },
   "browser_specific_settings": {
@@ -24,26 +24,16 @@
       "strict_min_version": "109.0"
     }
   },
-  "permissions": [
-    "storage",
-    "activeTab"
-  ],
-  "host_permissions": [
-    "https://apiv2.goclutch.pro/*"
-  ],
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://apiv2.goclutch.pro/*"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "matches": [
-        "*://*.renown.gg/*",
-        "*://renown.gg/*"
-      ],
-      "js": [
-        "content.js"
-      ],
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"],
+      "js": ["content.js"],
       "type": "module",
       "run_at": "document_start"
     }
@@ -51,16 +41,14 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "static/*.svg",
-        "static/*.png",
-        "styles/*.css",
-        "static/*.mp3",
-        "static/*.wav"
+        "assets/graphics/*.svg",
+        "assets/icons/*.png",
+        "assets/images/*.png",
+        "assets/sounds/*.mp3",
+        "assets/sounds/*.wav",
+        "styles/*.css"
       ],
-      "matches": [
-        "*://*.renown.gg/*",
-        "*://renown.gg/*"
-      ]
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"]
     }
   ]
 }

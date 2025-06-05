@@ -26,7 +26,7 @@
     }
 
     audioElement = new Audio(
-      chrome.runtime.getURL(`static/sounds/${soundFileMap[sound]}`)
+      chrome.runtime.getURL(`assets/sounds/${soundFileMap[sound]}`)
     );
 
     if (audioElement) {

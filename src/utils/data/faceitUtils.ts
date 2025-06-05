@@ -18,8 +18,8 @@ export function getFaceitLevel(elo: number | null): number {
 export function getFaceitLevelIcon(elo: number | null): string {
   const level = getFaceitLevel(elo);
 
-  if (level === 0) return "static/faceitlevels/lvlx.svg";
-  return `static/faceitlevels/lvl${level}.svg`;
+  if (level === 0) return "assets/graphics/faceit-levels/lvlx.svg";
+  return `assets/graphics/faceit-levels/lvl${level}.svg`;
 }
 
 function createFaceitImageElement(
@@ -33,10 +33,10 @@ function createFaceitImageElement(
 
   let iconPath = "";
   if (faceitLevel === 0) {
-    iconPath = chrome.runtime.getURL("static/faceitlevels/lvlx.svg");
+    iconPath = chrome.runtime.getURL("assets/graphics/faceit-levels/lvlx.svg");
   } else {
     iconPath = chrome.runtime.getURL(
-      `static/faceitlevels/lvl${faceitLevel}.svg`
+      `assets/graphics/faceit-levels/lvl${faceitLevel}.svg`
     );
   }
 

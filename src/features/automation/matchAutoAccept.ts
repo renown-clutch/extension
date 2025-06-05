@@ -22,7 +22,7 @@ function initializeMatchSound() {
   if (currentSettings.matchFoundSound !== "none") {
     matchSound = new Audio(
       chrome.runtime.getURL(
-        `static/sounds/${soundFileMap[currentSettings.matchFoundSound]}`
+        `assets/sounds/${soundFileMap[currentSettings.matchFoundSound]}`
       )
     );
   }

@@ -7,6 +7,26 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper function to recursively copy directories
+function copyDirectory(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+  
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    
+    if (entry.isDirectory()) {
+      copyDirectory(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 // Configuration
 const config = {
   chrome: {
@@ -266,8 +286,12 @@ async function runBuild() {
       publicFiles.forEach(file => {
         const srcPath = path.join('public', file);
         const destPath = path.join(targetConfig.outDir, file);
-        if (fs.statSync(srcPath).isFile()) {
+        const stat = fs.statSync(srcPath);
+        if (stat.isFile()) {
           fs.copyFileSync(srcPath, destPath);
+        } else if (stat.isDirectory()) {
+          // Recursively copy directories (like assets)
+          copyDirectory(srcPath, destPath);
         }
       });
     }

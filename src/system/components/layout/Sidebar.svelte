@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ClutchLogo from "/static/logo.png";
+  import ClutchLogo from "/assets/images/logo.png";
   import {
     Settings,
     Palette,

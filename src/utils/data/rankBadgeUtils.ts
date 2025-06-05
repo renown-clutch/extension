@@ -36,7 +36,9 @@ export function getRankIconPath(rankTier: string): string {
       console.warn("Extension context invalid when getting rank icon path");
       return "";
     }
-    return chrome.runtime.getURL(`static/renownRanks/${rankTier}.svg`);
+    return chrome.runtime.getURL(
+      `assets/graphics/renown-ranks/${rankTier}.svg`
+    );
   } catch (error) {
     console.warn("Error getting rank icon path:", error);
     return "";
