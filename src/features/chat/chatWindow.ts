@@ -137,11 +137,6 @@ function createUsernameElement(username: string): HTMLElement {
 }
 
 async function initializeChatWindow(settings: UserSettings): Promise<void> {
-  if (!settings.showChatWindow) {
-    removeChatWindow();
-    return;
-  }
-
   try {
     await waitForElement("body");
     if (document.getElementById("clutch-chat-window")) {
@@ -447,6 +442,7 @@ registerFeature({
   shouldActivate: ActivationHelpers.whenEnabled("showChatWindow"),
 
   handler: initializeChatWindow,
+  cleanupHandler: removeChatWindow,
 
   apiCalls: [
     {

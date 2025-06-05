@@ -17,14 +17,18 @@ export interface FeatureConfig {
   // API configuration (optional)
   apiCalls?: ApiCall[];
 
-  // Handler function
+  // Handler functions
   handler: (settings: UserSettings) => void | Promise<void>;
+  cleanupHandler?: (settings: UserSettings) => void | Promise<void>;
 
   // Feature activation logic - determines when this feature should be active
   shouldActivate?: (
     currentPage: ReturnType<typeof getCurrentPage>,
     settings: UserSettings
   ) => boolean;
+
+  // Dependency tracking - which settings this feature depends on
+  dependsOn?: (keyof UserSettings)[];
 }
 
 // Keep backward compatibility
@@ -94,6 +98,56 @@ export function getActiveFeatures(settings: UserSettings): FeatureConfig[] {
   });
 
   return activeFeatures;
+}
+
+// Get features that need cleanup based on changed settings
+export function getFeaturesNeedingCleanup(
+  previouslyActiveKeys: Set<string>,
+  currentlyActiveKeys: Set<string>
+): FeatureConfig[] {
+  const featuresNeedingCleanup: FeatureConfig[] = [];
+
+  // Find features that were active but are no longer active
+  for (const featureKey of previouslyActiveKeys) {
+    if (!currentlyActiveKeys.has(featureKey)) {
+      const config = featureRegistry.features.get(featureKey);
+      if (config && config.cleanupHandler) {
+        featuresNeedingCleanup.push(config);
+      }
+    }
+  }
+
+  return featuresNeedingCleanup;
+}
+
+// Get features that are affected by changed settings
+export function getAffectedFeatures(
+  changedSettings: Partial<UserSettings>
+): FeatureConfig[] {
+  const affectedFeatures: FeatureConfig[] = [];
+  const changedKeys = new Set(
+    Object.keys(changedSettings) as (keyof UserSettings)[]
+  );
+
+  featureRegistry.features.forEach((config) => {
+    // Check if this feature's own setting was changed
+    if (changedKeys.has(config.settingKey)) {
+      affectedFeatures.push(config);
+      return;
+    }
+
+    // Check if this feature depends on any of the changed settings
+    if (config.dependsOn) {
+      const hasChangedDependency = config.dependsOn.some((dep) =>
+        changedKeys.has(dep)
+      );
+      if (hasChangedDependency) {
+        affectedFeatures.push(config);
+      }
+    }
+  });
+
+  return affectedFeatures;
 }
 
 // Legacy functions for backward compatibility

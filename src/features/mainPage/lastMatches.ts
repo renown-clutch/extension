@@ -257,11 +257,6 @@ async function initializeLastMatches(settings: UserSettings): Promise<void> {
     return;
   }
 
-  if (!settings.showLastPlayedMatches) {
-    removeLastMatches();
-    return;
-  }
-
   await injectLastMatches(settings);
 }
 
@@ -278,6 +273,7 @@ registerFeature({
   ),
 
   handler: initializeLastMatches,
+  cleanupHandler: removeLastMatches,
 
   apiCalls: [
     {

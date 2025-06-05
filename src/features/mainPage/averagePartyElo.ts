@@ -418,12 +418,6 @@ async function initializeAveragePartyElo(
   const currentPage = getCurrentPage();
 
   if (currentPage.type !== "play") {
-    removeAveragePartyElo();
-    return;
-  }
-
-  if (!settings.showAveragePartyElo && !settings.showFaceitEloOnPartyList) {
-    removeAveragePartyElo();
     return;
   }
 
@@ -450,7 +444,10 @@ registerFeature({
     )
   ),
 
+  dependsOn: ["showFaceitEloOnPartyList"], // This feature also responds to Faceit ELO changes
+
   handler: initializeAveragePartyElo,
+  cleanupHandler: () => removeAveragePartyElo(true),
 
   apiCalls: [
     {

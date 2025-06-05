@@ -63,11 +63,6 @@ function removeLinkFromNavbar(): void {
 }
 
 function initializeNavbar(settings: UserSettings): void {
-  if (!settings.showExtensionNavbarButton) {
-    removeLinkFromNavbar();
-    return;
-  }
-
   try {
     addLinkToNavbar();
   } catch (error) {
@@ -85,6 +80,7 @@ registerFeature({
   shouldActivate: ActivationHelpers.whenEnabled("showExtensionNavbarButton"),
 
   handler: initializeNavbar,
+  cleanupHandler: removeLinkFromNavbar,
 
   apiCalls: [],
 });

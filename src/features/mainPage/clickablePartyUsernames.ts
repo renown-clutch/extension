@@ -328,14 +328,6 @@ async function initializeClickablePartyUsernames(
   const currentPage = getCurrentPage();
 
   if (currentPage.type !== "play") {
-    removeClickablePartyUsernames();
-    return;
-  }
-
-  // Remove existing functionality first
-  removeClickablePartyUsernames();
-
-  if (!settings.enableClickablePartyUsernames) {
     return;
   }
 
@@ -362,6 +354,7 @@ registerFeature({
   ),
 
   handler: initializeClickablePartyUsernames,
+  cleanupHandler: removeClickablePartyUsernames,
 
   apiCalls: [
     {

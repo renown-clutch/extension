@@ -53,22 +53,22 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 🏠 **Main Page Features**
 
-- [x] **Last Played Matches** - Recent match history display ⚠️ _Works when enabled on load, but doesn't remove when disabled until page reload_
-- [x] **Average Party ELO** - Calculate and show party average ratings ⚠️ _Same disable issues + broken styling_
-- [x] **Faceit ELO on Party List** - Display Faceit ratings in party listings ⚠️ _Can be disabled properly but has styling issues when injected_
-- [x] **Clickable Party Usernames** - Convert usernames to clickable profile links ⚠️ _Works fine, but can't be disabled until page reload_
+- [x] **Last Played Matches** - Recent match history display ✅ _Dynamic enable/disable working perfectly_
+- [x] **Average Party ELO** - Calculate and show party average ratings ⚠️ _Enables properly but cleanup not working (stays visible when disabled)_
+- [x] **Faceit ELO on Party List** - Display Faceit ratings in party listings ✅ _Dynamic enable/disable working perfectly_
+- [x] **Clickable Party Usernames** - Convert usernames to clickable profile links ✅ _Dynamic enable/disable working perfectly_
 
 ### 👥 **Friends System**
 
 - [ ] **Friend List Ranks** - Display ranks in friends list
 - [ ] **Friend List Sorting** - Sort friends by Renown ELO
-- [x] **Sidebar Friend Ranks** - Show friend ranks in sidebar ⚠️ _Works when enabled on load, but doesn't remove when disabled until page reload_
+- [x] **Sidebar Friend Ranks** - Show friend ranks in sidebar ✅ _Dynamic enable/disable working perfectly_
 - [ ] **Friends List UI** - Enhanced friends list interface
 
 ### 💬 **Chat System**
 
-- [x] **Chat Window** - Enhanced chat interface ⚠️ _Functions and injects correctly, but doesn't respect popup disable setting until page reload_
-- [x] **Chat Integration** - Seamless chat functionality ⚠️ _Works when enabled on load, but doesn't remove when disabled until page reload_
+- [x] **Chat Window** - Enhanced chat interface ✅ _Dynamic enable/disable working perfectly_
+- [x] **Chat Integration** - Seamless chat functionality ✅ _Dynamic enable/disable working perfectly_
 - [ ] **Chat Username Cache** - Efficient username caching system
 
 ### 🔊 **Audio Features**
@@ -79,7 +79,7 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 🌐 **Global Features**
 
-- [x] **Extension Navbar Button** - Quick access button in site navigation ⚠️ _Works fine, but can't be disabled until page reload_
+- [x] **Extension Navbar Button** - Quick access button in site navigation ✅ _Dynamic enable/disable working perfectly_
 - [ ] **Keep Alive Functionality** - Maintain extension active state
 - [ ] **Settings Persistence** - Save and sync all user preferences
 - [ ] **Cross-Browser Compatibility** - Chrome and Firefox support
@@ -143,19 +143,46 @@ src/
 
 **Legend:**
 
-- ✅ **Working** - Feature fully functional
+- ✅ **Working** - Feature fully functional with dynamic enable/disable
 - ⚠️ **Partial** - Feature partially working/needs minor fixes
 - ❌ **Broken** - Feature not working/needs major fixes
 - 🔄 **Testing** - Currently being tested
 - ⏸️ **Skipped** - Not tested yet
 
+## 🛠️ **System Improvements**
+
+### **Granular Feature Update System**
+
+The extension now uses a **zero-config cleanup system** that:
+
+- ✨ **Only updates changed features** (no more page jumping!)
+- 🧹 **Automatic cleanup handlers** for proper disable functionality
+- ⚡ **Smart dependency tracking** for related features
+- 🎯 **Convention-based development** for fast feature addition
+
+### **Technical Architecture**
+
+- **Feature Registry**: Centralized feature management with cleanup handlers
+- **Dependency Tracking**: Features can declare `dependsOn` for cross-feature updates
+- **Granular Updates**: Only affected features are updated when settings change
+- **Zero Configuration**: Add new features with minimal boilerplate
+
 ### Progress Summary
 
 - **Total Features**: 42
 - **Tested**: 12
-- **Working**: 3 (Theme System)
-- **Needs Fixes**: 9 (Chat, Sidebar Friends, Last Matches, Average Party ELO, Faceit ELO styling, Clickable Usernames, Navbar Button - various disable/styling issues)
+- **Working**: 11 (Theme System + Fixed Features)
+- **Needs Minor Fixes**: 1 (Average Party ELO cleanup issue)
 - **Not Started**: 30
+
+### 🎉 **Recently Fixed (Dynamic Enable/Disable)**
+
+- ✅ **Chat Window** - Perfect cleanup and activation
+- ✅ **Last Played Matches** - Perfect cleanup and activation
+- ✅ **Faceit ELO on Party List** - Perfect cleanup and activation
+- ✅ **Clickable Party Usernames** - Perfect cleanup and activation
+- ✅ **Sidebar Friend Ranks** - Perfect cleanup and activation
+- ✅ **Extension Navbar Button** - Perfect cleanup and activation
 
 ---
 

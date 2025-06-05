@@ -23,7 +23,12 @@ import {
 } from "$themes/themeInjection";
 import { config } from "./config";
 import { initializeFeatureRegistry } from "$system/lib/autoRegister";
-import { getActiveFeatures } from "$system/lib/featureRegistry";
+import {
+  getActiveFeatures,
+  getFeaturesNeedingCleanup,
+  getAffectedFeatures,
+  type FeatureConfig,
+} from "$system/lib/featureRegistry";
 
 export { unregisterShadowRoot };
 
@@ -34,6 +39,9 @@ let userSettings: UserSettings = defaultUserSettings;
 const LS_KEY = "userSettings";
 
 let lastUrl = window.location.href;
+
+// Track currently active features to enable proper cleanup
+let currentlyActiveFeatures: Set<string> = new Set();
 
 function shouldBeInjected(): boolean {
   const currentPage = getCurrentPage();
@@ -83,9 +91,90 @@ async function applyChangedSettings(changedParts: Partial<UserSettings>) {
     return;
   }
 
-  // For settings changes, re-run the unified feature system
-  // This will automatically handle enabling/disabling features based on new settings
-  await applyActiveFeatures(userSettings);
+  // Only update features that are affected by the changed settings
+  await applyChangedFeatures(changedParts, userSettings);
+}
+
+// Granular feature update system - only update features that changed
+async function applyChangedFeatures(
+  changedParts: Partial<UserSettings>,
+  settings: UserSettings
+) {
+  if (!shouldBeInjected()) {
+    return;
+  }
+
+  // Get features that are affected by the changed settings
+  const affectedFeatures = getAffectedFeatures(changedParts);
+  const affectedFeatureKeys = new Set(
+    affectedFeatures.map((f) => f.settingKey)
+  );
+
+  // Get the current state of features
+  const allActiveFeatures = getActiveFeatures(settings);
+  const shouldBeActiveKeys = new Set(
+    allActiveFeatures.map((f) => f.settingKey)
+  );
+
+  console.log(
+    `[Content] 🎯 Settings changed:`,
+    Object.keys(changedParts),
+    `- Affected features:`,
+    Array.from(affectedFeatureKeys)
+  );
+
+  // Step 1: Handle features that need cleanup (were active, now inactive)
+  const featuresNeedingCleanup = affectedFeatures.filter(
+    (feature) =>
+      currentlyActiveFeatures.has(feature.settingKey) &&
+      !shouldBeActiveKeys.has(feature.settingKey) &&
+      feature.cleanupHandler
+  );
+
+  if (featuresNeedingCleanup.length > 0) {
+    console.log(
+      `[Content] 🧹 Cleaning up ${featuresNeedingCleanup.length} deactivated features:`,
+      featuresNeedingCleanup.map((f) => f.settingKey)
+    );
+
+    for (const feature of featuresNeedingCleanup) {
+      try {
+        await feature.cleanupHandler!(settings);
+      } catch (error) {
+        console.error(
+          `[Content] ❌ Error cleaning up feature ${feature.settingKey}:`,
+          error
+        );
+      }
+    }
+  }
+
+  // Step 2: Handle features that need activation/refresh
+  // (either newly active or active features that need to respond to dependency changes)
+  const featuresNeedingActivation = affectedFeatures.filter((feature) =>
+    shouldBeActiveKeys.has(feature.settingKey)
+  );
+
+  if (featuresNeedingActivation.length > 0) {
+    console.log(
+      `[Content] ⚡ Updating ${featuresNeedingActivation.length} affected features:`,
+      featuresNeedingActivation.map((f) => f.settingKey)
+    );
+
+    for (const feature of featuresNeedingActivation) {
+      try {
+        await feature.handler(settings);
+      } catch (error) {
+        console.error(
+          `[Content] ❌ Error updating feature ${feature.settingKey}:`,
+          error
+        );
+      }
+    }
+  }
+
+  // Step 3: Update our tracking of currently active features
+  currentlyActiveFeatures = shouldBeActiveKeys;
 }
 
 // Unified feature activation system
@@ -96,12 +185,38 @@ async function applyActiveFeatures(settings: UserSettings) {
 
   // Get features that should be active for current page and settings
   const activeFeatures = getActiveFeatures(settings);
+  const shouldBeActiveKeys = new Set(activeFeatures.map((f) => f.settingKey));
 
+  // Step 1: Clean up features that were active but should no longer be active
+  const featuresNeedingCleanup = getFeaturesNeedingCleanup(
+    currentlyActiveFeatures,
+    shouldBeActiveKeys
+  );
+
+  if (featuresNeedingCleanup.length > 0) {
+    console.log(
+      `[Content] 🧹 Cleaning up ${featuresNeedingCleanup.length} deactivated features:`,
+      featuresNeedingCleanup.map((f) => f.settingKey)
+    );
+
+    // Call cleanup handlers for deactivated features
+    for (const feature of featuresNeedingCleanup) {
+      try {
+        await feature.cleanupHandler!(settings);
+      } catch (error) {
+        console.error(
+          `[Content] ❌ Error cleaning up feature ${feature.settingKey}:`,
+          error
+        );
+      }
+    }
+  }
+
+  // Step 2: Activate features that should be active
   console.log(
     `[Content] 🎯 Activating ${activeFeatures.length} features for current page`
   );
 
-  // Run handlers for active features
   for (const feature of activeFeatures) {
     try {
       await feature.handler(settings);
@@ -112,6 +227,9 @@ async function applyActiveFeatures(settings: UserSettings) {
       );
     }
   }
+
+  // Step 3: Update our tracking of currently active features
+  currentlyActiveFeatures = shouldBeActiveKeys;
 }
 
 async function loadFromBrowserStorage(): Promise<UserSettings> {

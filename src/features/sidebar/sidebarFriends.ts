@@ -141,17 +141,16 @@ function setupFriendsObserver(settings: UserSettings): void {
 }
 
 function initializeSidebarFriends(settings: UserSettings): void {
-  if (!settings.showSidebarFriendRanks) {
-    if (friendsObserver) {
-      friendsObserver.disconnect();
-      friendsObserver = null;
-    }
-    removeRankBadges();
-    return;
-  }
-
   processSidebarFriends(settings.showSidebarFriendRanks);
   setupFriendsObserver(settings);
+}
+
+function cleanupSidebarFriends(): void {
+  if (friendsObserver) {
+    friendsObserver.disconnect();
+    friendsObserver = null;
+  }
+  removeRankBadges();
 }
 
 // Register this feature with the new unified system
@@ -168,6 +167,7 @@ registerFeature({
   ),
 
   handler: initializeSidebarFriends,
+  cleanupHandler: cleanupSidebarFriends,
 
   apiCalls: [
     {
