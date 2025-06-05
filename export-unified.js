@@ -94,6 +94,18 @@ async function updateVersions(version) {
       console.log('  ✅ Updated Settings.svelte');
     }
 
+    // Update README.md
+    const readmePath = path.join(__dirname, 'README.md');
+    if (fs.existsSync(readmePath)) {
+      let readmeContent = fs.readFileSync(readmePath, 'utf8');
+      readmeContent = readmeContent.replace(
+        /\*\*Version:\*\* .+/,
+        `**Version:** ${version}`
+      );
+      fs.writeFileSync(readmePath, readmeContent);
+      console.log('  ✅ Updated README.md');
+    }
+
   } catch (error) {
     console.error('❌ Error updating versions:', error);
     throw error;

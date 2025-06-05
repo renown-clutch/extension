@@ -1,6 +1,6 @@
 # Clutch | Renown.gg Extension
 
-**Version:** 1.2.1  
+**Version:** 1.1.4
 **Platform:** Chrome & Firefox Browser Extension  
 **Target Site:** Renown.gg
 
