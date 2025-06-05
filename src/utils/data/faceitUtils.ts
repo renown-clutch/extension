@@ -1,4 +1,4 @@
-import browserAPI from "../lib/browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 export function getFaceitLevel(elo: number | null): number {
   if (elo === null) return 0;

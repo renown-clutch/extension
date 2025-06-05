@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { getCurrentPage } from "$utils/common/pageUtils";
 import { waitForElement } from "$utils/profileUtils";
@@ -9,9 +12,8 @@ import {
   resetHydrationDetection,
   cleanupHydrationDetection,
   createHydrationAwareMutationCallback,
-} from "$utils/hydrationUtils";
+} from "$utils/ui/hydrationUtils";
 import browserAPI from "$system/lib/browserAPI";
-import "./averagePartyElo.css";
 
 let partyObserver: MutationObserver | null = null;
 
@@ -301,7 +303,7 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
     await waitForHydrationComplete();
 
     const { playerNames, playerNameToCardMap, averageElo, playerCount } =
-      await gatherPlayerData(settings.showFaceitRanksForSinglePlayer);
+      await gatherPlayerData(settings.showFaceitEloOnPartyList);
 
     // Remove existing displays first
     removeAveragePartyEloDisplay();
@@ -317,12 +319,12 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
     }
 
     // Add individual player Faceit badges
-    if (settings.showFaceitRanks && playerNames.length > 0) {
+    if (settings.showFaceitEloOnPartyList && playerNames.length > 0) {
       const faceitData = await getFaceitEloByNames(playerNames);
       await addPlayerFaceitBadges(playerNameToCardMap, faceitData);
 
       // Add average Faceit badge if enabled
-      if (settings.showAverageFaceitRank) {
+      if (settings.showFaceitEloOnPartyList) {
         const wrapper = await addAveragePartyEloDisplay(averageElo || 0);
         if (wrapper) {
           addAverageFaceitBadge(wrapper, faceitData);
@@ -420,7 +422,7 @@ async function initializeAveragePartyElo(
     return;
   }
 
-  if (!settings.showAveragePartyElo && !settings.showFaceitRanks) {
+  if (!settings.showAveragePartyElo && !settings.showFaceitEloOnPartyList) {
     removeAveragePartyElo();
     return;
   }
@@ -444,7 +446,7 @@ registerFeature({
     ActivationHelpers.onPageTypes(["play"]),
     ActivationHelpers.or(
       ActivationHelpers.whenEnabled("showAveragePartyElo"),
-      ActivationHelpers.whenEnabled("showFaceitRanks")
+      ActivationHelpers.whenEnabled("showFaceitEloOnPartyList")
     )
   ),
 

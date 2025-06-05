@@ -1,4 +1,4 @@
-import browserAPI from "../lib/browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 export async function getStoredUIState(key: string): Promise<boolean> {
   try {

@@ -17,13 +17,14 @@ This project provides several npm scripts for development, building, checking, a
 | `npm run dev`                  | Start the Vite development server with hot module reloading.                           |
 | `npm run build`                | Build the extension for Chrome (outputs to `dist/`).                                   |
 | `npm run build:firefox`        | Build the extension for Firefox (outputs to `dist-firefox/`).                          |
-| `npm run watch`                | Build the extension in watch mode (rebuilds on file changes).                          |
+| `npm run watch`                | Build the extension for Chrome in watch mode (rebuilds on file changes).               |
+| `npm run watch:firefox`        | Build the extension for Firefox in watch mode (rebuilds on file changes).              |
 | `npm run preview`              | Preview the production build locally.                                                  |
 | `npm run check`                | Run type checks and Svelte checks.                                                     |
-| `npm run clean`                | Remove the `dist/` directory and `node_modules`.                                       |
+| `npm run clean`                | Remove build directories, `node_modules`, and export files.                            |
 | `npm run export <ver>`         | Update version in files, build for Chrome, and create a zip archive for distribution.  |
 | `npm run export:firefox <ver>` | Update version in files, build for Firefox, and create a zip archive for distribution. |
-| `npm run export:all <ver>`     | Run both export commands to create Chrome and Firefox distributions.                   |
+| `npm run export:all <ver>`     | Create distributions for both Chrome and Firefox browsers.                             |
 
 ## Step-by-Step Build Instructions
 

@@ -2,7 +2,7 @@
  * Utilities for creating and displaying Renown rank badges
  */
 
-import browserAPI from "../lib/browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 /**
  * Determines rank tier based on elo

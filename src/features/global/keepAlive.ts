@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 
 let keepAliveIntervalId: number | null = null;
@@ -30,7 +33,7 @@ function initializeKeepAlive(settings: UserSettings): void {
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "keepAlive",
-  category: "global",
+  category: "general",
   defaultValue: false,
   description: "Keep extension connection alive",
 

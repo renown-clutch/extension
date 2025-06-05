@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import browserAPI from "$system/lib/browserAPI";
 import { getUserSteamId } from "$system/auth/steamIdParser";
@@ -290,7 +293,7 @@ async function initializeMapStats(settings: UserSettings): Promise<void> {
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "showMapStats",
-  category: "liveMatch",
+  category: "match",
   defaultValue: true,
   description: "Show map statistics",
 

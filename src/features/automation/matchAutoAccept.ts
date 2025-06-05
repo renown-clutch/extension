@@ -1,9 +1,12 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings, soundFileMap } from "$system/lib/types";
 import {
   createSafeObserver,
   disconnectSafeObserver,
-} from "$utils/observerUtils";
+} from "$utils/ui/observerUtils";
 
 let observer: MutationObserver | null = null;
 const processedMatches = new Set<string>();
@@ -191,7 +194,7 @@ function initializeMatchAutoAccept(settings: UserSettings): void {
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "autoAccept",
-  category: "automation",
+  category: "autoAccept",
   defaultValue: { match: false, party: false },
   description: "Auto-accept match invites",
 

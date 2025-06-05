@@ -1,5 +1,5 @@
-import browserAPI from "../browserAPI";
-import { config } from "../../config";
+import browserAPI from "$system/lib/browserAPI";
+import { config } from "$core/config";
 import { StorageService } from "../storage/StorageService";
 
 export class MessageHandler {

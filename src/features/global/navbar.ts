@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { waitForElement } from "$utils/profileUtils";
 
@@ -75,7 +78,7 @@ function initializeNavbar(settings: UserSettings): void {
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "showExtensionNavbarButton",
-  category: "global",
+  category: "general",
   defaultValue: true,
   description: "Extension navbar button",
 

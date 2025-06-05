@@ -1,13 +1,15 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { createShadowRoot } from "$system/lib/shadowDOM";
 import browserAPI from "$system/lib/browserAPI";
 import { waitForElement } from "$utils/profileUtils";
 import { getUserInfo } from "$system/auth/steamIdParser";
-import { getStoredUIState, saveUIState } from "$utils/uiStateUtils";
+import { getStoredUIState, saveUIState } from "$utils/ui/uiStateUtils";
 import { unregisterShadowRoot } from "../../themes/shadowThemeManager";
-import { chatUsernameCache } from "$system/lib/chat/ChatUsernameCache";
-import "./chatWindow.css";
+import { chatUsernameCache } from "$system/api/chat/ChatUsernameCache";
 
 const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
 

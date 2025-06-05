@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { waitForElement } from "$utils/profileUtils";
 import { type UserSettings } from "$system/lib/types";
 import {
@@ -6,7 +9,6 @@ import {
   createRankBadgeElement,
 } from "$utils/data/rankBadgeUtils";
 import browserAPI from "$system/lib/browserAPI";
-import "./sidebarFriends.css";
 
 let friendsObserver: MutationObserver | null = null;
 
@@ -155,7 +157,7 @@ function initializeSidebarFriends(settings: UserSettings): void {
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "showSidebarFriendRanks",
-  category: "sidebar",
+  category: "friends",
   defaultValue: true,
   description: "Show friend ranks in sidebar",
 

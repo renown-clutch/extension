@@ -1,4 +1,4 @@
-import { registerShadowRoot } from "../themes/shadowThemeManager";
+import { registerShadowRoot } from "$themes/shadowThemeManager";
 
 /**
  * Creates a shadow root for an element with proper TypeScript types

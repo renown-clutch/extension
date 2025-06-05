@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { waitForElement } from "$utils/profileUtils";
 import { addTooltip } from "$utils/data/faceitUtils";
@@ -89,7 +92,13 @@ async function fetchPlayersStats(
     browserAPI.runtime.sendMessage(
       { type: "fetchPlayersStats", steamIds },
       (response) => {
-        if (browserAPI.runtime.lastError || !response?.success) {
+        const lastError =
+          typeof chrome !== "undefined"
+            ? chrome.runtime.lastError
+            : typeof browser !== "undefined"
+            ? browser.runtime.lastError
+            : null;
+        if (lastError || !response?.success) {
           resolve({});
         } else {
           resolve(response.data || {});
@@ -257,7 +266,7 @@ async function initializeLivePlayerStats(
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "liveMatchPlayerStats",
-  category: "liveMatch",
+  category: "match",
   defaultValue: true,
   description: "Show live match player stats",
 

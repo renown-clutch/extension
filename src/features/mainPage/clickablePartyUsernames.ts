@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { getCurrentPage } from "$utils/common/pageUtils";
 import browserAPI from "$system/lib/browserAPI";
@@ -12,7 +15,7 @@ async function getSteamIdsByNames(
     return new Promise((resolve, reject) => {
       browserAPI.runtime.sendMessage(
         {
-          type: "fetchSteamIdsByNames",
+          type: "getSteamIdsByNames",
           playerNames: playerNames,
         },
         (response) => {
@@ -362,7 +365,7 @@ registerFeature({
 
   apiCalls: [
     {
-      requestType: "fetchSteamIdsByNames",
+      requestType: "getSteamIdsByNames",
       responseType: "steam_ids_by_names_data",
     },
   ],

@@ -1,10 +1,12 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { createRankBadgeElement } from "$utils/data/rankBadgeUtils";
 import { is404Page } from "$utils/common/pageUtils";
 import { waitForElement } from "$utils/profileUtils";
 import browserAPI from "$system/lib/browserAPI";
-import "./friendsList.css";
 
 const FRIENDS_PAGE_REGEX = /\/profile\/(\d+)\/friends/;
 

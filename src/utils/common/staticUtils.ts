@@ -1,4 +1,4 @@
-import browserAPI from "../lib/browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 export function getExtensionUrl(path: string): string {
   try {

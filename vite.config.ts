@@ -6,20 +6,43 @@ import fs from "fs";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    svelte(),
+    svelte({
+      compilerOptions: {
+        dev: process.env.NODE_ENV === "development",
+      },
+    }),
     {
       name: "move-html",
       closeBundle() {
-        const srcPath = path.resolve(__dirname, "dist/src/popup/popup.html");
-        const destPath = path.resolve(__dirname, "dist/popup.html");
-        if (fs.existsSync(srcPath)) {
-          fs.renameSync(srcPath, destPath);
-          // Clean up the empty directory
-          fs.rmSync(path.resolve(__dirname, "dist/src/"), {
-            recursive: true,
-            force: true,
-          });
-        }
+        // Try multiple possible locations for the HTML file
+        const possiblePaths = [
+          "dist/src/popup/popup.html",
+          "dist-firefox/src/popup/popup.html",
+        ];
+
+        const destPaths = ["dist/popup.html", "dist-firefox/popup.html"];
+
+        possiblePaths.forEach((srcPath, index) => {
+          const fullSrcPath = path.resolve(__dirname, srcPath);
+          const fullDestPath = path.resolve(__dirname, destPaths[index]);
+
+          if (fs.existsSync(fullSrcPath)) {
+            fs.renameSync(fullSrcPath, fullDestPath);
+
+            // Clean up the empty directory
+            const srcDir = path.dirname(fullSrcPath);
+            try {
+              if (fs.existsSync(srcDir)) {
+                fs.rmSync(path.resolve(__dirname, path.dirname(srcPath)), {
+                  recursive: true,
+                  force: true,
+                });
+              }
+            } catch (e) {
+              // Ignore cleanup errors
+            }
+          }
+        });
       },
     },
   ],
@@ -49,39 +72,24 @@ export default defineConfig({
     },
   },
   build: {
-    // Enable build caching for faster rebuilds
     target: "esnext",
     minify: "esbuild",
     reportCompressedSize: false,
+    lib: {
+      entry: "src/popup/popup.html", // This will be overridden per build
+      formats: ["iife"],
+      name: "ExtensionBundle",
+    },
     rollupOptions: {
-      input: {
-        popup: "src/popup/popup.html",
-        background: "src/core/background.ts",
-        content: "src/core/content.ts",
-      },
       output: {
-        // Ensure each entry point maintains its own scope without creating shared chunks
-        inlineDynamicImports: true,
-        manualChunks: () => null, // Prevents code-splitting
-        entryFileNames: (chunkInfo) => {
-          // Special case for content script
-          if (chunkInfo.name === "content") {
-            return "content.js";
-          }
-          return "[name].js";
-        },
+        entryFileNames: "[name].js",
         chunkFileNames: "[name].js",
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === "popup.html") {
-            return "popup.html";
-          }
-          return "[name].[ext]";
-        },
+        assetFileNames: "[name].[ext]",
       },
     },
     outDir: "dist",
-    emptyOutDir: true,
-    copyPublicDir: true,
+    emptyOutDir: false, // We'll handle cleanup in build script
+    copyPublicDir: false, // We'll handle this in build script
   },
   optimizeDeps: {
     // Improves dev server start

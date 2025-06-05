@@ -1,4 +1,4 @@
-import browserAPI from "../browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 interface CachedUser {
   steamId: string;
@@ -15,7 +15,7 @@ export class ChatUsernameCache {
   private cache: Map<string, CachedUser> = new Map();
   private pendingRequests: Set<string> = new Set();
   private batchQueue: PendingRequest[] = [];
-  private batchTimeout: NodeJS.Timeout | null = null;
+  private batchTimeout: number | null = null;
   private initialized = false;
 
   // Cache settings
@@ -33,8 +33,8 @@ export class ChatUsernameCache {
 
     try {
       const stored = await browserAPI.storage.local.get(this.STORAGE_KEY);
-      if (stored[this.STORAGE_KEY]) {
-        const data = JSON.parse(stored[this.STORAGE_KEY]);
+      if ((stored as any)[this.STORAGE_KEY]) {
+        const data = JSON.parse((stored as any)[this.STORAGE_KEY]);
         const now = Date.now();
 
         // Load cache and filter out expired entries

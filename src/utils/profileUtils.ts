@@ -1,4 +1,4 @@
-import { createSafeObserver } from "./observerUtils";
+import { createSafeObserver } from "./ui/observerUtils";
 
 export const PROFILE_URL_REGEX = /\/profile\/(\d+)/;
 

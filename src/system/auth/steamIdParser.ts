@@ -1,4 +1,4 @@
-import browserAPI from "../lib/browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 const STEAM_ID_STORAGE_KEY = "userSteamId";
 const STEAM_ID_REFRESH_INTERVAL = 10 * 60 * 1000;
@@ -85,10 +85,15 @@ export async function requestUserDataFromContent(): Promise<SteamIdData> {
       const activeTab = tabs[0];
 
       browserAPI.tabs.sendMessage(
-        activeTab.id,
+        activeTab.id!,
         { type: "parseUserData" },
         async (response) => {
-          const lastError = browserAPI.runtime.lastError;
+          const lastError =
+            typeof chrome !== "undefined"
+              ? chrome.runtime.lastError
+              : typeof browser !== "undefined"
+              ? browser.runtime.lastError
+              : null;
           if (lastError) {
             resolve({ steamId: null, username: null, timestamp: Date.now() });
             return;

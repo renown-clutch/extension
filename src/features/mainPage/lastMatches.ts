@@ -1,12 +1,14 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { getCurrentPage } from "$utils/common/pageUtils";
 import browserAPI from "$system/lib/browserAPI";
 import { getUserSteamId } from "$system/auth/steamIdParser";
 import { waitForElement } from "$utils/profileUtils";
 import { createRankBadgeElement } from "$utils/data/rankBadgeUtils";
-import { getStoredUIState, saveUIState } from "$utils/uiStateUtils";
-import "./lastMatches.css";
+import { getStoredUIState, saveUIState } from "$utils/ui/uiStateUtils";
 
 const MATCHES_EXPANDED_KEY = "clutchLastMatchesExpanded";
 

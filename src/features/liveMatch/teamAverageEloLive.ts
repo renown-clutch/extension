@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { createRankBadgeElement } from "$utils/data/rankBadgeUtils";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
@@ -324,7 +327,7 @@ async function initializeTeamAverageEloLive(
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "showTeamAverageElo",
-  category: "liveMatch",
+  category: "match",
   defaultValue: true,
   description: "Show team average ELO for live matches",
 

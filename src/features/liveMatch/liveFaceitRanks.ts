@@ -1,4 +1,7 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
 import { waitForElement } from "$utils/profileUtils";
@@ -441,7 +444,7 @@ async function initializeLiveFaceitRanks(
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "showFaceitRanksOnMatchPage",
-  category: "liveMatch",
+  category: "match",
   defaultValue: true,
   description: "Show Faceit ranks on live match pages",
 

@@ -1,4 +1,4 @@
-import browserAPI from "../browserAPI";
+import browserAPI from "$system/lib/browserAPI";
 
 type RequestCallback = (data: any) => void;
 

@@ -1,11 +1,13 @@
-import { registerFeature, ActivationHelpers } from "$system/lib/featureRegistry";
+import {
+  registerFeature,
+  ActivationHelpers,
+} from "$system/lib/featureRegistry";
 import { type UserSettings } from "$system/lib/types";
 import { createRankBadgeElement } from "$utils/data/rankBadgeUtils";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
 import { waitForElement, waitForElements } from "$utils/profileUtils";
-import { waitForHydrationComplete } from "$utils/hydrationUtils";
+import { waitForHydrationComplete } from "$utils/ui/hydrationUtils";
 import browserAPI from "$system/lib/browserAPI";
-import "./teamAverageElo.css";
 
 interface PlayerData {
   steamId: string;
@@ -166,11 +168,14 @@ async function getFaceitData(
       browserAPI.runtime.sendMessage(
         { type: "get_faceit_info", steam_ids: steamIds },
         (response) => {
-          if (browserAPI.runtime.lastError) {
-            console.warn(
-              "Faceit data fetch failed:",
-              browserAPI.runtime.lastError.message
-            );
+          const lastError =
+            typeof chrome !== "undefined"
+              ? chrome.runtime.lastError
+              : typeof browser !== "undefined"
+              ? browser.runtime.lastError
+              : null;
+          if (lastError) {
+            console.warn("Faceit data fetch failed:", lastError.message);
             resolve({});
             return;
           }
