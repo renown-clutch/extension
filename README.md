@@ -71,6 +71,10 @@ Use this checklist to track testing and fixing progress after the major refactor
 - [x] **Chat Integration** - Seamless chat functionality ✅ _Dynamic enable/disable working perfectly_
 - [ ] **Chat Username Cache** - Efficient username caching system
 
+**Known Issues:**
+
+- ⚠️ **Chat Persistence** - Chat messages disappear when switching away from the Renown tab and returning
+
 ### 🔊 **Audio Features**
 
 - [ ] **Match Found Sound** - Audio notifications for match found
