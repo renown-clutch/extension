@@ -69,11 +69,12 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 - [x] **Chat Window** - Enhanced chat interface ✅ _Dynamic enable/disable working perfectly_
 - [x] **Chat Integration** - Seamless chat functionality ✅ _Dynamic enable/disable working perfectly_
+- [x] **Chat Persistence** - Messages persist when switching between browser tabs ✅ _Fixed - messages now reload properly when returning to tab_
 - [ ] **Chat Username Cache** - Efficient username caching system
 
 **Known Issues:**
 
-- ⚠️ **Chat Persistence** - Chat messages disappear when switching away from the Renown tab and returning
+- ✅ **Chat Persistence** - ~~Chat messages disappear when switching away from the Renown tab and returning~~ **FIXED** ✅
 
 ### 🔊 **Audio Features**
 
@@ -175,13 +176,14 @@ The extension now uses a **zero-config cleanup system** that:
 
 - **Total Features**: 42
 - **Tested**: 12
-- **Working**: 11 (Theme System + Fixed Features)
+- **Working**: 12 (Theme System + Fixed Features including Chat Persistence)
 - **Needs Minor Fixes**: 1 (Average Party ELO cleanup issue)
-- **Not Started**: 30
+- **Not Started**: 29
 
 ### 🎉 **Recently Fixed (Dynamic Enable/Disable)**
 
 - ✅ **Chat Window** - Perfect cleanup and activation
+- ✅ **Chat Persistence** - Messages now reload properly when switching back to tab
 - ✅ **Last Played Matches** - Perfect cleanup and activation
 - ✅ **Faceit ELO on Party List** - Perfect cleanup and activation
 - ✅ **Clickable Party Usernames** - Perfect cleanup and activation
