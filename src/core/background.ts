@@ -142,7 +142,7 @@ browserAPI.runtime.onMessage.addListener(
             sendResponse({ success });
           })
           .catch((error) => {
-            console.error("[Background] ❌ getRecentMessages error");
+            console.error("[Background] ❌ getRecentMessages error:", error);
             sendResponse({ success: false });
           });
         return true;

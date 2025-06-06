@@ -295,15 +295,12 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
 
     async function loadRecentMessages() {
       try {
-        messagesContainer.innerHTML = "";
-        // Properly await the response to prevent "listener indicated async response" error
+        // Request recent messages - don't clear messages until we get new ones
         const response = await browserAPI.runtime.sendMessage({
           type: "get_recent_messages",
           limit: 50,
         });
 
-        // The actual recent messages come via the global message listener,
-        // but we still need to await the background script's response
         if (!response?.success) {
           console.warn(
             "[Chat Content] Failed to request recent messages:",
@@ -311,8 +308,7 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
           );
         }
       } catch (error) {
-        // Handle potential sendMessage errors gracefully
-        console.warn("[Chat Content] SendMessage error:", error);
+        console.error("[Chat Content] Error in loadRecentMessages:", error);
       }
     }
 
@@ -407,22 +403,28 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
 
     document.body.appendChild(container);
 
+    // Load recent messages when chat initializes
     loadRecentMessages();
+
+    function processRecentMessages(data: any[]): void {
+      // Clear messages only when we actually have new messages to show
+      messagesContainer.innerHTML = "";
+
+      // Collect all usernames for preloading
+      const usernames = data.map((msg) => msg.username).filter(Boolean);
+      if (usernames.length > 0) {
+        chatUsernameCache.preloadUsernames(usernames);
+      }
+
+      data.reverse().forEach((msg, index) => {
+        addMessageToChat(msg);
+      });
+    }
 
     // Set up the current chat window
     currentChatWindow = {
       addMessageToChat,
-      processRecentMessages: (data: any[]) => {
-        // Collect all usernames for preloading
-        const usernames = data.map((msg) => msg.username).filter(Boolean);
-        if (usernames.length > 0) {
-          chatUsernameCache.preloadUsernames(usernames);
-        }
-
-        data.reverse().forEach((msg, index) => {
-          addMessageToChat(msg);
-        });
-      },
+      processRecentMessages,
       updateClickableUsernames,
     };
 

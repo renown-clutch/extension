@@ -174,7 +174,10 @@ export class SocketIOManager {
       });
       return true;
     } catch (error) {
-      console.error("[SocketIOManager] ❌ Error getting recent messages");
+      console.error(
+        "[SocketIOManager] ❌ Error getting recent messages:",
+        error
+      );
       return false;
     }
   }
