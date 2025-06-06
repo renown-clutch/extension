@@ -20,6 +20,9 @@ let currentChatWindow: {
   updateClickableUsernames: () => void;
 } | null = null;
 
+// Track the visibility change handler so it can be removed on cleanup
+let visibilityChangeHandler: (() => void) | null = null;
+
 // Single global runtime message listener
 let messageListenerRegistered = false;
 
@@ -51,6 +54,12 @@ async function removeChatWindow() {
       unregisterShadowRoot(shadowRoot);
     }
     chatWindow.remove();
+  }
+
+  // Remove the visibility change listener if it was registered
+  if (visibilityChangeHandler) {
+    document.removeEventListener("visibilitychange", visibilityChangeHandler);
+    visibilityChangeHandler = null;
   }
 
   // Clear the global reference
@@ -395,7 +404,8 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
     }
 
     // Add visibility change listener
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    visibilityChangeHandler = handleVisibilityChange;
+    document.addEventListener("visibilitychange", visibilityChangeHandler);
 
     chatContainer.appendChild(messagesContainer);
     chatContainer.appendChild(inputContainer);
