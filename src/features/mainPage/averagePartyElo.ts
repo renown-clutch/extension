@@ -5,7 +5,11 @@ import {
 import { type UserSettings } from "$system/lib/types";
 import { getCurrentPage } from "$utils/common/pageUtils";
 import { waitForElement } from "$utils/profileUtils";
-import { createRankBadgeElement } from "$utils/data/rankBadgeUtils";
+import {
+  createRankBadgeElement,
+  getRankTier,
+  formatElo,
+} from "$utils/data/rankBadgeUtils";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
 import {
   waitForHydrationComplete,
@@ -58,10 +62,12 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
     const relevantMutation = mutations.some((mutation) => {
       const target = mutation.target as HTMLElement;
 
+      // Skip if the target itself has our extension attribute
       if (target.hasAttribute && target.hasAttribute("data-clutch-extension")) {
         return false;
       }
 
+      // Skip if the target already contains our elements
       if (
         target.querySelector &&
         target.querySelector("[data-clutch-extension]")
@@ -69,24 +75,29 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         return false;
       }
 
+      // Skip if the target is inside one of our elements
       if (target.closest && target.closest("[data-clutch-extension]")) {
         return false;
       }
 
+      // Check added nodes - skip if they are our extension elements
       if (mutation.addedNodes.length > 0) {
         for (const node of Array.from(mutation.addedNodes)) {
           if (!(node instanceof Element)) continue;
 
+          // Skip if the added node has our extension attribute
           if ((node as Element).hasAttribute("data-clutch-extension")) {
             return false;
           }
 
+          // Skip if the added node contains our extension elements
           if ((node as Element).querySelector("[data-clutch-extension]")) {
             return false;
           }
         }
       }
 
+      // Check removed nodes - skip if they are our extension elements
       if (mutation.removedNodes.length > 0) {
         for (const node of Array.from(mutation.removedNodes)) {
           if (!(node instanceof Element)) continue;
@@ -101,6 +112,7 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         }
       }
 
+      // Skip specific elements that commonly contain our badges
       if (
         target.classList?.contains("elo") &&
         target.querySelector("[data-clutch-extension='faceit-badge-player']")
@@ -115,13 +127,30 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         return false;
       }
 
-      if (
-        target.classList?.contains("party-name") &&
-        target.querySelector("[data-clutch-extension='average-party-elo']")
-      ) {
-        return false;
+      // Skip party-name changes if it's likely from our own injection
+      if (target.classList?.contains("party-name")) {
+        // Skip if it already has our element
+        if (
+          target.querySelector("[data-clutch-extension='average-party-elo']")
+        ) {
+          return false;
+        }
+
+        // Skip if we're adding our own element (check if the added node is our wrapper)
+        if (mutation.addedNodes.length > 0) {
+          for (const node of Array.from(mutation.addedNodes)) {
+            if (
+              node instanceof Element &&
+              (node.hasAttribute("data-clutch-extension") ||
+                node.classList?.contains("clutch-average-party-elo-wrapper"))
+            ) {
+              return false;
+            }
+          }
+        }
       }
 
+      // Skip tooltip wrapper changes
       if (
         target.classList?.contains("tooltip-wrapper") ||
         target.closest?.(".tooltip-wrapper")
@@ -129,6 +158,7 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         return false;
       }
 
+      // Only process changes to actual party elements
       const isPartyElement =
         target.classList?.contains("party-members-grid") ||
         target.classList?.contains("party-player-card") ||
@@ -141,9 +171,6 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
       const isChildListChange = mutation.type === "childList";
       const isAttributeChange = mutation.type === "attributes";
       const isCharacterDataChange = mutation.type === "characterData";
-
-      const hasAddedOrRemovedNodes =
-        mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0;
 
       // Special check for hydration-related changes
       const isLikelyHydrationChange =
@@ -160,9 +187,8 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
       }
 
       return (
-        (isPartyElement &&
-          (isChildListChange || isAttributeChange || isCharacterDataChange)) ||
-        hasAddedOrRemovedNodes
+        isPartyElement &&
+        (isChildListChange || isAttributeChange || isCharacterDataChange)
       );
     });
 
@@ -271,12 +297,68 @@ async function addAveragePartyEloDisplay(
     return existingDisplay as HTMLElement;
   }
 
-  const badgeElement = createRankBadgeElement(averageElo, 24, true);
-  badgeElement.setAttribute("data-clutch-extension", "average-party-elo");
+  // Create the main wrapper with proper structure
+  const wrapper = document.createElement("div");
+  wrapper.className = "clutch-average-party-elo-wrapper";
+  wrapper.setAttribute("data-clutch-extension", "average-party-elo");
 
-  partyNameDiv.appendChild(badgeElement);
+  // Create the "Average ELO:" label
+  const label = document.createElement("div");
+  label.className = "clutch-average-elo-label";
+  label.textContent = "Average ELO:";
+  wrapper.appendChild(label);
 
-  return badgeElement;
+  // Create container for the rank badge
+  const rankBadgeContainer = document.createElement("div");
+  rankBadgeContainer.className = "clutch-average-elo-rank-badge";
+  rankBadgeContainer.setAttribute("tabindex", "0");
+
+  // Create the actual rank badge (without the tooltip wrapper since we're creating our own structure)
+  const rankTier = getRankTier(averageElo);
+  const formattedElo = formatElo(averageElo);
+  const capitalizedRankTier =
+    rankTier.charAt(0).toUpperCase() + rankTier.slice(1);
+
+  const rankBadge = document.createElement("div");
+  rankBadge.className = `rank-badge ${rankTier} clutch-rank-badge`;
+  rankBadge.style.cssText = `--size: 24px;`;
+  rankBadge.setAttribute(
+    "aria-label",
+    `Rank: ${capitalizedRankTier}, Elo: ${formattedElo}`
+  );
+
+  // Create image element
+  const img = document.createElement("img");
+  img.alt = `Renown rank ${rankTier}`;
+  img.width = 24;
+  img.height = 24;
+  img.style.color = "transparent";
+  try {
+    img.src = chrome.runtime.getURL(
+      `assets/graphics/renown-ranks/${rankTier}.svg`
+    );
+  } catch (error) {
+    console.warn("Error getting rank icon path:", error);
+  }
+
+  // Add elo text
+  const span = document.createElement("span");
+  span.className = "clutch-rank-badge-text";
+  span.textContent = formattedElo;
+
+  rankBadge.appendChild(img);
+  rankBadge.appendChild(span);
+  rankBadgeContainer.appendChild(rankBadge);
+  wrapper.appendChild(rankBadgeContainer);
+
+  // Create separator for Faceit badge
+  const separator = document.createElement("div");
+  separator.className = "clutch-faceit-separator";
+  wrapper.appendChild(separator);
+
+  partyNameDiv.appendChild(wrapper);
+
+  return wrapper;
 }
 
 function removeAllFaceitBadges(): void {
@@ -286,7 +368,7 @@ function removeAllFaceitBadges(): void {
   faceitBadges.forEach((badge) => badge.remove());
 
   const averageFaceitBadges = document.querySelectorAll(
-    "[data-clutch-extension='faceit-badge-average']"
+    "[data-clutch-extension='faceit-badge-party-average']"
   );
   averageFaceitBadges.forEach((badge) => badge.remove());
 }
@@ -305,7 +387,6 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
     const { playerNames, playerNameToCardMap, averageElo, playerCount } =
       await gatherPlayerData(settings.showFaceitEloOnPartyList);
 
-    // Remove existing displays first
     removeAveragePartyEloDisplay();
     removeAllFaceitBadges();
 
@@ -384,14 +465,17 @@ function addAverageFaceitBadge(
 
   // Remove existing average Faceit badge
   const existingBadge = wrapper.querySelector(
-    "[data-clutch-extension='faceit-badge-average']"
+    "[data-clutch-extension='faceit-badge-party-average']"
   );
   if (existingBadge) {
     existingBadge.remove();
   }
 
-  const faceitBadge = createFaceitBadgeElement(averageFaceitElo, 20, true);
-  faceitBadge.setAttribute("data-clutch-extension", "faceit-badge-average");
+  const faceitBadge = createFaceitBadgeElement(averageFaceitElo, 24, true);
+  faceitBadge.setAttribute(
+    "data-clutch-extension",
+    "faceit-badge-party-average"
+  );
 
   wrapper.appendChild(faceitBadge);
 }
@@ -429,7 +513,6 @@ async function initializeAveragePartyElo(
   }
 }
 
-// Register this feature with the new unified system
 registerFeature({
   settingKey: "showAveragePartyElo",
   category: "mainPage",
