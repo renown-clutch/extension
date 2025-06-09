@@ -54,7 +54,7 @@ Use this checklist to track testing and fixing progress after the major refactor
 ### 🏠 **Main Page Features**
 
 - [x] **Last Played Matches** - Recent match history display ✅ _Dynamic enable/disable working perfectly_
-- [x] **Average Party ELO** - Calculate and show party average ratings ⚠️ _Enables properly but cleanup not working (stays visible when disabled)_
+- [x] **Average Party ELO** - Calculate and show party average ratings ✅ _Dynamic enable/disable working perfectly_
 - [x] **Faceit ELO on Party List** - Display Faceit ratings in party listings ✅ _Dynamic enable/disable working perfectly_
 - [x] **Clickable Party Usernames** - Convert usernames to clickable profile links ✅ _Dynamic enable/disable working perfectly_
 
@@ -176,19 +176,31 @@ The extension now uses a **zero-config cleanup system** that:
 
 - **Total Features**: 42
 - **Tested**: 12
-- **Working**: 12 (Theme System + Fixed Features including Chat Persistence)
-- **Needs Minor Fixes**: 1 (Average Party ELO cleanup issue)
-- **Not Started**: 29
+- **Working**: 12 (Theme System + All Main Page Features + Chat System + Sidebar Features)
+- **Needs Minor Fixes**: 0
+- **Not Started**: 30
 
 ### 🎉 **Recently Fixed (Dynamic Enable/Disable)**
 
 - ✅ **Chat Window** - Perfect cleanup and activation
 - ✅ **Chat Persistence** - Messages now reload properly when switching back to tab
 - ✅ **Last Played Matches** - Perfect cleanup and activation
+- ✅ **Average Party ELO** - Perfect cleanup and activation, fixed conditional display logic
 - ✅ **Faceit ELO on Party List** - Perfect cleanup and activation
 - ✅ **Clickable Party Usernames** - Perfect cleanup and activation
 - ✅ **Sidebar Friend Ranks** - Perfect cleanup and activation
 - ✅ **Extension Navbar Button** - Perfect cleanup and activation
+
+### 💡 **Identified Improvements**
+
+#### **Average Party ELO Optimizations**
+
+- **Race Condition Fix**: Quick enable/disable toggles can cause elements to inject due to backend response delays. Consider request cancellation or state tracking.
+- **Smart Updates**: Instead of complete re-rendering, implement intelligent updates that:
+  - Edit existing badge contents and classes
+  - Add only newly enabled badges
+  - Remove only newly disabled badges
+  - Preserve DOM structure when possible for better performance
 
 ---
 

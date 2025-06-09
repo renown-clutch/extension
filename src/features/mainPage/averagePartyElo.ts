@@ -404,11 +404,17 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
       const faceitData = await getFaceitEloByNames(playerNames);
       await addPlayerFaceitBadges(playerNameToCardMap, faceitData);
 
-      // Add average Faceit badge if enabled
-      if (settings.showFaceitEloOnPartyList) {
-        const wrapper = await addAveragePartyEloDisplay(averageElo || 0);
-        if (wrapper) {
-          addAverageFaceitBadge(wrapper, faceitData);
+      // Add average Faceit badge only if average party ELO is also enabled
+      if (
+        settings.showFaceitEloOnPartyList &&
+        settings.showAveragePartyElo &&
+        averageElo !== null
+      ) {
+        const existingWrapper = document.querySelector(
+          "[data-clutch-extension='average-party-elo']"
+        ) as HTMLElement;
+        if (existingWrapper) {
+          addAverageFaceitBadge(existingWrapper, faceitData);
         }
       }
     }
