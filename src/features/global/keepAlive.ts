@@ -8,26 +8,43 @@ let keepAliveIntervalId: number | null = null;
 let lastKeepAlive: boolean | undefined = undefined;
 
 function doKeepAliveAction() {
+  console.log("doKeepAliveAction");
   window.scrollBy(0, 1);
   setTimeout(() => window.scrollBy(0, -1), 100);
 }
 
 function initializeKeepAlive(settings: UserSettings): void {
   try {
-    if (settings.keepAlive && settings.keepAlive !== lastKeepAlive) {
+    // Check if the setting has changed from the last time
+    if (settings.keepAlive !== lastKeepAlive) {
+      // Clear any existing interval first
       if (keepAliveIntervalId !== null) {
         clearInterval(keepAliveIntervalId);
+        keepAliveIntervalId = null;
       }
-      keepAliveIntervalId = window.setInterval(doKeepAliveAction, 60 * 1000);
-      lastKeepAlive = settings.keepAlive;
-    } else if (!settings.keepAlive && keepAliveIntervalId !== null) {
-      clearInterval(keepAliveIntervalId);
-      keepAliveIntervalId = null;
+
+      // If keepAlive is enabled, start the interval
+      if (settings.keepAlive) {
+        keepAliveIntervalId = window.setInterval(doKeepAliveAction, 10 * 1000);
+        console.log("[KeepAlive] Started - interval every 10 seconds");
+      } else {
+        console.log("[KeepAlive] Stopped - interval cleared");
+      }
+
+      // Update the last known state
       lastKeepAlive = settings.keepAlive;
     }
   } catch (error) {
     console.error("[KeepAlive] Error in initialization:", error);
   }
+}
+
+function cleanupKeepAlive(): void {
+  if (keepAliveIntervalId !== null) {
+    clearInterval(keepAliveIntervalId);
+    keepAliveIntervalId = null;
+  }
+  lastKeepAlive = undefined;
 }
 
 // Register this feature with the new unified system
@@ -40,6 +57,8 @@ registerFeature({
   shouldActivate: ActivationHelpers.whenEnabled("keepAlive"),
 
   handler: initializeKeepAlive,
+
+  cleanupHandler: cleanupKeepAlive,
 
   apiCalls: [],
 });
