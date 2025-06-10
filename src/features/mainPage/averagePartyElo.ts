@@ -10,7 +10,10 @@ import {
   getRankTier,
   formatElo,
 } from "$utils/data/rankBadgeUtils";
-import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
+import {
+  createFaceitBadgeElement,
+  getFaceitLevel,
+} from "$utils/data/faceitUtils";
 
 import browserAPI from "$system/lib/browserAPI";
 
@@ -335,36 +338,38 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
     const { playerNames, playerNameToCardMap, averageElo, playerCount } =
       await gatherPlayerData(settings.showFaceitEloOnPartyList);
 
-    removeAveragePartyEloDisplay();
-    removeAllFaceitBadges();
-
     if (playerCount === 0) {
+      // No players - remove everything
+      removeAveragePartyEloDisplay();
+      removeAllFaceitBadges();
       return;
     }
 
-    // Add average party ELO display
+    // Smart update for average party ELO display
     if (settings.showAveragePartyElo && averageElo !== null) {
-      await addAveragePartyEloDisplay(averageElo);
+      await smartUpdateAveragePartyEloDisplay(averageElo);
+    } else {
+      // Remove if disabled or no ELO
+      removeAveragePartyEloDisplay();
     }
 
-    // Add individual player Faceit badges
+    // Smart update for individual player Faceit badges
     if (settings.showFaceitEloOnPartyList && playerNames.length > 0) {
       const faceitData = await getFaceitEloByNames(playerNames);
-      await addPlayerFaceitBadges(playerNameToCardMap, faceitData);
+      smartUpdatePlayerFaceitBadges(playerNameToCardMap, faceitData);
 
-      // Add average Faceit badge only if average party ELO is also enabled
-      if (
-        settings.showFaceitEloOnPartyList &&
-        settings.showAveragePartyElo &&
-        averageElo !== null
-      ) {
+      // Smart update for average Faceit badge
+      if (settings.showAveragePartyElo && averageElo !== null) {
         const existingWrapper = document.querySelector(
           "[data-clutch-extension='average-party-elo']"
         ) as HTMLElement;
         if (existingWrapper) {
-          addAverageFaceitBadge(existingWrapper, faceitData);
+          smartUpdateAverageFaceitBadge(existingWrapper, faceitData);
         }
       }
+    } else {
+      // Remove Faceit badges if disabled
+      removeAllFaceitBadges();
     }
   } catch (error) {
     console.error("[AveragePartyElo] Error in updatePartyDisplay:", error);
@@ -462,6 +467,241 @@ async function initializeAveragePartyElo(
     await updatePartyDisplay(settings);
   } catch (error) {
     console.error("[AveragePartyElo] Error in initialization:", error);
+  }
+}
+
+async function smartUpdateAveragePartyEloDisplay(
+  averageElo: number
+): Promise<HTMLElement | null> {
+  const partyNameDiv = await waitForElement("div.party-name");
+  if (!partyNameDiv) {
+    return null;
+  }
+
+  // Check if we already have an average ELO display
+  const existingDisplay = partyNameDiv.querySelector(
+    "[data-clutch-extension='average-party-elo']"
+  ) as HTMLElement;
+
+  if (existingDisplay) {
+    // Smart update: Update existing display instead of recreating
+    const rankBadge = existingDisplay.querySelector(".clutch-rank-badge");
+    const rankBadgeText = existingDisplay.querySelector(
+      ".clutch-rank-badge-text"
+    );
+    const rankBadgeImg = existingDisplay.querySelector("img");
+
+    if (rankBadge && rankBadgeText && rankBadgeImg) {
+      const rankTier = getRankTier(averageElo);
+      const formattedElo = formatElo(averageElo);
+      const capitalizedRankTier =
+        rankTier.charAt(0).toUpperCase() + rankTier.slice(1);
+
+      // Update classes and attributes without DOM destruction
+      rankBadge.className = `rank-badge ${rankTier} clutch-rank-badge`;
+      rankBadge.setAttribute(
+        "aria-label",
+        `Rank: ${capitalizedRankTier}, Elo: ${formattedElo}`
+      );
+
+      // Update text content
+      rankBadgeText.textContent = formattedElo;
+
+      // Update image source
+      rankBadgeImg.alt = `Renown rank ${rankTier}`;
+      try {
+        rankBadgeImg.src = chrome.runtime.getURL(
+          `assets/graphics/renown-ranks/${rankTier}.svg`
+        );
+      } catch (error) {
+        console.warn("Error getting rank icon path:", error);
+      }
+
+      return existingDisplay;
+    }
+  }
+
+  // If no existing display or update failed, create new one
+  return await addAveragePartyEloDisplay(averageElo);
+}
+
+function smartUpdatePlayerFaceitBadges(
+  playerNameToCardMap: Record<string, Element>,
+  faceitData: Record<string, number | null>
+): void {
+  // Get all existing player cards and their current badges
+  const existingBadges = new Map<string, Element>();
+
+  Object.entries(playerNameToCardMap).forEach(([playerName, card]) => {
+    const existingBadge = card.querySelector(
+      "[data-clutch-extension='faceit-badge-player']"
+    );
+    if (existingBadge) {
+      existingBadges.set(playerName, existingBadge);
+    }
+  });
+
+  // Update or create badges for each player
+  Object.entries(playerNameToCardMap).forEach(([playerName, card]) => {
+    const faceitElo = faceitData[playerName];
+    const existingBadge = existingBadges.get(playerName);
+
+    if (faceitElo && faceitElo > 0) {
+      if (existingBadge) {
+        // Smart update: Update existing badge content
+        const faceitLevel = getFaceitLevel(faceitElo);
+        const badgeImg = existingBadge.querySelector(".clutch-faceit-image");
+        const badgeText = existingBadge.querySelector(
+          ".clutch-faceit-badge-text"
+        );
+
+        if (badgeImg && badgeText) {
+          try {
+            (badgeImg as HTMLImageElement).src = chrome.runtime.getURL(
+              `assets/graphics/faceit-levels/lvl${faceitLevel}.svg`
+            );
+            badgeText.textContent = faceitElo.toString();
+
+            // Update alt text
+            (badgeImg as HTMLImageElement).alt = `Faceit level ${faceitLevel}`;
+
+            // Update aria-label on the badge
+            const faceitBadge = existingBadge.querySelector(".faceit-badge");
+            if (faceitBadge) {
+              faceitBadge.setAttribute(
+                "aria-label",
+                `Faceit Level: ${faceitLevel}, Elo: ${faceitElo}`
+              );
+            }
+          } catch (error) {
+            console.warn("Error updating Faceit badge:", error);
+            // Fallback: recreate the badge
+            existingBadge.remove();
+            const eloDiv = card.querySelector(".elo");
+            if (eloDiv) {
+              const faceitBadge = createFaceitBadgeElement(faceitElo, 20, true);
+              faceitBadge.setAttribute(
+                "data-clutch-extension",
+                "faceit-badge-player"
+              );
+              eloDiv.parentNode?.insertBefore(faceitBadge, eloDiv.nextSibling);
+            }
+          }
+        } else {
+          // Fallback: recreate if structure is wrong
+          existingBadge.remove();
+          const eloDiv = card.querySelector(".elo");
+          if (eloDiv) {
+            const faceitBadge = createFaceitBadgeElement(faceitElo, 20, true);
+            faceitBadge.setAttribute(
+              "data-clutch-extension",
+              "faceit-badge-player"
+            );
+            eloDiv.parentNode?.insertBefore(faceitBadge, eloDiv.nextSibling);
+          }
+        }
+      } else {
+        // Create new badge if it doesn't exist
+        const eloDiv = card.querySelector(".elo");
+        if (eloDiv) {
+          const faceitBadge = createFaceitBadgeElement(faceitElo, 20, true);
+          faceitBadge.setAttribute(
+            "data-clutch-extension",
+            "faceit-badge-player"
+          );
+          eloDiv.parentNode?.insertBefore(faceitBadge, eloDiv.nextSibling);
+        }
+      }
+    } else {
+      // Remove badge if player no longer has Faceit ELO
+      if (existingBadge) {
+        existingBadge.remove();
+      }
+    }
+  });
+}
+
+function smartUpdateAverageFaceitBadge(
+  wrapper: HTMLElement,
+  faceitData: Record<string, number | null>
+): void {
+  const faceitValues = Object.values(faceitData).filter(
+    (elo) => elo !== null && elo > 0
+  ) as number[];
+
+  const existingBadge = wrapper.querySelector(
+    "[data-clutch-extension='faceit-badge-party-average']"
+  );
+
+  if (faceitValues.length === 0) {
+    // Remove badge if no Faceit data
+    if (existingBadge) {
+      existingBadge.remove();
+    }
+    return;
+  }
+
+  const averageFaceitElo = Math.round(
+    faceitValues.reduce((sum, elo) => sum + elo, 0) / faceitValues.length
+  );
+
+  if (existingBadge) {
+    // Smart update: Update existing badge content
+    const faceitLevel = getFaceitLevel(averageFaceitElo);
+    const badgeImg = existingBadge.querySelector(".clutch-faceit-image");
+    const badgeText = existingBadge.querySelector(".clutch-faceit-badge-text");
+
+    if (badgeImg && badgeText) {
+      try {
+        (badgeImg as HTMLImageElement).src = chrome.runtime.getURL(
+          `assets/graphics/faceit-levels/lvl${faceitLevel}.svg`
+        );
+        badgeText.textContent = averageFaceitElo.toString();
+
+        // Update alt text
+        (badgeImg as HTMLImageElement).alt = `Faceit level ${faceitLevel}`;
+
+        // Update aria-label on the badge
+        const faceitBadge = existingBadge.querySelector(".faceit-badge");
+        if (faceitBadge) {
+          faceitBadge.setAttribute(
+            "aria-label",
+            `Faceit Level: ${faceitLevel}, Elo: ${averageFaceitElo}`
+          );
+        }
+      } catch (error) {
+        console.warn("Error updating average Faceit badge:", error);
+        // Fallback: recreate the badge
+        existingBadge.remove();
+        const faceitBadge = createFaceitBadgeElement(
+          averageFaceitElo,
+          24,
+          true
+        );
+        faceitBadge.setAttribute(
+          "data-clutch-extension",
+          "faceit-badge-party-average"
+        );
+        wrapper.appendChild(faceitBadge);
+      }
+    } else {
+      // Fallback: recreate if structure is wrong
+      existingBadge.remove();
+      const faceitBadge = createFaceitBadgeElement(averageFaceitElo, 24, true);
+      faceitBadge.setAttribute(
+        "data-clutch-extension",
+        "faceit-badge-party-average"
+      );
+      wrapper.appendChild(faceitBadge);
+    }
+  } else {
+    // Create new badge if it doesn't exist
+    const faceitBadge = createFaceitBadgeElement(averageFaceitElo, 24, true);
+    faceitBadge.setAttribute(
+      "data-clutch-extension",
+      "faceit-badge-party-average"
+    );
+    wrapper.appendChild(faceitBadge);
   }
 }
 
