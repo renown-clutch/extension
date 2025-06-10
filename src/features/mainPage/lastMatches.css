@@ -3,6 +3,18 @@
 .clutch-past-matches {
   margin-top: 2.5rem;
   margin-bottom: -4rem;
+
+  /* Smooth fade-in animation */
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: clutch-fade-in-down 0.4s ease-out forwards;
+}
+
+@keyframes clutch-fade-in-down {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .clutch-last-matches-title {
