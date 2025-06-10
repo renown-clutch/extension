@@ -195,7 +195,21 @@ async function gatherPlayerData(showSinglePlayers: boolean = false): Promise<{
 
     if (nameElement && eloElement) {
       const playerName = nameElement.textContent?.trim();
-      const eloText = eloElement.textContent?.trim();
+
+      // Get ELO text excluding our extension elements
+      let eloText = "";
+      for (const node of eloElement.childNodes) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          eloText += node.textContent || "";
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          // Skip our extension elements
+          const element = node as Element;
+          if (!element.hasAttribute("data-clutch-extension")) {
+            eloText += element.textContent || "";
+          }
+        }
+      }
+      eloText = eloText.trim();
 
       if (playerName && eloText) {
         const eloNumber = parseInt(eloText.replace(/[^\d]/g, ""), 10);

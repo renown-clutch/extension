@@ -24,3 +24,11 @@
 .clutch-faceit-separator {
   width: 8px;
 }
+
+/* Force vertical layout for .elo div when it contains Faceit badges */
+.party-player-card .elo:has([data-clutch-extension="faceit-badge-player"]) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+}

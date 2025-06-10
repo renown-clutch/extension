@@ -199,7 +199,7 @@ function createNewPlayerFaceitBadge(
   if (eloDiv) {
     const faceitBadge = createFaceitBadgeElement(faceitElo, size, true);
     faceitBadge.setAttribute("data-clutch-extension", "faceit-badge-player");
-    eloDiv.parentNode?.insertBefore(faceitBadge, eloDiv.nextSibling);
+    eloDiv.appendChild(faceitBadge);
   }
 }
 
