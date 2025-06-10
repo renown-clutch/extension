@@ -277,10 +277,15 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
     }
 
     // Smart update for average party ELO display
-    if (settings.showAveragePartyElo && averageElo !== null) {
+    // Only show average ELO if there are 2+ players
+    if (
+      settings.showAveragePartyElo &&
+      averageElo !== null &&
+      playerCount > 1
+    ) {
       await smartUpdateAveragePartyElo(averageElo);
     } else {
-      // Remove if disabled or no ELO
+      // Remove if disabled, no ELO, or only 1 player
       removeAveragePartyEloDisplay();
     }
 
@@ -290,7 +295,12 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
       smartUpdatePlayerFaceitBadges(playerNameToCardMap, faceitData);
 
       // Smart update for average Faceit badge
-      if (settings.showAveragePartyElo && averageElo !== null) {
+      // Only show average Faceit badge if there are 2+ players
+      if (
+        settings.showAveragePartyElo &&
+        averageElo !== null &&
+        playerCount > 1
+      ) {
         const existingWrapper = document.querySelector(
           "[data-clutch-extension='average-party-elo']"
         ) as HTMLElement;
