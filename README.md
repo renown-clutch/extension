@@ -22,9 +22,9 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 🤖 **Automation Features**
 
-- [ ] **Match Auto-Accept** - Automatically accept match invitations with configurable delay (3s default)
-- [ ] **Party Auto-Accept** - Automatically accept party invitations with configurable delay (3s default)
-- [ ] **Auto-Accept Settings** - Delay configuration and toggle controls
+- [x] **Match Auto-Accept** - Automatically accept match invitations with configurable delay (3s default) ✅ _Dynamic enable/disable working perfectly_
+- [x] **Party Auto-Accept** - Automatically accept party invitations with configurable delay (3s default) ✅ _Dynamic enable/disable working perfectly_
+- [x] **Auto-Accept Settings** - Delay configuration and toggle controls ✅ _Real-time delay updates without page reload_
 
 ### 🏆 **Live Match Enhancements**
 
@@ -167,13 +167,16 @@ The extension now uses a **zero-config cleanup system** that:
 ### Progress Summary
 
 - **Total Features**: 42
-- **Tested**: 16
-- **Working**: 16 (Theme System + All Main Page Features + Chat System + Sidebar Features + Keep Alive + Audio Features)
+- **Tested**: 19
+- **Working**: 19 (Theme System + All Main Page Features + Chat System + Sidebar Features + Keep Alive + Audio Features + Auto-Accept Features)
 - **Needs Minor Fixes**: 0
-- **Not Started**: 26
+- **Not Started**: 23
 
 ### 🎉 **Recently Fixed (Dynamic Enable/Disable)**
 
+- ✅ **Match Auto-Accept** - Added proper cleanup handlers and dependency tracking for delay settings
+- ✅ **Party Auto-Accept** - Added proper cleanup handlers and dependency tracking for delay settings
+- ✅ **Auto-Accept Settings** - Removed force page reload, now updates in real-time
 - ✅ **Chat Window** - Perfect cleanup and activation
 - ✅ **Chat Persistence** - Messages now reload properly when switching back to tab
 - ✅ **Last Played Matches** - Perfect cleanup and activation

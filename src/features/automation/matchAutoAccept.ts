@@ -203,7 +203,10 @@ registerFeature({
     (currentPage, settings) => settings.autoAccept?.match === true
   ),
 
+  dependsOn: ["matchAutoAcceptDelay", "matchFoundSound", "matchFoundVolume"],
+
   handler: initializeMatchAutoAccept,
+  cleanupHandler: cleanup,
 
   apiCalls: [],
 });

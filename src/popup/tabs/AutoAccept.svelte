@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { UserSettings } from "$system/lib/types";
   import { defaultUserSettings } from "$system/lib/types";
-  import { onMount } from "svelte";
   import SwitchSlider from "$system/components/constants/switch-slider.svelte";
 
   let {
@@ -15,65 +14,6 @@
       defaultUserSettings.partyAutoAcceptDelay
     ),
   } = $props();
-
-  let previousMatch = defaultUserSettings.autoAccept.match;
-  let previousParty = defaultUserSettings.autoAccept.party;
-
-  onMount(() => {
-    previousMatch = autoAccept.match;
-    previousParty = autoAccept.party;
-  });
-
-  $effect(() => {
-    if (
-      previousMatch === autoAccept.match &&
-      previousParty === autoAccept.party
-    ) {
-      return;
-    }
-
-    const matchChanged = previousMatch !== autoAccept.match;
-    const partyChanged = previousParty !== autoAccept.party;
-
-    previousMatch = autoAccept.match;
-    previousParty = autoAccept.party;
-
-    if (matchChanged || partyChanged) {
-      forceReload();
-    }
-  });
-
-  function forceReload() {
-    if (typeof chrome !== "undefined" && chrome.tabs) {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0]?.id) {
-          chrome.tabs.sendMessage(
-            tabs[0].id,
-            {
-              type: "forceReload",
-            },
-            () => {
-              if (chrome.runtime.lastError) {
-                return;
-              }
-            }
-          );
-        }
-      });
-    } else if (typeof browser !== "undefined" && browser.tabs) {
-      browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-        if (tabs[0]?.id) {
-          browser.tabs
-            .sendMessage(tabs[0].id, {
-              type: "forceReload",
-            })
-            .catch(() => {
-              return;
-            });
-        }
-      });
-    }
-  }
 </script>
 
 <main class=" flex flex-col gap-4">

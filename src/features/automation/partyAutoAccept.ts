@@ -172,7 +172,10 @@ registerFeature({
     (currentPage, settings) => settings.autoAccept?.party === true
   ),
 
+  dependsOn: ["partyAutoAcceptDelay"],
+
   handler: initializePartyAutoAccept,
+  cleanupHandler: cleanup,
 
   apiCalls: [],
 });
