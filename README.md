@@ -202,6 +202,41 @@ All main page features are fully functional with:
 - ✅ **Dynamic Player Detection** - Fixed bug where new players joining lobby weren't getting badges updated
 - ✅ **Simplified Mutation Detection** - Replaced complex hydration logic with simple, reliable change detection
 - ✅ **Code Refactoring** - Reduced `averagePartyElo.ts` from 733 to 352 lines (52% reduction) by extracting reusable utilities
+- ✅ **Smooth Fade-In Animations** - Added polished entrance animations to all visible extension elements for better UX
+
+### 🎨 **Animation System**
+
+#### **Smooth Fade-In Animations**
+
+All visible extension elements now feature polished entrance animations for enhanced user experience:
+
+- ✅ **Average Party ELO Display** - Slides in from left with fade (0.3s)
+- ✅ **Individual Player Faceit Badges** - Slide up from below with scale + fade (0.25s, 0.1s delay)
+- ✅ **Average Faceit Badge** - Scale + fade animation (0.2s, 0.15s delay)
+- ✅ **Last 3 Matches** - Slides down from above with fade (0.4s)
+- ✅ **Sidebar Friend Ranks** - Scale up with fade (0.3s, 0.1s delay)
+- ✅ **Navbar CLUTCH Button** - Slides in from left with fade (0.3s, 0.2s delay)
+
+**Design Principle**: All visible extension elements should receive smooth fade-in animations instead of sudden appearance for better UX polish.
+
+#### **Animation TODO List**
+
+**🎯 High Priority (Active Features):**
+
+- [ ] **Chat Messages** - Add fade-in for individual message elements
+
+**📋 Medium Priority (When Features Are Implemented):**
+
+- [ ] **Live Match Features** - Player stats, Faceit ranks, map statistics, team ELO displays
+- [ ] **Match Page Features** - Faceit ranks, team averages, map statistics with colors
+- [ ] **Profile Features** - CSStats/Faceit buttons, ban info, highest ELO, current matches
+- [ ] **Friends Features** - Friend list ranks, sorting UI, enhanced friends list interface
+
+**💡 Implementation Notes:**
+
+- Use consistent timing: 0.2s max duration
+- Match animation style to context: slides for containers, scales for badges, fades for text
+- Test animations don't interfere with existing site functionality
 
 ### 💡 **Identified Improvements**
 
