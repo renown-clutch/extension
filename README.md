@@ -89,14 +89,6 @@ Use this checklist to track testing and fixing progress after the major refactor
 - [ ] **Settings Persistence** - Save and sync all user preferences
 - [ ] **Cross-Browser Compatibility** - Chrome and Firefox support
 
-### 🛠 **System Features**
-
-- [ ] **Settings Popup Interface** - Comprehensive settings management
-- [ ] **Theme Integration** - Site-wide theme application
-- [ ] **API Integration** - Connection to Clutch API (apiv2.goclutch.pro)
-- [ ] **Background Service Worker** - Persistent background functionality
-- [ ] **Content Script Injection** - Seamless site integration
-
 ## 📁 Project Structure
 
 ```
@@ -201,14 +193,4 @@ The extension now uses a **zero-config cleanup system** that:
   - Add only newly enabled badges
   - Remove only newly disabled badges
   - Preserve DOM structure when possible for better performance
-
----
-
-## 📞 Support & Development
-
-This extension integrates with:
-
-- **Renown.gg** gaming platform
-- **Clutch API** (apiv2.goclutch.pro)
-- **Faceit** profile integration
-- **CSStats** statistics platform
+- **Chat**: Update backendend client code to read users steam ids from messages directly instead of ask api and have cache (add steam id field to redis messages)
