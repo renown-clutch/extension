@@ -11,12 +11,7 @@ import {
   formatElo,
 } from "$utils/data/rankBadgeUtils";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
-import {
-  waitForHydrationComplete,
-  resetHydrationDetection,
-  cleanupHydrationDetection,
-  createHydrationAwareMutationCallback,
-} from "$utils/ui/hydrationUtils";
+
 import browserAPI from "$system/lib/browserAPI";
 
 let partyObserver: MutationObserver | null = null;
@@ -59,143 +54,98 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
   }
 
   partyObserver = new MutationObserver((mutations) => {
-    const relevantMutation = mutations.some((mutation) => {
-      const target = mutation.target as HTMLElement;
+    let shouldUpdate = false;
 
-      // Skip if the target itself has our extension attribute
-      if (target.hasAttribute && target.hasAttribute("data-clutch-extension")) {
-        return false;
-      }
-
-      // Skip if the target already contains our elements
+    mutations.forEach((mutation) => {
+      // Skip mutations on our own elements
       if (
-        target.querySelector &&
-        target.querySelector("[data-clutch-extension]")
+        mutation.target instanceof Element &&
+        mutation.target.hasAttribute("data-clutch-extension")
       ) {
-        return false;
+        return;
       }
 
-      // Skip if the target is inside one of our elements
-      if (target.closest && target.closest("[data-clutch-extension]")) {
-        return false;
+      // Skip if target is inside our elements
+      if (
+        mutation.target instanceof Element &&
+        mutation.target.closest("[data-clutch-extension]")
+      ) {
+        return;
       }
 
-      // Check added nodes - skip if they are our extension elements
+      // Check if any added nodes are our elements
       if (mutation.addedNodes.length > 0) {
-        for (const node of Array.from(mutation.addedNodes)) {
-          if (!(node instanceof Element)) continue;
-
-          // Skip if the added node has our extension attribute
-          if ((node as Element).hasAttribute("data-clutch-extension")) {
-            return false;
+        const hasOwnElements = Array.from(mutation.addedNodes).some((node) => {
+          if (node instanceof Element) {
+            return (
+              node.hasAttribute("data-clutch-extension") ||
+              node.querySelector("[data-clutch-extension]")
+            );
           }
-
-          // Skip if the added node contains our extension elements
-          if ((node as Element).querySelector("[data-clutch-extension]")) {
-            return false;
-          }
-        }
-      }
-
-      // Check removed nodes - skip if they are our extension elements
-      if (mutation.removedNodes.length > 0) {
-        for (const node of Array.from(mutation.removedNodes)) {
-          if (!(node instanceof Element)) continue;
-
-          if ((node as Element).hasAttribute("data-clutch-extension")) {
-            return false;
-          }
-
-          if ((node as Element).querySelector("[data-clutch-extension]")) {
-            return false;
-          }
-        }
-      }
-
-      // Skip specific elements that commonly contain our badges
-      if (
-        target.classList?.contains("elo") &&
-        target.querySelector("[data-clutch-extension='faceit-badge-player']")
-      ) {
-        return false;
-      }
-
-      if (
-        target.classList?.contains("party-player-card") &&
-        target.querySelector("[data-clutch-extension='faceit-badge-player']")
-      ) {
-        return false;
-      }
-
-      // Skip party-name changes if it's likely from our own injection
-      if (target.classList?.contains("party-name")) {
-        // Skip if it already has our element
-        if (
-          target.querySelector("[data-clutch-extension='average-party-elo']")
-        ) {
           return false;
-        }
+        });
 
-        // Skip if we're adding our own element (check if the added node is our wrapper)
-        if (mutation.addedNodes.length > 0) {
-          for (const node of Array.from(mutation.addedNodes)) {
-            if (
-              node instanceof Element &&
-              (node.hasAttribute("data-clutch-extension") ||
-                node.classList?.contains("clutch-average-party-elo-wrapper"))
-            ) {
-              return false;
+        if (hasOwnElements) {
+          return;
+        }
+      }
+
+      // Check if any removed nodes are our elements
+      if (mutation.removedNodes.length > 0) {
+        const hasOwnElements = Array.from(mutation.removedNodes).some(
+          (node) => {
+            if (node instanceof Element) {
+              return (
+                node.hasAttribute("data-clutch-extension") ||
+                node.querySelector("[data-clutch-extension]")
+              );
             }
+            return false;
           }
-        }
-      }
-
-      // Skip tooltip wrapper changes
-      if (
-        target.classList?.contains("tooltip-wrapper") ||
-        target.closest?.(".tooltip-wrapper")
-      ) {
-        return false;
-      }
-
-      // Only process changes to actual party elements
-      const isPartyElement =
-        target.classList?.contains("party-members-grid") ||
-        target.classList?.contains("party-player-card") ||
-        target.classList?.contains("party-list") ||
-        (target.parentElement &&
-          (target.parentElement.classList?.contains("party-members-grid") ||
-            target.parentElement.classList?.contains("party-player-card") ||
-            target.parentElement.classList?.contains("party-list")));
-
-      const isChildListChange = mutation.type === "childList";
-      const isAttributeChange = mutation.type === "attributes";
-      const isCharacterDataChange = mutation.type === "characterData";
-
-      // Special check for hydration-related changes
-      const isLikelyHydrationChange =
-        mutation.addedNodes.length > 0 &&
-        Array.from(mutation.addedNodes).some(
-          (node) =>
-            node instanceof Element &&
-            node.classList?.contains("party-player-card")
         );
 
-      if (isLikelyHydrationChange) {
-        // Reset hydration detection so we wait again
-        resetHydrationDetection();
+        if (hasOwnElements) {
+          return;
+        }
       }
 
-      return (
-        isPartyElement &&
-        (isChildListChange || isAttributeChange || isCharacterDataChange)
-      );
+      // Ignore tooltip-related changes
+      if (mutation.target instanceof Element) {
+        const targetClasses = mutation.target.className;
+        if (
+          typeof targetClasses === "string" &&
+          (targetClasses.includes("tooltip") ||
+            targetClasses.includes("popover") ||
+            targetClasses.includes("dropdown"))
+        ) {
+          return;
+        }
+      }
+
+      // Check for relevant changes
+      if (mutation.type === "childList") {
+        const hasRelevantChanges = Array.from(mutation.addedNodes).some(
+          (node) => {
+            if (node instanceof Element) {
+              return (
+                node.matches(".party-player-card") ||
+                node.querySelector(".party-player-card") ||
+                node.matches(".party-list") ||
+                node.querySelector(".party-list")
+              );
+            }
+            return false;
+          }
+        );
+
+        if (hasRelevantChanges) {
+          shouldUpdate = true;
+        }
+      }
     });
 
-    if (relevantMutation) {
-      setTimeout(() => {
-        updatePartyDisplay(settings);
-      }, 0);
+    if (shouldUpdate) {
+      updatePartyDisplay(settings);
     }
   });
 
@@ -382,8 +332,6 @@ function removeAveragePartyEloDisplay(): void {
 
 async function updatePartyDisplay(settings: UserSettings): Promise<void> {
   try {
-    await waitForHydrationComplete();
-
     const { playerNames, playerNameToCardMap, averageElo, playerCount } =
       await gatherPlayerData(settings.showFaceitEloOnPartyList);
 
@@ -494,8 +442,6 @@ function removeAveragePartyElo(disconnectObserver = true): void {
     partyObserver.disconnect();
     partyObserver = null;
   }
-
-  cleanupHydrationDetection();
 }
 
 async function initializeAveragePartyElo(
