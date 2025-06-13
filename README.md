@@ -225,6 +225,7 @@ All visible extension elements now feature polished entrance animations for enha
 **🎯 High Priority (Active Features):**
 
 - [ ] **Chat Messages** - Add fade-in for individual message elements
+- [ ] **Chat** - Update backend client code to read users steam ids from messages directly instead of ask api and have cache (add steam id field to redis messages)
 
 **📋 Medium Priority (When Features Are Implemented):**
 
@@ -245,4 +246,3 @@ All visible extension elements now feature polished entrance animations for enha
 
 - **Race Condition Fix**: Quick enable/disable toggles can cause elements to inject due to backend response delays. Consider request cancellation or state tracking.
 - ✅ **Smart Updates**: IMPLEMENTED - Now intelligently updates existing badge contents and classes, adds only newly enabled badges, removes only newly disabled badges, and preserves DOM structure for better performance and no flickering.
-- **Chat**: Update backend client code to read users steam ids from messages directly instead of ask api and have cache (add steam id field to redis messages)
