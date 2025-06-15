@@ -3,7 +3,7 @@ export const config = {
     stagingUrl: "http://localhost:80",
     productionUrl: "https://apiv2.goclutch.pro",
     useStaging: false,
-    maxReconnectAttempts: 10,
+    maxReconnectAttempts: 25,
     reconnectDelay: 3000,
     heartbeatInterval: 30000,
   },
