@@ -32,15 +32,25 @@ function setupGlobalMessageListener() {
   messageListenerRegistered = true;
 
   browserAPI.runtime.onMessage.addListener((message) => {
+    console.log("[Chat Debug] Received runtime message:", message);
+
     if (!currentChatWindow) {
+      console.log("[Chat Debug] No current chat window available");
       return;
     }
 
     if (message.type === "chat_message") {
+      console.log("[Chat Debug] Processing new chat message:", message.data);
       currentChatWindow.addMessageToChat(message.data);
     } else if (message.type === "recent_messages") {
+      console.log("[Chat Debug] Processing recent messages response:", message);
       if (Array.isArray(message.data)) {
         currentChatWindow.processRecentMessages(message.data);
+      } else {
+        console.warn(
+          "[Chat Debug] Recent messages data is not an array:",
+          message.data
+        );
       }
     }
   });
@@ -304,17 +314,25 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
 
     async function loadRecentMessages() {
       try {
+        console.log("[Chat Debug] Loading recent messages...");
         // Request recent messages - don't clear messages until we get new ones
         const response = await browserAPI.runtime.sendMessage({
           type: "get_recent_messages",
           limit: 50,
         });
 
+        console.log(
+          "[Chat Debug] Response from get_recent_messages:",
+          response
+        );
+
         if (!response?.success) {
           console.warn(
             "[Chat Content] Failed to request recent messages:",
             response
           );
+        } else {
+          console.log("[Chat Debug] Successfully requested recent messages");
         }
       } catch (error) {
         console.error("[Chat Content] Error in loadRecentMessages:", error);
@@ -394,10 +412,17 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
     let wasHidden = false;
 
     function handleVisibilityChange() {
+      console.log(
+        "[Chat Debug] Visibility change detected, document.hidden:",
+        document.hidden
+      );
+
       if (document.hidden) {
         wasHidden = true;
+        console.log("[Chat Debug] Page hidden, marking for reload");
       } else if (wasHidden) {
         // Tab just became visible after being hidden - reload recent messages
+        console.log("[Chat Debug] Page visible again, reloading messages");
         loadRecentMessages();
         wasHidden = false;
       }
@@ -414,21 +439,37 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
     document.body.appendChild(container);
 
     // Load recent messages when chat initializes
+    console.log(
+      "[Chat Debug] Chat window initialized, loading initial messages"
+    );
     loadRecentMessages();
 
     function processRecentMessages(data: any[]): void {
+      console.log("[Chat Debug] Processing recent messages:", {
+        messageCount: data.length,
+        messages: data,
+      });
+
       // Clear messages only when we actually have new messages to show
       messagesContainer.innerHTML = "";
 
       // Collect all usernames for preloading
       const usernames = data.map((msg) => msg.username).filter(Boolean);
+      console.log(
+        "[Chat Debug] Extracted usernames for preloading:",
+        usernames
+      );
+
       if (usernames.length > 0) {
         chatUsernameCache.preloadUsernames(usernames);
       }
 
       data.reverse().forEach((msg, index) => {
+        console.log("[Chat Debug] Adding message to chat:", msg);
         addMessageToChat(msg);
       });
+
+      console.log("[Chat Debug] Finished processing recent messages");
     }
 
     // Set up the current chat window

@@ -1,0 +1,113 @@
+/* === Clutch Extension - Shared Animations === */
+
+/* Base animation classes for common entrance effects */
+.clutch-animate-fade-in {
+  opacity: 0;
+  animation: clutch-fade-in 0.3s ease-out forwards;
+}
+
+.clutch-animate-fade-in-slide {
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: clutch-fade-in-slide 0.3s ease-out forwards;
+}
+
+.clutch-animate-fade-in-slide-delayed {
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: clutch-fade-in-slide 0.3s ease-out 0.2s forwards;
+}
+
+.clutch-animate-fade-in-down {
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: clutch-fade-in-down 0.4s ease-out forwards;
+}
+
+.clutch-animate-fade-in-up {
+  opacity: 0;
+  transform: translateY(10px) scale(0.9);
+  animation: clutch-fade-in-up 0.25s ease-out 0.1s forwards;
+}
+
+.clutch-animate-fade-in-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: clutch-fade-in-scale 0.2s ease-out 0.15s forwards;
+}
+
+.clutch-animate-fade-in-scale-delayed {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: clutch-fade-in-scale-sidebar 0.3s ease-out 0.1s forwards;
+}
+
+/* === Keyframe Definitions === */
+
+@keyframes clutch-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes clutch-fade-in-slide {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes clutch-fade-in-down {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes clutch-fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes clutch-fade-in-scale {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes clutch-fade-in-scale-sidebar {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === Animation Utility Classes === */
+
+/* Quick timing variants */
+.clutch-animate-fast {
+  animation-duration: 0.2s !important;
+}
+
+.clutch-animate-slow {
+  animation-duration: 0.5s !important;
+}
+
+.clutch-animate-no-delay {
+  animation-delay: 0s !important;
+}
+
+.clutch-animate-delay-short {
+  animation-delay: 0.1s !important;
+}
+
+.clutch-animate-delay-medium {
+  animation-delay: 0.2s !important;
+}
+
+.clutch-animate-delay-long {
+  animation-delay: 0.3s !important;
+}

@@ -1,15 +1,5 @@
 /* Navbar Component Styles */
 
 #clutch-extension-navbar-link {
-  /* Smooth fade-in animation */
-  opacity: 0;
-  transform: translateX(-10px);
-  animation: clutch-fade-in-slide-navbar 0.3s ease-out 0.2s forwards;
-}
-
-@keyframes clutch-fade-in-slide-navbar {
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  /* Use shared animation class */
 }

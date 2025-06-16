@@ -75,7 +75,7 @@ Use this checklist to track testing and fixing progress after the major refactor
 **Known Issues:**
 
 - ✅ **Chat Persistence** - ~~Chat messages disappear when switching away from the Renown tab and returning~~ **FIXED** ✅
-- ❌ **Chat Loading** - Sometimes chat does not show any messages when the page is first loaded
+- 🔍 **Chat Loading** - Sometimes chat does not show any messages when the page is first loaded (_Debug logging added to track this issue_)
 
 ### 🔊 **Audio Features**
 
@@ -148,6 +148,33 @@ src/
 - ⏸️ **Skipped** - Not tested yet
 
 ## 🛠️ **System Improvements**
+
+### **Shared Animation System** ✅ **NEW**
+
+The extension now includes a unified animation system for consistent user experience:
+
+- ✅ **Shared Animation Classes** - Reusable CSS classes for all entrance animations
+- ✅ **Animation Utilities** - TypeScript utilities for programmatic animation application
+- ✅ **Feature Presets** - Pre-configured animation styles for different feature types
+- ✅ **Build Integration** - Animations automatically included in the build process
+- ✅ **Documentation** - Complete usage guide for developers
+- ✅ **Migration Support** - Easy migration from old individual animation CSS
+
+**Benefits:**
+
+- 🎨 **Consistent UX** - All extension elements use the same animation timing and easing
+- 📦 **Reduced Bundle Size** - Eliminated duplicate animation CSS across features
+- 🚀 **Developer Experience** - Simple API for adding animations to new features
+- 🔧 **Maintainability** - Single source of truth for all animation styles
+
+### **Debug Logging System** ✅ **NEW**
+
+Enhanced debugging capabilities for troubleshooting:
+
+- ✅ **Chat Debug Logs** - Comprehensive logging for message loading and processing
+- ✅ **Runtime Message Tracking** - Monitor all browser extension API communications
+- ✅ **Visibility State Monitoring** - Track tab focus changes affecting chat functionality
+- ✅ **Error Context** - Detailed error reporting with contextual information
 
 ### **Granular Feature Update System**
 
@@ -224,6 +251,7 @@ All visible extension elements now feature polished entrance animations for enha
 
 **🎯 High Priority (Active Features):**
 
+- [x] **Chat Minimized Icon** - Add appear animation to chat icon when minimized ✅
 - [ ] **Chat Messages** - Add fade-in for individual message elements
 - [ ] **Chat** - Update backend client code to read users steam ids from messages directly instead of ask api and have cache (add steam id field to redis messages)
 

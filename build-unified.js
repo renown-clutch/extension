@@ -102,6 +102,18 @@ function mergeFeatureStyles(outDir) {
   // Directories to ignore
   const ignoreDirs = ['popup', 'themes'];
   
+  // Always include shared animations first
+  const sharedAnimationsPath = path.join(__dirname, 'src/system/components/ui/animations.css');
+  let mergedCSS = '';
+  
+  if (fs.existsSync(sharedAnimationsPath)) {
+    const animationsContent = fs.readFileSync(sharedAnimationsPath, 'utf8');
+    mergedCSS += `\n/* === Shared Animations === */\n`;
+    mergedCSS += animationsContent;
+    mergedCSS += '\n';
+    console.log('  ✓ Included shared animations');
+  }
+  
   // Function to recursively find CSS files
   function findCSSFiles(dir) {
     const files = [];
@@ -133,9 +145,13 @@ function mergeFeatureStyles(outDir) {
   
   console.log(`  Processing ${cssFiles.length} CSS files...`);
   
-  // Process all CSS files
-  let mergedCSS = '';
+  // Process all CSS files (excluding shared animations since we already included it)
   for (const file of cssFiles) {
+    // Skip the shared animations file since we already included it
+    if (file === sharedAnimationsPath) {
+      continue;
+    }
+    
     const relativePath = path.relative(srcDir, file);
     const content = fs.readFileSync(file, 'utf8');
     

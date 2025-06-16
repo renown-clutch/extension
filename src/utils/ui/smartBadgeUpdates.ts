@@ -199,6 +199,7 @@ function createNewPlayerFaceitBadge(
   if (eloDiv) {
     const faceitBadge = createFaceitBadgeElement(faceitElo, size, true);
     faceitBadge.setAttribute("data-clutch-extension", "faceit-badge-player");
+    faceitBadge.classList.add("clutch-animate-fade-in-up");
     eloDiv.appendChild(faceitBadge);
   }
 }
@@ -221,6 +222,7 @@ function createNewAverageFaceitBadge(
     "data-clutch-extension",
     "faceit-badge-party-average"
   );
+  faceitBadge.classList.add("clutch-animate-fade-in-scale");
   wrapper.appendChild(faceitBadge);
 }
 
@@ -229,7 +231,8 @@ async function createNewAverageEloDisplay(
   averageElo: number
 ): Promise<HTMLElement | null> {
   const wrapper = document.createElement("div");
-  wrapper.className = "clutch-average-party-elo-wrapper";
+  wrapper.className =
+    "clutch-average-party-elo-wrapper clutch-animate-fade-in-slide";
   wrapper.setAttribute("data-clutch-extension", "average-party-elo");
 
   const label = document.createElement("div");

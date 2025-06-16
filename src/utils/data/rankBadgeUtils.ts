@@ -63,7 +63,8 @@ export function createRankBadgeElement(
 
   // Create tooltip wrapper
   const tooltipWrapper = document.createElement("div");
-  tooltipWrapper.className = "tooltip-wrapper";
+  tooltipWrapper.className =
+    "tooltip-wrapper clutch-animate-fade-in-scale-delayed";
   tooltipWrapper.setAttribute("tabindex", "0");
 
   // Create rank badge div

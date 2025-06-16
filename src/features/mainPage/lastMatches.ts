@@ -102,7 +102,8 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     const matches: Match[] = response.data.matches;
 
     const pastMatchesContainer = document.createElement("div");
-    pastMatchesContainer.className = "profile-match-list clutch-past-matches";
+    pastMatchesContainer.className =
+      "profile-match-list clutch-past-matches clutch-animate-fade-in-down";
 
     const titleDiv = document.createElement("div");
     titleDiv.className = "clutch-last-matches-title";

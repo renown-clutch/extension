@@ -45,6 +45,7 @@ async function addLinkToNavbar(): Promise<void> {
 
   const clutchLink = document.createElement("a");
   clutchLink.id = BUTTON_ID;
+  clutchLink.className = "clutch-animate-fade-in-slide-delayed";
   clutchLink.href = "#";
   clutchLink.textContent = "CLUTCH";
   clutchLink.addEventListener("click", handleButtonClick);
