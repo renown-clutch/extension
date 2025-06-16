@@ -8,7 +8,6 @@ let keepAliveIntervalId: number | null = null;
 let lastKeepAlive: boolean | undefined = undefined;
 
 function doKeepAliveAction() {
-  console.log("doKeepAliveAction");
   window.scrollBy(0, 1);
   setTimeout(() => window.scrollBy(0, -1), 100);
 }
