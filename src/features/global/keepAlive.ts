@@ -14,23 +14,16 @@ function doKeepAliveAction() {
 
 function initializeKeepAlive(settings: UserSettings): void {
   try {
-    // Check if the setting has changed from the last time
     if (settings.keepAlive !== lastKeepAlive) {
-      // Clear any existing interval first
       if (keepAliveIntervalId !== null) {
         clearInterval(keepAliveIntervalId);
         keepAliveIntervalId = null;
       }
 
-      // If keepAlive is enabled, start the interval
       if (settings.keepAlive) {
         keepAliveIntervalId = window.setInterval(doKeepAliveAction, 10 * 1000);
-        console.log("[KeepAlive] Started - interval every 10 seconds");
-      } else {
-        console.log("[KeepAlive] Stopped - interval cleared");
       }
 
-      // Update the last known state
       lastKeepAlive = settings.keepAlive;
     }
   } catch (error) {
