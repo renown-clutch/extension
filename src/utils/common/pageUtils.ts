@@ -65,22 +65,43 @@ export function getCurrentPage(): PageType {
   const url = window.location.href;
   const path = new URL(url).pathname;
 
+  console.log("[PageUtils] Detecting page type:", { url, path });
+
   if (url.includes("renown.gg/admin")) {
+    console.log("[PageUtils] Detected: admin");
     return { type: "admin" };
   }
 
   for (const { pattern, handler } of ROUTE_MATCHERS) {
     if (typeof pattern === "string") {
       if (url.includes(pattern)) {
-        return handler(null);
+        const result = handler(null);
+        console.log(
+          "[PageUtils] Detected (string match):",
+          result,
+          "pattern:",
+          pattern
+        );
+        return result;
       }
     } else {
       const matches = path.match(pattern);
       if (matches) {
-        return handler(matches);
+        const result = handler(matches);
+        console.log(
+          "[PageUtils] Detected (regex match):",
+          result,
+          "pattern:",
+          pattern,
+          "matches:",
+          matches
+        );
+        return result;
       }
     }
   }
+
+  console.log("[PageUtils] Detected: unknown");
   return { type: "unknown" };
 }
 

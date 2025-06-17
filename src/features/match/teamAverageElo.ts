@@ -7,6 +7,8 @@ import { createRankBadgeElement } from "$utils/data/rankBadgeUtils";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
 import { waitForElement, waitForElements } from "$utils/profileUtils";
 import { waitForHydrationComplete } from "$utils/ui/hydrationUtils";
+import { getCurrentPage } from "$utils/common/pageUtils";
+import { applyPresetAnimation } from "$utils/ui/animationUtils";
 import browserAPI from "$system/lib/browserAPI";
 
 interface PlayerData {
@@ -19,22 +21,35 @@ interface FaceitInfo {
   url?: string;
 }
 
-function cleanupBadges() {
-  const elements = document.querySelectorAll(
-    '[data-clutch-extension="team-average-elo-element"], .team-avg-elo'
-  );
-  elements.forEach((element) => {
-    if (element.parentNode) {
-      element.parentNode.removeChild(element);
-    }
-  });
+function cleanupBadges(targetType?: "all" | "faceit" | "renown") {
+  if (!targetType || targetType === "all") {
+    // Full cleanup
+    const elements = document.querySelectorAll(
+      '[data-clutch-extension="team-average-elo-element"], .team-avg-elo'
+    );
+    elements.forEach((element) => {
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    });
 
-  // Remove injected CSS when cleaning up
-  const styleElement = document.getElementById(
-    "clutch-team-average-elo-styles"
-  );
-  if (styleElement) {
-    styleElement.remove();
+    // Remove injected CSS when cleaning up
+    const styleElement = document.getElementById(
+      "clutch-team-average-elo-styles"
+    );
+    if (styleElement) {
+      styleElement.remove();
+    }
+  } else if (targetType === "faceit") {
+    // Only remove faceit badges from team average displays
+    const elements = document.querySelectorAll(
+      '[data-clutch-extension="team-average-elo-element"] .clutch-team-faceit-badge'
+    );
+    elements.forEach((element) => {
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    });
   }
 }
 
@@ -134,6 +149,9 @@ async function processTeamTable(
 
   wrapper.appendChild(badgesContainer);
 
+  // Apply entrance animation
+  applyPresetAnimation(wrapper, "averageBadge");
+
   heading.appendChild(wrapper);
 }
 
@@ -191,31 +209,88 @@ async function getFaceitData(
 }
 
 async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
-  cleanupBadges();
+  console.log("[TeamAverageElo] Initializing with settings:", {
+    showTeamAverageElo: settings.showTeamAverageElo,
+    showFaceitRanksOnMatchPage: settings.showFaceitRanksOnMatchPage,
+    currentUrl: window.location.href,
+    currentPage: getCurrentPage(),
+  });
 
   if (!settings.showTeamAverageElo) {
+    console.log("[TeamAverageElo] Feature disabled in settings");
+    cleanupBadges("all");
     return;
   }
 
+  // Check if we already have team average ELO displays
+  const existingDisplays = document.querySelectorAll(
+    '[data-clutch-extension="team-average-elo-element"]'
+  );
+  const hasExistingDisplays = existingDisplays.length > 0;
+
+  if (hasExistingDisplays) {
+    console.log(
+      "[TeamAverageElo] Existing displays found, checking for Faceit-only update"
+    );
+
+    try {
+      const players = await getMatchPagePlayers();
+      if (players.length > 0) {
+        // Get faceit data if faceit ranks are enabled
+        let faceitData: Record<string, FaceitInfo> = {};
+        if (settings.showFaceitRanksOnMatchPage) {
+          console.log(
+            "[TeamAverageElo] Fetching Faceit data for partial update..."
+          );
+          faceitData = await getFaceitData(players.map((p) => p.steamId));
+        }
+
+        // Do a partial update instead of full re-render
+        await updateFaceitBadgesOnly(players, faceitData, settings);
+        return;
+      }
+    } catch (error) {
+      console.error(
+        "[TeamAverageElo] Error in partial update, falling back to full render:",
+        error
+      );
+    }
+  }
+
+  // Full initialization (first time or fallback)
+  console.log("[TeamAverageElo] Performing full initialization");
+  cleanupBadges("all");
+
   try {
+    console.log("[TeamAverageElo] Waiting for hydration...");
     // Wait for hydration to complete before proceeding
     await waitForHydrationComplete();
 
+    console.log("[TeamAverageElo] Getting container and players...");
     const container = await waitForElement(".page");
     const players = await getMatchPagePlayers();
 
     if (!players.length) {
+      console.log("[TeamAverageElo] No players found on page");
       return;
     }
+
+    console.log(`[TeamAverageElo] Found ${players.length} players`);
 
     // Get faceit data if faceit ranks are enabled
     let faceitData: Record<string, FaceitInfo> = {};
     if (settings.showFaceitRanksOnMatchPage) {
+      console.log("[TeamAverageElo] Fetching Faceit data...");
       faceitData = await getFaceitData(players.map((p) => p.steamId));
     }
 
     const teamTables = container.querySelectorAll(".team-stats-table");
+    console.log(`[TeamAverageElo] Found ${teamTables.length} team tables`);
     if (teamTables.length !== 2) {
+      console.log(
+        "[TeamAverageElo] Expected 2 team tables, found",
+        teamTables.length
+      );
       return;
     }
 
@@ -224,6 +299,9 @@ async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
         const playerElement = player.element;
         return table.contains(playerElement);
       });
+      console.log(
+        `[TeamAverageElo] Processing team table with ${teamPlayers.length} players`
+      );
       await processTeamTable(
         table as HTMLElement,
         teamPlayers,
@@ -236,19 +314,86 @@ async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
   }
 }
 
+// Function to update only Faceit badges in existing team average displays
+async function updateFaceitBadgesOnly(
+  players: PlayerData[],
+  faceitData: Record<string, FaceitInfo>,
+  settings: UserSettings
+) {
+  console.log("[TeamAverageElo] Updating only Faceit badges");
+
+  const teamTables = document.querySelectorAll(".team-stats-table");
+  if (teamTables.length !== 2) {
+    return;
+  }
+
+  // First, remove existing faceit badges
+  cleanupBadges("faceit");
+
+  if (!settings.showFaceitRanksOnMatchPage) {
+    console.log("[TeamAverageElo] Faceit ranks disabled, badges removed");
+    return;
+  }
+
+  for (const table of teamTables) {
+    const teamPlayers = players.filter((player) => {
+      const playerElement = player.element;
+      return table.contains(playerElement);
+    });
+
+    const avgFaceitElo = calculateTeamAverageFaceitElo(
+      table as HTMLElement,
+      teamPlayers,
+      faceitData
+    );
+
+    if (avgFaceitElo !== null) {
+      const existingWrapper = table.querySelector(
+        '[data-clutch-extension="team-average-elo-element"]'
+      );
+      if (existingWrapper) {
+        const badgesContainer = existingWrapper.querySelector(
+          ".clutch-team-badges-container"
+        );
+        if (badgesContainer) {
+          const faceitBadgeElement = createFaceitBadgeElement(
+            avgFaceitElo,
+            25,
+            true,
+            ""
+          );
+          faceitBadgeElement.classList.add("clutch-team-faceit-badge");
+
+          // Apply animation to the new faceit badge
+          applyPresetAnimation(faceitBadgeElement, "averageBadge");
+
+          badgesContainer.appendChild(faceitBadgeElement);
+        }
+      }
+    }
+  }
+}
+
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "showTeamAverageElo",
   category: "match",
   defaultValue: true,
   description: "Show team average ELO",
+  featureId: "matchPageTeamAverageElo",
 
   shouldActivate: ActivationHelpers.and(
     ActivationHelpers.onPageTypes(["matchPage"]),
     ActivationHelpers.whenEnabled("showTeamAverageElo")
   ),
 
+  dependsOn: ["showFaceitRanksOnMatchPage"],
+
   handler: initializeTeamAverageElo,
+  cleanupHandler: async (settings: UserSettings) => {
+    console.log("[TeamAverageElo] Cleaning up team average ELO");
+    cleanupBadges();
+  },
 
   apiCalls: [
     {

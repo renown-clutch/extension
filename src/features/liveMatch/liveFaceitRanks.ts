@@ -420,6 +420,8 @@ async function initializeLiveFaceitRanks(
     cleanupFaceitIcons();
     observers.forEach((observer) => observer.disconnect());
     observers = [];
+    processedPlayers.clear();
+    faceitIconMap.clear();
     return;
   }
 
@@ -447,6 +449,7 @@ registerFeature({
   category: "match",
   defaultValue: true,
   description: "Show Faceit ranks on live match pages",
+  featureId: "liveFaceitRanks",
 
   shouldActivate: ActivationHelpers.and(
     ActivationHelpers.onPageTypes(["playMatch"]),

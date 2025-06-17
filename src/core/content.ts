@@ -107,13 +107,13 @@ async function applyChangedFeatures(
   // Get features that are affected by the changed settings
   const affectedFeatures = getAffectedFeatures(changedParts);
   const affectedFeatureKeys = new Set(
-    affectedFeatures.map((f) => f.settingKey)
+    affectedFeatures.map((f) => f.featureId || f.settingKey)
   );
 
   // Get the current state of features
   const allActiveFeatures = getActiveFeatures(settings);
   const shouldBeActiveKeys = new Set(
-    allActiveFeatures.map((f) => f.settingKey)
+    allActiveFeatures.map((f) => f.featureId || f.settingKey)
   );
 
   console.log(
@@ -126,15 +126,15 @@ async function applyChangedFeatures(
   // Step 1: Handle features that need cleanup (were active, now inactive)
   const featuresNeedingCleanup = affectedFeatures.filter(
     (feature) =>
-      currentlyActiveFeatures.has(feature.settingKey) &&
-      !shouldBeActiveKeys.has(feature.settingKey) &&
+      currentlyActiveFeatures.has(feature.featureId || feature.settingKey) &&
+      !shouldBeActiveKeys.has(feature.featureId || feature.settingKey) &&
       feature.cleanupHandler
   );
 
   if (featuresNeedingCleanup.length > 0) {
     console.log(
       `[Content] 🧹 Cleaning up ${featuresNeedingCleanup.length} deactivated features:`,
-      featuresNeedingCleanup.map((f) => f.settingKey)
+      featuresNeedingCleanup.map((f) => f.featureId || f.settingKey)
     );
 
     for (const feature of featuresNeedingCleanup) {
@@ -142,7 +142,9 @@ async function applyChangedFeatures(
         await feature.cleanupHandler!(settings);
       } catch (error) {
         console.error(
-          `[Content] ❌ Error cleaning up feature ${feature.settingKey}:`,
+          `[Content] ❌ Error cleaning up feature ${
+            feature.featureId || feature.settingKey
+          }:`,
           error
         );
       }
@@ -152,13 +154,13 @@ async function applyChangedFeatures(
   // Step 2: Handle features that need activation/refresh
   // (either newly active or active features that need to respond to dependency changes)
   const featuresNeedingActivation = affectedFeatures.filter((feature) =>
-    shouldBeActiveKeys.has(feature.settingKey)
+    shouldBeActiveKeys.has(feature.featureId || feature.settingKey)
   );
 
   if (featuresNeedingActivation.length > 0) {
     console.log(
       `[Content] ⚡ Updating ${featuresNeedingActivation.length} affected features:`,
-      featuresNeedingActivation.map((f) => f.settingKey)
+      featuresNeedingActivation.map((f) => f.featureId || f.settingKey)
     );
 
     for (const feature of featuresNeedingActivation) {
@@ -166,7 +168,9 @@ async function applyChangedFeatures(
         await feature.handler(settings);
       } catch (error) {
         console.error(
-          `[Content] ❌ Error updating feature ${feature.settingKey}:`,
+          `[Content] ❌ Error updating feature ${
+            feature.featureId || feature.settingKey
+          }:`,
           error
         );
       }
@@ -185,7 +189,9 @@ async function applyActiveFeatures(settings: UserSettings) {
 
   // Get features that should be active for current page and settings
   const activeFeatures = getActiveFeatures(settings);
-  const shouldBeActiveKeys = new Set(activeFeatures.map((f) => f.settingKey));
+  const shouldBeActiveKeys = new Set(
+    activeFeatures.map((f) => f.featureId || f.settingKey)
+  );
 
   // Step 1: Clean up features that were active but should no longer be active
   const featuresNeedingCleanup = getFeaturesNeedingCleanup(
@@ -196,7 +202,7 @@ async function applyActiveFeatures(settings: UserSettings) {
   if (featuresNeedingCleanup.length > 0) {
     console.log(
       `[Content] 🧹 Cleaning up ${featuresNeedingCleanup.length} deactivated features:`,
-      featuresNeedingCleanup.map((f) => f.settingKey)
+      featuresNeedingCleanup.map((f) => f.featureId || f.settingKey)
     );
 
     // Call cleanup handlers for deactivated features
@@ -205,7 +211,9 @@ async function applyActiveFeatures(settings: UserSettings) {
         await feature.cleanupHandler!(settings);
       } catch (error) {
         console.error(
-          `[Content] ❌ Error cleaning up feature ${feature.settingKey}:`,
+          `[Content] ❌ Error cleaning up feature ${
+            feature.featureId || feature.settingKey
+          }:`,
           error
         );
       }
@@ -222,7 +230,9 @@ async function applyActiveFeatures(settings: UserSettings) {
       await feature.handler(settings);
     } catch (error) {
       console.error(
-        `[Content] ❌ Feature ${feature.settingKey} failed:`,
+        `[Content] ❌ Feature ${
+          feature.featureId || feature.settingKey
+        } failed:`,
         error
       );
     }

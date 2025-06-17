@@ -330,6 +330,7 @@ registerFeature({
   category: "match",
   defaultValue: true,
   description: "Show team average ELO for live matches",
+  featureId: "teamAverageEloLive",
 
   shouldActivate: ActivationHelpers.and(
     ActivationHelpers.onPageTypes(["playMatch"]),
