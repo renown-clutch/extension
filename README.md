@@ -63,7 +63,6 @@ Use this checklist to track testing and fixing progress after the major refactor
 - [x] **Friend List Ranks** - Display ranks in friends list ✅ _Dynamic enable/disable working perfectly + Animations added_
 - [x] **Friend List Sorting** - Sort friends by Renown ELO ✅ _Dynamic enable/disable working perfectly_
 - [x] **Sidebar Friend Ranks** - Show friend ranks in sidebar ✅ _Dynamic enable/disable working perfectly_
-- [ ] **Friends List UI** - Enhanced friends list interface
 
 ### 💬 **Chat System**
 
