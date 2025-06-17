@@ -75,7 +75,6 @@ Use this checklist to track testing and fixing progress after the major refactor
 **Known Issues:**
 
 - ✅ **Chat Persistence** - ~~Chat messages disappear when switching away from the Renown tab and returning~~ **FIXED** ✅
-- 🔍 **Chat Loading** - Sometimes chat does not show any messages when the page is first loaded (_Debug logging added to track this issue_)
 
 ### 🔊 **Audio Features**
 
