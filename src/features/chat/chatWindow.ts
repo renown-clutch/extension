@@ -10,6 +10,7 @@ import { getUserInfo } from "$system/auth/steamIdParser";
 import { getStoredUIState, saveUIState } from "$utils/ui/uiStateUtils";
 import { unregisterShadowRoot } from "../../themes/shadowThemeManager";
 import { chatUsernameCache } from "$system/api/chat/ChatUsernameCache";
+import { applyAnimation } from "$utils/ui/animationUtils";
 
 const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
 
@@ -169,6 +170,9 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
 
     const chatContainer = document.createElement("div");
     chatContainer.className = "chat-container";
+
+    // Apply fade-in-up animation when chat container is created
+    applyAnimation(chatContainer, "fade-in-up", "normal");
 
     const chatHeader = document.createElement("div");
     chatHeader.className = "chat-header";
