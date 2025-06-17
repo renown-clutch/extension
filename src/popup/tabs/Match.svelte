@@ -6,7 +6,6 @@
     showFaceitRanksOnMatchPage = $bindable(false),
     showTeamAverageElo = $bindable(false),
     showMapStats = $bindable(false),
-    showMapStatsColors = $bindable(false),
     liveMatchPlayerStats = $bindable(false),
     showLiveMatchPlayerStreak = $bindable(false),
   } = $props();
@@ -31,13 +30,6 @@
     labelText="Map Stats"
     descriptionText="Show map pick rates for each team"
     bind:checked={showMapStats}
-  />
-
-  <SwitchComponent
-    labelText="Map Stats Colors"
-    descriptionText="Show colors on map stats"
-    bind:checked={showMapStatsColors}
-    disabled={!showMapStats}
   />
 
   <h2 class="text-lg">Live Match</h2>

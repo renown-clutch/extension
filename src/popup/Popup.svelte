@@ -173,7 +173,6 @@
           }
           bind:showTeamAverageElo={userSettings.showTeamAverageElo}
           bind:showMapStats={userSettings.showMapStats}
-          bind:showMapStatsColors={userSettings.showMapStatsColors}
           bind:liveMatchPlayerStats={userSettings.liveMatchPlayerStats}
           bind:showLiveMatchPlayerStreak={
             userSettings.showLiveMatchPlayerStreak

@@ -65,7 +65,6 @@ export type UserSettings = {
   matchFoundSound: MatchFoundSound;
   matchFoundVolume: number;
   showMapStats: boolean;
-  showMapStatsColors: boolean;
   liveMatchPlayerStats: boolean;
   showLiveMatchPlayerStreak: boolean;
   showLastPlayedMatches: boolean;
@@ -239,12 +238,6 @@ export const SETTING_DEFINITIONS: Record<
     category: "match",
     defaultValue: true,
     description: "Show map statistics",
-  },
-  showMapStatsColors: {
-    key: "showMapStatsColors",
-    category: "match",
-    defaultValue: true,
-    description: "Show map statistics colors",
   },
   liveMatchPlayerStats: {
     key: "liveMatchPlayerStats",

@@ -161,28 +161,6 @@ function createLucideIcon(iconName: string, size: number = 16): SVGElement {
   return svg;
 }
 
-function applyGradientStyle(
-  element: HTMLElement,
-  team1Wins: number,
-  team2Wins: number
-): void {
-  const isUserTeamWinning =
-    userTeam === "team1" ? team1Wins > team2Wins : team2Wins > team1Wins;
-  const gradientColor = isUserTeamWinning ? "52, 207, 108" : "255, 82, 82";
-
-  element.style.cssText = `
-    border-top: 2px solid transparent;
-    
-    background: 
-      linear-gradient(
-        to right,
-        rgba(${gradientColor}, 0) 0%,
-        rgba(${gradientColor}, 1) 50%,
-        rgba(${gradientColor}, 0) 100%
-      );
-  `;
-}
-
 function renderMapStats(userSettings: UserSettings): void {
   if (!mapStatsData) {
     return;
@@ -219,13 +197,6 @@ function renderMapStats(userSettings: UserSettings): void {
 
     const team1Wins = mapStats.team1 || 0;
     const team2Wins = mapStats.team2 || 0;
-
-    if (userSettings.showMapStatsColors) {
-      const cardElement = card as HTMLElement;
-      if (!cardElement.classList.contains("banned")) {
-        applyGradientStyle(cardElement, team1Wins, team2Wins);
-      }
-    }
 
     const statsWrapper = document.createElement("div");
     statsWrapper.style.cssText = `

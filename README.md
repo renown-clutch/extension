@@ -301,7 +301,7 @@ All visible extension elements now feature polished entrance animations for enha
 
 **📋 Medium Priority:**
 
-- [ ] **Live Match Features** - Player stats, Faceit ranks, map statistics, team ELO displays
+- [x] **Live Match Features** - Player stats, Faceit ranks, map statistics, team ELO displays
 - [x] **Match Page Features** - Faceit ranks, team averages
 - [x] **Profile Features** - CSStats/Faceit buttons, ban info, highest ELO, current matches
 - [x] **Friends Features** - Friend list ranks

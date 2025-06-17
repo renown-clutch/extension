@@ -13,6 +13,7 @@ import { chatUsernameCache } from "$system/api/chat/ChatUsernameCache";
 import { applyAnimation } from "$utils/ui/animationUtils";
 
 const CHAT_MINIMIZED_KEY = "clutchChatMinimized";
+const CHAT_LAST_READ_MESSAGE_KEY = "clutchChatLastReadMessage";
 
 // Global reference to current chat window for message handling
 let currentChatWindow: {
@@ -26,6 +27,90 @@ let visibilityChangeHandler: (() => void) | null = null;
 
 // Single global runtime message listener
 let messageListenerRegistered = false;
+
+// Helper functions for unread message tracking
+async function getLastReadMessage(): Promise<{
+  username: string;
+  message: string;
+  timestamp: string;
+} | null> {
+  try {
+    const result = (await browserAPI.storage.local.get(
+      CHAT_LAST_READ_MESSAGE_KEY
+    )) as Record<string, string>;
+    const stored = result[CHAT_LAST_READ_MESSAGE_KEY];
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function saveLastReadMessage(message: {
+  username: string;
+  message: string;
+  timestamp: string;
+}): Promise<void> {
+  try {
+    await browserAPI.storage.local.set({
+      [CHAT_LAST_READ_MESSAGE_KEY]: JSON.stringify(message),
+    });
+  } catch (error) {
+    console.error("[Chat] Error saving last read message:", error);
+  }
+}
+
+function getLastMessageFromContainer(messagesContainer: HTMLElement): {
+  username: string;
+  message: string;
+  timestamp: string;
+} | null {
+  const lastMessageElement = messagesContainer.lastElementChild;
+  if (!lastMessageElement) return null;
+
+  const usernameElement = lastMessageElement.querySelector(".username");
+  const messageElement = lastMessageElement.querySelector(".message-text");
+  const timestampElement = lastMessageElement.querySelector(".timestamp");
+
+  if (!usernameElement || !messageElement || !timestampElement) return null;
+
+  return {
+    username: usernameElement.textContent || "",
+    message: messageElement.textContent || "",
+    timestamp: timestampElement.textContent || "",
+  };
+}
+
+function messagesAreEqual(
+  msg1: { username: string; message: string; timestamp: string } | null,
+  msg2: { username: string; message: string; timestamp: string } | null
+): boolean {
+  if (!msg1 || !msg2) return msg1 === msg2;
+  return (
+    msg1.username === msg2.username &&
+    msg1.message === msg2.message &&
+    msg1.timestamp === msg2.timestamp
+  );
+}
+
+async function updateUnreadIndicator(
+  chatContainer: HTMLElement,
+  messagesContainer: HTMLElement
+): Promise<void> {
+  const isMinimized = chatContainer.classList.contains("minimized");
+
+  if (!isMinimized) {
+    // Chat is open, remove unread indicator
+    chatContainer.classList.remove("has-unread");
+    return;
+  }
+
+  // Chat is minimized, check for unread messages
+  const lastStoredMessage = await getLastReadMessage();
+  const currentLastMessage = getLastMessageFromContainer(messagesContainer);
+
+  const hasUnread = !messagesAreEqual(lastStoredMessage, currentLastMessage);
+  chatContainer.classList.toggle("has-unread", hasUnread);
+}
 
 function setupGlobalMessageListener() {
   if (messageListenerRegistered) return;
@@ -200,10 +285,21 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
       chatContainer.classList.add("minimized");
     }
 
-    function toggleMinimize() {
+    async function toggleMinimize() {
       const newState = !chatContainer.classList.contains("minimized");
       chatContainer.classList.toggle("minimized", newState);
       saveUIState(CHAT_MINIMIZED_KEY, newState);
+
+      if (!newState) {
+        // Chat is being expanded, save current last message as read
+        const lastMessage = getLastMessageFromContainer(messagesContainer);
+        if (lastMessage) {
+          await saveLastReadMessage(lastMessage);
+        }
+      }
+
+      // Update unread indicator based on new state
+      await updateUnreadIndicator(chatContainer, messagesContainer);
     }
 
     minimizeTab.addEventListener("click", toggleMinimize);
@@ -271,6 +367,15 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
           });
           input.value = "";
           updateCharCount(); // Reset character count
+
+          // Update last read message to include the message we just sent
+          // (since we obviously "read" our own message)
+          setTimeout(async () => {
+            const lastMessage = getLastMessageFromContainer(messagesContainer);
+            if (lastMessage) {
+              await saveLastReadMessage(lastMessage);
+            }
+          }, 100); // Small delay to ensure message is rendered
           isCooldown = true;
           cooldownIndicator.classList.add("active");
           updateSendButtonState();
@@ -379,6 +484,19 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
       }
 
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // If chat is currently expanded, mark this message as read (since user can see it)
+      if (!chatContainer.classList.contains("minimized")) {
+        const lastMessage = getLastMessageFromContainer(messagesContainer);
+        if (lastMessage) {
+          saveLastReadMessage(lastMessage).catch(console.error);
+        }
+      }
+
+      // Update unread indicator when new message arrives
+      updateUnreadIndicator(chatContainer, messagesContainer).catch(
+        console.error
+      );
     }
 
     function updateClickableUsernames(): void {
@@ -429,6 +547,11 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
     // Load recent messages when chat initializes
     loadRecentMessages();
 
+    // Initialize unread indicator based on current state
+    if (isMinimized) {
+      await updateUnreadIndicator(chatContainer, messagesContainer);
+    }
+
     function processRecentMessages(data: any[]): void {
       // Clear messages only when we actually have new messages to show
       messagesContainer.innerHTML = "";
@@ -443,6 +566,11 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
       data.reverse().forEach((msg, index) => {
         addMessageToChat(msg);
       });
+
+      // Update unread indicator after loading recent messages
+      updateUnreadIndicator(chatContainer, messagesContainer).catch(
+        console.error
+      );
     }
 
     // Set up the current chat window
