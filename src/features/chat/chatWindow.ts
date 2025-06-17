@@ -369,6 +369,9 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
 
       messageElement.appendChild(contentRow);
 
+      // Apply fade-up animation to the message
+      applyAnimation(messageElement, "fade-in-up", "fast");
+
       messagesContainer.appendChild(messageElement);
 
       while (messagesContainer.children.length > 50) {

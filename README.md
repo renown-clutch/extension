@@ -291,30 +291,17 @@ All visible extension elements now feature polished entrance animations for enha
 
 **Design Principle**: All visible extension elements should receive smooth fade-in animations instead of sudden appearance for better UX polish.
 
-#### **Animation TODO List**
+#### **TODO List**
 
-**🎯 High Priority (Active Features):**
+**🎯 High Priority:**
 
 - [x] **Chat Minimized Icon** - Add appear animation to chat icon when minimized ✅
-- [ ] **Chat Messages** - Add fade-in for individual message elements
+- [x] **Chat Messages** - Add fade-in for individual message elements
 - [ ] **Chat** - Update backend client code to read users steam ids from messages directly instead of ask api and have cache (add steam id field to redis messages)
 
-**📋 Medium Priority (When Features Are Implemented):**
+**📋 Medium Priority:**
 
 - [ ] **Live Match Features** - Player stats, Faceit ranks, map statistics, team ELO displays
-- [ ] **Match Page Features** - Faceit ranks, team averages, map statistics with colors
-- [ ] **Profile Features** - CSStats/Faceit buttons, ban info, highest ELO, current matches
-- [ ] **Friends Features** - Friend list ranks, sorting UI, enhanced friends list interface
-
-**💡 Implementation Notes:**
-
-- Use consistent timing: 0.2s max duration
-- Match animation style to context: slides for containers, scales for badges, fades for text
-- Test animations don't interfere with existing site functionality
-
-### 💡 **Identified Improvements**
-
-#### **Average Party ELO Optimizations**
-
-- **Race Condition Fix**: Quick enable/disable toggles can cause elements to inject due to backend response delays. Consider request cancellation or state tracking.
-- ✅ **Smart Updates**: IMPLEMENTED - Now intelligently updates existing badge contents and classes, adds only newly enabled badges, removes only newly disabled badges, and preserves DOM structure for better performance and no flickering.
+- [x] **Match Page Features** - Faceit ranks, team averages
+- [x] **Profile Features** - CSStats/Faceit buttons, ban info, highest ELO, current matches
+- [x] **Friends Features** - Friend list ranks
