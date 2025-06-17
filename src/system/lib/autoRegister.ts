@@ -9,6 +9,11 @@ import type { UserSettings } from "./types";
 
 // Import profile features from new structure
 import "$features/profile/friendsList";
+import "$features/profile/highestElo";
+import "$features/profile/profileButtons";
+import "$features/profile/previousBans";
+import "$features/profile/linkToCurrentMatch";
+import "$features/profile/playerMatchupStats";
 
 // Import sidebar features
 import "$features/sidebar/sidebarFriends";

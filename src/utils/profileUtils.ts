@@ -13,6 +13,11 @@ export function isProfilePage(): boolean {
   return isProfile;
 }
 
+export function isMainProfilePage(): boolean {
+  const path = window.location.pathname;
+  return /^\/profile\/\d+$/.test(path);
+}
+
 export function createProfileChangeHandler(
   callback: (profileId: string | null) => void
 ): () => void {

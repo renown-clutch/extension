@@ -43,12 +43,12 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 👤 **Profile Enhancements**
 
-- [ ] **CSStats Profile Button** - Quick access to CS:GO stats profiles
-- [ ] **Faceit Profile Button** - Direct links to Faceit profiles
-- [ ] **Ban Information Display** - Show player ban status and history
-- [ ] **Highest ELO Display** - Show player's peak ELO rating
-- [ ] **Current Match Links** - Links to player's ongoing matches
-- [ ] **Player Matchup Stats** - Head-to-head statistics between players
+- [x] **CSStats Profile Button** - Quick access to CS:GO stats profiles ✅ _Perfect functionality with smooth animations and granular enable/disable_
+- [x] **Faceit Profile Button** - Direct links to Faceit profiles ✅ _Perfect functionality with smooth animations and granular enable/disable_
+- [x] **Ban Information Display** - Show player ban status and history ✅ _Perfect functionality with smooth animations and proper cleanup_
+- [x] **Highest ELO Display** - Show player's peak ELO rating ✅ _Perfect functionality with smooth animations and smart re-rendering prevention_
+- [x] **Current Match Links** - Links to player's ongoing matches ✅ _Perfect functionality with smooth animations and smart re-rendering prevention_
+- [x] **Player Matchup Stats** - Head-to-head statistics between players ✅ _Perfect functionality with smooth animations, only shows on main profile page_
 - [ ] **Banned Player Detection** - Check and highlight matches with banned players
 
 ### 🏠 **Main Page Features**
@@ -60,8 +60,8 @@ Use this checklist to track testing and fixing progress after the major refactor
 
 ### 👥 **Friends System**
 
-- [ ] **Friend List Ranks** - Display ranks in friends list
-- [ ] **Friend List Sorting** - Sort friends by Renown ELO
+- [x] **Friend List Ranks** - Display ranks in friends list ✅ _Dynamic enable/disable working perfectly + Animations added_
+- [x] **Friend List Sorting** - Sort friends by Renown ELO ✅ _Dynamic enable/disable working perfectly_
 - [x] **Sidebar Friend Ranks** - Show friend ranks in sidebar ✅ _Dynamic enable/disable working perfectly_
 - [ ] **Friends List UI** - Enhanced friends list interface
 
@@ -194,10 +194,10 @@ The extension now uses a **zero-config cleanup system** that:
 ### Progress Summary
 
 - **Total Features**: 42
-- **Tested**: 19
-- **Working**: 19 (Theme System + All Main Page Features + Chat System + Sidebar Features + Keep Alive + Audio Features + Auto-Accept Features)
+- **Tested**: 27
+- **Working**: 27 (Theme System + All Main Page Features + Chat System + Sidebar Features + Keep Alive + Audio Features + Auto-Accept Features + Profile Features + Friends Features)
 - **Needs Minor Fixes**: 0
-- **Not Started**: 23
+- **Not Started**: 15
 
 ### **Main Page Features Status**: ✅ **COMPLETE**
 
@@ -208,6 +208,33 @@ All main page features are fully functional with:
 - ✅ Dynamic player detection (new players joining lobby)
 - ✅ Clean mutation detection logic
 - ✅ Refactored and maintainable codebase
+
+### **Profile Features Status**: ✅ **COMPLETE**
+
+All core profile features have been restored and are fully functional:
+
+- ✅ **CSStats Profile Button** - Perfect functionality with smooth animations and granular enable/disable
+- ✅ **Faceit Profile Button** - Perfect functionality with smooth animations and granular enable/disable
+- ✅ **Ban Information Display** - Perfect functionality with smooth animations and proper cleanup
+- ✅ **Highest ELO Display** - Perfect functionality with smooth animations and smart re-rendering prevention
+- ✅ **Current Match Links** - Perfect functionality with smooth animations and smart re-rendering prevention
+- ✅ **Player Matchup Stats** - Perfect functionality with smooth animations, only shows on main profile page
+- ✅ **Granular Button Control** - Each button can be enabled/disabled independently **NEW**
+- ✅ **Smart Re-rendering Prevention** - No more flickering or re-rendering on tab switches **NEW**
+- ✅ **Seamless Animations** - All elements animate smoothly without flash or delay **NEW**
+- ✅ **Proper Page Detection** - Features show on appropriate pages only **NEW**
+- ✅ **Modern Architecture** - Clean, maintainable code with proper error handling
+
+### **Friends Features Status**: ✅ **COMPLETE**
+
+All friends system features are fully functional:
+
+- ✅ **Friend List Ranks** - Display ranks in profile friends list + fade-in animations
+- ✅ **Friend List Sorting** - Sort friends by Renown ELO with proper toggle
+- ✅ **Sidebar Friend Ranks** - Show friend ranks in main page sidebar
+- ✅ Dynamic enable/disable without page reload **FIXED**
+- ✅ Proper cleanup and re-rendering **FIXED**
+- ✅ Two separate features with proper dependency tracking
 
 ### 🎉 **Recently Fixed (Dynamic Enable/Disable)**
 
