@@ -5,7 +5,11 @@ import {
 import { type UserSettings } from "$system/lib/types";
 import { waitForElement } from "$utils/profileUtils";
 import { addTooltip } from "$utils/data/faceitUtils";
+import { applyPresetAnimation } from "$utils/ui/animationUtils";
 import browserAPI from "$system/lib/browserAPI";
+
+let observers: MutationObserver[] = [];
+let processedPlayers = new Set<HTMLElement>();
 
 function injectPlayerStatsCSS() {
   if (document.getElementById("clutch-player-stats-style")) return;
@@ -113,6 +117,43 @@ function removeExistingPlayerStats() {
     ".player-stats-clutch-wrapper"
   );
   existingPlayerStats.forEach((el) => el.remove());
+  processedPlayers.clear();
+}
+
+function resetPlayerStreakAndHeader() {
+  // Only reset if we've actually modified the headers (check if W/L exists)
+  const hasWLHeader = Array.from(
+    document.querySelectorAll(".player-list-header")
+  ).some((header) =>
+    Array.from(header.querySelectorAll("div")).some(
+      (div) => div.textContent?.trim() === "W/L"
+    )
+  );
+
+  if (!hasWLHeader) {
+    // We haven't injected streak functionality, so don't reset anything
+    return;
+  }
+
+  // Reset K/D header back to normal
+  document.querySelectorAll(".player-list-header").forEach((header) => {
+    const wlHeader = Array.from(header.querySelectorAll("div")).find(
+      (div) => div.textContent?.trim() === "W/L"
+    );
+    if (wlHeader) wlHeader.textContent = "K/D";
+  });
+
+  // Reset streak numbers back to K/D
+  document.querySelectorAll(".player .kd").forEach((kdElement) => {
+    const el = kdElement as HTMLElement;
+    el.textContent = "-";
+    el.style.cssText = "";
+    // Remove any existing tooltips
+    const tooltip = el.querySelector(".clutch-tooltip");
+    if (tooltip) {
+      tooltip.remove();
+    }
+  });
 }
 
 function updatePlayerStreakAndHeader(
@@ -163,11 +204,142 @@ function updatePlayerStreakAndHeader(
   });
 }
 
+function setupPlayerStatsObserver(userSettings: UserSettings) {
+  // Disconnect existing observers
+  observers.forEach((observer) => observer.disconnect());
+  observers = [];
+
+  let isUpdating = false;
+
+  const observerCallback = async (mutations: MutationRecord[]) => {
+    if (isUpdating) return;
+
+    const relevantMutation = mutations.some((mutation) => {
+      // Ignore our own changes
+      if (
+        mutation.target instanceof Element &&
+        (mutation.target.hasAttribute("data-clutch-extension") ||
+          mutation.target.classList.contains("clutch-tooltip") ||
+          mutation.target.classList.contains("player-stats-clutch-wrapper"))
+      ) {
+        return false;
+      }
+
+      // Check for player list changes
+      if (mutation.type === "childList") {
+        const addedNodesRelevant = Array.from(mutation.addedNodes).some(
+          (node) =>
+            node instanceof Element &&
+            !node.hasAttribute("data-clutch-extension") &&
+            !node.classList.contains("clutch-tooltip") &&
+            !node.classList.contains("player-stats-clutch-wrapper")
+        );
+        const removedNodesRelevant = Array.from(mutation.removedNodes).some(
+          (node) =>
+            node instanceof Element &&
+            !node.hasAttribute("data-clutch-extension") &&
+            !node.classList.contains("clutch-tooltip") &&
+            !node.classList.contains("player-stats-clutch-wrapper")
+        );
+        return addedNodesRelevant || removedNodesRelevant;
+      }
+
+      // Check for player attribute changes (like reordering)
+      if (
+        mutation.type === "attributes" &&
+        mutation.target instanceof Element &&
+        mutation.target.classList.contains("player")
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+
+    if (relevantMutation) {
+      console.log("[LivePlayerStats] Player list changed, re-initializing...");
+      isUpdating = true;
+
+      try {
+        // Clean up existing stats first to prevent duplicates
+        removeExistingPlayerStats();
+        // Small delay to ensure DOM is settled
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        // Re-initialize player stats
+        await initializeLivePlayerStats(userSettings);
+      } finally {
+        setTimeout(() => {
+          isUpdating = false;
+        }, 100);
+      }
+    }
+  };
+
+  const observerConfig = {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeOldValue: true,
+  };
+
+  // Observe team containers
+  const teamContainers = document.querySelectorAll(
+    ".team1-players, .team2-players"
+  );
+  teamContainers.forEach((container) => {
+    const observer = new MutationObserver(observerCallback);
+    observer.observe(container, observerConfig);
+    observers.push(observer);
+  });
+
+  // Also observe the main player list
+  const playerList = document.querySelector(".player-list");
+  if (playerList) {
+    const observer = new MutationObserver(observerCallback);
+    observer.observe(playerList, observerConfig);
+    observers.push(observer);
+  }
+}
+
 async function initializeLivePlayerStats(
   userSettings: UserSettings
 ): Promise<void> {
   if (!userSettings.liveMatchPlayerStats) {
     removeExistingPlayerStats();
+    // Only reset streak/header if this function was called due to streak feature being disabled
+    // If both features are disabled, this function shouldn't run at all
+    if (userSettings.showLiveMatchPlayerStreak) {
+      // Streak is enabled but main stats disabled - need to handle streak only
+      try {
+        const pageContainer = await waitForElement(".page");
+        const team1Container = pageContainer.querySelector(".team1-players");
+        const team2Container = pageContainer.querySelector(".team2-players");
+
+        if (!team1Container || !team2Container) {
+          return;
+        }
+
+        const playerLinks = [
+          ...team1Container.querySelectorAll("a.player"),
+          ...team2Container.querySelectorAll("a.player"),
+        ];
+
+        const steamIds = playerLinks
+          .map(
+            (playerLink) =>
+              playerLink.getAttribute("href")?.split("/profile/")[1]
+          )
+          .filter((id): id is string => id !== undefined);
+
+        const statsData = await fetchPlayersStats(steamIds);
+        updatePlayerStreakAndHeader(playerLinks, statsData);
+      } catch (error) {
+        console.error(
+          "[LivePlayerStats] Error in streak-only initialization:",
+          error
+        );
+      }
+    }
     return;
   }
 
@@ -201,9 +373,11 @@ async function initializeLivePlayerStats(
 
     if (userSettings.showLiveMatchPlayerStreak) {
       updatePlayerStreakAndHeader(playerLinks, statsData);
+    } else {
+      resetPlayerStreakAndHeader();
     }
 
-    playerLinks.forEach((playerLink) => {
+    playerLinks.forEach((playerLink, index) => {
       const href = playerLink.getAttribute("href");
       if (!href?.includes("/profile/")) {
         return;
@@ -256,8 +430,21 @@ async function initializeLivePlayerStats(
       }
 
       statsWrapper.appendChild(statsBlock);
+
+      // Apply staggered animation to individual stat items
+      const statItems = statsBlock.querySelectorAll(".clutch-stats-block-item");
+      statItems.forEach((item, itemIndex) => {
+        const animationDelay = index * 0.1 + itemIndex * 0.05; // Base delay per player + item delay
+        applyPresetAnimation(item as HTMLElement, "fadeIn");
+        (item as HTMLElement).style.animationDelay = `${animationDelay}s`;
+      });
+
       playerLink.insertAdjacentElement("afterend", statsWrapper);
+      processedPlayers.add(playerLink as HTMLElement);
     });
+
+    // Setup observer to detect player changes
+    setupPlayerStatsObserver(userSettings);
   } catch (error) {
     console.error("[LivePlayerStats] Error in initialization:", error);
   }
@@ -278,7 +465,21 @@ registerFeature({
     )
   ),
 
+  dependsOn: ["showLiveMatchPlayerStreak"],
+
   handler: initializeLivePlayerStats,
+  cleanupHandler: async (settings: UserSettings) => {
+    console.log("[LivePlayerStats] Cleaning up live player stats");
+    removeExistingPlayerStats();
+    // Disconnect observers
+    observers.forEach((observer) => observer.disconnect());
+    observers = [];
+    processedPlayers.clear();
+    // Only reset streak/header if both features are disabled
+    if (!settings.liveMatchPlayerStats && !settings.showLiveMatchPlayerStreak) {
+      resetPlayerStreakAndHeader();
+    }
+  },
 
   apiCalls: [
     {

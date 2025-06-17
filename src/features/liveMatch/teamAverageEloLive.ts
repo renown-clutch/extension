@@ -6,6 +6,8 @@ import { type UserSettings } from "$system/lib/types";
 import { createRankBadgeElement } from "$utils/data/rankBadgeUtils";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
 import { waitForElement } from "$utils/profileUtils";
+import { getCurrentPage } from "$utils/common/pageUtils";
+import { applyPresetAnimation } from "$utils/ui/animationUtils";
 
 interface FaceitData {
   [steamId: string]: {
@@ -121,15 +123,28 @@ function setupTeamScoreObserver(
   }
 }
 
-async function cleanupBadges() {
-  const elements = document.querySelectorAll(
-    '[data-clutch-extension="team-average-elo-match-header"]'
-  );
-  elements.forEach((element) => {
-    if (element.parentNode) {
-      element.parentNode.removeChild(element);
-    }
-  });
+async function cleanupBadges(targetType?: "all" | "faceit") {
+  if (!targetType || targetType === "all") {
+    // Full cleanup
+    const elements = document.querySelectorAll(
+      '[data-clutch-extension="team-average-elo-match-header"]'
+    );
+    elements.forEach((element) => {
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    });
+  } else if (targetType === "faceit") {
+    // Only remove faceit badges from live team average displays
+    const elements = document.querySelectorAll(
+      '[data-clutch-extension="team-average-elo-match-header"] [data-clutch-extension="faceit-badge"]'
+    );
+    elements.forEach((element) => {
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    });
+  }
 }
 
 async function processTeamContainers(
@@ -270,19 +285,25 @@ async function updateTeamHeader(
   if (placement === "first") {
     if (renownElo !== null) {
       const rankBadgeElement = createRankBadgeElement(renownElo, 30);
+      applyPresetAnimation(rankBadgeElement, "averageBadge");
       badgesContainer.appendChild(rankBadgeElement);
     }
     if (faceitElo !== null) {
       const faceitBadgeElement = createFaceitBadgeElement(faceitElo, 30);
+      faceitBadgeElement.setAttribute("data-clutch-extension", "faceit-badge");
+      applyPresetAnimation(faceitBadgeElement, "averageBadge");
       badgesContainer.appendChild(faceitBadgeElement);
     }
   } else {
     if (faceitElo !== null) {
       const faceitBadgeElement = createFaceitBadgeElement(faceitElo, 30);
+      faceitBadgeElement.setAttribute("data-clutch-extension", "faceit-badge");
+      applyPresetAnimation(faceitBadgeElement, "averageBadge");
       badgesContainer.appendChild(faceitBadgeElement);
     }
     if (renownElo !== null) {
       const rankBadgeElement = createRankBadgeElement(renownElo, 30);
+      applyPresetAnimation(rankBadgeElement, "averageBadge");
       badgesContainer.appendChild(rankBadgeElement);
     }
   }
@@ -296,11 +317,74 @@ async function updateTeamHeader(
   }
 }
 
+// Function to update only Faceit badges in existing live team average displays
+async function updateFaceitBadgesOnlyLive(
+  faceitData: FaceitData,
+  settings: UserSettings
+) {
+  console.log("[TeamAverageEloLive] Updating only Faceit badges");
+
+  // First, remove existing faceit badges
+  await cleanupBadges("faceit");
+
+  if (!settings.showFaceitRanksOnMatchPage) {
+    console.log("[TeamAverageEloLive] Faceit ranks disabled, badges removed");
+    return;
+  }
+
+  // Find existing team headers with our badges
+  const existingHeaders = document.querySelectorAll(
+    '[data-clutch-extension="team-average-elo-match-header"]'
+  );
+
+  for (const header of existingHeaders) {
+    const parentElement = header.parentElement;
+    if (!parentElement) continue;
+
+    // Determine if this is team1 or team2 based on parent
+    const isTeam1 = parentElement.classList.contains("team1");
+    const teamClass = isTeam1 ? ".team1-players" : ".team2-players";
+    const teamContainer = document.querySelector(teamClass);
+
+    if (!teamContainer) continue;
+
+    // Calculate average faceit elo for this team
+    const avgFaceitElo = calculateTeamAverageFaceitElo(
+      teamContainer as HTMLElement,
+      faceitData
+    );
+
+    if (avgFaceitElo !== null) {
+      const faceitBadgeElement = createFaceitBadgeElement(avgFaceitElo, 30);
+      faceitBadgeElement.setAttribute("data-clutch-extension", "faceit-badge");
+      applyPresetAnimation(faceitBadgeElement, "averageBadge");
+
+      // Add faceit badge to existing container
+      // For team1 (first placement), add at the end
+      // For team2 (last placement), add at the beginning
+      if (isTeam1) {
+        header.appendChild(faceitBadgeElement);
+      } else {
+        header.insertBefore(faceitBadgeElement, header.firstChild);
+      }
+    }
+  }
+}
+
 async function initializeTeamAverageEloLive(
   settings: UserSettings
 ): Promise<void> {
+  console.log("[TeamAverageEloLive] Initializing with settings:", settings);
+  console.log(
+    "[TeamAverageEloLive] showTeamAverageElo:",
+    settings.showTeamAverageElo
+  );
+  console.log("[TeamAverageEloLive] Current URL:", window.location.href);
+  console.log("[TeamAverageEloLive] Current page type:", getCurrentPage());
+
   if (!settings.showTeamAverageElo) {
-    await cleanupBadges();
+    console.log("[TeamAverageEloLive] Feature disabled, cleaning up");
+    await cleanupBadges("all");
     if (teamScoreObserver) {
       teamScoreObserver.disconnect();
       teamScoreObserver = null;
@@ -308,19 +392,101 @@ async function initializeTeamAverageEloLive(
     return;
   }
 
+  // Check if we already have team average ELO displays
+  const existingDisplays = document.querySelectorAll(
+    '[data-clutch-extension="team-average-elo-match-header"]'
+  );
+  const hasExistingDisplays = existingDisplays.length > 0;
+
+  if (hasExistingDisplays) {
+    console.log(
+      "[TeamAverageEloLive] Existing displays found, checking for Faceit-only update"
+    );
+
+    try {
+      const players = await getLiveMatchPagePlayers();
+      if (players.length > 0) {
+        // Get faceit data if faceit ranks are enabled
+        let faceitData: FaceitData = {};
+        if (settings.showFaceitRanksOnMatchPage) {
+          console.log(
+            "[TeamAverageEloLive] Fetching Faceit data for partial update..."
+          );
+          const steamIds = players.map((p) => p.steamId);
+          faceitData = await getFaceitData(steamIds);
+        }
+
+        // Do a partial update instead of full re-render
+        await updateFaceitBadgesOnlyLive(faceitData, settings);
+        return;
+      }
+    } catch (error) {
+      console.error(
+        "[TeamAverageEloLive] Error in partial update, falling back to full render:",
+        error
+      );
+    }
+  }
+
+  // Full initialization (first time or fallback)
+  console.log("[TeamAverageEloLive] Performing full initialization");
+  await cleanupBadges("all");
+
   try {
-    const players = await getLiveMatchPagePlayers();
-    if (players.length === 0) {
+    console.log("[TeamAverageEloLive] Starting initialization...");
+
+    // Wait for page elements
+    console.log("[TeamAverageEloLive] Waiting for .page element...");
+    const pageContainer = await waitForElement(".page");
+    console.log("[TeamAverageEloLive] Page container found:", !!pageContainer);
+
+    // Check for team containers
+    const team1Container = pageContainer.querySelector(".team1-players");
+    const team2Container = pageContainer.querySelector(".team2-players");
+    console.log("[TeamAverageEloLive] Team containers found:", {
+      team1: !!team1Container,
+      team2: !!team2Container,
+    });
+
+    if (!team1Container || !team2Container) {
+      console.log(
+        "[TeamAverageEloLive] Team containers not found, retrying in 2s..."
+      );
+      setTimeout(() => initializeTeamAverageEloLive(settings), 2000);
       return;
     }
 
-    const steamIds = players.map((p) => p.steamId);
-    const faceitData = await getFaceitData(steamIds);
+    // Get players
+    console.log("[TeamAverageEloLive] Getting players...");
+    const players = await getLiveMatchPagePlayers();
+    console.log("[TeamAverageEloLive] Found players:", players.length, players);
 
+    if (players.length === 0) {
+      console.log("[TeamAverageEloLive] No players found, retrying in 2s...");
+      setTimeout(() => initializeTeamAverageEloLive(settings), 2000);
+      return;
+    }
+
+    // Get Faceit data
+    const steamIds = players.map((p) => p.steamId);
+    console.log(
+      "[TeamAverageEloLive] Fetching Faceit data for steam IDs:",
+      steamIds
+    );
+    const faceitData = await getFaceitData(steamIds);
+    console.log("[TeamAverageEloLive] Faceit data received:", faceitData);
+
+    // Process teams
+    console.log("[TeamAverageEloLive] Processing team containers...");
     await processTeamContainers(settings, faceitData);
+
+    // Setup observer
+    console.log("[TeamAverageEloLive] Setting up team score observer...");
     setupTeamScoreObserver(faceitData, settings);
+
+    console.log("[TeamAverageEloLive] Initialization complete!");
   } catch (error) {
-    console.error("[TeamAverageEloLive] Error in initialization:", error);
+    console.error("[TeamAverageEloLive] Error during initialization:", error);
   }
 }
 
@@ -337,7 +503,17 @@ registerFeature({
     ActivationHelpers.whenEnabled("showTeamAverageElo")
   ),
 
+  dependsOn: ["showFaceitRanksOnMatchPage"],
+
   handler: initializeTeamAverageEloLive,
+  cleanupHandler: async (settings: UserSettings) => {
+    console.log("[TeamAverageEloLive] Cleaning up team average elo live");
+    await cleanupBadges();
+    if (teamScoreObserver) {
+      teamScoreObserver.disconnect();
+      teamScoreObserver = null;
+    }
+  },
 
   apiCalls: [
     {

@@ -14,7 +14,7 @@ export const config = {
     messageLimit: 20,
   },
   debug: {
-    enableFileUrlSupport: false,
+    enableFileUrlSupport: true,
     enableConsoleLogging: false,
   },
 };

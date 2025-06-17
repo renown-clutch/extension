@@ -112,11 +112,5 @@ export function getResponseTypeMap(): Record<string, string> {
 
 // Call this to ensure all features are loaded
 export function initializeFeatureRegistry() {
-  console.log(
-    `[AutoRegister] 🚀 Loaded ${featureRegistry.features.size} unified features`
-  );
-
-  console.log(
-    `[AutoRegister] 📡 Registered ${getRegisteredApiEvents().length} API events`
-  );
+  // Registry initialization complete
 }

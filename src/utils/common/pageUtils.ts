@@ -65,51 +65,40 @@ export function getCurrentPage(): PageType {
   const url = window.location.href;
   const path = new URL(url).pathname;
 
-  console.log("[PageUtils] Detecting page type:", { url, path });
+  // If file URL support is enabled, treat all file:// URLs as live match pages
+  if (config.debug.enableFileUrlSupport && url.startsWith("file://")) {
+    return { type: "playMatch" };
+  }
 
   if (url.includes("renown.gg/admin")) {
-    console.log("[PageUtils] Detected: admin");
     return { type: "admin" };
   }
 
   for (const { pattern, handler } of ROUTE_MATCHERS) {
     if (typeof pattern === "string") {
       if (url.includes(pattern)) {
-        const result = handler(null);
-        console.log(
-          "[PageUtils] Detected (string match):",
-          result,
-          "pattern:",
-          pattern
-        );
-        return result;
+        return handler(null);
       }
     } else {
       const matches = path.match(pattern);
       if (matches) {
-        const result = handler(matches);
-        console.log(
-          "[PageUtils] Detected (regex match):",
-          result,
-          "pattern:",
-          pattern,
-          "matches:",
-          matches
-        );
-        return result;
+        return handler(matches);
       }
     }
   }
 
-  console.log("[PageUtils] Detected: unknown");
   return { type: "unknown" };
 }
 
 export function isLiveMatch(): boolean {
   const url = window.location.href;
-  const isFileUrl =
-    config.debug.enableFileUrlSupport && url.startsWith("file://");
-  return getCurrentPage().type === "playMatch" || isFileUrl;
+
+  // If file URL support is enabled, treat all file:// URLs as live match sites
+  if (config.debug.enableFileUrlSupport && url.startsWith("file://")) {
+    return true;
+  }
+
+  return getCurrentPage().type === "playMatch";
 }
 
 export function isMatchPage(): boolean {

@@ -59,11 +59,6 @@ export function registerFeature(config: FeatureConfig) {
   const uniqueId = config.featureId || config.settingKey;
 
   featureRegistry.features.set(uniqueId, config);
-  console.log(
-    `[FeatureRegistry] 📝 Registered feature: ${config.settingKey}${
-      config.featureId ? ` (${config.featureId})` : ""
-    }`
-  );
 }
 
 // Backward compatibility function for profile features
@@ -76,10 +71,6 @@ export function registerProfileFeature(config: ProfileFeatureConfig) {
 
   // Register in both places for backward compatibility
   featureRegistry.features.set(config.settingKey, profileConfig);
-
-  console.log(
-    `[FeatureRegistry] 📝 Registered profile feature: ${config.settingKey}`
-  );
 }
 
 // Get all features that should be active for current page and settings
@@ -87,36 +78,13 @@ export function getActiveFeatures(settings: UserSettings): FeatureConfig[] {
   const currentPage = getCurrentPage();
   const activeFeatures: FeatureConfig[] = [];
 
-  console.log(
-    "[FeatureRegistry] Determining active features for:",
-    currentPage
-  );
-
   featureRegistry.features.forEach((config) => {
     try {
       if (
         config.shouldActivate &&
         config.shouldActivate(currentPage, settings)
       ) {
-        console.log(
-          `[FeatureRegistry] ✅ Feature ${config.settingKey} should be active`
-        );
         activeFeatures.push(config);
-      } else {
-        // Let's check specifically for match features to debug
-        if (
-          config.settingKey === "showFaceitRanksOnMatchPage" ||
-          config.settingKey === "showTeamAverageElo"
-        ) {
-          console.log(
-            `[FeatureRegistry] ❌ Match feature ${config.settingKey} should NOT be active:`,
-            {
-              hasActivationFunction: !!config.shouldActivate,
-              settingValue: settings[config.settingKey],
-              currentPage: currentPage,
-            }
-          );
-        }
       }
     } catch (error) {
       console.error(
@@ -126,10 +94,6 @@ export function getActiveFeatures(settings: UserSettings): FeatureConfig[] {
     }
   });
 
-  console.log(
-    `[FeatureRegistry] Active features (${activeFeatures.length}):`,
-    activeFeatures.map((f) => f.settingKey)
-  );
   return activeFeatures;
 }
 
@@ -217,13 +181,7 @@ export const ActivationHelpers = {
   onPageTypes:
     (pageTypes: string[]) =>
     (currentPage: ReturnType<typeof getCurrentPage>) => {
-      const result = pageTypes.includes(currentPage.type);
-      console.log(
-        `[ActivationHelpers] onPageTypes(${JSON.stringify(
-          pageTypes
-        )}): currentPage.type=${currentPage.type}, result=${result}`
-      );
-      return result;
+      return pageTypes.includes(currentPage.type);
     },
 
   // Only activate when setting is enabled
@@ -233,11 +191,7 @@ export const ActivationHelpers = {
       currentPage: ReturnType<typeof getCurrentPage>,
       settings: UserSettings
     ) => {
-      const result = !!settings[settingKey];
-      console.log(
-        `[ActivationHelpers] whenEnabled(${settingKey}): value=${settings[settingKey]}, result=${result}`
-      );
-      return result;
+      return !!settings[settingKey];
     },
 
   // Combine multiple conditions with AND
@@ -252,17 +206,7 @@ export const ActivationHelpers = {
       currentPage: ReturnType<typeof getCurrentPage>,
       settings: UserSettings
     ) => {
-      console.log(
-        `[ActivationHelpers] and: evaluating ${conditions.length} conditions`
-      );
-      const results = conditions.map((condition, index) => {
-        const result = condition(currentPage, settings);
-        console.log(`[ActivationHelpers] and: condition ${index} = ${result}`);
-        return result;
-      });
-      const finalResult = results.every((r) => r);
-      console.log(`[ActivationHelpers] and: final result = ${finalResult}`);
-      return finalResult;
+      return conditions.every((condition) => condition(currentPage, settings));
     },
 
   // Combine multiple conditions with OR

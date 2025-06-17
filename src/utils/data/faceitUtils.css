@@ -56,4 +56,21 @@
 
 .clutch-faceit-badge-link {
   cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.clutch-faceit-badge-link:hover {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+/* Ensure tooltip wrapper allows clicking */
+.tooltip-wrapper {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.tooltip-wrapper:has(.clutch-faceit-badge-link) {
+  cursor: pointer;
 }

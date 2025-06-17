@@ -5,6 +5,8 @@ import {
 import { type UserSettings } from "$system/lib/types";
 import { createFaceitBadgeElement } from "$utils/data/faceitUtils";
 import { waitForElement } from "$utils/profileUtils";
+import { getCurrentPage } from "$utils/common/pageUtils";
+import { applyPresetAnimation } from "$utils/ui/animationUtils";
 
 interface FaceitInfo {
   elo?: number;
@@ -127,6 +129,30 @@ const processPlayers = (
       "faceit-badge-live-match-page",
       faceitInfo?.url
     );
+
+    // Debug: Log if URL is being passed
+    if (faceitInfo?.url) {
+      console.log(
+        `[LiveFaceitRanks] Created clickable badge for ${steamId} with URL:`,
+        faceitInfo.url
+      );
+    } else {
+      console.log(
+        `[LiveFaceitRanks] No URL for ${steamId}, badge won't be clickable`
+      );
+    }
+
+    // Apply entrance animation
+    applyPresetAnimation(faceitBadge, "faceitBadge");
+
+    // Add click event handler to prevent parent link navigation
+    if (faceitInfo?.url) {
+      faceitBadge.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.open(faceitInfo.url, "_blank");
+      });
+    }
 
     const avatarWrapper = element.querySelector(".avatar-wrapper");
     if (!avatarWrapper) {
@@ -416,30 +442,81 @@ function injectLiveFaceitStyles(): void {
 async function initializeLiveFaceitRanks(
   settings: UserSettings
 ): Promise<void> {
+  console.log("[LiveFaceitRanks] Initializing with settings:", settings);
+  console.log(
+    "[LiveFaceitRanks] showFaceitRanksOnMatchPage:",
+    settings.showFaceitRanksOnMatchPage
+  );
+  console.log("[LiveFaceitRanks] Current URL:", window.location.href);
+  console.log("[LiveFaceitRanks] Current page type:", getCurrentPage());
+
   if (!settings.showFaceitRanksOnMatchPage) {
+    console.log("[LiveFaceitRanks] Feature disabled, cleaning up");
     cleanupFaceitIcons();
     observers.forEach((observer) => observer.disconnect());
     observers = [];
-    processedPlayers.clear();
-    faceitIconMap.clear();
     return;
   }
 
   try {
+    console.log("[LiveFaceitRanks] Starting initialization...");
+
+    // Inject styles
+    console.log("[LiveFaceitRanks] Injecting styles...");
     injectLiveFaceitStyles();
 
-    const players = await getLiveMatchPagePlayers();
-    if (players.length === 0) {
+    // Wait for page elements
+    console.log("[LiveFaceitRanks] Waiting for .page element...");
+    const pageContainer = await waitForElement(".page");
+    console.log("[LiveFaceitRanks] Page container found:", !!pageContainer);
+
+    // Check for team containers
+    const team1Container = pageContainer.querySelector(".team1-players");
+    const team2Container = pageContainer.querySelector(".team2-players");
+    console.log("[LiveFaceitRanks] Team containers found:", {
+      team1: !!team1Container,
+      team2: !!team2Container,
+    });
+
+    if (!team1Container || !team2Container) {
+      console.log(
+        "[LiveFaceitRanks] Team containers not found, retrying in 2s..."
+      );
+      setTimeout(() => initializeLiveFaceitRanks(settings), 2000);
       return;
     }
 
-    const steamIds = players.map((p) => p.steamId);
-    const faceitData = await getFaceitData(steamIds);
+    // Get players
+    console.log("[LiveFaceitRanks] Getting players...");
+    const players = await getLiveMatchPagePlayers();
+    console.log("[LiveFaceitRanks] Found players:", players.length, players);
 
+    if (players.length === 0) {
+      console.log("[LiveFaceitRanks] No players found, retrying in 2s...");
+      setTimeout(() => initializeLiveFaceitRanks(settings), 2000);
+      return;
+    }
+
+    // Get Faceit data
+    const steamIds = players.map((p) => p.steamId);
+    console.log(
+      "[LiveFaceitRanks] Fetching Faceit data for steam IDs:",
+      steamIds
+    );
+    const faceitData = await getFaceitData(steamIds);
+    console.log("[LiveFaceitRanks] Faceit data received:", faceitData);
+
+    // Process players
+    console.log("[LiveFaceitRanks] Processing players...");
     processPlayers(players, faceitData);
+
+    // Setup observers
+    console.log("[LiveFaceitRanks] Setting up observers...");
     setupPlayerListObservers(settings, faceitData);
+
+    console.log("[LiveFaceitRanks] Initialization complete!");
   } catch (error) {
-    console.error("[LiveFaceitRanks] Error in initialization:", error);
+    console.error("[LiveFaceitRanks] Error during initialization:", error);
   }
 }
 
@@ -457,6 +534,14 @@ registerFeature({
   ),
 
   handler: initializeLiveFaceitRanks,
+  cleanupHandler: async (settings: UserSettings) => {
+    console.log("[LiveFaceitRanks] Cleaning up live faceit ranks");
+    cleanupFaceitIcons();
+    observers.forEach((observer) => observer.disconnect());
+    observers = [];
+    processedPlayers.clear();
+    faceitIconMap.clear();
+  },
 
   apiCalls: [
     {

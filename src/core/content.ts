@@ -27,6 +27,7 @@ import {
   getActiveFeatures,
   getFeaturesNeedingCleanup,
   getAffectedFeatures,
+  getAllFeatures,
   type FeatureConfig,
 } from "$system/lib/featureRegistry";
 
@@ -192,6 +193,42 @@ async function applyActiveFeatures(settings: UserSettings) {
   const shouldBeActiveKeys = new Set(
     activeFeatures.map((f) => f.featureId || f.settingKey)
   );
+
+  // Debug logging for live match features specifically
+  const currentPage = getCurrentPage();
+  if (currentPage.type === "playMatch" || currentPage.type === "unknown") {
+    console.log("[Content] 🎯 Page type:", currentPage.type);
+    console.log(
+      "[Content] 🎯 Active features:",
+      activeFeatures.map((f) => f.featureId || f.settingKey)
+    );
+
+    // Check if live match features are in the registry
+    const allFeatures = getAllFeatures();
+    const liveMatchFeatures = allFeatures.filter(
+      (f: FeatureConfig) =>
+        f.featureId === "liveFaceitRanks" ||
+        f.featureId === "teamAverageEloLive" ||
+        f.settingKey === "showMapStats" ||
+        f.settingKey === "liveMatchPlayerStats"
+    );
+    console.log(
+      "[Content] 🎯 Live match features in registry:",
+      liveMatchFeatures.map((f: FeatureConfig) => f.featureId || f.settingKey)
+    );
+
+    // Check their activation status
+    liveMatchFeatures.forEach((feature: FeatureConfig) => {
+      const shouldActivate = feature.shouldActivate
+        ? feature.shouldActivate(currentPage, settings)
+        : false;
+      console.log(
+        `[Content] 🎯 ${
+          feature.featureId || feature.settingKey
+        } should activate: ${shouldActivate}`
+      );
+    });
+  }
 
   // Step 1: Clean up features that were active but should no longer be active
   const featuresNeedingCleanup = getFeaturesNeedingCleanup(
