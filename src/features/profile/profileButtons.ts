@@ -183,11 +183,13 @@ async function initializeProfileButtons(settings: UserSettings): Promise<void> {
   }
 }
 
+// Register unified feature that handles both buttons
 registerFeature({
-  settingKey: "csstatsProfileButton",
+  settingKey: "csstatsProfileButton", // Use the main button setting as key
   category: "profile",
   defaultValue: false,
   description: "Show CSStats profile button",
+  featureId: "profileButtons", // Use unique ID to avoid conflicts
   handler: initializeProfileButtons,
   cleanupHandler: cleanupProfileButtons,
   shouldActivate: ActivationHelpers.and(
@@ -195,22 +197,7 @@ registerFeature({
     (currentPage, settings) =>
       settings.csstatsProfileButton || settings.faceitProfileButton
   ),
-  dependsOn: ["faceitProfileButton"],
-});
-
-registerFeature({
-  settingKey: "faceitProfileButton",
-  category: "profile",
-  defaultValue: false,
-  description: "Show Faceit profile button",
-  handler: initializeProfileButtons,
-  cleanupHandler: cleanupProfileButtons,
-  shouldActivate: ActivationHelpers.and(
-    ActivationHelpers.onPageTypes(["profile"]),
-    (currentPage, settings) =>
-      settings.csstatsProfileButton || settings.faceitProfileButton
-  ),
-  dependsOn: ["csstatsProfileButton"],
+  dependsOn: ["csstatsProfileButton", "faceitProfileButton"],
   apiCalls: [
     { requestType: "get_faceit_info", responseType: "faceitInfoResponse" },
   ],

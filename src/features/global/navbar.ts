@@ -33,15 +33,17 @@ async function addLinkToNavbar(): Promise<void> {
     ".navbar .container .content .links"
   );
   if (!linksContainer) {
+    console.warn("[Navbar] Links container not found");
     return;
   }
 
-  const banlistLink = Array.from(linksContainer.querySelectorAll("a")).find(
-    (link) => link.getAttribute("href")?.includes("/banlist")
-  );
-  if (!banlistLink) {
+  const allLinks = Array.from(linksContainer.querySelectorAll("a"));
+  if (allLinks.length === 0) {
+    console.warn("[Navbar] No links found in container");
     return;
   }
+
+  const lastLink = allLinks[allLinks.length - 1];
 
   const clutchLink = document.createElement("a");
   clutchLink.id = BUTTON_ID;
@@ -50,7 +52,7 @@ async function addLinkToNavbar(): Promise<void> {
   clutchLink.textContent = "CLUTCH";
   clutchLink.addEventListener("click", handleButtonClick);
 
-  banlistLink.after(clutchLink);
+  lastLink.after(clutchLink);
 }
 
 function removeLinkFromNavbar(): void {
@@ -65,7 +67,9 @@ function removeLinkFromNavbar(): void {
 
 function initializeNavbar(settings: UserSettings): void {
   try {
-    addLinkToNavbar();
+    addLinkToNavbar().catch((error) => {
+      console.error("[Navbar] Error in addLinkToNavbar:", error);
+    });
   } catch (error) {
     console.error("[Navbar] Error in initialization:", error);
   }

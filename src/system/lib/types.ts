@@ -70,7 +70,6 @@ export type UserSettings = {
   showLastPlayedMatches: boolean;
   showAveragePartyElo: boolean;
   showFaceitEloOnPartyList: boolean;
-  enableClickablePartyUsernames: boolean;
   showChatWindow: boolean;
   playerMatchupStats: boolean;
   checkMatchesWithBannedPlayers: boolean;
@@ -268,12 +267,6 @@ export const SETTING_DEFINITIONS: Record<
     category: "mainPage",
     defaultValue: false,
     description: "Show Faceit ELO on party list",
-  },
-  enableClickablePartyUsernames: {
-    key: "enableClickablePartyUsernames",
-    category: "mainPage",
-    defaultValue: true,
-    description: "Make party usernames clickable links to profiles",
   },
   showChatWindow: {
     key: "showChatWindow",

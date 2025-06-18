@@ -1,8 +1,4 @@
-import {
-  featureRegistry,
-  getApiCallMappings,
-  getAllFeatures,
-} from "./featureRegistry";
+import { featureRegistry, getApiCallMappings } from "./featureRegistry";
 import type { UserSettings } from "./types";
 
 // All profile features have been migrated to features/profile/
@@ -21,7 +17,6 @@ import "$features/sidebar/sidebarFriends";
 // Import main page features
 import "$features/mainPage/lastMatches";
 import "$features/mainPage/averagePartyElo";
-import "$features/mainPage/clickablePartyUsernames";
 
 // Import match page features
 import "$features/match/faceitRanks";

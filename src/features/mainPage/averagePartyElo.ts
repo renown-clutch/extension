@@ -41,13 +41,25 @@ async function getFaceitEloByNames(
 }
 
 async function setupPartyObserver(settings: UserSettings): Promise<void> {
-  await waitForElement(".main-layout");
-  const partyList = await waitForElement("div.party-list");
-  if (!partyList) {
+  let partyList: Element;
+
+  try {
+    partyList = await Promise.race([
+      waitForElement("div.party-list"),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Timeout waiting for div.party-list")),
+          5000
+        )
+      ),
+    ]);
+
+    if (!partyList) {
+      return;
+    }
+  } catch (error) {
     return;
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 100));
 
   if (partyObserver) {
     partyObserver.disconnect();
@@ -57,7 +69,6 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
     let shouldUpdate = false;
 
     mutations.forEach((mutation) => {
-      // Skip mutations on our own elements
       if (
         mutation.target instanceof Element &&
         mutation.target.hasAttribute("data-clutch-extension")
@@ -65,7 +76,6 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         return;
       }
 
-      // Skip if target is inside our elements
       if (
         mutation.target instanceof Element &&
         mutation.target.closest("[data-clutch-extension]")
@@ -73,7 +83,6 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         return;
       }
 
-      // Check if any added nodes are our elements
       if (mutation.addedNodes.length > 0) {
         const hasOwnElements = Array.from(mutation.addedNodes).some((node) => {
           if (node instanceof Element) {
@@ -90,7 +99,6 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         }
       }
 
-      // Check if any removed nodes are our elements
       if (mutation.removedNodes.length > 0) {
         const hasOwnElements = Array.from(mutation.removedNodes).some(
           (node) => {
@@ -109,7 +117,6 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         }
       }
 
-      // Ignore tooltip-related changes
       if (mutation.target instanceof Element) {
         const targetClasses = mutation.target.className;
         if (
@@ -122,7 +129,6 @@ async function setupPartyObserver(settings: UserSettings): Promise<void> {
         }
       }
 
-      // Check for relevant changes
       if (mutation.type === "childList") {
         const hasRelevantChanges = Array.from(mutation.addedNodes).some(
           (node) => {
@@ -173,7 +179,27 @@ async function gatherPlayerData(showSinglePlayers: boolean = false): Promise<{
   averageElo: number | null;
   playerCount: number;
 }> {
-  const partyList = await waitForElement("div.party-list");
+  let partyList;
+  try {
+    partyList = await Promise.race([
+      waitForElement("div.party-list"),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Timeout waiting for div.party-list")),
+          1000
+        )
+      ),
+    ]);
+  } catch (error) {
+    console.warn("[AveragePartyElo] Party list not found:", error);
+    return {
+      playerNames: [],
+      playerNameToCardMap: {},
+      averageElo: null,
+      playerCount: 0,
+    };
+  }
+
   if (!partyList) {
     return {
       playerNames: [],
@@ -196,13 +222,11 @@ async function gatherPlayerData(showSinglePlayers: boolean = false): Promise<{
     if (nameElement && eloElement) {
       const playerName = nameElement.textContent?.trim();
 
-      // Get ELO text excluding our extension elements
       let eloText = "";
       for (const node of eloElement.childNodes) {
         if (node.nodeType === Node.TEXT_NODE) {
           eloText += node.textContent || "";
         } else if (node.nodeType === Node.ELEMENT_NODE) {
-          // Skip our extension elements
           const element = node as Element;
           if (!element.hasAttribute("data-clutch-extension")) {
             eloText += element.textContent || "";
@@ -227,7 +251,6 @@ async function gatherPlayerData(showSinglePlayers: boolean = false): Promise<{
   const averageElo =
     validPlayerCount > 0 ? Math.round(totalElo / validPlayerCount) : null;
 
-  // Only include players if we have more than 1 or showSinglePlayers is true
   if (validPlayerCount <= 1 && !showSinglePlayers) {
     return {
       playerNames: [],
@@ -270,14 +293,11 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
       await gatherPlayerData(settings.showFaceitEloOnPartyList);
 
     if (playerCount === 0) {
-      // No players - remove everything
       removeAveragePartyEloDisplay();
       removeAllFaceitBadges();
       return;
     }
 
-    // Smart update for average party ELO display
-    // Only show average ELO if there are 2+ players
     if (
       settings.showAveragePartyElo &&
       averageElo !== null &&
@@ -285,17 +305,12 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
     ) {
       await smartUpdateAveragePartyElo(averageElo);
     } else {
-      // Remove if disabled, no ELO, or only 1 player
       removeAveragePartyEloDisplay();
     }
 
-    // Smart update for individual player Faceit badges
     if (settings.showFaceitEloOnPartyList && playerNames.length > 0) {
       const faceitData = await getFaceitEloByNames(playerNames);
       smartUpdatePlayerFaceitBadges(playerNameToCardMap, faceitData);
-
-      // Smart update for average Faceit badge
-      // Only show average Faceit badge if there are 2+ players
       if (
         settings.showAveragePartyElo &&
         averageElo !== null &&
@@ -309,7 +324,6 @@ async function updatePartyDisplay(settings: UserSettings): Promise<void> {
         }
       }
     } else {
-      // Remove Faceit badges if disabled
       removeAllFaceitBadges();
     }
   } catch (error) {
@@ -330,19 +344,32 @@ function removeAveragePartyElo(disconnectObserver = true): void {
 async function initializeAveragePartyElo(
   settings: UserSettings
 ): Promise<void> {
+  console.log("[AveragePartyElo] Initializing with settings:", {
+    showAveragePartyElo: settings.showAveragePartyElo,
+    showFaceitEloOnPartyList: settings.showFaceitEloOnPartyList,
+  });
+
   if (!settings) {
+    console.warn("[AveragePartyElo] No settings provided");
     return;
   }
 
   const currentPage = getCurrentPage();
 
   if (currentPage.type !== "play") {
+    console.warn(
+      "[AveragePartyElo] Not on play page, current page:",
+      currentPage.type
+    );
     return;
   }
 
   try {
+    console.log("[AveragePartyElo] Setting up party observer...");
     await setupPartyObserver(settings);
+    console.log("[AveragePartyElo] Updating party display...");
     await updatePartyDisplay(settings);
+    console.log("[AveragePartyElo] Initialization complete");
   } catch (error) {
     console.error("[AveragePartyElo] Error in initialization:", error);
   }

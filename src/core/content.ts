@@ -194,17 +194,37 @@ async function applyActiveFeatures(settings: UserSettings) {
     activeFeatures.map((f) => f.featureId || f.settingKey)
   );
 
-  // Debug logging for live match features specifically
+  // Debug logging for all features
   const currentPage = getCurrentPage();
-  if (currentPage.type === "playMatch" || currentPage.type === "unknown") {
-    console.log("[Content] 🎯 Page type:", currentPage.type);
-    console.log(
-      "[Content] 🎯 Active features:",
-      activeFeatures.map((f) => f.featureId || f.settingKey)
-    );
+  console.log("[Content] 🎯 Page type:", currentPage.type);
+  console.log("[Content] 🎯 URL:", window.location.href);
+  console.log(
+    "[Content] 🎯 Activating",
+    activeFeatures.length,
+    "features for current page:",
+    activeFeatures.map((f) => f.featureId || f.settingKey)
+  );
 
+  // Check if navbar feature is in the registry and should activate
+  const allFeatures = getAllFeatures();
+  const navbarFeature = allFeatures.find(
+    (f: FeatureConfig) => f.settingKey === "showExtensionNavbarButton"
+  );
+  if (navbarFeature) {
+    const shouldActivate = navbarFeature.shouldActivate
+      ? navbarFeature.shouldActivate(currentPage, settings)
+      : false;
+    console.log(
+      `[Content] 🎯 Navbar feature found in registry - Should activate: ${shouldActivate}`,
+      `Setting value: ${settings.showExtensionNavbarButton}`
+    );
+  } else {
+    console.warn("[Content] ❌ Navbar feature NOT found in registry!");
+  }
+
+  // Additional debug logging for live match features specifically
+  if (currentPage.type === "playMatch" || currentPage.type === "unknown") {
     // Check if live match features are in the registry
-    const allFeatures = getAllFeatures();
     const liveMatchFeatures = allFeatures.filter(
       (f: FeatureConfig) =>
         f.featureId === "liveFaceitRanks" ||
@@ -262,18 +282,35 @@ async function applyActiveFeatures(settings: UserSettings) {
     `[Content] 🎯 Activating ${activeFeatures.length} features for current page`
   );
 
-  for (const feature of activeFeatures) {
+  // Execute all features in parallel to prevent blocking
+  const featurePromises = activeFeatures.map(async (feature) => {
+    const featureId = feature.featureId || feature.settingKey;
+    console.log(`[Content] 🚀 Executing feature: ${featureId}`);
+
     try {
       await feature.handler(settings);
+      console.log(`[Content] ✅ Feature ${featureId} executed successfully`);
+      return { featureId, success: true };
     } catch (error) {
-      console.error(
-        `[Content] ❌ Feature ${
-          feature.featureId || feature.settingKey
-        } failed:`,
-        error
-      );
+      console.error(`[Content] ❌ Feature ${featureId} failed:`, error);
+      return { featureId, success: false, error };
     }
-  }
+  });
+
+  // Wait for all features to complete (or fail)
+  const results = await Promise.allSettled(featurePromises);
+
+  // Log overall completion
+  const successful = results.filter(
+    (r) => r.status === "fulfilled" && r.value.success
+  ).length;
+  const failed = results.filter(
+    (r) =>
+      r.status === "rejected" || (r.status === "fulfilled" && !r.value.success)
+  ).length;
+  console.log(
+    `[Content] 🎯 Feature execution complete: ${successful} successful, ${failed} failed`
+  );
 
   // Step 3: Update our tracking of currently active features
   currentlyActiveFeatures = shouldBeActiveKeys;

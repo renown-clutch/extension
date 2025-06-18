@@ -210,9 +210,6 @@
           bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
           bind:showAveragePartyElo={userSettings.showAveragePartyElo}
           bind:showFaceitEloOnPartyList={userSettings.showFaceitEloOnPartyList}
-          bind:enableClickablePartyUsernames={
-            userSettings.enableClickablePartyUsernames
-          }
         />
       {/if}
     </div>
