@@ -2,7 +2,7 @@ export const config = {
   socketio: {
     stagingUrl: "http://localhost:80",
     productionUrl: "https://apiv2.goclutch.pro",
-    useStaging: true,
+    useStaging: false,
     maxReconnectAttempts: 25,
     reconnectDelay: 3000,
     heartbeatInterval: 30000,

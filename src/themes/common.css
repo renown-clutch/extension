@@ -1,5 +1,192 @@
+.dropped-skin {
+  box-shadow: 0 4px 12px 0 var(--slate-900-80);
+  background: var(--slate-900-80);
+
+  .winner-wrapper {
+    .winner {
+      background: var(--slate-800) !important;
+    }
+  }
+}
+
+.calculation-examples {
+  & .dropdowns {
+    & .dropdown {
+      & .content {
+        & .info-cards {
+          .info-card {
+            background-color: var(--slate-800);
+          }
+        }
+      }
+    }
+  }
+}
+
+.calculation-examples {
+  & .dropdowns {
+    & .dropdown {
+      & .content {
+        & .steps {
+          .step {
+            background-color: var(--slate-800);
+          }
+        }
+      }
+    }
+  }
+}
+
+.page.rank {
+  & .container {
+    & .summary-card {
+      border: 2px solid var(--slate-700);
+
+      .glow {
+        background: var(--slate-900-80);
+      }
+
+      .line {
+        background-color: var(--slate-700);
+      }
+
+      & .next-rank-and-stats {
+        & .stats {
+          .stat {
+            background-color: var(--slate-800);
+          }
+        }
+      }
+
+      & .achievements-wrapper {
+        & .achievements {
+          .achievement {
+            background-color: var(--slate-800);
+          }
+        }
+      }
+    }
+
+    & .the-formula-wrapper {
+      .top-wrapper {
+        background-color: var(--slate-800);
+      }
+
+      & .cards {
+        .card {
+          background-color: var(--slate-800);
+        }
+      }
+    }
+  }
+}
+
 .report-modal .gap-wrapper .reporting-player {
   background-color: var(--slate-800);
+}
+
+.dropping-soon {
+  background-color: var(--slate-900);
+  box-shadow: 0 4px 12px 0 var(--slate-900-80);
+
+  .skin-card {
+    background: var(--slate-900) !important;
+  }
+}
+
+.profile-clips .grid .clip {
+  box-shadow: 0 4px 12px 0 var(--slate-900-80);
+  background: var(--slate-900);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50%;
+  background-size: 100%;
+}
+
+.profile-clips .grid .clip .overlay {
+  background: var(--linear-gradient-180);
+}
+
+.dropped-skin .actions-wrapper .action.accepted {
+  background: var(--slate-800);
+}
+
+input.iti__search-input {
+  background-color: var(--slate-800);
+}
+
+.iti__country.iti__highlight {
+  background-color: var(--slate-700);
+}
+
+.iti--inline-dropdown .iti__dropdown-content {
+  border: 1px solid var(--slate-700);
+  box-shadow: 1px 1px 4px var(--slate-900-80);
+}
+
+input.iti__tel-input {
+  border: 1px solid var(--slate-700);
+  background-color: var(--slate-900);
+}
+
+.iti--allow-dropdown
+  .iti__country-container:not(:has(+ input[disabled])):not(
+    :has(+ input[readonly])
+  )
+  .iti__selected-country-primary:hover,
+.iti--allow-dropdown
+  .iti__country-container:not(:has(+ input[disabled])):not(
+    :has(+ input[readonly])
+  )
+  .iti__selected-country:has(+ .iti__dropdown-content:hover)
+  .iti__selected-country-primary {
+  background-color: var(--slate-700);
+}
+
+.modal-v2 .modal-v2-wrapper .modal-v2-scroll-container .modal-v2-content {
+  background-color: var(--slate-900);
+  border: 1px solid var(--slate-700);
+}
+
+.modal-v2
+  .modal-v2-wrapper
+  .modal-v2-scroll-container
+  .modal-v2-content
+  .modal-v2-close {
+  background-color: var(--slate-900);
+  border: 1px solid var(--slate-700);
+}
+
+.modal-v2
+  .modal-v2-wrapper
+  .modal-v2-scroll-container
+  .modal-v2-content
+  .modal-v2-close:hover {
+  background-color: var(--slate-700);
+}
+
+.profile-clips .grid .clip:hover .overlay {
+  background: var(--linear-gradient-180-light);
+}
+
+.highlights-page .highlights-feed .highlight-card {
+  background: var(--slate-900);
+}
+
+.highlights-page
+  .highlights-feed
+  .highlight-card
+  .highlight-thumbnail
+  .overlay {
+  background: var(--linear-gradient-180);
+}
+
+.highlights-page
+  .highlights-feed
+  .highlight-card:hover
+  .highlight-thumbnail
+  .overlay {
+  background: var(--linear-gradient-180-light);
 }
 
 .profile-recent-stats
@@ -446,6 +633,7 @@ input.iti__tel-input {
 
 .party-player-card {
   background: var(--linear-gradient-45);
+  box-shadow: 0 4px 12px 0 var(--slate-900-80);
 }
 
 .live-match-list .match {
@@ -585,10 +773,6 @@ input.iti__tel-input {
 :root {
   --scrollbar-track-color: var(--scrollbar-bg);
   --scrollbar-thumb-color: var(--scrollbar-color);
-}
-
-.report-modal .gap-wrapper .reporting-player {
-  background-color: var(--slate-800);
 }
 
 .report-modal .gap-wrapper .ban-options .option {

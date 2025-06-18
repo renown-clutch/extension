@@ -8,6 +8,16 @@
   --slate-700: #3b241f;
   --slate-700-80: #314158db;
   --slate-600: #45556c;
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(15, 23, 43, 0.7),
+    rgba(59, 36, 31, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(15, 23, 43, 0.4),
+    rgba(59, 36, 31, 0.4)
+  );
 }
 
 /* Dark theme */
@@ -39,6 +49,16 @@
     var(--slate-900),
     var(--slate-800)
   );
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(15, 22, 41, 0.7),
+    rgba(30, 41, 59, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(15, 22, 41, 0.4),
+    rgba(30, 41, 59, 0.4)
+  );
   --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47) 0 0),
     conic-gradient(
       from var(--angle) at 50% 50%,
@@ -48,6 +68,7 @@
   --scrollbar-bg: rgba(15, 22, 41, 0.8);
   --scrollbar-color: #334155;
   --footer: #0f1629;
+  --iti-dropdown-bg: var(--slate-800);
 }
 
 /* Pink theme */
@@ -78,6 +99,16 @@
     90deg,
     var(--slate-900),
     var(--slate-800)
+  );
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(136, 19, 55, 0.7),
+    rgba(157, 23, 77, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(136, 19, 55, 0.4),
+    rgba(157, 23, 77, 0.4)
   );
   --confirm-match-modal-bg-image: linear-gradient(rgba(68, 12, 33) 0 0),
     conic-gradient(
@@ -119,6 +150,16 @@
     var(--slate-900),
     var(--slate-800)
   );
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(76, 29, 149, 0.7),
+    rgba(91, 33, 182, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(76, 29, 149, 0.4),
+    rgba(91, 33, 182, 0.4)
+  );
   --confirm-match-modal-bg-image: linear-gradient(rgba(26, 0, 51) 0 0),
     conic-gradient(
       from var(--angle) at 50% 50%,
@@ -158,6 +199,16 @@
     90deg,
     var(--slate-900),
     var(--slate-800)
+  );
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(26, 61, 38, 0.7),
+    rgba(45, 83, 57, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(26, 61, 38, 0.4),
+    rgba(45, 83, 57, 0.4)
   );
   --confirm-match-modal-bg-image: linear-gradient(rgba(10, 38, 19) 0 0),
     conic-gradient(
@@ -199,6 +250,16 @@
     var(--slate-900),
     var(--slate-800)
   );
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(42, 42, 42, 0.7),
+    rgba(58, 58, 58, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(42, 42, 42, 0.4),
+    rgba(58, 58, 58, 0.4)
+  );
   --confirm-match-modal-bg-image: linear-gradient(rgba(26, 26, 26) 0 0),
     conic-gradient(
       from var(--angle) at 50% 50%,
@@ -239,6 +300,16 @@
     var(--slate-900),
     var(--slate-800)
   );
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(23, 23, 23, 0.7),
+    rgba(38, 38, 38, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(23, 23, 23, 0.4),
+    rgba(38, 38, 38, 0.4)
+  );
   --confirm-match-modal-bg-image: linear-gradient(rgba(20, 29, 47) 0 0),
     conic-gradient(
       from var(--angle) at 50% 50%,
@@ -278,6 +349,16 @@
     90deg,
     var(--slate-900),
     var(--slate-800)
+  );
+  --linear-gradient-180: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.7),
+    rgba(0, 0, 0, 0.7)
+  );
+  --linear-gradient-180-light: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.4)
   );
   --confirm-match-modal-bg-image: linear-gradient(rgba(0, 0, 0) 0 0),
     conic-gradient(

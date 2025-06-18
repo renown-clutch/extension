@@ -12,10 +12,10 @@ export function getRankTier(elo: number | null): string {
   if (elo >= 25000) return "renowned";
   if (elo >= 22000) return "master";
   if (elo >= 19000) return "diamond";
-  if (elo >= 16000) return "platinum";
-  if (elo >= 13000) return "gold";
-  if (elo >= 10000) return "silver";
-  if (elo >= 100) return "bronze";
+  if (elo >= 15000) return "platinum";
+  if (elo >= 11000) return "gold";
+  if (elo >= 7000) return "silver";
+  if (elo >= 3000) return "bronze";
   return "";
 }
 
