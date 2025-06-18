@@ -23,15 +23,21 @@ interface FaceitInfo {
 
 function cleanupBadges(targetType?: "all" | "faceit" | "renown") {
   if (!targetType || targetType === "all") {
-    // Full cleanup
-    const elements = document.querySelectorAll(
-      '[data-clutch-extension="team-average-elo-element"], .team-avg-elo'
+    // Full cleanup - remove extension elements
+    const extensionElements = document.querySelectorAll(
+      '[data-clutch-extension="team-average-elo-element"]'
     );
-    elements.forEach((element) => {
+    extensionElements.forEach((element) => {
       if (element.parentNode) {
         element.parentNode.removeChild(element);
       }
     });
+
+    // Don't restore native team-avg-elo elements - we always want them hidden
+    // const nativeElements = document.querySelectorAll(".team-avg-elo");
+    // nativeElements.forEach((element) => {
+    //   (element as HTMLElement).style.display = "";
+    // });
 
     // Remove injected CSS when cleaning up
     const styleElement = document.getElementById(
@@ -51,6 +57,74 @@ function cleanupBadges(targetType?: "all" | "faceit" | "renown") {
       }
     });
   }
+}
+
+function hideNativeTeamAverageElo() {
+  console.log(
+    "[TeamAverageElo] Attempting to hide native team-avg-elo elements"
+  );
+  const nativeElements = document.querySelectorAll(".team-avg-elo");
+  console.log(
+    `[TeamAverageElo] Found ${nativeElements.length} native team-avg-elo elements`
+  );
+
+  nativeElements.forEach((element, index) => {
+    console.log(
+      `[TeamAverageElo] Hiding native element ${index + 1}:`,
+      element
+    );
+    console.log(`[TeamAverageElo] Element text content:`, element.textContent);
+    console.log(
+      `[TeamAverageElo] Element current display:`,
+      (element as HTMLElement).style.display
+    );
+    (element as HTMLElement).style.display = "none";
+    console.log(
+      `[TeamAverageElo] Element display after hiding:`,
+      (element as HTMLElement).style.display
+    );
+  });
+
+  // Also try to find elements that might be added later
+  setTimeout(() => {
+    console.log(
+      "[TeamAverageElo] Checking for native elements after 1 second delay..."
+    );
+    const delayedElements = document.querySelectorAll(".team-avg-elo");
+    console.log(
+      `[TeamAverageElo] Found ${delayedElements.length} native elements after delay`
+    );
+    delayedElements.forEach((element, index) => {
+      if ((element as HTMLElement).style.display !== "none") {
+        console.log(
+          `[TeamAverageElo] Found unhidden element after delay ${index + 1}:`,
+          element
+        );
+        (element as HTMLElement).style.display = "none";
+      }
+    });
+  }, 1000);
+
+  setTimeout(() => {
+    console.log(
+      "[TeamAverageElo] Checking for native elements after 3 second delay..."
+    );
+    const delayedElements = document.querySelectorAll(".team-avg-elo");
+    console.log(
+      `[TeamAverageElo] Found ${delayedElements.length} native elements after 3s delay`
+    );
+    delayedElements.forEach((element, index) => {
+      if ((element as HTMLElement).style.display !== "none") {
+        console.log(
+          `[TeamAverageElo] Found unhidden element after 3s delay ${
+            index + 1
+          }:`,
+          element
+        );
+        (element as HTMLElement).style.display = "none";
+      }
+    });
+  }, 3000);
 }
 
 function calculateTeamAverageElo(container: HTMLElement): number | null {
@@ -215,6 +289,12 @@ async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
     currentUrl: window.location.href,
     currentPage: getCurrentPage(),
   });
+
+  // Always hide native team average elo elements regardless of feature state
+  console.log(
+    "[TeamAverageElo] Hiding native elements immediately (unconditional)"
+  );
+  hideNativeTeamAverageElo();
 
   if (!settings.showTeamAverageElo) {
     console.log("[TeamAverageElo] Feature disabled in settings");

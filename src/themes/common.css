@@ -1,3 +1,30 @@
+.page.play .next-rank-progress {
+  box-shadow: 0 4px 12px 0 var(--slate-900-80);
+}
+
+.match-highlights-wrapper .scroll .match-highlights .match-drop,
+.match-highlights-wrapper .scroll .match-highlights .match-mvp,
+.match-highlights-wrapper .scroll .match-highlights .match-potg {
+  box-shadow: 0 4px 12px 0 var(--slate-900);
+  background: var(--slate-900);
+}
+
+.match-highlights-wrapper .scroll .match-highlights .match-drop {
+  background: var(--linear-gradient-90-2);
+}
+
+.match-highlights-wrapper .scroll .match-highlights .match-potg .overlay {
+  background: var(--linear-gradient-180);
+}
+
+.match-highlights-wrapper
+  .scroll
+  .match-highlights
+  .match-potg.processed:hover
+  .overlay {
+  background: var(--linear-gradient-180-light);
+}
+
 .dropped-skin {
   box-shadow: 0 4px 12px 0 var(--slate-900-80);
   background: var(--slate-900-80);

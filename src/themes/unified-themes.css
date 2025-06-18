@@ -325,9 +325,9 @@
 .theme-oled {
   --slate-950: #000000;
   --slate-900: #000000;
-  --slate-900-80: #0d0d0ddb;
-  --slate-800: #1a1a1a;
-  --slate-700: #262626;
+  --slate-900-80: #000000;
+  --slate-800: #000000;
+  --slate-700: #212121;
   --slate-700-80: #262626db;
   --slate-600: #333333;
   --linear-gradient-90: linear-gradient(
