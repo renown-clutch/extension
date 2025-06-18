@@ -53,17 +53,21 @@ export class MessageHandler {
       }
 
       if (message.type === "recent_messages") {
-        // For recent_messages, we only forward to tabs since content script
-        // no longer expects data from the direct response callback
+        // Forward to tabs for UI updates
         this.forwardMessageToTabs(message);
 
-        // Clean up any pending request without resolving the callback
+        // Also resolve any pending background script request
         const matchingRequest = storageService.getResponseHandlerForType(
           message.type
         );
         if (matchingRequest) {
-          const [reqId] = matchingRequest;
+          const [reqId, callback] = matchingRequest;
           storageService.removePendingRequest(reqId);
+          // Call the callback to resolve the background script's promise
+          this.processMessageWithCallback(
+            { type: message.type, data: message.data },
+            callback
+          );
         }
 
         return;

@@ -547,10 +547,8 @@ async function initializeChatWindow(settings: UserSettings): Promise<void> {
     // Load recent messages when chat initializes
     loadRecentMessages();
 
-    // Initialize unread indicator based on current state
-    if (isMinimized) {
-      await updateUnreadIndicator(chatContainer, messagesContainer);
-    }
+    // Note: unread indicator will be initialized after messages are loaded
+    // in the processRecentMessages function
 
     function processRecentMessages(data: any[]): void {
       // Clear messages only when we actually have new messages to show
