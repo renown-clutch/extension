@@ -1015,3 +1015,8 @@ html {
   background-color: var(--slate-950);
   color: #fff;
 }
+
+.custom-tooltip {
+  background-color: var(--slate-800) !important;
+  border: 1px solid var(--slate-700);
+}

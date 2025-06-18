@@ -294,18 +294,6 @@
 
 .message .username[data-clickable-username]:hover {
   filter: brightness(1.2);
-  text-decoration: underline;
-  animation: usernameHover 0.5s ease-in-out infinite;
-}
-
-@keyframes usernameHover {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
 }
 
 .message .username[data-clickable-username][title="Loading profile..."] {
@@ -371,7 +359,7 @@
 
 /* Rainbow glow effect for unread messages */
 .chat-container.minimized.has-unread {
-  animation: rainbow-glow-smooth 3s ease-in-out infinite;
+  animation: rainbow-glow-smooth 6s ease-in-out infinite;
 }
 
 @keyframes rainbow-glow-smooth {
@@ -379,25 +367,49 @@
     box-shadow: 0 0 15px 2px rgba(255, 0, 84, 0.6),
       0 0 30px 4px rgba(255, 0, 84, 0.3);
   }
+  8.33% {
+    box-shadow: 0 0 15px 2px rgba(255, 61, 42, 0.6),
+      0 0 30px 4px rgba(255, 61, 42, 0.3);
+  }
   16.66% {
     box-shadow: 0 0 15px 2px rgba(255, 122, 0, 0.6),
       0 0 30px 4px rgba(255, 122, 0, 0.3);
+  }
+  25% {
+    box-shadow: 0 0 15px 2px rgba(255, 171, 0, 0.6),
+      0 0 30px 4px rgba(255, 171, 0, 0.3);
   }
   33.33% {
     box-shadow: 0 0 15px 2px rgba(255, 221, 0, 0.6),
       0 0 30px 4px rgba(255, 221, 0, 0.3);
   }
+  41.66% {
+    box-shadow: 0 0 15px 2px rgba(128, 238, 68, 0.6),
+      0 0 30px 4px rgba(128, 238, 68, 0.3);
+  }
   50% {
     box-shadow: 0 0 15px 2px rgba(0, 255, 136, 0.6),
       0 0 30px 4px rgba(0, 255, 136, 0.3);
+  }
+  58.33% {
+    box-shadow: 0 0 15px 2px rgba(0, 204, 195, 0.6),
+      0 0 30px 4px rgba(0, 204, 195, 0.3);
   }
   66.66% {
     box-shadow: 0 0 15px 2px rgba(0, 153, 255, 0.6),
       0 0 30px 4px rgba(0, 153, 255, 0.3);
   }
+  75% {
+    box-shadow: 0 0 15px 2px rgba(51, 110, 255, 0.6),
+      0 0 30px 4px rgba(51, 110, 255, 0.3);
+  }
   83.33% {
     box-shadow: 0 0 15px 2px rgba(102, 68, 255, 0.6),
       0 0 30px 4px rgba(102, 68, 255, 0.3);
+  }
+  91.66% {
+    box-shadow: 0 0 15px 2px rgba(178, 34, 255, 0.6),
+      0 0 30px 4px rgba(178, 34, 255, 0.3);
   }
   100% {
     box-shadow: 0 0 15px 2px rgba(255, 0, 84, 0.6),
