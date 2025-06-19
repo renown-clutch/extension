@@ -95,11 +95,11 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
       steamId: steamId,
     });
 
-    if (!response || !response.success || !response.data?.matches) {
+    if (!response || !response.success) {
       return;
     }
 
-    const matches: Match[] = response.data.matches;
+    const matches: Match[] = response.data?.matches || [];
 
     const pastMatchesContainer = document.createElement("div");
     pastMatchesContainer.className =
@@ -166,33 +166,49 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
     titleDiv.appendChild(leftSection);
     titleDiv.appendChild(rightSection);
 
-    // Add header
-    const headerDiv = document.createElement("div");
-    headerDiv.className = "header clutch-last-matches-header";
-    headerDiv.innerHTML = `
-        <div class="map">Map & Time</div>
-        <div class="score">Score</div>
-        <div class="stats">K / A / D</div>
-        <div class="adr">ADR</div>
-        <div class="elo">Elo</div>
-    `;
-    matchesContainer.appendChild(headerDiv);
+    // Check if there are no matches and show a nice message
+    if (matches.length === 0) {
+      const noMatchesDiv = document.createElement("div");
+      noMatchesDiv.className = "clutch-no-matches";
+      noMatchesDiv.innerHTML = `
+        <div class="clutch-no-matches-content">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="clutch-no-matches-icon">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          <h3 class="clutch-no-matches-title">No matches played yet</h3>
+          <p class="clutch-no-matches-description">Your recent matches will appear here once you start playing.</p>
+        </div>
+      `;
+      matchesContainer.appendChild(noMatchesDiv);
+    } else {
+      // Add header
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "header clutch-last-matches-header";
+      headerDiv.innerHTML = `
+          <div class="map">Map & Time</div>
+          <div class="score">Score</div>
+          <div class="stats">K / A / D</div>
+          <div class="adr">ADR</div>
+          <div class="elo">Elo</div>
+      `;
+      matchesContainer.appendChild(headerDiv);
 
-    // Add match entries from the API data
-    matches.forEach((match) => {
-      let mapName = `de_${match.map.toLowerCase().replace(" ", "_")}`;
-      if (mapName === "de_dust_ii") {
-        mapName = "de_dust2";
-      }
-      const matchLink = document.createElement("a");
-      matchLink.className = `match ${match.won ? "won" : "lost"}`;
-      matchLink.href = `/match/${match.match_id}`;
-      matchLink.style.setProperty(
-        "--match-bg",
-        `url(https://cdn.renown.gg/images/maps/backgrounds/${mapName}.png)`
-      );
+      // Add match entries from the API data
+      matches.forEach((match) => {
+        let mapName = `de_${match.map.toLowerCase().replace(" ", "_")}`;
+        if (mapName === "de_dust_ii") {
+          mapName = "de_dust2";
+        }
+        const matchLink = document.createElement("a");
+        matchLink.className = `match ${match.won ? "won" : "lost"}`;
+        matchLink.href = `/match/${match.match_id}`;
+        matchLink.style.setProperty(
+          "--match-bg",
+          `url(https://cdn.renown.gg/images/maps/backgrounds/${mapName}.png)`
+        );
 
-      matchLink.innerHTML = `
+        matchLink.innerHTML = `
                 <div class="map">
                     <img alt="${
                       match.map
@@ -201,8 +217,8 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
                     <div class="map-name">${
                       match.map
                     }<span class="match-start"> ${formatDate(
-        match.played_at
-      )}</span></div>
+          match.played_at
+        )}</span></div>
                 </div>
                 <div class="score">
                     <div class="badge"><div class="match-result-card ${
@@ -211,12 +227,12 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
                     <div class="numbers"><span>${
                       match.team_score
                     }</span><span>:</span><span>${
-        match.opponent_score
-      }</span></div>
+          match.opponent_score
+        }</span></div>
                 </div>
                 <div class="stats">${match.kills} / ${match.assists} / ${
-        match.deaths
-      }</div>
+          match.deaths
+        }</div>
                 <div class="adr">${match.adr}</div>
                 <div class="elo">
                     ${
@@ -231,8 +247,9 @@ async function injectLastMatches(settings: UserSettings): Promise<void> {
                 </div>
             `;
 
-      matchesContainer.appendChild(matchLink);
-    });
+        matchesContainer.appendChild(matchLink);
+      });
+    }
 
     pastMatchesContainer.appendChild(titleDiv);
     pastMatchesContainer.appendChild(matchesContainer);

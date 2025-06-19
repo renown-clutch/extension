@@ -265,7 +265,7 @@ export const SETTING_DEFINITIONS: Record<
   showFaceitEloOnPartyList: {
     key: "showFaceitEloOnPartyList",
     category: "mainPage",
-    defaultValue: false,
+    defaultValue: true,
     description: "Show Faceit ELO on party list",
   },
   showChatWindow: {
