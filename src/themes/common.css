@@ -1,3 +1,11 @@
+.dropping-soon .wrapper .skin-card .price {
+  border-radius: 6px;
+}
+
+.dropping-soon .wrapper .title {
+  text-align: center;
+}
+
 .page.play .next-rank-progress {
   box-shadow: 0 4px 12px 0 var(--slate-900-80);
 }
