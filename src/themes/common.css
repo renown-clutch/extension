@@ -1,3 +1,60 @@
+.navbar .container .content .actions .profile-search .toggle {
+  background-color: var(--slate-900);
+}
+
+.navbar
+  .container
+  .content
+  .actions
+  .profile-search
+  .search-container
+  .search-content {
+  background-color: var(--slate-900);
+  box-shadow: 0 4px 12px 0 var(--slate-900-80);
+}
+
+.navbar
+  .container
+  .content
+  .actions
+  .profile-search
+  .search-container
+  .search-content
+  .profile-search-component
+  .search-results
+  .search-result:focus,
+.navbar
+  .container
+  .content
+  .actions
+  .profile-search
+  .search-container
+  .search-content
+  .profile-search-component
+  .search-results
+  .search-result:hover {
+  background-color: var(--slate-700);
+  outline: none;
+}
+
+.navbar .container .content .actions .profile-search.open .toggle,
+.navbar .container .content .actions .profile-search:hover .toggle {
+  background-color: var(--slate-700);
+}
+
+.rate-teammates .feedback-wrapper .row:not(:last-child) {
+  border-bottom: 1px solid var(--slate-800);
+}
+
+.rate-teammates
+  .teammate-rating-wrapper
+  .player-list-wrapper
+  .player-list
+  .player {
+  background: var(--slate-900);
+  border: 1px solid var(--slate-800);
+}
+
 .dropping-soon .wrapper .skin-card .price {
   border-radius: 6px;
 }

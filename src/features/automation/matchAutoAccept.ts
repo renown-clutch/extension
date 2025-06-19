@@ -197,11 +197,10 @@ registerFeature({
   category: "autoAccept",
   defaultValue: { match: false, party: false },
   description: "Auto-accept match invites",
+  featureId: "matchAutoAccept", // Unique identifier to avoid conflicts
 
-  shouldActivate: ActivationHelpers.and(
-    ActivationHelpers.whenEnabled("autoAccept"),
-    (currentPage, settings) => settings.autoAccept?.match === true
-  ),
+  shouldActivate: (currentPage, settings) =>
+    settings.autoAccept?.match === true,
 
   dependsOn: ["matchAutoAcceptDelay", "matchFoundSound", "matchFoundVolume"],
 

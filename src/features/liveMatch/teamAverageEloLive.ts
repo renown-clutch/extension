@@ -147,6 +147,33 @@ async function cleanupBadges(targetType?: "all" | "faceit") {
   }
 }
 
+function hideNativeTeamAverageElo() {
+  const nativeElements = document.querySelectorAll(".team-avg-elo");
+
+  nativeElements.forEach((element, index) => {
+    (element as HTMLElement).style.display = "none";
+  });
+
+  // Also try to find elements that might be added later
+  setTimeout(() => {
+    const delayedElements = document.querySelectorAll(".team-avg-elo");
+    delayedElements.forEach((element, index) => {
+      if ((element as HTMLElement).style.display !== "none") {
+        (element as HTMLElement).style.display = "none";
+      }
+    });
+  }, 1000);
+
+  setTimeout(() => {
+    const delayedElements = document.querySelectorAll(".team-avg-elo");
+    delayedElements.forEach((element, index) => {
+      if ((element as HTMLElement).style.display !== "none") {
+        (element as HTMLElement).style.display = "none";
+      }
+    });
+  }, 3000);
+}
+
 async function processTeamContainers(
   userSettings: UserSettings,
   faceitData: FaceitData
@@ -371,6 +398,9 @@ async function updateFaceitBadgesOnlyLive(
 async function initializeTeamAverageEloLive(
   settings: UserSettings
 ): Promise<void> {
+  // Always hide native team average elo elements regardless of feature state
+  hideNativeTeamAverageElo();
+
   if (!settings.showTeamAverageElo) {
     await cleanupBadges("all");
     if (teamScoreObserver) {

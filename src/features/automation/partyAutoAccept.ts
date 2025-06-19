@@ -166,11 +166,10 @@ registerFeature({
   category: "autoAccept",
   defaultValue: { match: false, party: false },
   description: "Auto-accept party invites",
+  featureId: "partyAutoAccept", // Unique identifier to avoid conflicts
 
-  shouldActivate: ActivationHelpers.and(
-    ActivationHelpers.whenEnabled("autoAccept"),
-    (currentPage, settings) => settings.autoAccept?.party === true
-  ),
+  shouldActivate: (currentPage, settings) =>
+    settings.autoAccept?.party === true,
 
   dependsOn: ["partyAutoAcceptDelay"],
 

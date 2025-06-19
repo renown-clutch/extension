@@ -215,12 +215,15 @@ function setupPlayerStatsObserver(userSettings: UserSettings) {
     if (isUpdating) return;
 
     const relevantMutation = mutations.some((mutation) => {
-      // Ignore our own changes
+      // Ignore our own changes and renown tooltips
       if (
         mutation.target instanceof Element &&
         (mutation.target.hasAttribute("data-clutch-extension") ||
           mutation.target.classList.contains("clutch-tooltip") ||
-          mutation.target.classList.contains("player-stats-clutch-wrapper"))
+          mutation.target.classList.contains("player-stats-clutch-wrapper") ||
+          mutation.target.classList.contains("tooltip-wrapper") ||
+          mutation.target.classList.contains("tooltip") ||
+          mutation.target.classList.contains("tooltip-arrow"))
       ) {
         return false;
       }
@@ -232,14 +235,20 @@ function setupPlayerStatsObserver(userSettings: UserSettings) {
             node instanceof Element &&
             !node.hasAttribute("data-clutch-extension") &&
             !node.classList.contains("clutch-tooltip") &&
-            !node.classList.contains("player-stats-clutch-wrapper")
+            !node.classList.contains("player-stats-clutch-wrapper") &&
+            !node.classList.contains("tooltip-wrapper") &&
+            !node.classList.contains("tooltip") &&
+            !node.classList.contains("tooltip-arrow")
         );
         const removedNodesRelevant = Array.from(mutation.removedNodes).some(
           (node) =>
             node instanceof Element &&
             !node.hasAttribute("data-clutch-extension") &&
             !node.classList.contains("clutch-tooltip") &&
-            !node.classList.contains("player-stats-clutch-wrapper")
+            !node.classList.contains("player-stats-clutch-wrapper") &&
+            !node.classList.contains("tooltip-wrapper") &&
+            !node.classList.contains("tooltip") &&
+            !node.classList.contains("tooltip-arrow")
         );
         return addedNodesRelevant || removedNodesRelevant;
       }
