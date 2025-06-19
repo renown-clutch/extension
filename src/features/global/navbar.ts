@@ -75,6 +75,9 @@ function initializeNavbar(settings: UserSettings): void {
   }
 }
 
+// Browser detection - navbar button only works in Chrome due to popup API limitations
+const isFirefox = typeof browser !== "undefined";
+
 // Register this feature with the new unified system
 registerFeature({
   settingKey: "showExtensionNavbarButton",
@@ -82,7 +85,10 @@ registerFeature({
   defaultValue: true,
   description: "Extension navbar button",
 
-  shouldActivate: ActivationHelpers.whenEnabled("showExtensionNavbarButton"),
+  shouldActivate: ActivationHelpers.and(
+    () => !isFirefox, // Only activate in Chrome
+    ActivationHelpers.whenEnabled("showExtensionNavbarButton")
+  ),
 
   handler: initializeNavbar,
   cleanupHandler: removeLinkFromNavbar,
