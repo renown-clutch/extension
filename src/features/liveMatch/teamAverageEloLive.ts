@@ -322,13 +322,10 @@ async function updateFaceitBadgesOnlyLive(
   faceitData: FaceitData,
   settings: UserSettings
 ) {
-  console.log("[TeamAverageEloLive] Updating only Faceit badges");
-
   // First, remove existing faceit badges
   await cleanupBadges("faceit");
 
   if (!settings.showFaceitRanksOnMatchPage) {
-    console.log("[TeamAverageEloLive] Faceit ranks disabled, badges removed");
     return;
   }
 
@@ -374,16 +371,7 @@ async function updateFaceitBadgesOnlyLive(
 async function initializeTeamAverageEloLive(
   settings: UserSettings
 ): Promise<void> {
-  console.log("[TeamAverageEloLive] Initializing with settings:", settings);
-  console.log(
-    "[TeamAverageEloLive] showTeamAverageElo:",
-    settings.showTeamAverageElo
-  );
-  console.log("[TeamAverageEloLive] Current URL:", window.location.href);
-  console.log("[TeamAverageEloLive] Current page type:", getCurrentPage());
-
   if (!settings.showTeamAverageElo) {
-    console.log("[TeamAverageEloLive] Feature disabled, cleaning up");
     await cleanupBadges("all");
     if (teamScoreObserver) {
       teamScoreObserver.disconnect();
@@ -399,19 +387,12 @@ async function initializeTeamAverageEloLive(
   const hasExistingDisplays = existingDisplays.length > 0;
 
   if (hasExistingDisplays) {
-    console.log(
-      "[TeamAverageEloLive] Existing displays found, checking for Faceit-only update"
-    );
-
     try {
       const players = await getLiveMatchPagePlayers();
       if (players.length > 0) {
         // Get faceit data if faceit ranks are enabled
         let faceitData: FaceitData = {};
         if (settings.showFaceitRanksOnMatchPage) {
-          console.log(
-            "[TeamAverageEloLive] Fetching Faceit data for partial update..."
-          );
           const steamIds = players.map((p) => p.steamId);
           faceitData = await getFaceitData(steamIds);
         }
@@ -429,62 +410,41 @@ async function initializeTeamAverageEloLive(
   }
 
   // Full initialization (first time or fallback)
-  console.log("[TeamAverageEloLive] Performing full initialization");
+
   await cleanupBadges("all");
 
   try {
-    console.log("[TeamAverageEloLive] Starting initialization...");
-
     // Wait for page elements
-    console.log("[TeamAverageEloLive] Waiting for .page element...");
     const pageContainer = await waitForElement(".page");
-    console.log("[TeamAverageEloLive] Page container found:", !!pageContainer);
 
     // Check for team containers
     const team1Container = pageContainer.querySelector(".team1-players");
     const team2Container = pageContainer.querySelector(".team2-players");
-    console.log("[TeamAverageEloLive] Team containers found:", {
-      team1: !!team1Container,
-      team2: !!team2Container,
-    });
 
     if (!team1Container || !team2Container) {
-      console.log(
-        "[TeamAverageEloLive] Team containers not found, retrying in 2s..."
-      );
       setTimeout(() => initializeTeamAverageEloLive(settings), 2000);
       return;
     }
 
     // Get players
-    console.log("[TeamAverageEloLive] Getting players...");
     const players = await getLiveMatchPagePlayers();
-    console.log("[TeamAverageEloLive] Found players:", players.length, players);
 
     if (players.length === 0) {
-      console.log("[TeamAverageEloLive] No players found, retrying in 2s...");
       setTimeout(() => initializeTeamAverageEloLive(settings), 2000);
       return;
     }
 
     // Get Faceit data
     const steamIds = players.map((p) => p.steamId);
-    console.log(
-      "[TeamAverageEloLive] Fetching Faceit data for steam IDs:",
-      steamIds
-    );
     const faceitData = await getFaceitData(steamIds);
-    console.log("[TeamAverageEloLive] Faceit data received:", faceitData);
 
     // Process teams
-    console.log("[TeamAverageEloLive] Processing team containers...");
+
     await processTeamContainers(settings, faceitData);
 
     // Setup observer
-    console.log("[TeamAverageEloLive] Setting up team score observer...");
-    setupTeamScoreObserver(faceitData, settings);
 
-    console.log("[TeamAverageEloLive] Initialization complete!");
+    setupTeamScoreObserver(faceitData, settings);
   } catch (error) {
     console.error("[TeamAverageEloLive] Error during initialization:", error);
   }
@@ -507,7 +467,6 @@ registerFeature({
 
   handler: initializeTeamAverageEloLive,
   cleanupHandler: async (settings: UserSettings) => {
-    console.log("[TeamAverageEloLive] Cleaning up team average elo live");
     await cleanupBadges();
     if (teamScoreObserver) {
       teamScoreObserver.disconnect();

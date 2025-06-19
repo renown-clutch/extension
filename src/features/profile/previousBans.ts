@@ -321,7 +321,6 @@ async function initializeProfileBans(
 
   const playerId = getPlayerIdFromUrl();
   if (!playerId) {
-    console.log(`[Clutch] Could not get player ID from URL`);
     return;
   }
   const bans = await fetchUserBans(playerId);

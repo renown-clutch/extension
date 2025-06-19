@@ -117,13 +117,6 @@ async function applyChangedFeatures(
     allActiveFeatures.map((f) => f.featureId || f.settingKey)
   );
 
-  console.log(
-    `[Content] 🎯 Settings changed:`,
-    Object.keys(changedParts),
-    `- Affected features:`,
-    Array.from(affectedFeatureKeys)
-  );
-
   // Step 1: Handle features that need cleanup (were active, now inactive)
   const featuresNeedingCleanup = affectedFeatures.filter(
     (feature) =>
@@ -133,11 +126,6 @@ async function applyChangedFeatures(
   );
 
   if (featuresNeedingCleanup.length > 0) {
-    console.log(
-      `[Content] 🧹 Cleaning up ${featuresNeedingCleanup.length} deactivated features:`,
-      featuresNeedingCleanup.map((f) => f.featureId || f.settingKey)
-    );
-
     for (const feature of featuresNeedingCleanup) {
       try {
         await feature.cleanupHandler!(settings);
@@ -159,11 +147,6 @@ async function applyChangedFeatures(
   );
 
   if (featuresNeedingActivation.length > 0) {
-    console.log(
-      `[Content] ⚡ Updating ${featuresNeedingActivation.length} affected features:`,
-      featuresNeedingActivation.map((f) => f.featureId || f.settingKey)
-    );
-
     for (const feature of featuresNeedingActivation) {
       try {
         await feature.handler(settings);
@@ -194,61 +177,7 @@ async function applyActiveFeatures(settings: UserSettings) {
     activeFeatures.map((f) => f.featureId || f.settingKey)
   );
 
-  // Debug logging for all features
   const currentPage = getCurrentPage();
-  console.log("[Content] 🎯 Page type:", currentPage.type);
-  console.log("[Content] 🎯 URL:", window.location.href);
-  console.log(
-    "[Content] 🎯 Activating",
-    activeFeatures.length,
-    "features for current page:",
-    activeFeatures.map((f) => f.featureId || f.settingKey)
-  );
-
-  // Check if navbar feature is in the registry and should activate
-  const allFeatures = getAllFeatures();
-  const navbarFeature = allFeatures.find(
-    (f: FeatureConfig) => f.settingKey === "showExtensionNavbarButton"
-  );
-  if (navbarFeature) {
-    const shouldActivate = navbarFeature.shouldActivate
-      ? navbarFeature.shouldActivate(currentPage, settings)
-      : false;
-    console.log(
-      `[Content] 🎯 Navbar feature found in registry - Should activate: ${shouldActivate}`,
-      `Setting value: ${settings.showExtensionNavbarButton}`
-    );
-  } else {
-    console.warn("[Content] ❌ Navbar feature NOT found in registry!");
-  }
-
-  // Additional debug logging for live match features specifically
-  if (currentPage.type === "playMatch" || currentPage.type === "unknown") {
-    // Check if live match features are in the registry
-    const liveMatchFeatures = allFeatures.filter(
-      (f: FeatureConfig) =>
-        f.featureId === "liveFaceitRanks" ||
-        f.featureId === "teamAverageEloLive" ||
-        f.settingKey === "showMapStats" ||
-        f.settingKey === "liveMatchPlayerStats"
-    );
-    console.log(
-      "[Content] 🎯 Live match features in registry:",
-      liveMatchFeatures.map((f: FeatureConfig) => f.featureId || f.settingKey)
-    );
-
-    // Check their activation status
-    liveMatchFeatures.forEach((feature: FeatureConfig) => {
-      const shouldActivate = feature.shouldActivate
-        ? feature.shouldActivate(currentPage, settings)
-        : false;
-      console.log(
-        `[Content] 🎯 ${
-          feature.featureId || feature.settingKey
-        } should activate: ${shouldActivate}`
-      );
-    });
-  }
 
   // Step 1: Clean up features that were active but should no longer be active
   const featuresNeedingCleanup = getFeaturesNeedingCleanup(
@@ -257,11 +186,6 @@ async function applyActiveFeatures(settings: UserSettings) {
   );
 
   if (featuresNeedingCleanup.length > 0) {
-    console.log(
-      `[Content] 🧹 Cleaning up ${featuresNeedingCleanup.length} deactivated features:`,
-      featuresNeedingCleanup.map((f) => f.featureId || f.settingKey)
-    );
-
     // Call cleanup handlers for deactivated features
     for (const feature of featuresNeedingCleanup) {
       try {
@@ -278,18 +202,12 @@ async function applyActiveFeatures(settings: UserSettings) {
   }
 
   // Step 2: Activate features that should be active
-  console.log(
-    `[Content] 🎯 Activating ${activeFeatures.length} features for current page`
-  );
-
   // Execute all features in parallel to prevent blocking
   const featurePromises = activeFeatures.map(async (feature) => {
     const featureId = feature.featureId || feature.settingKey;
-    console.log(`[Content] 🚀 Executing feature: ${featureId}`);
 
     try {
       await feature.handler(settings);
-      console.log(`[Content] ✅ Feature ${featureId} executed successfully`);
       return { featureId, success: true };
     } catch (error) {
       console.error(`[Content] ❌ Feature ${featureId} failed:`, error);
@@ -299,18 +217,6 @@ async function applyActiveFeatures(settings: UserSettings) {
 
   // Wait for all features to complete (or fail)
   const results = await Promise.allSettled(featurePromises);
-
-  // Log overall completion
-  const successful = results.filter(
-    (r) => r.status === "fulfilled" && r.value.success
-  ).length;
-  const failed = results.filter(
-    (r) =>
-      r.status === "rejected" || (r.status === "fulfilled" && !r.value.success)
-  ).length;
-  console.log(
-    `[Content] 🎯 Feature execution complete: ${successful} successful, ${failed} failed`
-  );
 
   // Step 3: Update our tracking of currently active features
   currentlyActiveFeatures = shouldBeActiveKeys;

@@ -167,31 +167,20 @@ async function getFaceitData(
 }
 
 async function initializeFaceitRanks(settings: UserSettings): Promise<void> {
-  console.log("[FaceitRanks] Initializing with settings:", {
-    showFaceitRanksOnMatchPage: settings.showFaceitRanksOnMatchPage,
-    currentUrl: window.location.href,
-    currentPage: getCurrentPage(),
-  });
-
   if (!settings.showFaceitRanksOnMatchPage) {
-    console.log("[FaceitRanks] Feature disabled in settings");
     cleanupFaceitIcons();
     return;
   }
 
   try {
-    console.log("[FaceitRanks] Waiting for hydration...");
     // Wait for hydration to complete before proceeding
     await waitForHydrationComplete();
 
-    console.log("[FaceitRanks] Getting players...");
     const players = await getMatchPagePlayers();
     if (!players.length) {
-      console.log("[FaceitRanks] No players found on page");
       return;
     }
 
-    console.log(`[FaceitRanks] Found ${players.length} players`);
     const faceitData = await getFaceitData(players.map((p) => p.steamId));
 
     processPlayers(players, faceitData);
@@ -215,7 +204,6 @@ registerFeature({
 
   handler: initializeFaceitRanks,
   cleanupHandler: async (settings: UserSettings) => {
-    console.log("[FaceitRanks] Cleaning up faceit ranks");
     cleanupFaceitIcons();
   },
 

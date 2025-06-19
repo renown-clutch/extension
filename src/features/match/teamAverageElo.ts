@@ -60,67 +60,26 @@ function cleanupBadges(targetType?: "all" | "faceit" | "renown") {
 }
 
 function hideNativeTeamAverageElo() {
-  console.log(
-    "[TeamAverageElo] Attempting to hide native team-avg-elo elements"
-  );
   const nativeElements = document.querySelectorAll(".team-avg-elo");
-  console.log(
-    `[TeamAverageElo] Found ${nativeElements.length} native team-avg-elo elements`
-  );
 
   nativeElements.forEach((element, index) => {
-    console.log(
-      `[TeamAverageElo] Hiding native element ${index + 1}:`,
-      element
-    );
-    console.log(`[TeamAverageElo] Element text content:`, element.textContent);
-    console.log(
-      `[TeamAverageElo] Element current display:`,
-      (element as HTMLElement).style.display
-    );
     (element as HTMLElement).style.display = "none";
-    console.log(
-      `[TeamAverageElo] Element display after hiding:`,
-      (element as HTMLElement).style.display
-    );
   });
 
   // Also try to find elements that might be added later
   setTimeout(() => {
-    console.log(
-      "[TeamAverageElo] Checking for native elements after 1 second delay..."
-    );
     const delayedElements = document.querySelectorAll(".team-avg-elo");
-    console.log(
-      `[TeamAverageElo] Found ${delayedElements.length} native elements after delay`
-    );
     delayedElements.forEach((element, index) => {
       if ((element as HTMLElement).style.display !== "none") {
-        console.log(
-          `[TeamAverageElo] Found unhidden element after delay ${index + 1}:`,
-          element
-        );
         (element as HTMLElement).style.display = "none";
       }
     });
   }, 1000);
 
   setTimeout(() => {
-    console.log(
-      "[TeamAverageElo] Checking for native elements after 3 second delay..."
-    );
     const delayedElements = document.querySelectorAll(".team-avg-elo");
-    console.log(
-      `[TeamAverageElo] Found ${delayedElements.length} native elements after 3s delay`
-    );
     delayedElements.forEach((element, index) => {
       if ((element as HTMLElement).style.display !== "none") {
-        console.log(
-          `[TeamAverageElo] Found unhidden element after 3s delay ${
-            index + 1
-          }:`,
-          element
-        );
         (element as HTMLElement).style.display = "none";
       }
     });
@@ -283,21 +242,10 @@ async function getFaceitData(
 }
 
 async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
-  console.log("[TeamAverageElo] Initializing with settings:", {
-    showTeamAverageElo: settings.showTeamAverageElo,
-    showFaceitRanksOnMatchPage: settings.showFaceitRanksOnMatchPage,
-    currentUrl: window.location.href,
-    currentPage: getCurrentPage(),
-  });
-
   // Always hide native team average elo elements regardless of feature state
-  console.log(
-    "[TeamAverageElo] Hiding native elements immediately (unconditional)"
-  );
   hideNativeTeamAverageElo();
 
   if (!settings.showTeamAverageElo) {
-    console.log("[TeamAverageElo] Feature disabled in settings");
     cleanupBadges("all");
     return;
   }
@@ -309,19 +257,12 @@ async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
   const hasExistingDisplays = existingDisplays.length > 0;
 
   if (hasExistingDisplays) {
-    console.log(
-      "[TeamAverageElo] Existing displays found, checking for Faceit-only update"
-    );
-
     try {
       const players = await getMatchPagePlayers();
       if (players.length > 0) {
         // Get faceit data if faceit ranks are enabled
         let faceitData: Record<string, FaceitInfo> = {};
         if (settings.showFaceitRanksOnMatchPage) {
-          console.log(
-            "[TeamAverageElo] Fetching Faceit data for partial update..."
-          );
           faceitData = await getFaceitData(players.map((p) => p.steamId));
         }
 
@@ -338,39 +279,28 @@ async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
   }
 
   // Full initialization (first time or fallback)
-  console.log("[TeamAverageElo] Performing full initialization");
+
   cleanupBadges("all");
 
   try {
-    console.log("[TeamAverageElo] Waiting for hydration...");
     // Wait for hydration to complete before proceeding
     await waitForHydrationComplete();
 
-    console.log("[TeamAverageElo] Getting container and players...");
     const container = await waitForElement(".page");
     const players = await getMatchPagePlayers();
 
     if (!players.length) {
-      console.log("[TeamAverageElo] No players found on page");
       return;
     }
-
-    console.log(`[TeamAverageElo] Found ${players.length} players`);
 
     // Get faceit data if faceit ranks are enabled
     let faceitData: Record<string, FaceitInfo> = {};
     if (settings.showFaceitRanksOnMatchPage) {
-      console.log("[TeamAverageElo] Fetching Faceit data...");
       faceitData = await getFaceitData(players.map((p) => p.steamId));
     }
 
     const teamTables = container.querySelectorAll(".team-stats-table");
-    console.log(`[TeamAverageElo] Found ${teamTables.length} team tables`);
     if (teamTables.length !== 2) {
-      console.log(
-        "[TeamAverageElo] Expected 2 team tables, found",
-        teamTables.length
-      );
       return;
     }
 
@@ -379,9 +309,7 @@ async function initializeTeamAverageElo(settings: UserSettings): Promise<void> {
         const playerElement = player.element;
         return table.contains(playerElement);
       });
-      console.log(
-        `[TeamAverageElo] Processing team table with ${teamPlayers.length} players`
-      );
+
       await processTeamTable(
         table as HTMLElement,
         teamPlayers,
@@ -400,8 +328,6 @@ async function updateFaceitBadgesOnly(
   faceitData: Record<string, FaceitInfo>,
   settings: UserSettings
 ) {
-  console.log("[TeamAverageElo] Updating only Faceit badges");
-
   const teamTables = document.querySelectorAll(".team-stats-table");
   if (teamTables.length !== 2) {
     return;
@@ -411,7 +337,6 @@ async function updateFaceitBadgesOnly(
   cleanupBadges("faceit");
 
   if (!settings.showFaceitRanksOnMatchPage) {
-    console.log("[TeamAverageElo] Faceit ranks disabled, badges removed");
     return;
   }
 
@@ -471,7 +396,6 @@ registerFeature({
 
   handler: initializeTeamAverageElo,
   cleanupHandler: async (settings: UserSettings) => {
-    console.log("[TeamAverageElo] Cleaning up team average ELO");
     cleanupBadges();
   },
 

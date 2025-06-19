@@ -344,11 +344,6 @@ function removeAveragePartyElo(disconnectObserver = true): void {
 async function initializeAveragePartyElo(
   settings: UserSettings
 ): Promise<void> {
-  console.log("[AveragePartyElo] Initializing with settings:", {
-    showAveragePartyElo: settings.showAveragePartyElo,
-    showFaceitEloOnPartyList: settings.showFaceitEloOnPartyList,
-  });
-
   if (!settings) {
     console.warn("[AveragePartyElo] No settings provided");
     return;
@@ -365,11 +360,9 @@ async function initializeAveragePartyElo(
   }
 
   try {
-    console.log("[AveragePartyElo] Setting up party observer...");
     await setupPartyObserver(settings);
-    console.log("[AveragePartyElo] Updating party display...");
+
     await updatePartyDisplay(settings);
-    console.log("[AveragePartyElo] Initialization complete");
   } catch (error) {
     console.error("[AveragePartyElo] Error in initialization:", error);
   }

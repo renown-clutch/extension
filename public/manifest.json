@@ -32,7 +32,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.renown.gg/*", "*://renown.gg/*", "file:///*"],
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"],
       "js": ["content.js"],
       "type": "module",
       "run_at": "document_start"
@@ -48,7 +48,7 @@
         "assets/sounds/*.wav",
         "styles/*.css"
       ],
-      "matches": ["*://*.renown.gg/*", "*://renown.gg/*", "file:///*"]
+      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"]
     }
   ]
 }

@@ -257,7 +257,6 @@ function setupPlayerStatsObserver(userSettings: UserSettings) {
     });
 
     if (relevantMutation) {
-      console.log("[LivePlayerStats] Player list changed, re-initializing...");
       isUpdating = true;
 
       try {
@@ -469,7 +468,6 @@ registerFeature({
 
   handler: initializeLivePlayerStats,
   cleanupHandler: async (settings: UserSettings) => {
-    console.log("[LivePlayerStats] Cleaning up live player stats");
     removeExistingPlayerStats();
     // Disconnect observers
     observers.forEach((observer) => observer.disconnect());

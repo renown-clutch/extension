@@ -132,14 +132,7 @@ const processPlayers = (
 
     // Debug: Log if URL is being passed
     if (faceitInfo?.url) {
-      console.log(
-        `[LiveFaceitRanks] Created clickable badge for ${steamId} with URL:`,
-        faceitInfo.url
-      );
     } else {
-      console.log(
-        `[LiveFaceitRanks] No URL for ${steamId}, badge won't be clickable`
-      );
     }
 
     // Apply entrance animation
@@ -442,16 +435,7 @@ function injectLiveFaceitStyles(): void {
 async function initializeLiveFaceitRanks(
   settings: UserSettings
 ): Promise<void> {
-  console.log("[LiveFaceitRanks] Initializing with settings:", settings);
-  console.log(
-    "[LiveFaceitRanks] showFaceitRanksOnMatchPage:",
-    settings.showFaceitRanksOnMatchPage
-  );
-  console.log("[LiveFaceitRanks] Current URL:", window.location.href);
-  console.log("[LiveFaceitRanks] Current page type:", getCurrentPage());
-
   if (!settings.showFaceitRanksOnMatchPage) {
-    console.log("[LiveFaceitRanks] Feature disabled, cleaning up");
     cleanupFaceitIcons();
     observers.forEach((observer) => observer.disconnect());
     observers = [];
@@ -459,62 +443,41 @@ async function initializeLiveFaceitRanks(
   }
 
   try {
-    console.log("[LiveFaceitRanks] Starting initialization...");
-
     // Inject styles
-    console.log("[LiveFaceitRanks] Injecting styles...");
+
     injectLiveFaceitStyles();
 
     // Wait for page elements
-    console.log("[LiveFaceitRanks] Waiting for .page element...");
     const pageContainer = await waitForElement(".page");
-    console.log("[LiveFaceitRanks] Page container found:", !!pageContainer);
 
     // Check for team containers
     const team1Container = pageContainer.querySelector(".team1-players");
     const team2Container = pageContainer.querySelector(".team2-players");
-    console.log("[LiveFaceitRanks] Team containers found:", {
-      team1: !!team1Container,
-      team2: !!team2Container,
-    });
 
     if (!team1Container || !team2Container) {
-      console.log(
-        "[LiveFaceitRanks] Team containers not found, retrying in 2s..."
-      );
       setTimeout(() => initializeLiveFaceitRanks(settings), 2000);
       return;
     }
 
     // Get players
-    console.log("[LiveFaceitRanks] Getting players...");
     const players = await getLiveMatchPagePlayers();
-    console.log("[LiveFaceitRanks] Found players:", players.length, players);
 
     if (players.length === 0) {
-      console.log("[LiveFaceitRanks] No players found, retrying in 2s...");
       setTimeout(() => initializeLiveFaceitRanks(settings), 2000);
       return;
     }
 
     // Get Faceit data
     const steamIds = players.map((p) => p.steamId);
-    console.log(
-      "[LiveFaceitRanks] Fetching Faceit data for steam IDs:",
-      steamIds
-    );
     const faceitData = await getFaceitData(steamIds);
-    console.log("[LiveFaceitRanks] Faceit data received:", faceitData);
 
     // Process players
-    console.log("[LiveFaceitRanks] Processing players...");
+
     processPlayers(players, faceitData);
 
     // Setup observers
-    console.log("[LiveFaceitRanks] Setting up observers...");
-    setupPlayerListObservers(settings, faceitData);
 
-    console.log("[LiveFaceitRanks] Initialization complete!");
+    setupPlayerListObservers(settings, faceitData);
   } catch (error) {
     console.error("[LiveFaceitRanks] Error during initialization:", error);
   }
@@ -535,7 +498,6 @@ registerFeature({
 
   handler: initializeLiveFaceitRanks,
   cleanupHandler: async (settings: UserSettings) => {
-    console.log("[LiveFaceitRanks] Cleaning up live faceit ranks");
     cleanupFaceitIcons();
     observers.forEach((observer) => observer.disconnect());
     observers = [];
