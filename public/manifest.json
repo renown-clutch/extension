@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Clutch | Renown.gg extension",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Enhance your Renown.gg experience with player stats, lobby insights, and UI improvements.",
   "icons": {
     "16": "assets/icons/icon16.png",
@@ -24,16 +24,26 @@
       "strict_min_version": "109.0"
     }
   },
-  "permissions": ["storage", "activeTab"],
-  "host_permissions": ["https://apiv2.goclutch.pro/*"],
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://apiv2.goclutch.pro/*"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "content_scripts": [
     {
-      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"],
-      "js": ["content.js"],
+      "matches": [
+        "*://*.renown.gg/*",
+        "*://renown.gg/*"
+      ],
+      "js": [
+        "content.js"
+      ],
       "type": "module",
       "run_at": "document_start"
     }
@@ -48,7 +58,10 @@
         "assets/sounds/*.wav",
         "styles/*.css"
       ],
-      "matches": ["*://*.renown.gg/*", "*://renown.gg/*"]
+      "matches": [
+        "*://*.renown.gg/*",
+        "*://renown.gg/*"
+      ]
     }
   ]
 }
