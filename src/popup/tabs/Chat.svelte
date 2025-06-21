@@ -11,7 +11,6 @@
 </script>
 
 <main class="flex flex-col gap-4">
-  <h2 class="text-lg">Chat</h2>
   <SwitchComponent
     labelText="Chat Window"
     descriptionText={SETTING_DEFINITIONS.showChatWindow.description}

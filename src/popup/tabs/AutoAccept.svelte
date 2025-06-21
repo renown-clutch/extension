@@ -17,7 +17,6 @@
 </script>
 
 <main class=" flex flex-col gap-4">
-  <h2 class="text-lg">Match found</h2>
   <SwitchSlider
     labelText="Match found"
     descriptionText="Auto-accept new matches"
@@ -26,7 +25,6 @@
     bind:checked={autoAccept.match}
     bind:sliderValue={matchAutoAcceptDelay}
   />
-  <h2 class="text-lg">Lobby invite</h2>
   <SwitchSlider
     labelText="Lobby invite"
     descriptionText="Auto-accept new lobby invitations"

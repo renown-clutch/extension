@@ -52,7 +52,6 @@
 </script>
 
 <main class="flex flex-col gap-4">
-  <h2 class="text-lg">Friend List</h2>
   <SwitchComponent
     labelText="Ranks in Friends List "
     descriptionText="Show Friend's Renown Ranks in Friend List"
@@ -67,7 +66,6 @@
     disabled={!showFriendListRanks}
     warn={!showFriendListRanks}
   />
-  <h2 class="text-lg">Sidebar</h2>
   <SwitchComponent
     labelText="Ranks in Sidebar"
     descriptionText="Show Friend's Renown Ranks in Sidebar"

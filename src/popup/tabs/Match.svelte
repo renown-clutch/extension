@@ -12,7 +12,6 @@
 </script>
 
 <main class="flex flex-col gap-4">
-  <h2 class="text-lg">Ranks & Elo</h2>
   <SwitchComponent
     labelText="Faceit Ranks"
     descriptionText="Show Faceit ranks on match page"
@@ -25,14 +24,12 @@
     bind:checked={showTeamAverageElo}
   />
 
-  <h2 class="text-lg">Map Stats</h2>
   <SwitchComponent
     labelText="Map Stats"
     descriptionText="Show map pick rates for each team"
     bind:checked={showMapStats}
   />
 
-  <h2 class="text-lg">Live Match</h2>
   <SwitchComponent
     labelText="Player Stats"
     descriptionText="Show player stats on live match pages"

@@ -21,11 +21,6 @@
 </script>
 
 <main class=" ">
-  <h2 class="text-xl font-medium mb-4">Custom Theme</h2>
-  <p class="leading-none mb-4">
-    Enable the clutch custom theme for a fresh renown.gg experience.
-  </p>
-
   <div class="flex items-center gap-8">
     <Label for="theme-select">Theme</Label>
     <div id="theme-select">

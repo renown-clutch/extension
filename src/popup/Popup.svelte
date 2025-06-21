@@ -1,7 +1,7 @@
 <script lang="ts">
   import "./Popup.css";
   import Sidebar from "$system/components/layout/Sidebar.svelte";
-  import SoundTab from "./tabs/Sound.svelte";
+  // import SoundTab from "./tabs/Sound.svelte";
   import ThemeTab from "./tabs/Theme.svelte";
   import ProfilesTab from "./tabs/Profiles.svelte";
   import FriendsTab from "./tabs/Friends.svelte";
@@ -20,6 +20,7 @@
     ...defaultUserSettings,
   });
   let previousSettings: UserSettings = { ...defaultUserSettings };
+  let activeSection = $state("theme-section");
 
   function stripProxies(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
@@ -153,65 +154,118 @@
 
 <main class="w-[620px] popup-root">
   <div class="flex h-[480px]">
-    <Sidebar bind:activeTab={userSettings.activeTab} />
+    <Sidebar bind:activeSection />
 
-    <div class="flex-1 p-8 overflow-y-auto">
-      {#if userSettings.activeTab === "Theme"}
-        <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
-      {:else if userSettings.activeTab === "Auto-accept"}
-        <AutoAcceptTab
-          bind:autoAccept={userSettings.autoAccept}
-          bind:matchAutoAcceptDelay={userSettings.matchAutoAcceptDelay}
-          bind:partyAutoAcceptDelay={userSettings.partyAutoAcceptDelay}
-        />
-      {:else if userSettings.activeTab === "Chat"}
-        <ChatTab bind:showChatWindow={userSettings.showChatWindow} />
-      {:else if userSettings.activeTab === "Match"}
-        <MatchTab
-          bind:showFaceitRanksOnMatchPage={
-            userSettings.showFaceitRanksOnMatchPage
-          }
-          bind:showTeamAverageElo={userSettings.showTeamAverageElo}
-          bind:showMapStats={userSettings.showMapStats}
-          bind:liveMatchPlayerStats={userSettings.liveMatchPlayerStats}
-          bind:showLiveMatchPlayerStreak={
-            userSettings.showLiveMatchPlayerStreak
-          }
-        />
-      {:else if userSettings.activeTab === "Sounds"}
-        <SoundTab
-          bind:matchFoundSound={userSettings.matchFoundSound}
-          bind:matchFoundVolume={userSettings.matchFoundVolume}
-        />
-      {:else if userSettings.activeTab === "Profiles"}
-        <ProfilesTab
-          bind:csstatsProfileButton={userSettings.csstatsProfileButton}
-          bind:faceitProfileButton={userSettings.faceitProfileButton}
-          bind:showBans={userSettings.showBans}
-          bind:showHighestElo={userSettings.showHighestElo}
-          bind:showLinkToCurrentMatch={userSettings.showLinkToCurrentMatch}
-          bind:playerMatchupStats={userSettings.playerMatchupStats}
-        />
-      {:else if userSettings.activeTab === "Settings"}
-        <SettingsTab
-          bind:keepAlive={userSettings.keepAlive}
-          bind:showExtensionNavbarButton={
-            userSettings.showExtensionNavbarButton
-          }
-        />
-      {:else if userSettings.activeTab === "Friends"}
-        <FriendsTab
-          bind:showFriendListRanks={userSettings.showFriendListRanks}
-          bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
-          bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
-        />
-      {:else if userSettings.activeTab === "MainPage"}
-        <MainPageTab
-          bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
-          bind:showAveragePartyElo={userSettings.showAveragePartyElo}
-          bind:showFaceitEloOnPartyList={userSettings.showFaceitEloOnPartyList}
-        />
-      {/if}
+    <div class="flex-1 overflow-y-auto">
+      <div class="p-8 pb-32 space-y-8">
+        <!-- Theme Section -->
+        <section id="theme-section" class="scroll-mt-4">
+          <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />
+        </section>
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- Auto-accept Section -->
+        <section id="auto-accept-section" class="scroll-mt-4">
+          <AutoAcceptTab
+            bind:autoAccept={userSettings.autoAccept}
+            bind:matchAutoAcceptDelay={userSettings.matchAutoAcceptDelay}
+            bind:partyAutoAcceptDelay={userSettings.partyAutoAcceptDelay}
+          />
+        </section>
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- Chat Section -->
+        <section id="chat-section" class="scroll-mt-4">
+          <ChatTab bind:showChatWindow={userSettings.showChatWindow} />
+        </section>
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- MainPage Section -->
+        <section id="mainpage-section" class="scroll-mt-4">
+          <MainPageTab
+            bind:showLastPlayedMatches={userSettings.showLastPlayedMatches}
+            bind:showAveragePartyElo={userSettings.showAveragePartyElo}
+            bind:showFaceitEloOnPartyList={
+              userSettings.showFaceitEloOnPartyList
+            }
+          />
+        </section>
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- Match Section -->
+        <section id="match-section" class="scroll-mt-4">
+          <MatchTab
+            bind:showFaceitRanksOnMatchPage={
+              userSettings.showFaceitRanksOnMatchPage
+            }
+            bind:showTeamAverageElo={userSettings.showTeamAverageElo}
+            bind:showMapStats={userSettings.showMapStats}
+            bind:liveMatchPlayerStats={userSettings.liveMatchPlayerStats}
+            bind:showLiveMatchPlayerStreak={
+              userSettings.showLiveMatchPlayerStreak
+            }
+          />
+        </section>
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- Sounds Section -->
+        <!-- <section id="sounds-section" class="scroll-mt-4">
+          <SoundTab
+            bind:matchFoundSound={userSettings.matchFoundSound}
+            bind:matchFoundVolume={userSettings.matchFoundVolume}
+          />
+        </section> -->
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- Profiles Section -->
+        <section id="profiles-section" class="scroll-mt-4">
+          <ProfilesTab
+            bind:csstatsProfileButton={userSettings.csstatsProfileButton}
+            bind:faceitProfileButton={userSettings.faceitProfileButton}
+            bind:showBans={userSettings.showBans}
+            bind:showHighestElo={userSettings.showHighestElo}
+            bind:showLinkToCurrentMatch={userSettings.showLinkToCurrentMatch}
+            bind:playerMatchupStats={userSettings.playerMatchupStats}
+          />
+        </section>
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- Friends Section -->
+        <section id="friends-section" class="scroll-mt-4">
+          <FriendsTab
+            bind:showFriendListRanks={userSettings.showFriendListRanks}
+            bind:sortFriendsByRenownElo={userSettings.sortFriendsByRenownElo}
+            bind:showSidebarFriendRanks={userSettings.showSidebarFriendRanks}
+          />
+        </section>
+
+        <!-- Separator -->
+        <div class="border-t border-[var(--slate-800)]"></div>
+
+        <!-- Settings Section -->
+        <section id="settings-section" class="scroll-mt-4">
+          <SettingsTab
+            bind:keepAlive={userSettings.keepAlive}
+            bind:showExtensionNavbarButton={
+              userSettings.showExtensionNavbarButton
+            }
+          />
+        </section>
+      </div>
     </div>
   </div>
 </main>
@@ -219,5 +273,33 @@
 <style>
   .popup-root {
     background-color: var(--slate-950);
+  }
+
+  /* Smooth scrolling for the entire popup */
+  .popup-root {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar styling */
+  .overflow-y-auto {
+    scrollbar-width: thin;
+    scrollbar-color: var(--slate-600) var(--slate-800);
+  }
+
+  .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-track {
+    background: var(--slate-800);
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: var(--slate-600);
+    border-radius: 3px;
+  }
+
+  .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background-color: var(--slate-500);
   }
 </style>

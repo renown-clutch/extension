@@ -9,7 +9,6 @@
 </script>
 
 <main class="flex flex-col gap-4">
-  <h2 class="text-lg">Main page</h2>
   <SwitchComponent
     labelText="Last Played Matches"
     descriptionText="Show your 3 last matches on main page"
