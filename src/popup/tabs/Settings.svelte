@@ -23,7 +23,7 @@
   });
 </script>
 
-<main class="flex flex-col h-full">
+<main class="space-y-6">
   <div class="flex flex-col gap-4">
     <SwitchComponent
       labelText="Keep Alive"
@@ -42,7 +42,9 @@
     />
   </div>
 
-  <footer class="flex justify-between mt-auto">
+  <footer
+    class="flex justify-between mt-8 pt-4 border-t border-[var(--slate-800)]"
+  >
     <div class="">
       <a
         href="https://discord.gg/qqBXYjEfmW"

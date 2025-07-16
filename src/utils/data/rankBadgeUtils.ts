@@ -52,7 +52,8 @@ export function createRankBadgeElement(
   elo: number | null,
   size: number = 20,
   includeEloText: boolean = true,
-  additionalStyles: string = ""
+  additionalStyles: string = "",
+  animate: boolean = true
 ): HTMLElement {
   // Get formatted values
   const formattedElo = formatElo(elo);
@@ -63,8 +64,9 @@ export function createRankBadgeElement(
 
   // Create tooltip wrapper
   const tooltipWrapper = document.createElement("div");
-  tooltipWrapper.className =
-    "tooltip-wrapper clutch-animate-fade-in-scale-delayed";
+  tooltipWrapper.className = animate
+    ? "tooltip-wrapper clutch-animate-fade-in-scale-delayed"
+    : "tooltip-wrapper";
   tooltipWrapper.setAttribute("tabindex", "0");
 
   // Create rank badge div

@@ -21,6 +21,8 @@
   });
   let previousSettings: UserSettings = { ...defaultUserSettings };
   let activeSection = $state("theme-section");
+  let scrollContainer: HTMLElement | null = null;
+  let scrollSaveTimeout: number;
 
   function stripProxies(obj: any): any {
     return JSON.parse(JSON.stringify(obj));
@@ -86,6 +88,50 @@
     return changes;
   }
 
+  // Save scroll position and active section
+  async function saveScrollState() {
+    if (!scrollContainer) return;
+
+    const scrollState = {
+      scrollPosition: scrollContainer.scrollTop,
+      activeSection: activeSection,
+    };
+
+    try {
+      if (typeof browser !== "undefined" && browser.storage) {
+        await browser.storage.local.set({ popupScrollState: scrollState });
+      } else {
+        await browserAPI.storage.local.set({ popupScrollState: scrollState });
+      }
+    } catch (error) {
+      console.error("Error saving scroll state:", error);
+    }
+  }
+
+  // Restore scroll position and active section
+  async function restoreScrollState() {
+    try {
+      let result: any;
+      if (typeof browser !== "undefined" && browser.storage) {
+        result = await browser.storage.local.get("popupScrollState");
+      } else {
+        result = await browserAPI.storage.local.get("popupScrollState");
+      }
+
+      const scrollState = result.popupScrollState;
+      if (scrollState && scrollContainer) {
+        // Restore scroll position
+        scrollContainer.scrollTop = scrollState.scrollPosition || 0;
+        // Restore active section
+        if (scrollState.activeSection) {
+          activeSection = scrollState.activeSection;
+        }
+      }
+    } catch (error) {
+      console.error("Error restoring scroll state:", error);
+    }
+  }
+
   onMount(async () => {
     try {
       let settings;
@@ -117,6 +163,24 @@
           initializePopupTheme(userSettings.selectedTheme);
         }
       });
+
+      // Set up scroll container and restore scroll state
+      setTimeout(async () => {
+        scrollContainer = document.querySelector(".overflow-y-auto");
+        if (scrollContainer) {
+          await restoreScrollState();
+
+          // Add scroll event listener to save state periodically
+          scrollContainer.addEventListener("scroll", () => {
+            // Debounce saving to avoid too frequent saves
+            clearTimeout(scrollSaveTimeout);
+            scrollSaveTimeout = setTimeout(saveScrollState, 300);
+          });
+
+          // Signal that scroll restoration is complete
+          document.dispatchEvent(new CustomEvent("scrollRestorationComplete"));
+        }
+      }, 100);
     } catch (error) {
       console.error("Error loading settings:", error);
     }
@@ -150,6 +214,11 @@
       console.error("Error in settings effect:", error);
     }
   });
+
+  // Save scroll state when popup closes or when activeSection changes
+  $effect(() => {
+    saveScrollState();
+  });
 </script>
 
 <main class="w-[620px] popup-root">
@@ -157,7 +226,7 @@
     <Sidebar bind:activeSection />
 
     <div class="flex-1 overflow-y-auto">
-      <div class="p-8 pb-32 space-y-8">
+      <div class="p-8 pb-6 space-y-8">
         <!-- Theme Section -->
         <section id="theme-section" class="scroll-mt-4">
           <ThemeTab bind:selectedTheme={userSettings.selectedTheme} />

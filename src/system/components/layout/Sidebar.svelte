@@ -110,10 +110,35 @@
     };
   }
 
-  // Set up observer after component mounts
+  // Set up observer after scroll restoration is complete
   $effect(() => {
-    const cleanup = setupIntersectionObserver();
-    return cleanup;
+    let cleanup: (() => void) | undefined;
+
+    const handleScrollRestorationComplete = () => {
+      cleanup = setupIntersectionObserver();
+    };
+
+    // Listen for scroll restoration completion
+    document.addEventListener(
+      "scrollRestorationComplete",
+      handleScrollRestorationComplete
+    );
+
+    // Fallback: if no scroll restoration event after 200ms, set up observer anyway
+    const fallbackTimeout = setTimeout(() => {
+      if (!cleanup) {
+        cleanup = setupIntersectionObserver();
+      }
+    }, 200);
+
+    return () => {
+      document.removeEventListener(
+        "scrollRestorationComplete",
+        handleScrollRestorationComplete
+      );
+      clearTimeout(fallbackTimeout);
+      if (cleanup) cleanup();
+    };
   });
 </script>
 

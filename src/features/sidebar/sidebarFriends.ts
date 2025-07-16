@@ -11,6 +11,7 @@ import {
 import browserAPI from "$system/lib/browserAPI";
 
 let friendsObserver: MutationObserver | null = null;
+let isInitialLoad: boolean = true;
 
 function removeRankBadges(): void {
   const tooltipWrappers = document.querySelectorAll(
@@ -27,7 +28,10 @@ function removeRankBadges(): void {
   }
 }
 
-function renderFriendRanks(ranks: Record<string, number | null>): void {
+function renderFriendRanks(
+  ranks: Record<string, number | null>,
+  animate: boolean = false
+): void {
   const playFriendList = document.querySelector(
     ".play-friend-list"
   ) as HTMLElement;
@@ -57,7 +61,7 @@ function renderFriendRanks(ranks: Record<string, number | null>): void {
     const rankTier = getRankTier(elo);
     if (!rankTier) return;
 
-    const badgeElement = createRankBadgeElement(elo, 20, true);
+    const badgeElement = createRankBadgeElement(elo, 20, true, "", animate);
     profileLink.appendChild(badgeElement);
   });
 }
@@ -112,7 +116,12 @@ async function processSidebarFriends(showRanks: boolean): Promise<void> {
 
   if (friendIds.length > 0) {
     const ranks = await fetchFriendsRanks(friendIds);
-    renderFriendRanks(ranks);
+    // Animate only on initial load
+    renderFriendRanks(ranks, isInitialLoad);
+    // Set to false after initial load
+    if (isInitialLoad) {
+      isInitialLoad = false;
+    }
   }
 }
 
@@ -151,6 +160,8 @@ function cleanupSidebarFriends(): void {
     friendsObserver = null;
   }
   removeRankBadges();
+  // Reset initial load flag for next activation
+  isInitialLoad = true;
 }
 
 // Register this feature with the new unified system
