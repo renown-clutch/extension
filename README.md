@@ -1,5 +1,9 @@
 # Clutch | Renown.gg Extension
 
+> **Archived.** [Renown.gg shut down on 30 January 2026](https://renown.gg/blog/renown-is-shutting-down), so Clutch no longer works and its backend ([crawler](https://github.com/renown-clutch/crawler)) is offline. Clutch moved on to [setpos.gg](https://setpos.gg), a CS2 utility site. Playing FACEIT now? Try [FACEIT Vision](https://faceitvision.net), by our friends.
+>
+> The checklist below is the feature status from the last release (1.1.6, July 2025). Website: [clutch.lorem.sh](https://clutch.lorem.sh).
+
 **Version:** 1.1.6
 **Platform:** Chrome & Firefox Browser Extension  
 **Target Site:** Renown.gg
